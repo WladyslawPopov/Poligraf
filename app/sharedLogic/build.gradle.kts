@@ -18,7 +18,7 @@ kotlin {
     
     jvm()
     
-    androidLibrary {
+    android {
        namespace = "application.liedetector.sharedLogic"
        compileSdk = libs.versions.android.compileSdk.get().toInt()
        minSdk = libs.versions.android.minSdk.get().toInt()

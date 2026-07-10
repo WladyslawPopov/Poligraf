@@ -6,14 +6,33 @@ plugins {
 
 group = "application.liedetector"
 version = "1.0.0"
+
 application {
-    mainClass = "application.liedetector.ApplicationKt"
+    mainClass.set("application.liedetector.ApplicationKt")
 }
 
 dependencies {
     api(projects.core)
     implementation(libs.logback)
-    implementation(libs.ktor.serverNetty)
+    
+    // Ktor Server
     implementation(libs.ktor.serverCore)
-    // Add ktor-serialization-kotlinx-json if needed for server
+    implementation(libs.ktor.serverNetty)
+    implementation(libs.ktor.serialization.kotlinx.json)
+    implementation(libs.kotlinx.serialization.json)
+    
+    // Database (Exposed + Postgres)
+    implementation(libs.exposed.core)
+    implementation(libs.exposed.dao)
+    implementation(libs.exposed.jdbc)
+    implementation(libs.exposed.json)
+    implementation(libs.exposed.kotlin.datetime)
+    implementation(libs.postgresql)
+    implementation(libs.hikaricp)
+
+    // AI (Google Vertex AI)
+    implementation(libs.google.vertexai)
+
+    testImplementation(libs.ktor.serverTestHost)
+    testImplementation(libs.kotlin.testJunit)
 }

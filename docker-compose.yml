@@ -1,0 +1,19 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: lie_detector_db
+    restart: always
+    environment:
+      POSTGRES_USER: krampus
+      POSTGRES_PASSWORD: password123
+      POSTGRES_DB: liedetector
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./db-data:/var/lib/postgresql/data
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - "8081:8080"

@@ -1,5 +1,5 @@
 [versions]
-agp = "9.0.1"
+agp = "9.2.1"
 android-compileSdk = "37"
 android-minSdk = "24"
 android-targetSdk = "37"
@@ -7,24 +7,28 @@ androidx-activity = "1.13.0"
 androidx-appcompat = "1.7.1"
 androidx-core = "1.19.0"
 androidx-espresso = "3.7.0"
-androidx-lifecycle = "2.11.0-beta01"
+androidx-lifecycle = "2.11.0-rc01"
 androidx-testExt = "1.3.0"
 composeMultiplatform = "1.11.1"
 junit = "4.13.2"
 kotlin = "2.4.0"
 kotlinx-coroutines = "1.11.0"
-ktor = "3.5.0"
-logback = "1.5.34"
+ktor = "3.5.1"
+logback = "1.5.38"
 material3 = "1.9.0"
 kotlinx-datetime = "0.8.0"
-kotlinx-serialization = "1.8.0"
-koin = "4.2.1"
-buildKonfig = "0.21.2"
-googleServices = "4.4.4"
+kotlinx-serialization = "1.11.0"
+koin = "4.2.2"
+buildKonfig = "0.22.0"
+googleServices = "4.5.0"
 sqliteDriver = "2.3.2"
 coilCompose = "3.5.0"
-filekitCore = "0.14.1"
+filekitCore = "0.14.2"
 multiplatformSettings = "1.3.0"
+exposed = "1.3.1"
+postgresql = "42.7.13"
+hikaricp = "7.1.0"
+vertexai = "1.52.0"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -78,6 +82,18 @@ coil-network-ktor3 = { module = "io.coil-kt.coil3:coil-network-ktor3", version.r
 # Third-Party
 filekit-core = { module = "io.github.vinceglb:filekit-core", version.ref = "filekitCore" }
 multiplatform-settings = { module = "com.russhwolf:multiplatform-settings", version.ref = "multiplatformSettings" }
+
+# Database (Server)
+exposed-core = { module = "org.jetbrains.exposed:exposed-core", version.ref = "exposed" }
+exposed-dao = { module = "org.jetbrains.exposed:exposed-dao", version.ref = "exposed" }
+exposed-jdbc = { module = "org.jetbrains.exposed:exposed-jdbc", version.ref = "exposed" }
+exposed-json = { module = "org.jetbrains.exposed:exposed-json", version.ref = "exposed" }
+exposed-kotlin-datetime = { module = "org.jetbrains.exposed:exposed-kotlin-datetime", version.ref = "exposed" }
+postgresql = { module = "org.postgresql:postgresql", version.ref = "postgresql" }
+hikaricp = { module = "com.zaxxer:HikariCP", version.ref = "hikaricp" }
+
+# AI (Server)
+google-vertexai = { module = "com.google.cloud:google-cloud-vertexai", version.ref = "vertexai" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

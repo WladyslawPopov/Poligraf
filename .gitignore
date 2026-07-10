@@ -7,6 +7,14 @@ xcuserdata
 local.properties
 .idea
 .DS_Store
+
+# Local Database data
+db-data/
+
+# Local properties & secrets
+*.json
+!app/androidApp/google-services.json
+!app/iosApp/GoogleService-Info.plist
 captures
 .externalNativeBuild
 .cxx
