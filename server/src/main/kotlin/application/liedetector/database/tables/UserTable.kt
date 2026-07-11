@@ -1,4 +1,4 @@
-package application.liedetector.database
+package application.liedetector.database.tables
 
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
@@ -24,10 +24,10 @@ object UserTable : UUIDTable("users") {
     // Economic Engine
     val subscriptionTier = varchar("subscription_tier", 32).default("free")
     val subscriptionExpiresAt = datetime("subscription_expires_at").nullable()
-    val balanceCredits = decimal("balance_credits", 10, 2).default(0.0.toBigDecimal())
+    val balanceTokens = long("balance_tokens").default(0L)
     val isTester = bool("is_tester").default(false)
 
-    // Extensibility (The Secret Sauce)
+    // Extensibility
     val preferences = jsonb<JsonObject>("preferences", { it.toString() }, { Json.decodeFromString(it) })
     val additionalData = jsonb<JsonObject>("additional_data", { it.toString() }, { Json.decodeFromString(it) })
 

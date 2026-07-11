@@ -18,6 +18,7 @@ dependencies {
     // Ktor Server
     implementation(libs.ktor.serverCore)
     implementation(libs.ktor.serverNetty)
+    implementation(libs.ktor.serverContentNegotiation)
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.kotlinx.serialization.json)
     
@@ -31,7 +32,7 @@ dependencies {
     implementation(libs.hikaricp)
 
     // AI (Google Vertex AI)
-    implementation(libs.google.vertexai)
+    implementation(libs.google.aiplatform)
 
     testImplementation(libs.ktor.serverTestHost)
     testImplementation(libs.kotlin.testJunit)
