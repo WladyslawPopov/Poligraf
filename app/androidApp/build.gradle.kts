@@ -39,7 +39,7 @@ android {
 }
 
 dependencies {
-    implementation(projects.app.sharedUI)
+    implementation(projects.app.sharedLogic)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.core.ktx)

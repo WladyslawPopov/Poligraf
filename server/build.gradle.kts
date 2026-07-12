@@ -19,6 +19,7 @@ dependencies {
     implementation(libs.ktor.serverCore)
     implementation(libs.ktor.serverNetty)
     implementation(libs.ktor.serverContentNegotiation)
+    implementation(libs.ktor.serverAuth)
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.kotlinx.serialization.json)
     
@@ -32,7 +33,10 @@ dependencies {
     implementation(libs.hikaricp)
 
     // AI (Google Vertex AI)
-    implementation(libs.google.aiplatform)
+    implementation(libs.google.vertexai)
+    
+    // Firebase Admin
+    implementation(libs.firebase.admin)
 
     testImplementation(libs.ktor.serverTestHost)
     testImplementation(libs.kotlin.testJunit)
