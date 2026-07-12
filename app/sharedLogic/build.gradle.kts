@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidMultiplatformLibrary)
+    alias(libs.plugins.sqlDelight)
 }
 
 kotlin {
@@ -15,8 +16,6 @@ kotlin {
             isStatic = true
         }
     }
-    
-    jvm()
     
     android {
        namespace = "application.liedetector.sharedLogic"
@@ -38,10 +37,45 @@ kotlin {
         commonMain.dependencies {
             api(projects.core)
             api(projects.navigation)
-            // put your Multiplatform dependencies here
+            
+            // Network: Ktor
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.logging)
+            implementation(libs.ktor.client.content.negotiation)
+            implementation(libs.ktor.serialization.kotlinx.json)
+            implementation(libs.ktor.client.auth)
+            
+            // Settings
+            api(libs.multiplatform.settings)
+
+            // DateTime
+            implementation(libs.kotlinx.datetime)
+            
+            // SQLDelight
+            implementation(libs.sqldelight.coroutines)
+            
+            // DI: Koin
+            api(libs.koin.core)
         }
+
+        androidMain.dependencies {
+            implementation(libs.sqldelight.android.driver)
+        }
+
+        nativeMain.dependencies {
+            implementation(libs.sqldelight.native.driver)
+        }
+
         commonTest.dependencies {
             implementation(libs.kotlin.test)
+        }
+    }
+
+    sqldelight {
+        databases {
+            create("LieDetectorDatabase") {
+                packageName.set("application.liedetector.database")
+            }
         }
     }
 }

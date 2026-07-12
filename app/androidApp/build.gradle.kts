@@ -40,6 +40,7 @@ android {
 
 dependencies {
     implementation(projects.app.sharedLogic)
+    implementation(libs.koin.android)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.core.ktx)

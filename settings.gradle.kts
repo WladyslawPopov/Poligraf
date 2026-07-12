@@ -33,7 +33,6 @@ plugins {
 }
 
 include(":app:androidApp")
-include(":app:desktopApp")
 include(":app:sharedLogic")
 include(":core")
 include(":server")

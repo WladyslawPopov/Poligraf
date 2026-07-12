@@ -26,13 +26,13 @@ fun Route.configureAnalysisRouting(
                 
                 val request = call.receive<AnalysisRequest>()
 
-                // 1. Синхронизируем пользователя
+                // 1. Synchronize the user
                 val internalUserId = userRepository.getOrCreateUser(
                     principal.uid,
                     principal.email
                 )
 
-                // 2. Создаем запись о начале анализа
+                // 2. Create an initial analysis entry
                 val analysisId = analysisRepository.createInitialAnalysis(internalUserId, request)
 
                 call.respond(

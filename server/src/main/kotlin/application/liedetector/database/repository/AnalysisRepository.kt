@@ -16,18 +16,18 @@ interface AnalysisRepository {
 
 class AnalysisRepositoryImpl : AnalysisRepository {
     override suspend fun createInitialAnalysis(userId: UUID, request: AnalysisRequest): UUID = dbQuery {
-        // 1. Фиксируем запись (Recording)
+        // 1. Register the recording
         val recordingId = RecordingTable.insertAndGetId {
             it[this.userId] = userId
             it[this.subjectId] = request.subjectId?.let { id -> UUID.fromString(id) }
             it[this.storagePath] = request.storagePath
-            it[this.durationMs] = 0 // Будет обновлено после обработки файла
-            it[this.fileSize] = 0L // Будет обновлено после обработки файла
+            it[this.durationMs] = 0 // Will be updated after file processing
+            it[this.fileSize] = 0L // Will be updated after file processing
             it[this.acousticFingerprint] = buildJsonObject { }
             it[this.aiTranscriptionMetadata] = buildJsonObject { }
         }
 
-        // 2. Создаем пустой анализ (Analysis)
+        // 2. Create an empty analysis entry
         AnalysisTable.insertAndGetId {
             it[this.userId] = userId
             it[this.recordingId] = recordingId
