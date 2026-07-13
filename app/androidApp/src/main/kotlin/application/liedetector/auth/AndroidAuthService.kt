@@ -1,18 +1,19 @@
 package application.liedetector.auth
 
 import application.liedetector.engine.auth.AuthService
+import application.liedetector.models.KmpResult
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.tasks.await
 
 class AndroidAuthService : AuthService {
     private val auth = FirebaseAuth.getInstance()
 
-    override suspend fun signInAnonymously(): Result<Unit> {
+    override suspend fun signInAnonymously(): KmpResult<Unit> {
         return try {
             auth.signInAnonymously().await()
-            Result.success(Unit)
+            KmpResult.Success(Unit)
         } catch (e: Exception) {
-            Result.failure(e)
+            KmpResult.Error(e)
         }
     }
 

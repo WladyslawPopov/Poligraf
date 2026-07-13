@@ -30,6 +30,8 @@ postgresql = "42.7.13"
 hikaricp = "7.1.0"
 vertexai = "1.52.0"
 firebase-admin = "9.5.0"
+firebase-messaging = "24.1.2"
+firebase-config = "22.1.2"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -101,6 +103,8 @@ hikaricp = { module = "com.zaxxer:HikariCP", version.ref = "hikaricp" }
 # AI (Server)
 google-vertexai = { module = "com.google.cloud:google-cloud-vertexai", version.ref = "vertexai" }
 firebase-admin = { module = "com.google.firebase:firebase-admin", version.ref = "firebase-admin" }
+firebase-messaging = { module = "com.google.firebase:firebase-messaging-ktx", version.ref = "firebase-messaging" }
+firebase-config = { module = "com.google.firebase:firebase-config-ktx", version.ref = "firebase-config" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

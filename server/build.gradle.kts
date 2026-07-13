@@ -13,6 +13,7 @@ application {
 
 dependencies {
     api(projects.core)
+    api(projects.uiWidgets)
     implementation(libs.logback)
     
     // Ktor Server

@@ -14,6 +14,15 @@ kotlin {
         iosTarget.binaries.framework {
             baseName = "SharedLogic"
             isStatic = true
+            
+            // Export dependencies to make them visible in iOS
+            export(projects.core)
+            export(projects.navigation)
+            export(projects.uiCore)
+            export(projects.uiWidgets)
+            export(libs.multiplatform.settings)
+            
+            linkerOpts("-lsqlite3")
         }
     }
     
@@ -37,6 +46,8 @@ kotlin {
         commonMain.dependencies {
             api(projects.core)
             api(projects.navigation)
+            api(projects.uiCore)
+            api(projects.uiWidgets)
             
             // Network: Ktor
             implementation(libs.ktor.client.core)
