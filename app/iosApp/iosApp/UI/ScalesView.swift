@@ -10,12 +10,13 @@ struct ScalesView: View {
             let time = timeline.date.timeIntervalSinceReferenceDate.remainder(dividingBy: 6.0) * (Double.pi * 2 / 6.0)
             
             ZStack {
+                // ALWAYS use our design system background (Deep Anthracite)
                 IosTheme.color(.background, from: designSystem)
                     .ignoresSafeArea()
                 
                 Canvas { context, size in
-                    let rows = 36
-                    let cols = 18
+                    let rows = 38
+                    let cols = 19
                     let cellWidth = size.width / CGFloat(cols)
                     let cellHeight = size.height / CGFloat(rows)
                     
@@ -32,26 +33,22 @@ struct ScalesView: View {
                             let distMask = pow(pow(dxNorm, 4) + pow(dyNorm, 4), 0.25)
                             
                             let rotation = Angle(degrees: (tx + ty) * 20.0)
-                            let ox = tx * 5.0
-                            let oy = ty * 5.0
-                            let drawCenterX = basePosX + CGFloat(ox)
-                            let drawCenterY = basePosY + CGFloat(oy)
-                            
-                            let rawWave = sin(distMask * 8.0 - time)
-                            let wave = max(0, min(1.0, rawWave))
-                            let energyIntensity = max(0.25, min(1.0, distMask * 1.1))
+                            let energyIntensity = max(0.15, min(1.0, distMask * 1.2 - 0.1))
                             
                             var subContext = context
-                            subContext.translateBy(x: drawCenterX, y: drawCenterY)
+                            subContext.translateBy(x: basePosX + CGFloat(tx * 4.0), y: basePosY + CGFloat(ty * 4.0))
                             subContext.rotate(by: rotation)
                             
                             let rect = CGRect(x: -cellWidth/3, y: -cellHeight/4, width: cellWidth/1.5, height: cellHeight/2)
-                            let path = RoundedRectangle(cornerRadius: 14).path(in: rect)
+                            let path = RoundedRectangle(cornerRadius: 16).path(in: rect)
                             
-                            subContext.opacity = 0.5
+                            // Concrete Base: Always dark/gray as on Android
+                            subContext.opacity = 0.35
                             subContext.fill(path, with: .color(IosTheme.color(.surfaceVariant, from: designSystem)))
                             
-                            let alpha = energyIntensity * 0.4 * (0.4 + wave * 0.6)
+                            // Energy Glow (Cyan)
+                            let wave = sin(distMask * 10.0 - time)
+                            let alpha = energyIntensity * 0.35 * (0.3 + max(0, wave) * 0.7)
                             subContext.opacity = alpha
                             subContext.fill(path, with: .color(Color(hex: "#00F2FF")))
                         }

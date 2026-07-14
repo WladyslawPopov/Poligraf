@@ -8,13 +8,15 @@ class IosResourceProvider: ResourceProvider {
     
     func getColorHex(token: ColorToken) -> String {
         switch token {
-        case .background: return "#000000"
-        case .surface: return "#1C1C1E" // Standard dark gray
-        case .surfaceVariant: return "#2C2C2E"
-        case .primary: return "#E5E5EA" // Silver
+        case .background: return "#121212" // Same as Android
+        case .surface: return "#1E1E1E"
+        case .surfaceVariant: return "#2C2C2C"
+        case .glassBase: return "#1AFFFFFF"
+        case .glassBorder: return "#33FFFFFF"
+        case .primary: return "#D1D1D1"
         case .onPrimary: return "#000000"
-        case .truth: return "#30D158" // Neon Green
-        case .stress: return "#FF453A" // Neon Red
+        case .truth: return "#00E676"
+        case .stress: return "#FF5252"
         case .textPrimary: return "#FFFFFF"
         case .textSecondary: return "#8E8E93"
         case .textInverted: return "#000000"

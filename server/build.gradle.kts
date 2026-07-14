@@ -11,6 +11,18 @@ application {
     mainClass.set("application.liedetector.ApplicationKt")
 }
 
+tasks.withType<JavaExec> {
+    // Local development environment setup
+    // Using rootProject.file ensures the path is absolute and reachable from anywhere
+    val gcpKeyFile = rootProject.file("gcp-key.json")
+    
+    environment("DB_URL", "jdbc:postgresql://localhost:5432/liedetector")
+    environment("DB_USER", "krampus")
+    environment("DB_PASSWORD", "password123")
+    environment("GOOGLE_APPLICATION_CREDENTIALS", gcpKeyFile.absolutePath)
+    environment("GCP_PROJECT_ID", "lie-detector-72fc9")
+}
+
 dependencies {
     api(projects.core)
     api(projects.uiWidgets)

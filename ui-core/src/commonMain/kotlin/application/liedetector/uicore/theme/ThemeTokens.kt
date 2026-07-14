@@ -5,9 +5,11 @@ import kotlinx.serialization.Serializable
 @Serializable
 enum class ColorToken {
     // Concrete Palette
-    BACKGROUND,      // Deep Anthracite / Pure White
+    BACKGROUND,      // Deep Anthracite
     SURFACE,         // Light Concrete
-    SURFACE_VARIANT, // For subtle borders/dividers
+    SURFACE_VARIANT, // Subtle borders
+    GLASS_BASE,      // Base for glass panels
+    GLASS_BORDER,    // For thin borders on cards
     
     // Interaction
     PRIMARY,         // Steel / Silver

@@ -19,5 +19,6 @@ object FirebaseAdmin {
         if (FirebaseApp.getApps().isEmpty()) {
             FirebaseApp.initializeApp(options)
         }
+        println("FIREBASE: Admin SDK initialized successfully.")
     }
 }

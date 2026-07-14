@@ -27,6 +27,10 @@ class MainComponent(
     fun onAction(action: WidgetAction) {
         viewModel.onWidgetAction(action)
     }
+    
+    fun retry() {
+        viewModel.loadContent()
+    }
 }
 
 @Stable
@@ -49,6 +53,7 @@ class MainViewModel(private val userRepository: UserRepository) : BaseViewModel(
             println("MAIN: Starting Anonymous Auth...")
             val authResult = userRepository.loginAnonymously()
             if (authResult is KmpResult.Success) {
+                println("MAIN: Auth Success! Requesting content...")
                 loadContent()
             } else if (authResult is KmpResult.Error) {
                 _state.value = _state.value.copy(error = "Auth Error: ${authResult.throwable.message}")
@@ -57,13 +62,16 @@ class MainViewModel(private val userRepository: UserRepository) : BaseViewModel(
     }
 
     fun loadContent() {
+        _state.value = _state.value.copy(error = null) // Clear error before retry
         launchSafe(
             block = {
                 val result = userRepository.getMainScreen()
                 if (result is KmpResult.Success) {
+                    println("MAIN: Content loaded successfully from SERVER")
                     _state.value = _state.value.copy(widgets = result.data, error = null)
                 } else if (result is KmpResult.Error) {
-                    _state.value = _state.value.copy(error = "Server Unreachable", widgets = emptyList())
+                    println("MAIN: Server Error: ${result.throwable.message}")
+                    _state.value = _state.value.copy(error = "Server Unreachable (Click to Retry)", widgets = emptyList())
                 }
             }
         )

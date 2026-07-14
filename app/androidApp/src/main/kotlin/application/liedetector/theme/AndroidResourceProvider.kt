@@ -21,10 +21,12 @@ class AndroidResourceProvider(private val context: Context) : ResourceProvider {
             ColorToken.BACKGROUND -> "#121212"
             ColorToken.SURFACE -> "#1E1E1E"
             ColorToken.SURFACE_VARIANT -> "#2C2C2C"
-            ColorToken.PRIMARY -> "#D1D1D1" // Steel
+            ColorToken.GLASS_BASE -> "#1AFFFFFF" // Very transparent white
+            ColorToken.GLASS_BORDER -> "#33FFFFFF" // Subtle border
+            ColorToken.PRIMARY -> "#D1D1D1" 
             ColorToken.ON_PRIMARY -> "#000000"
-            ColorToken.TRUTH -> "#00E676" // Neon Green
-            ColorToken.STRESS -> "#FF5252" // Neon Red
+            ColorToken.TRUTH -> "#00E676" 
+            ColorToken.STRESS -> "#FF5252"
             ColorToken.ERROR -> "#B00020"
             ColorToken.TEXT_PRIMARY -> "#FFFFFF"
             ColorToken.TEXT_SECONDARY -> "#A0A0A0"

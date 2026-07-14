@@ -25,7 +25,7 @@ fun Route.configureAnalysisRouting(
                 val widgets = listOf(
                     WidgetDto.Header(
                         id = "welcome_h",
-                        titleKey = "Digital Investigation (LIVE)", // Plain string for testing
+                        titleKey = "Digital Investigation (LIVE)",
                         subtitleKey = "L_WELCOME_SUBTITLE"
                     ),
                     WidgetDto.StandardButton(

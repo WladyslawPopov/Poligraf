@@ -8,58 +8,70 @@ struct WidgetView: View {
     
     var body: some View {
         Group {
-            // Check types based on KMP naming convention for Swift
             if let header = widget as? WidgetDto.Header {
+                // 1. NATIVE LIQUID GLASS HEADER
                 VStack(alignment: .center, spacing: 8) {
                     Text(designSystem.string(key: header.titleKey))
-                        .font(.title)
-                        .foregroundColor(IosTheme.color(.textPrimary, from: designSystem))
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                        .multilineTextAlignment(.center)
                     
                     if let subtitle = header.subtitleKey {
                         Text(designSystem.string(key: subtitle))
-                            .font(.body)
-                            .foregroundColor(IosTheme.color(.textSecondary, from: designSystem))
+                            .font(.subheadline)
+                            .foregroundColor(.white.opacity(0.7))
+                            .multilineTextAlignment(.center)
                     }
                 }
+                .padding(28)
                 .frame(maxWidth: .infinity)
-                .padding()
+                // Use the built-in system material for real refraction
+                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 30, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 30, style: .continuous)
+                        .stroke(.white.opacity(0.15), lineWidth: 0.5)
+                )
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
                 
             } else if let micBtn = widget as? WidgetDto.MicrophoneButton {
+                // 2. NATIVE GLASS SPHERE
                 Button(action: { onAction(micBtn.action) }) {
                     ZStack {
                         Circle()
-                            .fill(IosTheme.color(.primary, from: designSystem))
-                            .frame(width: 80, height: 80)
+                            .fill(.ultraThinMaterial)
+                            .frame(width: 96, height: 96)
+                            .overlay(Circle().stroke(.white.opacity(0.3), lineWidth: 0.5))
                         
                         Image(systemName: "mic.fill")
-                            .font(.system(size: 32))
-                            .foregroundColor(IosTheme.color(.onPrimary, from: designSystem))
+                            .font(.system(size: 38))
+                            .foregroundColor(.white)
                     }
                 }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 32)
+                .padding(.vertical, 30)
                 
             } else if let stdBtn = widget as? WidgetDto.StandardButton {
+                // 3. NATIVE GLASS BUTTON
                 Button(action: { onAction(stdBtn.action) }) {
                     Text(designSystem.string(key: stdBtn.textKey))
+                        .font(.headline)
                         .fontWeight(.bold)
                         .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(stdBtn.isPrimary ? IosTheme.color(.primary, from: designSystem) : Color.clear)
-                        .foregroundColor(stdBtn.isPrimary ? IosTheme.color(.onPrimary, from: designSystem) : IosTheme.color(.primary, from: designSystem))
-                        .cornerRadius(12)
+                        .padding(.vertical, 18)
+                        .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+                        .foregroundColor(.white)
                         .overlay(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(IosTheme.color(.primary, from: designSystem), lineWidth: stdBtn.isPrimary ? 0 : 2)
+                            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                                .stroke(.white.opacity(0.2), lineWidth: 0.5)
                         )
                 }
-                .padding(.horizontal, 32)
-                .padding(.vertical, 16)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 6)
 
             } else {
-                Text("Unknown widget")
+                Text("Unknown widget").foregroundColor(.white.opacity(0.4))
             }
         }
-        .listRowBackground(Color.clear)
     }
 }

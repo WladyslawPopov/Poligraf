@@ -6,22 +6,20 @@ interface NetworkConfigProvider {
 }
 
 class NetworkConfigProviderImpl : NetworkConfigProvider {
-    // Determine base URL based on common network rules
-    override val apiBaseUrl: String = getDebugUrl()
+    override val apiBaseUrl: String by lazy {
+        val url = getDebugUrl()
+        println("NETWORK: Using API URL -> $url")
+        url
+    }
     
     override val headers: Map<String, String> = mapOf(
         "Content-Type" to "application/json"
     )
 }
 
-/**
- * Simple helper to detect platform and return correct local address
- */
 internal fun getDebugUrl(): String {
-    // On Android (which uses 10.0.2.2 for host) we usually have access to certain system props
-    // On iOS we use localhost. For now we use a reliable check.
+    // 10.0.2.2 for Android emulator, localhost for iOS simulator
     return if (isAndroidPlatform()) "http://10.0.2.2:8080" else "http://localhost:8080"
 }
 
-// Simple internal check
 internal expect fun isAndroidPlatform(): Boolean
