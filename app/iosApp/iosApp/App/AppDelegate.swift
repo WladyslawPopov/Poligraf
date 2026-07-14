@@ -10,8 +10,9 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         // 1. Setup Firebase
         FirebaseApp.configure()
         
-        // 2. Setup Koin (Native implementations for iOS)
+        // 2. Setup Koin using Kotlin Factories
         let settings = IosSettingsFactoryKt.createIosSettings()
+        let backgroundVisualizer = IosSettingsFactoryKt.createIosBackgroundVisualizer()
         
         InitKoinIosKt.doInitKoinIos(
             authService: IosAuthService(),
@@ -19,6 +20,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
             integrity: IosIntegrityImpl(),
             reviewManager: IosReviewManagerImpl(),
             resourceProvider: IosResourceProvider(),
+            backgroundVisualizer: backgroundVisualizer,
             driverFactory: DriverFactory(),
             settings: settings
         )

@@ -41,7 +41,9 @@ android {
 
 dependencies {
     implementation(projects.app.sharedLogic)
+    implementation(libs.androidx.core.splashscreen)
     implementation(libs.koin.android)
+    implementation(libs.koin.compose)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.core.ktx)
@@ -49,6 +51,7 @@ dependencies {
     implementation(libs.compose.runtime)
     implementation(libs.compose.foundation)
     implementation(libs.compose.material3)
+    implementation(libs.compose.material.icons)
     implementation(libs.compose.uiToolingPreview)
     debugImplementation(libs.compose.uiTooling)
     

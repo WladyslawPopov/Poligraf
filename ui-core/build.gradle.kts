@@ -33,6 +33,11 @@ kotlin {
         commonMain.dependencies {
             api(projects.core)
             implementation(libs.kotlinx.serialization.json)
+            implementation(libs.compose.runtime)
+        }
+        androidMain.dependencies {
+            implementation(libs.compose.ui)
+            implementation(libs.compose.material.icons)
         }
     }
 }

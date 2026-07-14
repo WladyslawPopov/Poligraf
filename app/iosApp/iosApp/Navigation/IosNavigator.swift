@@ -20,13 +20,18 @@ struct ComponentWrapper<C: AnyObject>: Hashable, Identifiable {
 }
 
 class IosNavigator<C: AnyObject>: ObservableObject {
-    @Published var stack: [ComponentWrapper<C>] = []
+    @Published var path: [ComponentWrapper<C>] = []
+    @Published var root: ComponentWrapper<C>? = nil
+    
     private var nativeNavStack: SharedLogic.NativeNavStack<C>?
     
     init(navigator: AppNavigator) {
         self.nativeNavStack = SharedLogic.NativeNavStack(navigator: navigator) { [weak self] newStack in
             DispatchQueue.main.async {
-                self?.stack = newStack.map { ComponentWrapper(instance: $0) }
+                guard let self = self else { return }
+                let wrapped = newStack.map { ComponentWrapper(instance: $0) }
+                self.root = wrapped.first
+                self.path = Array(wrapped.dropFirst())
             }
         }
     }
@@ -45,12 +50,15 @@ struct IosNavHost<C: AnyObject, Content: View>: View {
     let content: (C) -> Content
     
     var body: some View {
-        NavigationStack(path: $navigator.stack) {
+        NavigationStack(path: $navigator.path) {
             Group {
-                if let root = navigator.stack.first {
+                if let root = navigator.root {
                     content(root.instance)
                 } else {
-                    Text("Loading...")
+                    VStack {
+                        ProgressView()
+                        Text("Loading...")
+                    }
                 }
             }
             .navigationDestination(for: ComponentWrapper<C>.self) { wrapper in

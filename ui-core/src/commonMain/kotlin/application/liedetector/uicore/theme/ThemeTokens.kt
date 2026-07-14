@@ -4,35 +4,40 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 enum class ColorToken {
-    PRIMARY,
-    SECONDARY,
-    BACKGROUND,
-    SURFACE,
-    ERROR,
+    // Concrete Palette
+    BACKGROUND,      // Deep Anthracite / Pure White
+    SURFACE,         // Light Concrete
+    SURFACE_VARIANT, // For subtle borders/dividers
+    
+    // Interaction
+    PRIMARY,         // Steel / Silver
     ON_PRIMARY,
-    ON_BACKGROUND,
+    ERROR,           // System error
+    
+    // Semantic (Neon Accents)
+    TRUTH,           // Bio-Green Neon
+    STRESS,          // Pulse-Red Neon
+    
+    // Text
     TEXT_PRIMARY,
     TEXT_SECONDARY,
-    ACCENT_STRESS,   // Specialized for our lie detector
-    ACCENT_TRUTH
+    TEXT_INVERTED
 }
 
 @Serializable
 enum class TypographyToken {
-    HEADER_LARGE,
-    HEADER_MEDIUM,
-    BODY_LARGE,
-    BODY_MEDIUM,
+    HEADER,
+    SUBHEADER,
+    BODY,
     CAPTION,
-    MONOSPACE        // For technical analysis data
+    DATA_NUMERIC // Specialized for percentages/scores
 }
 
 @Serializable
 enum class DimenToken {
-    SPACING_SMALL,
-    SPACING_MEDIUM,
-    SPACING_LARGE,
-    CORNER_RADIUS,
-    ICON_SIZE_SMALL,
-    ICON_SIZE_MEDIUM
+    MAIN_PADDING,    // Standard padding for screens
+    WIDGET_SPACING,  // Space between cards
+    CORNER_RADIUS,   // "Material 3" or "iOS Rounded"
+    ICON_SIZE_NAV,
+    HEADER_HEIGHT
 }

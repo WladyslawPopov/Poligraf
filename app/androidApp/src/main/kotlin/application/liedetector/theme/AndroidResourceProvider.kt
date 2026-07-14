@@ -1,8 +1,13 @@
 package application.liedetector.theme
 
 import android.content.Context
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.HelpOutline
+import androidx.compose.material.icons.rounded.*
 import application.liedetector.uicore.theme.ColorToken
 import application.liedetector.uicore.theme.DimenToken
+import application.liedetector.uicore.theme.IconResource
 import application.liedetector.uicore.theme.ResourceProvider
 
 class AndroidResourceProvider(private val context: Context) : ResourceProvider {
@@ -13,37 +18,39 @@ class AndroidResourceProvider(private val context: Context) : ResourceProvider {
 
     override fun getColorHex(token: ColorToken): String {
         return when (token) {
-            ColorToken.PRIMARY -> "#6200EE"
-            ColorToken.SECONDARY -> "#03DAC6"
-            ColorToken.BACKGROUND -> "#FFFFFF"
-            ColorToken.SURFACE -> "#FFFFFF"
+            ColorToken.BACKGROUND -> "#121212"
+            ColorToken.SURFACE -> "#1E1E1E"
+            ColorToken.SURFACE_VARIANT -> "#2C2C2C"
+            ColorToken.PRIMARY -> "#D1D1D1" // Steel
+            ColorToken.ON_PRIMARY -> "#000000"
+            ColorToken.TRUTH -> "#00E676" // Neon Green
+            ColorToken.STRESS -> "#FF5252" // Neon Red
             ColorToken.ERROR -> "#B00020"
-            ColorToken.ON_PRIMARY -> "#FFFFFF"
-            ColorToken.ON_BACKGROUND -> "#000000"
-            ColorToken.TEXT_PRIMARY -> "#000000"
-            ColorToken.TEXT_SECONDARY -> "#757575"
-            ColorToken.ACCENT_STRESS -> "#FF5722"
-            ColorToken.ACCENT_TRUTH -> "#4CAF50"
+            ColorToken.TEXT_PRIMARY -> "#FFFFFF"
+            ColorToken.TEXT_SECONDARY -> "#A0A0A0"
+            ColorToken.TEXT_INVERTED -> "#000000"
         }
     }
 
     override fun getDimension(token: DimenToken): Float {
         return when (token) {
-            DimenToken.SPACING_SMALL -> 8f
-            DimenToken.SPACING_MEDIUM -> 16f
-            DimenToken.SPACING_LARGE -> 24f
+            DimenToken.MAIN_PADDING -> 16f
+            DimenToken.WIDGET_SPACING -> 12f
             DimenToken.CORNER_RADIUS -> 12f
-            DimenToken.ICON_SIZE_SMALL -> 24f
-            DimenToken.ICON_SIZE_MEDIUM -> 32f
+            DimenToken.ICON_SIZE_NAV -> 24f
+            DimenToken.HEADER_HEIGHT -> 64f
         }
     }
 
-    override fun getSystemIconName(key: String): String {
+    override fun getSystemIcon(key: String): IconResource {
         return when(key) {
-            "mic" -> "mic"
-            "history" -> "history"
-            "settings" -> "settings"
-            else -> "help"
+            "mic" -> Icons.Rounded.Mic
+            "history" -> Icons.Rounded.History
+            "settings" -> Icons.Rounded.Settings
+            "profile" -> Icons.Rounded.AccountCircle
+            "chevron_right" -> Icons.Rounded.ChevronRight
+            "menu" -> Icons.Rounded.Menu
+            else -> Icons.Outlined.HelpOutline
         }
     }
 }

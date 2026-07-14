@@ -8,38 +8,39 @@ class IosResourceProvider: ResourceProvider {
     
     func getColorHex(token: ColorToken) -> String {
         switch token {
-        case .primary: return "#6200EE"
-        case .secondary: return "#03DAC6"
-        case .background: return "#FFFFFF"
-        case .surface: return "#FFFFFF"
-        case .error: return "#B00020"
-        case .onPrimary: return "#FFFFFF"
-        case .onBackground: return "#000000"
-        case .textPrimary: return "#000000"
-        case .textSecondary: return "#757575"
-        case .accentStress: return "#FF5722"
-        case .accentTruth: return "#4CAF50"
+        case .background: return "#000000"
+        case .surface: return "#1C1C1E" // Standard dark gray
+        case .surfaceVariant: return "#2C2C2E"
+        case .primary: return "#E5E5EA" // Silver
+        case .onPrimary: return "#000000"
+        case .truth: return "#30D158" // Neon Green
+        case .stress: return "#FF453A" // Neon Red
+        case .textPrimary: return "#FFFFFF"
+        case .textSecondary: return "#8E8E93"
+        case .textInverted: return "#000000"
         default: return "#000000"
         }
     }
     
     func getDimension(token: DimenToken) -> Float {
         switch token {
-        case .spacingSmall: return 8.0
-        case .spacingMedium: return 16.0
-        case .spacingLarge: return 24.0
+        case .mainPadding: return 16.0
+        case .widgetSpacing: return 12.0
         case .cornerRadius: return 12.0
-        case .iconSizeSmall: return 24.0
-        case .iconSizeMedium: return 32.0
+        case .iconSizeNav: return 24.0
+        case .headerHeight: return 64.0
         default: return 0.0
         }
     }
     
-    func getSystemIconName(key: String) -> String {
+    func getSystemIcon(key: String) -> String {
         switch key {
         case "mic": return "mic.fill"
         case "history": return "clock.fill"
         case "settings": return "gearshape.fill"
+        case "profile": return "person.crop.circle.fill"
+        case "chevron_right": return "chevron.right"
+        case "menu": return "line.3.horizontal"
         default: return "questionmark.circle"
         }
     }

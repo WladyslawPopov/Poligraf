@@ -6,8 +6,9 @@ import application.liedetector.models.AnalysisRequest
 import application.liedetector.models.AnalysisStatus
 import application.liedetector.models.ApiConstants
 import application.liedetector.security.UserPrincipal
+import application.liedetector.uiwidgets.models.WidgetAction
+import application.liedetector.uiwidgets.models.WidgetDto
 import io.ktor.http.*
-import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -19,6 +20,23 @@ fun Route.configureAnalysisRouting(
 ) {
     authenticate(ApiConstants.AUTH_CONFIG_NAME) {
         route(ApiConstants.API_V1) {
+            // Get initial screen template
+            get("/screen/main") {
+                val widgets = listOf(
+                    WidgetDto.Header(
+                        id = "welcome_h",
+                        titleKey = "Digital Investigation (LIVE)", // Plain string for testing
+                        subtitleKey = "L_WELCOME_SUBTITLE"
+                    ),
+                    WidgetDto.StandardButton(
+                        id = "start_btn",
+                        textKey = "L_START_INVESTIGATION",
+                        action = WidgetAction.OPEN_HISTORY
+                    )
+                )
+                call.respond(widgets)
+            }
+
             post(ApiConstants.ENDPOINT_ANALYZE) {
                 val principal = call.principal<UserPrincipal>() ?: return@post call.respond(
                     HttpStatusCode.Unauthorized, "User not found in context"

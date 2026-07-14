@@ -12,7 +12,7 @@ interface ResourceProvider {
     fun getDimension(token: DimenToken): Float
 
     /**
-     * Returns the name of the system icon (e.g. SF Symbol name or Material Icon name)
+     * Returns the platform-specific icon resource.
      */
-    fun getSystemIconName(key: String): String
+    fun getSystemIcon(key: String): IconResource
 }

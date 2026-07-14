@@ -39,6 +39,15 @@ sealed class WidgetDto {
         val points: List<Float>,
         val colorToken: ColorToken = ColorToken.PRIMARY
     ) : WidgetDto()
+
+    @Serializable
+    @SerialName("standard_button")
+    data class StandardButton(
+        override val id: String,
+        val textKey: String,
+        val action: WidgetAction,
+        val isPrimary: Boolean = true
+    ) : WidgetDto()
 }
 
 @Serializable

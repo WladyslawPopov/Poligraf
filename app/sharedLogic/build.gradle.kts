@@ -67,14 +67,19 @@ kotlin {
             
             // DI: Koin
             api(libs.koin.core)
+            
+            // UI Stability
+            implementation(libs.compose.runtime)
         }
 
         androidMain.dependencies {
             implementation(libs.sqldelight.android.driver)
+            implementation(libs.ktor.client.android)
         }
 
         nativeMain.dependencies {
             implementation(libs.sqldelight.native.driver)
+            implementation(libs.ktor.client.darwin)
         }
 
         commonTest.dependencies {

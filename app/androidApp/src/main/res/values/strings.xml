@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Lie Detector</string>
+    <string name="L_WELCOME_TITLE">Digital Investigation</string>
+    <string name="L_WELCOME_SUBTITLE">Analyze voice markers with AI precision.</string>
+    <string name="L_START_INVESTIGATION">Start Investigation</string>
+</resources>
