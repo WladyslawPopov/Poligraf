@@ -13,7 +13,7 @@ import application.liedetector.uicore.theme.*
  */
 class FakeResourceProvider : ResourceProvider {
     override fun getString(key: String): String = key
-    override fun getColorHex(token: ColorToken): String = "#808080"
+    override fun getColorHex(token: ColorToken, isDark: Boolean): String = "#808080"
     override fun getDimension(token: DimenToken): Float = 16f
     override fun getSystemIcon(key: String): IconResource = Icons.AutoMirrored.Filled.Help
 }

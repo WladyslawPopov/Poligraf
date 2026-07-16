@@ -22,6 +22,7 @@ struct ComponentWrapper<C: AnyObject>: Hashable, Identifiable {
 class IosNavigator<C: AnyObject>: ObservableObject {
     @Published var path: [ComponentWrapper<C>] = []
     @Published var root: ComponentWrapper<C>? = nil
+    @Published var isDrawerOpen: Bool = false // Global drawer state
     
     private var nativeNavStack: SharedLogic.NativeNavStack<C>?
     
@@ -36,6 +37,12 @@ class IosNavigator<C: AnyObject>: ObservableObject {
         }
     }
     
+    func toggleDrawer() {
+        withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+            isDrawerOpen.toggle()
+        }
+    }
+    
     func push(route: NavRoute) {
         nativeNavStack?.push(route: route)
     }
@@ -45,25 +52,76 @@ class IosNavigator<C: AnyObject>: ObservableObject {
     }
 }
 
-struct IosNavHost<C: AnyObject, Content: View>: View {
+struct IosNavHost<C: AnyObject, Content: View, DrawerView: View>: View {
     @ObservedObject var navigator: IosNavigator<C>
+    let designSystem: DesignSystem
     let content: (C) -> Content
+    let drawerView: () -> DrawerView // Slot for the drawer
+    
+    init(
+        navigator: IosNavigator<C>,
+        designSystem: DesignSystem,
+        @ViewBuilder content: @escaping (C) -> Content,
+        @ViewBuilder drawerView: @escaping () -> DrawerView
+    ) {
+        self.navigator = navigator
+        self.designSystem = designSystem
+        self.content = content
+        self.drawerView = drawerView
+    }
     
     var body: some View {
-        NavigationStack(path: $navigator.path) {
-            Group {
-                if let root = navigator.root {
-                    content(root.instance)
-                } else {
-                    VStack {
-                        ProgressView()
-                        Text("Loading...")
+        ZStack {
+            // 1. Global Persistent Background
+            ScalesView(designSystem: designSystem)
+                .ignoresSafeArea()
+
+            // 2. Navigation Layer (Tilts when drawer is open)
+            NavigationStack(path: $navigator.path) {
+                Group {
+                    if let root = navigator.root {
+                        content(root.instance)
+                    } else {
+                        VStack {
+                            ProgressView()
+                            Text("Loading...")
+                        }
                     }
                 }
+                .navigationDestination(for: ComponentWrapper<C>.self) { wrapper in
+                    content(wrapper.instance)
+                }
+                .scrollContentBackground(.hidden)
             }
-            .navigationDestination(for: ComponentWrapper<C>.self) { wrapper in
-                content(wrapper.instance)
+            .disabled(navigator.isDrawerOpen)
+            .scaleEffect(navigator.isDrawerOpen ? 0.92 : 1.0)
+            .rotation3DEffect(
+                .degrees(navigator.isDrawerOpen ? -10 : 0),
+                axis: (x: 0, y: 1, z: 0)
+            )
+            .blur(radius: navigator.isDrawerOpen ? 4 : 0)
+
+            // 3. Interaction Overlay
+            if navigator.isDrawerOpen {
+                Color.black.opacity(0.4)
+                    .ignoresSafeArea()
+                    .onTapGesture {
+                        navigator.toggleDrawer()
+                    }
+                    .transition(.opacity)
+            }
+
+            // 4. Side Menu (Stable on top)
+            if navigator.isDrawerOpen {
+                HStack(spacing: 0) {
+                    drawerView()
+                        .frame(width: 280)
+                        .transition(.move(edge: .leading))
+                    Spacer()
+                }
+                .ignoresSafeArea()
             }
         }
+        .animation(.spring(response: 0.3, dampingFraction: 0.8), value: navigator.isDrawerOpen)
     }
 }

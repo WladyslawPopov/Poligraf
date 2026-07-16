@@ -4,20 +4,24 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
 import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.ViewModelStore
-import androidx.lifecycle.coroutineScope
 import kotlinx.coroutines.launch
 
 /**
  * Extension to create NavigationContext from Activity
  */
-fun ComponentActivity.navigationContext(): NavigationContext {
+fun ComponentActivity.navigationContext(navigator: AppNavigator<Any>? = null): NavigationContext {
     return DefaultNavigationContext(
         lifecycle = this.lifecycle,
         viewModelStore = this.viewModelStore,
-        savedStateRegistry = this.savedStateRegistry
+        savedStateRegistry = this.savedStateRegistry,
+        navigator = navigator
     )
 }
 
@@ -27,7 +31,8 @@ fun ComponentActivity.navigationContext(): NavigationContext {
 internal actual fun createChildContext(
     parent: NavigationContext, 
     route: NavRoute,
-    id: String
+    id: String,
+    navigator: AppNavigator<Any>
 ): NavigationContext {
     val childLifecycle = LifecycleRegistry.createUnsafe(parent)
     
@@ -35,32 +40,67 @@ internal actual fun createChildContext(
     return DefaultNavigationContext(
         lifecycle = childLifecycle,
         viewModelStore = ViewModelStore(),
-        savedStateRegistry = parent.savedStateRegistry
+        savedStateRegistry = parent.savedStateRegistry,
+        navigator = navigator
     )
 }
 
 /**
  * Android-specific Navigation Host
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun <C : Any> NativeNavHost(
     navigator: AppNavigator<C>,
+    drawerState: DrawerState? = null,
+    drawerContent: @Composable (() -> Unit)? = null,
+    background: @Composable (() -> Unit)? = null,
     content: @Composable (C) -> Unit
 ) {
     val stack by navigator.stack.collectAsState()
     val topChild = stack.lastOrNull() ?: return
+    val scope = rememberCoroutineScope()
 
-    BackHandler(enabled = stack.size > 1) {
-        navigator.pop()
+    BackHandler(enabled = stack.size > 1 || (drawerState?.isOpen == true)) {
+        if (drawerState?.isOpen == true) {
+            scope.launch { drawerState.close() }
+        } else {
+            navigator.pop()
+        }
     }
 
+    Box(modifier = Modifier.fillMaxSize()) {
+        // 1. Permanent Background Layer
+        background?.invoke()
+
+        // 2. Navigation & Drawer Layer
+        if (drawerContent != null && drawerState != null) {
+            ModalNavigationDrawer(
+                drawerState = drawerState,
+                drawerContent = drawerContent,
+                modifier = Modifier.fillMaxSize()
+            ) {
+                NavigationContent(topChild, content)
+            }
+        } else {
+            NavigationContent(topChild, content)
+        }
+    }
+}
+
+@Composable
+private fun <C : Any> NavigationContent(
+    topChild: Child<C>,
+    content: @Composable (C) -> Unit
+) {
     AnimatedContent(
         targetState = topChild,
         transitionSpec = {
             (slideInHorizontally(initialOffsetX = { it }, animationSpec = tween(300)) + fadeIn())
                 .togetherWith(slideOutHorizontally(targetOffsetX = { -it }, animationSpec = tween(300)) + fadeOut())
         },
-        label = "NativeNavigationTransition"
+        label = "NativeNavigationTransition",
+        modifier = Modifier.fillMaxSize()
     ) { target ->
         content(target.instance)
     }

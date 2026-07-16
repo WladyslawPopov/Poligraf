@@ -13,6 +13,7 @@ import androidx.savedstate.SavedStateRegistryOwner
  */
 interface NavigationContext : LifecycleOwner, ViewModelStoreOwner, SavedStateRegistryOwner {
     val backPressedHandler: BackPressedHandler
+    val navigator: AppNavigator<Any>? // Access to global navigation actions
 }
 
 interface BackPressedHandler {
@@ -42,5 +43,6 @@ class DefaultNavigationContext(
     override val lifecycle: Lifecycle,
     override val viewModelStore: ViewModelStore,
     override val savedStateRegistry: SavedStateRegistry,
+    override val navigator: AppNavigator<Any>? = null,
     override val backPressedHandler: BackPressedHandler = DefaultBackPressedHandler()
 ) : NavigationContext

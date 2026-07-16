@@ -1,0 +1,3 @@
+- [ ] Remove `ScalesBackground` and Veil from `MainActivity.kt`
+- [ ] Move `ScalesBackground` and Veil into `MainHost.kt`
+- [ ] Verify Android layout and navigation

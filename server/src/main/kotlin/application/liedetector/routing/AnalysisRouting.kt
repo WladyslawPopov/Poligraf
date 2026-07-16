@@ -7,7 +7,7 @@ import application.liedetector.models.AnalysisStatus
 import application.liedetector.models.ApiConstants
 import application.liedetector.security.UserPrincipal
 import application.liedetector.uiwidgets.models.WidgetAction
-import application.liedetector.uiwidgets.models.WidgetDto
+import application.liedetector.uiwidgets.models.UiWidget
 import io.ktor.http.*
 import io.ktor.server.auth.*
 import io.ktor.server.request.*
@@ -23,12 +23,12 @@ fun Route.configureAnalysisRouting(
             // Get initial screen template
             get("/screen/main") {
                 val widgets = listOf(
-                    WidgetDto.Header(
+                    UiWidget.Header(
                         id = "welcome_h",
                         titleKey = "Digital Investigation (LIVE)",
                         subtitleKey = "L_WELCOME_SUBTITLE"
                     ),
-                    WidgetDto.StandardButton(
+                    UiWidget.StandardButton(
                         id = "start_btn",
                         textKey = "L_START_INVESTIGATION",
                         action = WidgetAction.OPEN_HISTORY

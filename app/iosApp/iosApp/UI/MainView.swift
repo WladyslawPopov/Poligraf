@@ -5,49 +5,45 @@ struct MainView: View {
     let component: MainComponent
     let designSystem: DesignSystem
     @ObservedObject var state: ObservableState<MainState>
-    @ObservedObject var backgroundState: ObservableState<BackgroundState>
-    
-    init(component: MainComponent, designSystem: DesignSystem) {
+    @ObservedObject var root: RootComponentWrapper
+
+    init(component: MainComponent, designSystem: DesignSystem, root: RootComponentWrapper) {
         self.component = component
         self.designSystem = designSystem
+        self.root = root
         self._state = ObservedObject(wrappedValue: ObservableState<MainState>(component.stateWatcher))
-        self._backgroundState = ObservedObject(wrappedValue: ObservableState<BackgroundState>(component.backgroundWatcher))
     }
-    
+
     var body: some View {
         ZStack {
-            // 1. Concrete Foundation (Blurred)
-            ScalesView(visualizer: backgroundState, designSystem: designSystem)
-                .blur(radius: 4)
-                .ignoresSafeArea()
-            
-            // 2. The Dark Veil (Separates BG from Content)
-            Color.black.opacity(0.18)
-                .ignoresSafeArea()
-            
-            // 3. Content
             ScrollView {
-                LazyVStack(spacing: 12) {
+                LazyVStack(spacing: CGFloat(designSystem.dimen(token: .widgetSpacing))) {
                     if let error = state.value.error {
-                        VStack(spacing: 16) {
-                            Text(error).foregroundColor(.red).multilineTextAlignment(.center)
-                            Button(action: { component.retry() }) {
-                                Image(systemName: "arrow.clockwise.circle.fill").font(.largeTitle)
-                            }
-                        }.padding(.top, 100)
+                        Text(error)
+                            .foregroundColor(.red)
+                            .padding(.top, 100)
                     } else if state.value.widgets.isEmpty {
-                        ProgressView().tint(.white).scaleEffect(1.5).padding(.top, 100)
+                        ProgressView()
+                            .padding(.top, 100)
                     } else {
-                        Spacer().frame(height: 30)
+                        Spacer().frame(height: CGFloat(designSystem.dimen(token: .spacingLarge)))
                         ForEach(state.value.widgets, id: \.id) { widget in
                             WidgetView(widget: widget, designSystem: designSystem, onAction: { component.onAction(action: $0) })
                         }
                     }
                 }
             }
+            .scrollContentBackground(.hidden)
         }
+        .containerBackground(.clear, for: .navigation)
         .navigationTitle(state.value.topBarState.title)
         .navigationBarTitleDisplayMode(.inline)
-        .preferredColorScheme(.dark) // Keep it dark as intended
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(action: { root.navigator.toggleDrawer() }) {
+                    Image(systemName: "line.3.horizontal")
+                }
+            }
+        }
     }
 }

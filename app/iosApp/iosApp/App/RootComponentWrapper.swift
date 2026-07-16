@@ -4,7 +4,12 @@ import SwiftUI
 class RootComponentWrapper: ObservableObject {
     let component: RootComponent
     let navigator: IosNavigator<AnyObject>
-    let designSystem: DesignSystem
+    
+    @Published var isDark: Bool = true
+    
+    var designSystem: DesignSystem {
+        DesignSystem(resources: IosResourceProvider(), isDark: isDark)
+    }
     
     init() {
         // Just call the Kotlin factory - no parameters needed!
@@ -12,6 +17,9 @@ class RootComponentWrapper: ObservableObject {
         
         self.component = rootComp
         self.navigator = IosNavigator(navigator: rootComp.navigator)
-        self.designSystem = DesignSystem(resources: IosResourceProvider(), isDark: true)
+    }
+    
+    func toggleTheme() {
+        isDark.toggle()
     }
 }

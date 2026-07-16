@@ -6,10 +6,13 @@ package application.liedetector.uicore.theme
 interface ResourceProvider {
     fun getString(key: String): String
     
-    // We'll use Hex strings or platform specific types in the actual implementation
-    fun getColorHex(token: ColorToken): String
+    fun getColorHex(token: ColorToken, isDark: Boolean = true): String {
+        return ThemeDefaults.getColorHex(token, isDark)
+    }
     
-    fun getDimension(token: DimenToken): Float
+    fun getDimension(token: DimenToken): Float {
+        return ThemeDefaults.getDimension(token)
+    }
 
     /**
      * Returns the platform-specific icon resource.

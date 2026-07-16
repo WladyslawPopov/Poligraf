@@ -33,11 +33,13 @@ class NativeNavStack<C : Any>(
 internal actual fun createChildContext(
     parent: NavigationContext, 
     route: NavRoute,
-    id: String
+    id: String,
+    navigator: AppNavigator<Any>
 ): NavigationContext {
     return DefaultNavigationContext(
         lifecycle = LifecycleRegistry.createUnsafe(parent),
         viewModelStore = ViewModelStore(),
-        savedStateRegistry = parent.savedStateRegistry
+        savedStateRegistry = parent.savedStateRegistry,
+        navigator = navigator
     )
 }

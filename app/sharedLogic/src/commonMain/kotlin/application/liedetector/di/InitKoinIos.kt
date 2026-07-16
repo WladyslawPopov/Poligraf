@@ -6,7 +6,6 @@ import application.liedetector.engine.device.DeviceIntegrity
 import application.liedetector.engine.device.ReviewManager
 import application.liedetector.engine.database.common.DriverFactory
 import application.liedetector.uicore.theme.ResourceProvider
-import application.liedetector.uicore.theme.BackgroundVisualizer
 import application.liedetector.uicore.theme.DesignSystem
 import com.russhwolf.settings.Settings
 import org.koin.dsl.module
@@ -20,7 +19,6 @@ fun doInitKoinIos(
     integrity: DeviceIntegrity,
     reviewManager: ReviewManager,
     resourceProvider: ResourceProvider,
-    backgroundVisualizer: BackgroundVisualizer, // Keeping for flexibility, but will use factory soon
     driverFactory: DriverFactory,
     settings: Settings
 ) {
@@ -30,7 +28,6 @@ fun doInitKoinIos(
         single { integrity }
         single { reviewManager }
         single { resourceProvider }
-        single { backgroundVisualizer }
         single { DesignSystem(get()) }
         single { driverFactory }
         single { settings }

@@ -3,7 +3,6 @@ package application.liedetector.di
 import application.liedetector.auth.AndroidAuthService
 import application.liedetector.analytics.AndroidAnalytics
 import application.liedetector.theme.AndroidResourceProvider
-import application.liedetector.theme.AndroidBackgroundVisualizer
 import application.liedetector.engine.auth.AuthService
 import application.liedetector.engine.analytics.Analytics
 import application.liedetector.engine.device.DeviceIntegrity
@@ -14,7 +13,6 @@ import application.liedetector.models.KmpResult
 import com.russhwolf.settings.Settings
 import com.russhwolf.settings.SharedPreferencesSettings
 import application.liedetector.uicore.theme.DesignSystem
-import application.liedetector.uicore.theme.BackgroundVisualizer
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
@@ -29,10 +27,7 @@ val androidModule = module {
     single<ResourceProvider> { AndroidResourceProvider(androidContext()) }
     single { DesignSystem(get()) }
     
-    // 4. Background Visualizer
-    single<BackgroundVisualizer> { AndroidBackgroundVisualizer(androidContext()) }
-    
-    // 5. Native Database Driver Factory
+    // 4. Native Database Driver Factory
     single { DriverFactory(androidContext()) }
     
     // 5. Native Settings (SharedPreferences)

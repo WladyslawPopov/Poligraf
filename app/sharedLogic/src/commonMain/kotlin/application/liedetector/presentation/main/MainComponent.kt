@@ -5,10 +5,9 @@ import application.liedetector.data.user.UserRepository
 import application.liedetector.models.KmpResult
 import application.liedetector.navigation.NavigationContext
 import application.liedetector.presentation.base.BaseViewModel
-import application.liedetector.uiwidgets.models.WidgetDto
+import application.liedetector.uiwidgets.models.UiWidget
 import application.liedetector.uiwidgets.models.WidgetAction
 import application.liedetector.uiwidgets.states.TopBarUiState
-import application.liedetector.uicore.theme.BackgroundVisualizer
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,11 +17,9 @@ import application.liedetector.engine.utils.watcher.asWatcher
 @Stable
 class MainComponent(
     val context: NavigationContext,
-    val viewModel: MainViewModel,
-    val backgroundVisualizer: BackgroundVisualizer
+    val viewModel: MainViewModel
 ) {
     val stateWatcher = viewModel.state.asWatcher(context.lifecycle.coroutineScope)
-    val backgroundWatcher = backgroundVisualizer.state.asWatcher(context.lifecycle.coroutineScope)
 
     fun onAction(action: WidgetAction) {
         viewModel.onWidgetAction(action)
@@ -35,7 +32,7 @@ class MainComponent(
 
 @Stable
 data class MainState(
-    val widgets: List<WidgetDto> = emptyList(),
+    val widgets: List<UiWidget> = emptyList(),
     val topBarState: TopBarUiState = TopBarUiState(title = "Lie Detector"),
     val error: String? = null
 )

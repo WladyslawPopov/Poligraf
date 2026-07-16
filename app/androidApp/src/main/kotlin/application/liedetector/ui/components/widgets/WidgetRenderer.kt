@@ -1,6 +1,7 @@
 package application.liedetector.ui.components.widgets
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -9,40 +10,48 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import application.liedetector.uicore.theme.LocalDesignSystem
 import application.liedetector.uiwidgets.models.WidgetAction
-import application.liedetector.uiwidgets.models.WidgetDto
-import application.liedetector.theme.utils.glassPanel
+import application.liedetector.uiwidgets.models.UiWidget
+import application.liedetector.theme.utils.composeColor
+import application.liedetector.uicore.theme.ColorToken
+import application.liedetector.uicore.theme.DimenToken
 
 @Composable
 fun WidgetRenderer(
-    widget: WidgetDto,
+    widget: UiWidget,
     onAction: (WidgetAction) -> Unit
 ) {
     val designSystem = LocalDesignSystem.current
     
     when (widget) {
-        is WidgetDto.Header -> {
-            Box(
+        is UiWidget.Header -> {
+            Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
-                    .glassPanel(designSystem)
+                    .padding(
+                        horizontal = designSystem.dimen(DimenToken.SPACING_MEDIUM).dp, 
+                        vertical = designSystem.dimen(DimenToken.SPACING_SMALL).dp
+                    ),
+                colors = CardDefaults.cardColors(
+                    containerColor = designSystem.composeColor(ColorToken.SURFACE_VARIANT)
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
             ) {
                 Column(
-                    modifier = Modifier.padding(24.dp),
+                    modifier = Modifier.padding(designSystem.dimen(DimenToken.SPACING_LARGE).dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
                         text = designSystem.string(widget.titleKey),
                         style = MaterialTheme.typography.headlineMedium,
-                        color = androidx.compose.ui.graphics.Color.White,
+                        color = designSystem.composeColor(ColorToken.TEXT_PRIMARY),
                         textAlign = TextAlign.Center
                     )
                     widget.subtitleKey?.let {
-                        Spacer(modifier = Modifier.height(4.dp))
+                        Spacer(modifier = Modifier.height(designSystem.dimen(DimenToken.SPACING_TINY).dp))
                         Text(
                             text = designSystem.string(it),
                             style = MaterialTheme.typography.bodyMedium,
-                            color = androidx.compose.ui.graphics.Color.White.copy(alpha = 0.6f),
+                            color = designSystem.composeColor(ColorToken.TEXT_SECONDARY),
                             textAlign = TextAlign.Center
                         )
                     }
@@ -50,43 +59,42 @@ fun WidgetRenderer(
             }
         }
         
-        is WidgetDto.MicrophoneButton -> {
+        is UiWidget.MicrophoneButton -> {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(32.dp),
+                    .padding(designSystem.dimen(DimenToken.SPACING_LARGE).dp),
                 contentAlignment = Alignment.Center
             ) {
-                FloatingActionButton(
+                LargeFloatingActionButton(
                     onClick = { onAction(widget.action) },
-                    containerColor = androidx.compose.ui.graphics.Color.White.copy(alpha = 0.2f),
-                    contentColor = androidx.compose.ui.graphics.Color.White,
-                    shape = androidx.compose.foundation.shape.CircleShape
+                    containerColor = designSystem.composeColor(ColorToken.PRIMARY),
+                    contentColor = designSystem.composeColor(ColorToken.ON_PRIMARY),
+                    shape = CircleShape
                 ) {
                     Icon(
                         imageVector = designSystem.icon("mic"),
                         contentDescription = "Record",
-                        modifier = Modifier.size(32.dp)
+                        modifier = Modifier.size(48.dp)
                     )
                 }
             }
         }
         
-        is WidgetDto.StandardButton -> {
+        is UiWidget.StandardButton -> {
             Button(
                 onClick = { onAction(widget.action) },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 12.dp)
-                    .height(56.dp),
-                shape = androidx.compose.foundation.shape.RoundedCornerShape(18.dp),
+                    .padding(
+                        horizontal = designSystem.dimen(DimenToken.SPACING_MEDIUM).dp, 
+                        vertical = designSystem.dimen(DimenToken.SPACING_SMALL).dp
+                    )
+                    .height(designSystem.dimen(DimenToken.BUTTON_HEIGHT).dp),
+                shape = MaterialTheme.shapes.medium,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = androidx.compose.ui.graphics.Color.White.copy(alpha = 0.1f),
-                    contentColor = androidx.compose.ui.graphics.Color.White
-                ),
-                border = androidx.compose.foundation.BorderStroke(
-                    0.5.dp, 
-                    androidx.compose.ui.graphics.Color.White.copy(alpha = 0.25f)
+                    containerColor = designSystem.composeColor(ColorToken.SURFACE_VARIANT),
+                    contentColor = designSystem.composeColor(ColorToken.TEXT_PRIMARY)
                 )
             ) {
                 Text(
@@ -97,7 +105,10 @@ fun WidgetRenderer(
         }
         
         else -> {
-            Text("Unknown: ${widget::class.simpleName}", color = androidx.compose.ui.graphics.Color.Gray)
+            Text(
+                text = "Unknown: ${widget::class.simpleName}", 
+                color = designSystem.composeColor(ColorToken.TEXT_SECONDARY)
+            )
         }
     }
 }

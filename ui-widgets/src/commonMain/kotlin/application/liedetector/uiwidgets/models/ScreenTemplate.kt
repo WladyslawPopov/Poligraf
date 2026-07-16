@@ -7,7 +7,7 @@ data class ScreenTemplate(
     val titleKey: String? = null,
     val leadingIconKey: String? = null,
     val menuItems: List<MenuItemDto> = emptyList(),
-    val widgets: List<WidgetDto> = emptyList()
+    val widgets: List<UiWidget> = emptyList()
 )
 
 @Serializable

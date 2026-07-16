@@ -19,6 +19,7 @@ enum class ColorToken {
     // Semantic (Neon Accents)
     TRUTH,           // Bio-Green Neon
     STRESS,          // Pulse-Red Neon
+    ACCENT_ENERGY,   // Cyan aura
     
     // Text
     TEXT_PRIMARY,
@@ -41,5 +42,16 @@ enum class DimenToken {
     WIDGET_SPACING,  // Space between cards
     CORNER_RADIUS,   // "Material 3" or "iOS Rounded"
     ICON_SIZE_NAV,
-    HEADER_HEIGHT
+    HEADER_HEIGHT,
+    
+    DRAWER_CORNER,
+    WIDGET_CORNER,
+    BUTTON_HEIGHT,
+    
+    SPACING_TINY,
+    SPACING_SMALL,
+    SPACING_MEDIUM,
+    SPACING_LARGE,
+    
+    PARALLAX_INTENSITY
 }

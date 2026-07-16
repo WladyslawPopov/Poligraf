@@ -6,11 +6,11 @@ import application.liedetector.engine.database.CacheRepository
 import application.liedetector.models.AnalysisRequest
 import application.liedetector.models.KmpResult
 import application.liedetector.models.SubjectDto
-import application.liedetector.uiwidgets.models.WidgetDto
+import application.liedetector.uiwidgets.models.UiWidget
 
 interface UserRepository {
     suspend fun loginAnonymously(): KmpResult<Unit>
-    suspend fun getMainScreen(): KmpResult<List<WidgetDto>>
+    suspend fun getMainScreen(): KmpResult<List<UiWidget>>
     suspend fun startAnalysis(storagePath: String, context: String, subjectId: String?): KmpResult<String>
     suspend fun createSubject(name: String, description: String?): KmpResult<SubjectDto>
 }
@@ -26,7 +26,7 @@ class UserRepositoryImpl(
         return authService.signInAnonymously()
     }
 
-    override suspend fun getMainScreen(): KmpResult<List<WidgetDto>> {
+    override suspend fun getMainScreen(): KmpResult<List<UiWidget>> {
         return try {
             KmpResult.Success(remote.getMainScreen())
         } catch (e: Throwable) {

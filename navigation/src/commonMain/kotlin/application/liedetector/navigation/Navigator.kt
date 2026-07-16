@@ -51,6 +51,11 @@ interface AppNavigator<C : Any> {
     fun popToRoot()
 
     /**
+     * Toggle global drawer/menu if applicable.
+     */
+    fun toggleDrawer()
+
+    /**
      * State restoration: Save current stack as a list of serialized strings.
      */
     fun saveState(serializer: (NavRoute) -> String): List<String>
@@ -68,7 +73,8 @@ class DefaultAppNavigator<C : Any>(
     startScreen: NavRoute,
     private val rootContext: NavigationContext,
     private val componentFactory: (NavRoute, NavigationContext) -> C,
-    private val stackKey: String = "default_stack"
+    private val stackKey: String = "default_stack",
+    private val onToggleDrawer: (() -> Unit)? = null
 ) : AppNavigator<C> {
 
     private val _stack = MutableStateFlow<List<Child<C>>>(emptyList())
@@ -81,6 +87,10 @@ class DefaultAppNavigator<C : Any>(
         if (_stack.value.isEmpty()) {
             push(startScreen)
         }
+    }
+
+    override fun toggleDrawer() {
+        onToggleDrawer?.invoke()
     }
 
     override fun push(route: NavRoute) {
@@ -101,7 +111,9 @@ class DefaultAppNavigator<C : Any>(
 
         // Generate a truly unique ID for this instance in the stack
         val childId = "${stackKey}_${route::class.simpleName}_${_stack.value.size}_${hashCode()}"
-        val childContext = createChildContext(rootContext, route, childId)
+        
+        @Suppress("UNCHECKED_CAST")
+        val childContext = createChildContext(rootContext, route, childId, this as AppNavigator<Any>)
         val instance = componentFactory(route, childContext)
         
         (childContext.lifecycle as? LifecycleRegistry)?.currentState = Lifecycle.State.RESUMED
@@ -257,5 +269,6 @@ class MultiStackAppNavigator<C : Any>(
 internal expect fun createChildContext(
     parent: NavigationContext, 
     route: NavRoute, 
-    id: String
+    id: String,
+    navigator: AppNavigator<Any>
 ): NavigationContext

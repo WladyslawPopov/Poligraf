@@ -2,7 +2,7 @@ package application.liedetector.presentation.investigation
 
 import application.liedetector.navigation.NavigationContext
 import application.liedetector.presentation.base.BaseViewModel
-import application.liedetector.uiwidgets.models.WidgetDto
+import application.liedetector.uiwidgets.models.UiWidget
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -14,7 +14,7 @@ class InvestigationComponent(
 )
 
 data class InvestigationState(
-    val widgets: List<WidgetDto> = emptyList(),
+    val widgets: List<UiWidget> = emptyList(),
     val isRecording: Boolean = false,
     val isSubjectInfoExpanded: Boolean = false
 )

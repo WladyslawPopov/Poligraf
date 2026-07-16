@@ -1,23 +1,27 @@
 package application.liedetector.theme
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import application.liedetector.theme.utils.toComposeColor
 import application.liedetector.uicore.theme.ColorToken
 import application.liedetector.uicore.theme.DesignSystem
 import application.liedetector.uicore.theme.LocalDesignSystem
+import application.liedetector.uicore.theme.ResourceProvider
 import org.koin.compose.koinInject
 
 @Composable
 fun LieDetectorTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
-    val designSystem: DesignSystem = koinInject()
+    val darkTheme by ThemeState.isDark.collectAsState()
+    val resources: ResourceProvider = koinInject()
+    val designSystem = remember(darkTheme) { DesignSystem(resources, darkTheme) }
     
     // Map our tokens to Material 3 ColorScheme for standard components
     val colorScheme = if (darkTheme) {

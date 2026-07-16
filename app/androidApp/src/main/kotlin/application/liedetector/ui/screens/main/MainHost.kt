@@ -7,38 +7,68 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import application.liedetector.presentation.main.MainComponent
 import application.liedetector.ui.components.widgets.WidgetRenderer
+import application.liedetector.uicore.theme.LocalDesignSystem
+import application.liedetector.uicore.theme.ColorToken
+import application.liedetector.uicore.theme.DimenToken
+import application.liedetector.theme.utils.composeColor
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Menu
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainHost(component: MainComponent) {
     val state by component.viewModel.state.collectAsState()
+    val designSystem = LocalDesignSystem.current
     
     Scaffold(
-        containerColor = androidx.compose.ui.graphics.Color.Transparent,
+        containerColor = Color.Transparent, // Reveals the global ScalesBackground
         topBar = {
-            // Dynamic TopBar placeholder
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(
+                        text = state.topBarState.title,
+                        color = designSystem.composeColor(ColorToken.TEXT_PRIMARY),
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                },
+                navigationIcon = {
+                    IconButton(onClick = { component.context.navigator?.toggleDrawer() }) {
+                        Icon(
+                            imageVector = Icons.Rounded.Menu,
+                            contentDescription = "Menu",
+                            tint = designSystem.composeColor(ColorToken.TEXT_PRIMARY)
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.Transparent
+                )
+            )
         }
     ) { padding ->
         Box(modifier = Modifier.fillMaxSize().padding(padding)) {
             if (state.error != null) {
-                // Show Honest Error Message
                 Text(
                     text = state.error!!,
                     color = MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.bodyLarge,
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.align(Alignment.Center).padding(32.dp)
+                    modifier = Modifier.align(Alignment.Center)
+                        .padding(designSystem.dimen(DimenToken.SPACING_LARGE).dp)
                 )
             } else {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    item { Spacer(modifier = Modifier.height(24.dp)) }
+                    item { 
+                        Spacer(modifier = Modifier.height(designSystem.dimen(DimenToken.SPACING_LARGE).dp)) 
+                    }
                     
                     items(state.widgets) { widget ->
                         WidgetRenderer(widget, onAction = { component.onAction(it) })
