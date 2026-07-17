@@ -12,7 +12,7 @@ import application.liedetector.uicore.theme.*
  * A mock resource provider for IDE Previews.
  */
 class FakeResourceProvider : ResourceProvider {
-    override fun getString(key: String): String = key
+    override fun getString(token: StringToken): String = token.name
     override fun getColorHex(token: ColorToken, isDark: Boolean): String = "#808080"
     override fun getDimension(token: DimenToken): Float = 16f
     override fun getSystemIcon(key: String): IconResource = Icons.AutoMirrored.Filled.Help

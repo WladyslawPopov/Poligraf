@@ -82,10 +82,7 @@ struct IosNavHost<C: AnyObject, Content: View, DrawerView: View>: View {
                     if let root = navigator.root {
                         content(root.instance)
                     } else {
-                        VStack {
-                            ProgressView()
-                            Text("Loading...")
-                        }
+                        ProgressView()
                     }
                 }
                 .navigationDestination(for: ComponentWrapper<C>.self) { wrapper in

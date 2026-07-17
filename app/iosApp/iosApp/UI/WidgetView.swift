@@ -6,9 +6,7 @@ struct WidgetView: View {
     let designSystem: DesignSystem
     let onAction: (WidgetAction) -> Void
     
-    // Вспомогательный модификатор для "Настоящего жидкого стекла"
     private var liquidGlassBackground: some View {
-        // Используем системный материал без лишних наслоений для максимальной прозрачности
         Rectangle()
             .fill(.ultraThinMaterial)
             .clipShape(RoundedRectangle(cornerRadius: CGFloat(designSystem.dimen(token: .widgetCorner)), style: .continuous))
@@ -18,14 +16,14 @@ struct WidgetView: View {
         Group {
             if let header = widget as? UiWidget.Header {
                 VStack(alignment: .center, spacing: CGFloat(designSystem.dimen(token: .spacingSmall))) {
-                    Text(designSystem.string(key: header.titleKey))
+                    Text(designSystem.string(token: header.titleToken))
                         .font(.title2)
                         .fontWeight(.bold)
                         .foregroundColor(IosTheme.color(.textPrimary, from: designSystem))
                         .multilineTextAlignment(.center)
                     
-                    if let subtitle = header.subtitleKey {
-                        Text(designSystem.string(key: subtitle))
+                    if let subtitleToken = header.subtitleToken {
+                        Text(designSystem.string(token: subtitleToken))
                             .font(.subheadline)
                             .foregroundColor(IosTheme.color(.textSecondary, from: designSystem))
                             .multilineTextAlignment(.center)
@@ -123,7 +121,7 @@ struct WidgetView: View {
                 
             } else if let stdBtn = widget as? UiWidget.StandardButton {
                 Button(action: { onAction(stdBtn.action) }) {
-                    Text(designSystem.string(key: stdBtn.textKey))
+                    Text(designSystem.string(token: stdBtn.textToken))
                         .font(.headline)
                         .fontWeight(.bold)
                         .frame(maxWidth: .infinity)

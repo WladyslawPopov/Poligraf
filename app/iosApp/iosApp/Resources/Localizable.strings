@@ -1,4 +1,20 @@
-"L_WELCOME_TITLE" = "Digital Investigation";
-"L_WELCOME_SUBTITLE" = "Analyze voice markers with AI precision.";
-"L_APP_NAME" = "Lie Detector";
-"L_START_INVESTIGATION" = "Start Investigation";
+"welcome_title" = "Digital Investigation";
+"welcome_subtitle" = "Analyze voice markers with AI precision.";
+"app_name" = "Lie Detector";
+"start_investigation" = "Start Investigation";
+"drawer_settings" = "Settings";
+"drawer_dark_mode" = "Dark Mode";
+
+/* Error States */
+"error_no_internet_title" = "No Connection";
+"error_no_internet_msg" = "Please check your internet settings and try again.";
+"error_server_title" = "Server Error";
+"error_server_msg" = "The server is currently unavailable. We are working on it!";
+"error_unknown_title" = "Oops!";
+"error_unknown_msg" = "Something went wrong. Please try again later.";
+"error_retry" = "Retry";
+
+/* Toast Notifications */
+"toast_auth_success" = "Welcome back!";
+"toast_auth_failed" = "Authentication failed. Please log in again.";
+"toast_generic_warning" = "Warning: Proceed with caution.";

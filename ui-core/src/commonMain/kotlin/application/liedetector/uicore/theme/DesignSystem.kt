@@ -14,7 +14,7 @@ class DesignSystem(
     // Helper methods to get values easily in UI
     fun color(token: ColorToken): String = resources.getColorHex(token, isDark)
     fun dimen(token: DimenToken): Float = resources.getDimension(token)
-    fun string(key: String): String = resources.getString(key)
+    fun string(token: StringToken): String = resources.getString(token)
     fun icon(key: String): IconResource = resources.getSystemIcon(key)
 }
 

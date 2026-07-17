@@ -7,10 +7,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import application.liedetector.presentation.main.MainComponent
+import application.liedetector.ui.components.AppScaffold
 import application.liedetector.ui.components.widgets.WidgetRenderer
 import application.liedetector.uicore.theme.LocalDesignSystem
 import application.liedetector.uicore.theme.ColorToken
@@ -25,8 +24,9 @@ fun MainHost(component: MainComponent) {
     val state by component.viewModel.state.collectAsState()
     val designSystem = LocalDesignSystem.current
     
-    Scaffold(
-        containerColor = Color.Transparent, // Reveals the global ScalesBackground
+    AppScaffold(
+        viewModel = component.viewModel,
+        onRetry = { component.retry() },
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
@@ -46,34 +46,23 @@ fun MainHost(component: MainComponent) {
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Transparent
+                    containerColor = androidx.compose.ui.graphics.Color.Transparent
                 )
             )
         }
     ) { padding ->
-        Box(modifier = Modifier.fillMaxSize().padding(padding)) {
-            if (state.error != null) {
-                Text(
-                    text = state.error!!,
-                    color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodyLarge,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.align(Alignment.Center)
-                        .padding(designSystem.dimen(DimenToken.SPACING_LARGE).dp)
-                )
-            } else {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    item { 
-                        Spacer(modifier = Modifier.height(designSystem.dimen(DimenToken.SPACING_LARGE).dp)) 
-                    }
-                    
-                    items(state.widgets) { widget ->
-                        WidgetRenderer(widget, onAction = { component.onAction(it) })
-                    }
-                }
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            item { 
+                Spacer(modifier = Modifier.height(designSystem.dimen(DimenToken.SPACING_LARGE).dp)) 
+            }
+            
+            items(state.widgets) { widget ->
+                WidgetRenderer(widget, onAction = { component.onAction(it) })
             }
         }
     }

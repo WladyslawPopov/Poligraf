@@ -3,6 +3,51 @@ package application.liedetector.uicore.theme
 import kotlinx.serialization.Serializable
 
 @Serializable
+enum class StringToken {
+    WELCOME_TITLE,
+    WELCOME_SUBTITLE,
+    START_INVESTIGATION,
+    DRAWER_SETTINGS,
+    DRAWER_DARK_MODE,
+    
+    // Error States
+    ERROR_NO_INTERNET_TITLE,
+    ERROR_NO_INTERNET_MSG,
+    ERROR_SERVER_TITLE,
+    ERROR_SERVER_MSG,
+    ERROR_UNKNOWN_TITLE,
+    ERROR_UNKNOWN_MSG,
+    ERROR_RETRY,
+    
+    // Toast Notifications
+    TOAST_AUTH_SUCCESS,
+    TOAST_AUTH_FAILED,
+    TOAST_GENERIC_WARNING
+}
+
+@Serializable
+enum class ErrorType {
+    NO_INTERNET,
+    SERVER_UNAVAILABLE,
+    UNAUTHORIZED,
+    UNKNOWN
+}
+
+@Serializable
+enum class ToastType {
+    SUCCESS,
+    WARNING,
+    ERROR
+}
+
+@Serializable
+data class ToastState(
+    val messageToken: StringToken? = null,
+    val messageRaw: String? = null,
+    val type: ToastType
+)
+
+@Serializable
 enum class ColorToken {
     // Concrete Palette
     BACKGROUND,      // Deep Anthracite

@@ -123,8 +123,8 @@ class DefaultAppNavigator<C : Any>(
         if (onResult != null) {
             resultCallbacks[newChild.id] = onResult
         }
-        
-        _stack.value = _stack.value + newChild
+
+        _stack.value += newChild
     }
 
     override fun pop(result: Any?) {

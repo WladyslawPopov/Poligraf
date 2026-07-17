@@ -9,13 +9,13 @@ struct DrawerView: View {
         VStack(alignment: .leading, spacing: 0) {
             Spacer().frame(height: 80)
             
-            Text("Settings")
+            Text(designSystem.string(token: .drawerSettings))
                 .font(.title2)
                 .bold()
                 .padding(.horizontal)
                 .foregroundColor(IosTheme.color(.textPrimary, from: designSystem))
 
-            Toggle("Dark Mode", isOn: Binding(
+            Toggle(designSystem.string(token: .drawerDarkMode), isOn: Binding(
                 get: { root.isDark },
                 set: { _ in root.toggleTheme() }
             ))

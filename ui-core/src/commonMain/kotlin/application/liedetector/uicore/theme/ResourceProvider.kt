@@ -4,7 +4,7 @@ package application.liedetector.uicore.theme
  * Interface that platforms must implement to provide real native resources.
  */
 interface ResourceProvider {
-    fun getString(key: String): String
+    fun getString(token: StringToken): String
     
     fun getColorHex(token: ColorToken, isDark: Boolean = true): String {
         return ThemeDefaults.getColorHex(token, isDark)

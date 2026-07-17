@@ -9,12 +9,11 @@ struct ContentView: View {
             navigator: root.navigator,
             designSystem: root.designSystem
         ) { component in
-            Group {
-                if let main = component as? MainComponent {
-                    MainView(component: main, designSystem: root.designSystem, root: root)
-                } else {
-                    Text("Loading...")
-                }
+            switch component {
+            case let main as MainComponent:
+                MainView(component: main, designSystem: root.designSystem, root: root)
+            default:
+                EmptyView()
             }
         } drawerView: {
             DrawerView(root: root, designSystem: root.designSystem)

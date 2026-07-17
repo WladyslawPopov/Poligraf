@@ -41,12 +41,12 @@ fun WidgetRenderer(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = designSystem.string(widget.titleKey),
+                        text = designSystem.string(widget.titleToken),
                         style = MaterialTheme.typography.headlineMedium,
                         color = designSystem.composeColor(ColorToken.TEXT_PRIMARY),
                         textAlign = TextAlign.Center
                     )
-                    widget.subtitleKey?.let {
+                    widget.subtitleToken?.let {
                         Spacer(modifier = Modifier.height(designSystem.dimen(DimenToken.SPACING_TINY).dp))
                         Text(
                             text = designSystem.string(it),
@@ -98,7 +98,7 @@ fun WidgetRenderer(
                 )
             ) {
                 Text(
-                    text = designSystem.string(widget.textKey),
+                    text = designSystem.string(widget.textToken),
                     style = MaterialTheme.typography.titleMedium
                 )
             }

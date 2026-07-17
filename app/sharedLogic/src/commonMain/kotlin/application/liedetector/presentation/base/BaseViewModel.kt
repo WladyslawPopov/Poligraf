@@ -3,15 +3,22 @@ package application.liedetector.presentation.base
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import application.liedetector.engine.domain.responseModels.ServerErrorException
+import application.liedetector.engine.utils.watcher.StateWatcher
+import application.liedetector.engine.utils.watcher.asWatcher
+import application.liedetector.uicore.theme.ErrorType
+import application.liedetector.uicore.theme.StringToken
+import application.liedetector.uicore.theme.ToastState
+import application.liedetector.uicore.theme.ToastType
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
+/**
+ * Filter for "noisy" network exceptions that shouldn't crash or block the UI.
+ */
 fun Throwable.isIgnorableException(): Boolean {
     val message = this.message ?: ""
     val name = this::class.simpleName ?: ""
@@ -25,51 +32,112 @@ fun Throwable.isIgnorableException(): Boolean {
 }
 
 /**
- * Base Interface for ViewModels to handle common UI states like loading and errors.
+ * Maps raw exceptions to high-level ErrorType for consistent UI rendering.
  */
-interface IBaseViewModel {
-    val scope : CoroutineScope
-    val isLoading: StateFlow<Boolean>
-    val error: StateFlow<ServerErrorException?>
-    
-    fun setLoading(value: Boolean)
-    fun onError(e: ServerErrorException)
-    fun clearError()
+fun Throwable.toErrorType(): ErrorType {
+    val message = this.message ?: ""
+    return when {
+        message.contains("Unable to resolve host", ignoreCase = true) || 
+        message.contains("failed to connect", ignoreCase = true) -> ErrorType.NO_INTERNET
+        else -> ErrorType.UNKNOWN
+    }
 }
 
 /**
- * Common implementation of IBaseViewModel to be used as a delegate.
+ * Base Interface for ViewModels to handle common UI states: Loading, Error, and Toasts.
  */
-class BaseViewModelImpl : IBaseViewModel {
-    override val scope : CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+interface IBaseViewModel {
+    val scope: CoroutineScope
+    val isLoading: StateFlow<Boolean>
+    val errorType: StateFlow<ErrorType?>
+    val toastState: StateFlow<ToastState?>
+    
+    // Watchers for iOS
+    val isLoadingWatcher: StateWatcher<Boolean>
+    val errorTypeWatcher: StateWatcher<ErrorType?>
+    val toastStateWatcher: StateWatcher<ToastState?>
+    
+    fun setLoading(value: Boolean)
+    fun setManualError(type: ErrorType?)
+    fun showToast(token: StringToken, type: ToastType)
+    fun showRawToast(message: String, type: ToastType)
+    fun clearError()
+    fun clearToast()
+}
+
+/**
+ * Delegation implementation of IBaseViewModel.
+ */
+class BaseViewModelImpl(private val parentScope: CoroutineScope) : IBaseViewModel {
+    override val scope: CoroutineScope = parentScope
 
     private val _isLoading = MutableStateFlow(false)
     override val isLoading = _isLoading.asStateFlow()
 
-    private val _error = MutableStateFlow<ServerErrorException?>(null)
-    override val error = _error.asStateFlow()
+    private val _errorType = MutableStateFlow<ErrorType?>(null)
+    override val errorType = _errorType.asStateFlow()
+
+    private val _toastState = MutableStateFlow<ToastState?>(null)
+    override val toastState = _toastState.asStateFlow()
+
+    override val isLoadingWatcher: StateWatcher<Boolean> = isLoading.asWatcher(scope)
+    override val errorTypeWatcher: StateWatcher<ErrorType?> = errorType.asWatcher(scope)
+    override val toastStateWatcher: StateWatcher<ToastState?> = toastState.asWatcher(scope)
 
     override fun setLoading(value: Boolean) {
         _isLoading.value = value
     }
 
-    override fun onError(e: ServerErrorException) {
-        _error.value = e
+    override fun setManualError(type: ErrorType?) {
+        _errorType.value = type
+    }
+
+    override fun showToast(token: StringToken, type: ToastType) {
+        _toastState.value = ToastState(messageToken = token, type = type)
+    }
+
+    override fun showRawToast(message: String, type: ToastType) {
+        _toastState.value = ToastState(messageRaw = message, type = type)
     }
 
     override fun clearError() {
-        _error.value = null
+        _errorType.value = null
+    }
+
+    override fun clearToast() {
+        _toastState.value = null
     }
 }
 
 /**
- * Base class for all ViewModels in LieDetector.
+ * Base class for all ViewModels. Provides safe coroutine launching with automatic state management.
  */
-abstract class BaseViewModel : ViewModel(), IBaseViewModel by BaseViewModelImpl() {
+abstract class BaseViewModel : ViewModel(), IBaseViewModel {
     override val scope: CoroutineScope
         get() = viewModelScope
+        
+    private val delegate = BaseViewModelImpl(scope)
     
+    override val isLoading get() = delegate.isLoading
+    override val errorType get() = delegate.errorType
+    override val toastState get() = delegate.toastState
+    override val isLoadingWatcher get() = delegate.isLoadingWatcher
+    override val errorTypeWatcher get() = delegate.errorTypeWatcher
+    override val toastStateWatcher get() = delegate.toastStateWatcher
+
+    override fun setLoading(value: Boolean) = delegate.setLoading(value)
+    override fun setManualError(type: ErrorType?) = delegate.setManualError(type)
+    override fun showToast(token: StringToken, type: ToastType) = delegate.showToast(token, type)
+    override fun showRawToast(message: String, type: ToastType) = delegate.showRawToast(message, type)
+    override fun clearError() = delegate.clearError()
+    override fun clearToast() = delegate.clearToast()
+    
+    /**
+     * Executes a network or background task.
+     * @param isBlocking If true, shows a full-screen error on failure. If false, shows a Toast.
+     */
     protected fun launchSafe(
+        isBlocking: Boolean = true,
         block: suspend () -> Unit,
         onFinally: (() -> Unit)? = null
     ) {
@@ -78,18 +146,31 @@ abstract class BaseViewModel : ViewModel(), IBaseViewModel by BaseViewModelImpl(
                 setLoading(true)
                 block()
             } catch (e: ServerErrorException) {
-                onError(e)
+                handleException(e, e.errorType, isBlocking)
             } catch (e: Throwable) {
-                if (e.isIgnorableException()) {
-                    e.printStackTrace()
-                } else {
-                    val serverError = ServerErrorException("UNKNOWN", e.message ?: "Unknown error")
-                    onError(serverError)
+                if (!e.isIgnorableException()) {
+                    handleException(e, e.toErrorType(), isBlocking)
                 }
             } finally {
                 setLoading(false)
                 onFinally?.invoke()
             }
+        }
+    }
+
+    private fun handleException(e: Throwable, type: ErrorType, isBlocking: Boolean) {
+        e.printStackTrace()
+        if (isBlocking) {
+            setManualError(type)
+        } else {
+            // Non-blocking errors go to Toasts
+            val toastType = if (type == ErrorType.NO_INTERNET) ToastType.WARNING else ToastType.ERROR
+            val token = when(type) {
+                ErrorType.NO_INTERNET -> StringToken.ERROR_NO_INTERNET_TITLE
+                ErrorType.SERVER_UNAVAILABLE -> StringToken.ERROR_SERVER_TITLE
+                else -> StringToken.ERROR_UNKNOWN_TITLE
+            }
+            showToast(token, toastType)
         }
     }
 }
