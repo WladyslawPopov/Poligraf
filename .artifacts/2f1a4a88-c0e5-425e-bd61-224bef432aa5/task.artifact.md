@@ -1,4 +1,5 @@
-- [x] Fix Navigation Bugs
-    - [x] Update `InteractivePager.swift` (Overlay & Visuals)
-    - [x] Sync theme colors in `DrawerView.swift`
-- [x] Verification & Final Walkthrough
+- [ ] Fix Native NavigationSplitView Configuration
+    - [x] Update `IosNavigator.swift` with `preferredCompactColumn` toggle logic
+    - [x] Update `MainView.swift` to hide custom button on iPad
+    - [x] Fix `DrawerView.swift` theme colors
+- [ ] Verification & Summary

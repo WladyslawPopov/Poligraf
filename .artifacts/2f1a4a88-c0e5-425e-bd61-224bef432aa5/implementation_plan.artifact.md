@@ -1,27 +1,40 @@
-# Implementation Plan - Navigation Refinement & Bug Fixes
+# Implementation Plan - Fix Native NavigationSplitView Configuration
 
-The goal is to fix two critical issues in the iOS navigation:
-1. The sidebar menu blocking user input (cannot toggle dark mode).
-2. A "white-ish grey" visual artifact/flash during the transition.
+The goal is to fix the native `NavigationSplitView` implementation to behave correctly on both iPhone and iPad, following the user's specific requirements: Sidebar closed by default on iPhone, no duplicate buttons on iPad, and correct theme application in the sidebar.
+
+## User Review Required
+
+> [!IMPORTANT]
+> I will fix the iPhone "white screen" and "inaccessible menu" issues by properly managing the `preferredCompactColumn` state. I will also ensure that the custom toggle button only appears on iPhone, avoiding duplication on iPad.
 
 ## Proposed Changes
 
-### [Component: iOS App (UI Components)]
+### [Component: iOS App (Navigation)]
 
-#### [MODIFY] [InteractivePager.swift](file:///Users/krampus/AndroidStudioProjects/KMP/LieDetector/app/iosApp/iosApp/UI/Components/InteractivePager.swift)
-- **Input Blocking Fix**:
-    - Move the "Close Overlay" into the content layer's `ZStack`. This ensures the overlay only covers the main content area that has been shifted to the right, leaving the menu on the left fully interactive.
-- **Visual Flash Fix**:
-    - Refine the shadow: use a sharper, darker shadow with a smaller spread to avoid the "grey halo" effect.
-    - Ensure `NavigationStack` background doesn't leak.
-    - Adjust the background layering to ensure only one "true" background is visible at any time.
+#### [MODIFY] [IosNavigator.swift](file:///Users/krampus/AndroidStudioProjects/KMP/LieDetector/app/iosApp/iosApp/Navigation/IosNavigator.swift)
+- **Compact Navigation Logic**:
+    - Update `toggleDrawer()` to switch `preferredCompactColumn` between `.sidebar` and `.detail` when on iPhone. This is the only way to programmatically switch columns in a compact `NavigationSplitView`.
+- **Theme Consistency**:
+    - Ensure `.environment(\.colorScheme, ...)` is applied correctly to the entire split view.
+- **Background Integrity**:
+    - Remove the `.background(Color.clear)` on the detail stack if it causes white leaks.
+    - Set the `NavigationSplitView` background to the theme color.
+
+### [Component: iOS App (UI)]
+
+#### [MODIFY] [MainView.swift](file:///Users/krampus/AndroidStudioProjects/KMP/LieDetector/app/iosApp/iosApp/UI/MainView.swift)
+- **Adaptive Toolbar**:
+    - Move the custom sidebar toggle button into an `if sizeClass == .compact` block. This removes the "double button" issue on iPad while providing a way to open the menu on iPhone.
+    - Re-enable the native navigation bar appearance but with the correct theme color to ensure the "magnificent native blur" is preserved without the "ugly stripe".
 
 #### [MODIFY] [DrawerView.swift](file:///Users/krampus/AndroidStudioProjects/KMP/LieDetector/app/iosApp/iosApp/UI/Components/DrawerView.swift)
-- Ensure the background matches the main screen's theme precisely to prevent flickering during transitions.
+- **Fix Toggle Color**: Use `.tint(IosTheme.color(.accentEnergy, ...))` on the theme switcher.
+- **Fix Background**: Explicitly set the background to `IosTheme.color(.background, ...)` to override system defaults.
 
 ## Verification Plan
 
 ### Manual Verification
-- **Interactivity**: Open the drawer and toggle the "Dark Mode" switch. It should work without closing the drawer.
-- **Tapping Content**: Tap the visible sliver of the main content on the right. It should close the drawer.
-- **Visual Cleanliness**: Perform slow swipes and verify that the transition is dark and seamless, with no greyish flashes.
+1. **iPhone Launch**: App starts in the Detail view (Home). Swiping or tapping the sidebar icon transitions to the Sidebar view.
+2. **iPad Launch**: App starts in Detail view. Sidebar can be toggled via the single system-provided button.
+3. **Theme Check**: The sidebar and all its elements (toggles, text) respect the dark theme correctly.
+4. **Visual Polish**: Scrolling content shows a smooth, translucent blur in the top bar.

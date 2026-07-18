@@ -18,8 +18,8 @@ import application.liedetector.ui.components.background.ScalesBackground
 import application.liedetector.ui.components.state.ErrorView
 import application.liedetector.ui.components.state.LoadingView
 import application.liedetector.ui.components.state.ToastView
-import application.liedetector.uicore.theme.ColorToken
-import application.liedetector.uicore.theme.LocalDesignSystem
+import application.liedetector.uicore.state.*
+import application.liedetector.uicore.theme.*
 
 /**
  * Universal Scaffold for LieDetector.

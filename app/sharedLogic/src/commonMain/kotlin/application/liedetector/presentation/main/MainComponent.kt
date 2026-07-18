@@ -8,6 +8,7 @@ import application.liedetector.presentation.base.BaseViewModel
 import application.liedetector.uiwidgets.models.UiWidget
 import application.liedetector.uiwidgets.models.WidgetAction
 import application.liedetector.uiwidgets.states.TopBarUiState
+import application.liedetector.uicore.theme.StringToken
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -33,8 +34,9 @@ class MainComponent(
 @Stable
 data class MainState(
     val widgets: List<UiWidget> = emptyList(),
-    val topBarState: TopBarUiState = TopBarUiState(title = "Lie Detector"),
-    val error: String? = null
+    val topBarState: TopBarUiState = TopBarUiState(titleToken = StringToken.APP_NAME),
+    val errorRaw: String? = null,
+    val errorToken: StringToken? = null
 )
 
 class MainViewModel(private val userRepository: UserRepository) : BaseViewModel() {
@@ -53,22 +55,22 @@ class MainViewModel(private val userRepository: UserRepository) : BaseViewModel(
                 println("MAIN: Auth Success! Requesting content...")
                 loadContent()
             } else if (authResult is KmpResult.Error) {
-                _state.value = _state.value.copy(error = "Auth Error: ${authResult.throwable.message}")
+                _state.value = _state.value.copy(errorRaw = "Auth Error: ${authResult.throwable.message}")
             }
         })
     }
 
     fun loadContent() {
-        _state.value = _state.value.copy(error = null) // Clear error before retry
+        _state.value = _state.value.copy(errorRaw = null, errorToken = null) // Clear error before retry
         launchSafe(
             block = {
                 val result = userRepository.getMainScreen()
                 if (result is KmpResult.Success) {
                     println("MAIN: Content loaded successfully from SERVER")
-                    _state.value = _state.value.copy(widgets = result.data, error = null)
+                    _state.value = _state.value.copy(widgets = result.data, errorRaw = null, errorToken = null)
                 } else if (result is KmpResult.Error) {
                     println("MAIN: Server Error: ${result.throwable.message}")
-                    _state.value = _state.value.copy(error = "Server Unreachable (Click to Retry)", widgets = emptyList())
+                    _state.value = _state.value.copy(errorToken = StringToken.ERROR_SERVER_TITLE, widgets = emptyList())
                 }
             }
         )

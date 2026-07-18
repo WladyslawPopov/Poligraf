@@ -11,6 +11,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import application.liedetector.theme.utils.composeColor
+import application.liedetector.uicore.state.ErrorType
 import application.liedetector.uicore.theme.*
 
 /**
@@ -61,7 +62,7 @@ fun ErrorView(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(designSystem.composeColor(ColorToken.BACKGROUND)) // Keep it opaque to focus on the error
-                    .padding(32.dp),
+                    .padding(designSystem.dimen(DimenToken.PADDING_ERROR).dp),
                 contentAlignment = Alignment.Center
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -71,14 +72,14 @@ fun ErrorView(
                         color = designSystem.composeColor(ColorToken.TEXT_PRIMARY),
                         textAlign = TextAlign.Center
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(designSystem.dimen(DimenToken.SPACING_SMALL).dp))
                     Text(
                         text = designSystem.string(msgToken),
                         style = MaterialTheme.typography.bodyLarge,
                         color = designSystem.composeColor(ColorToken.TEXT_SECONDARY),
                         textAlign = TextAlign.Center
                     )
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(designSystem.dimen(DimenToken.SPACING_LARGE).dp))
                     Button(
                         onClick = onRetry,
                         colors = ButtonDefaults.buttonColors(

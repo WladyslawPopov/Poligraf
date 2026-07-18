@@ -47,7 +47,7 @@ struct WidgetView: View {
                             .font(.headline)
                             .foregroundColor(IosTheme.color(verdict.colorToken, from: designSystem))
                         
-                        Text("ANALYSIS_SCORE")
+                        Text(designSystem.string(token: .analysisScore))
                             .font(.caption)
                             .foregroundColor(IosTheme.color(.textSecondary, from: designSystem))
                     }
@@ -113,8 +113,8 @@ struct WidgetView: View {
                             .frame(width: 96, height: 96)
                             .overlay(Circle().stroke(IosTheme.color(.glassBorder, from: designSystem).opacity(0.5), lineWidth: 0.5))
                         
-                        Image(systemName: "mic.fill")
-                            .font(.system(size: 38))
+                        Image(systemName: designSystem.icon(token: .mic))
+                            .font(.system(size: CGFloat(designSystem.dimen(token: .iconSizeLarge))))
                             .foregroundColor(IosTheme.color(.textPrimary, from: designSystem))
                     }
                 }
@@ -138,7 +138,7 @@ struct WidgetView: View {
                 .padding(.vertical, CGFloat(designSystem.dimen(token: .spacingSmall)))
 
             default:
-                Text("Unknown widget")
+                Text(designSystem.string(token: .unknownWidget))
                     .foregroundColor(IosTheme.color(.textSecondary, from: designSystem))
             }
         }

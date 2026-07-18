@@ -2,6 +2,7 @@ import SwiftUI
 import SharedLogic
 
 struct MainView: View {
+    @Environment(\.horizontalSizeClass) var sizeClass
     let component: MainComponent
     let designSystem: DesignSystem
     let navigator: IosNavigator<AnyObject>
@@ -36,23 +37,30 @@ struct MainView: View {
             onClearToast: { component.viewModel.clearToast() }
         ) {
             ScrollView {
-                LazyVStack(spacing: CGFloat(designSystem.dimen(token: .widgetSpacing))) {
-                    Spacer().frame(height: CGFloat(designSystem.dimen(token: .spacingLarge)))
-                    
-                    if let widgets = state.value?.widgets {
-                        ForEach(widgets, id: \.id) { widget in
-                            WidgetView(widget: widget, designSystem: designSystem, onAction: { component.onAction(action: $0) })
+                VStack {
+                    LazyVStack(spacing: CGFloat(designSystem.dimen(token: .widgetSpacing))) {
+                        Spacer().frame(height: CGFloat(designSystem.dimen(token: .spacingLarge)))
+                        
+                        if let widgets = state.value?.widgets {
+                            ForEach(widgets, id: \.id) { widget in
+                                WidgetView(widget: widget, designSystem: designSystem, onAction: { component.onAction(action: $0) })
+                            }
                         }
                     }
+                    .frame(maxWidth: sizeClass == .compact ? .infinity : 600) // Cap widget width on iPad
                 }
+                .frame(maxWidth: .infinity) // Center the capped container
             }
             .scrollContentBackground(.hidden)
-            .navigationTitle(state.value?.topBarState.title ?? "")
+            .navigationTitle(state.value?.topBarState.titleToken.map { designSystem.string(token: $0) } ?? state.value?.topBarState.titleRaw ?? "")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button(action: { navigator.toggleDrawer() }) {
-                        Image(systemName: "line.3.horizontal")
+                if sizeClass == .compact && navigator.path.isEmpty {
+                    ToolbarItem(placement: .navigationBarLeading) {
+                        Button(action: { navigator.toggleDrawer() }) {
+                            Image(systemName: designSystem.icon(token: .menu))
+                                .font(.system(size: 18, weight: .bold))
+                                .foregroundColor(IosTheme.color(.textPrimary, from: designSystem))                        }
                     }
                 }
             }

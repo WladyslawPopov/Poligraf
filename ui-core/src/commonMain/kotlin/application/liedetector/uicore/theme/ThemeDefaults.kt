@@ -50,6 +50,8 @@ object ThemeDefaults {
             DimenToken.WIDGET_SPACING -> 12f
             DimenToken.CORNER_RADIUS -> 12f
             DimenToken.ICON_SIZE_NAV -> 24f
+            DimenToken.ICON_SIZE_SMALL -> 18f
+            DimenToken.ICON_SIZE_LARGE -> 38f
             DimenToken.HEADER_HEIGHT -> 64f
             DimenToken.DRAWER_CORNER -> 24f
             DimenToken.WIDGET_CORNER -> 18f
@@ -58,6 +60,8 @@ object ThemeDefaults {
             DimenToken.SPACING_SMALL -> 8f
             DimenToken.SPACING_MEDIUM -> 16f
             DimenToken.SPACING_LARGE -> 24f
+            DimenToken.PADDING_ERROR -> 32f
+            DimenToken.PADDING_LOADING -> 8f
             DimenToken.PARALLAX_INTENSITY -> 40f
         }
     }

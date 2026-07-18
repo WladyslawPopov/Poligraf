@@ -23,17 +23,13 @@ class IosNavigator<C: AnyObject>: ObservableObject {
     @Published var path: [ComponentWrapper<C>] = []
     @Published var root: ComponentWrapper<C>? = nil
     
-    // Catch ANY change to sync with Kotlin and trigger haptics
-    @Published var isDrawerOpen: Bool = false {
-        didSet {
-            if oldValue != isDrawerOpen {
-                impact.impactOccurred()
-                onSyncDrawer(isDrawerOpen)
-            }
-        }
-    }
+    // Combined state for both iPad (column visibility) and iPhone (sheet)
+    @Published var isDrawerOpen: Bool = false
     
-    private let impact = UIImpactFeedbackGenerator(style: .medium)
+    // Native iPad-specific properties
+    @Published var columnVisibility: NavigationSplitViewVisibility = .detailOnly
+    @Published var preferredColumn: NavigationSplitViewColumn = .detail
+    
     private var nativeNavStack: SharedLogic.NativeNavStack<C>?
     private let onSyncDrawer: (Bool) -> Void
     
@@ -47,17 +43,20 @@ class IosNavigator<C: AnyObject>: ObservableObject {
                 self.path = Array(wrapped.dropFirst())
             }
         }
-        impact.prepare()
     }
     
     func toggleDrawer() {
-        isDrawerOpen.toggle()
+        setDrawerOpen(!isDrawerOpen)
     }
     
     func setDrawerOpen(_ isOpen: Bool) {
-        if isDrawerOpen != isOpen {
-            isDrawerOpen = isOpen
+        withAnimation {
+            self.isDrawerOpen = isOpen
+            // Sync for iPad split view
+            self.columnVisibility = isOpen ? .all : .detailOnly
+            self.preferredColumn = isOpen ? .sidebar : .detail
         }
+        onSyncDrawer(isOpen)
     }
     
     func push(route: NavRoute) {
@@ -69,32 +68,75 @@ class IosNavigator<C: AnyObject>: ObservableObject {
     }
 }
 
-struct IosNavHost<C: AnyObject, Content: View, DrawerView: View>: View {
+struct IosNavHost<C: AnyObject, Content: View, DrawerViewContent: View>: View {
+    @Environment(\.horizontalSizeClass) var sizeClass
     @ObservedObject var navigator: IosNavigator<C>
     let designSystem: DesignSystem
-    let content: (C, IosNavigator<C>) -> Content // Pass navigator to sub-views
-    let drawerView: () -> DrawerView
+    let content: (C, IosNavigator<C>) -> Content
+    let drawerView: (@escaping () -> Void) -> DrawerViewContent
     
     var body: some View {
-        InteractivePager(
-            isOpen: $navigator.isDrawerOpen,
-            menu: drawerView,
-            content: {
-                NavigationStack(path: $navigator.path) {
-                    Group {
-                        if let root = navigator.root {
-                            content(root.instance, navigator)
-                        } else {
-                            ProgressView()
-                        }
-                    }
+        Group {
+            if sizeClass == .compact {
+                iphoneLayout
+            } else {
+                ipadLayout
+            }
+        }
+        .environment(\.colorScheme, designSystem.isDark ? .dark : .light)
+        .tint(IosTheme.color(.accentEnergy, from: designSystem))
+    }
+    
+    // MARK: - iPhone (Native Sheet)
+    private var iphoneLayout: some View {
+        NavigationStack(path: $navigator.path) {
+            rootView
+                .navigationDestination(for: ComponentWrapper<C>.self) { wrapper in
+                    content(wrapper.instance, navigator)
+                }
+        }
+        .sheet(isPresented: $navigator.isDrawerOpen) {
+            drawerView {
+                navigator.setDrawerOpen(false)
+            }
+            .environment(\.colorScheme, designSystem.isDark ? .dark : .light)
+            .presentationDetents([.medium, .large])
+            .presentationDragIndicator(.visible)
+            .presentationBackground {
+                IosTheme.color(.surface, from: designSystem)
+                    .opacity(0.8)
+                    .background(.ultraThinMaterial)
+            }
+        }
+    }
+    
+    // MARK: - iPad (Native SplitView)
+    private var ipadLayout: some View {
+        NavigationSplitView(
+            columnVisibility: $navigator.columnVisibility,
+            preferredCompactColumn: $navigator.preferredColumn
+        ) {
+            drawerView {
+                navigator.setDrawerOpen(false)
+            }
+            .navigationSplitViewColumnWidth(min: 250, ideal: 300, max: 350)
+        } detail: {
+            NavigationStack(path: $navigator.path) {
+                rootView
                     .navigationDestination(for: ComponentWrapper<C>.self) { wrapper in
                         content(wrapper.instance, navigator)
                     }
-                    .scrollContentBackground(.hidden)
-                }
-                .scrollDisabled(!navigator.path.isEmpty)
             }
-        )
+        }
+        .navigationSplitViewStyle(.balanced)
+    }
+    
+    @ViewBuilder
+    private var rootView: some View {
+        if let root = navigator.root {
+            content(root.instance, navigator)
+        } else {
+            ProgressView()
+        }
     }
 }

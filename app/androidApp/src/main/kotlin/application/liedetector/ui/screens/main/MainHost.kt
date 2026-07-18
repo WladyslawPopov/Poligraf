@@ -11,12 +11,8 @@ import androidx.compose.ui.unit.dp
 import application.liedetector.presentation.main.MainComponent
 import application.liedetector.ui.components.AppScaffold
 import application.liedetector.ui.components.widgets.WidgetRenderer
-import application.liedetector.uicore.theme.LocalDesignSystem
-import application.liedetector.uicore.theme.ColorToken
-import application.liedetector.uicore.theme.DimenToken
+import application.liedetector.uicore.theme.*
 import application.liedetector.theme.utils.composeColor
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Menu
 import androidx.compose.ui.graphics.Color
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -31,8 +27,11 @@ fun MainHost(component: MainComponent) {
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
+                    val title = state.topBarState.titleToken?.let { designSystem.string(it) } 
+                                ?: state.topBarState.titleRaw 
+                                ?: ""
                     Text(
-                        text = state.topBarState.title,
+                        text = title,
                         color = designSystem.composeColor(ColorToken.TEXT_PRIMARY),
                         style = MaterialTheme.typography.titleLarge
                     )
@@ -40,8 +39,8 @@ fun MainHost(component: MainComponent) {
                 navigationIcon = {
                     IconButton(onClick = { component.context.navigator?.toggleDrawer() }) {
                         Icon(
-                            imageVector = Icons.Rounded.Menu,
-                            contentDescription = "Menu",
+                            imageVector = designSystem.icon(IconToken.MENU),
+                            contentDescription = designSystem.string(StringToken.MENU),
                             tint = designSystem.composeColor(ColorToken.TEXT_PRIMARY)
                         )
                     }

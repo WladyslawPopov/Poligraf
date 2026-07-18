@@ -17,5 +17,5 @@ interface ResourceProvider {
     /**
      * Returns the platform-specific icon resource.
      */
-    fun getSystemIcon(key: String): IconResource
+    fun getIcon(token: IconToken): IconResource
 }

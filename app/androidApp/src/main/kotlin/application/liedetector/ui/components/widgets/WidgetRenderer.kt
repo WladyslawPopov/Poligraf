@@ -8,12 +8,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import application.liedetector.uicore.theme.LocalDesignSystem
+import application.liedetector.uicore.theme.*
 import application.liedetector.uiwidgets.models.WidgetAction
 import application.liedetector.uiwidgets.models.UiWidget
 import application.liedetector.theme.utils.composeColor
-import application.liedetector.uicore.theme.ColorToken
-import application.liedetector.uicore.theme.DimenToken
 
 @Composable
 fun WidgetRenderer(
@@ -73,8 +71,8 @@ fun WidgetRenderer(
                     shape = CircleShape
                 ) {
                     Icon(
-                        imageVector = designSystem.icon("mic"),
-                        contentDescription = "Record",
+                        imageVector = designSystem.icon(IconToken.MIC),
+                        contentDescription = designSystem.string(StringToken.RECORD),
                         modifier = Modifier.size(48.dp)
                     )
                 }
@@ -106,7 +104,7 @@ fun WidgetRenderer(
         
         else -> {
             Text(
-                text = "Unknown: ${widget::class.simpleName}", 
+                text = designSystem.string(StringToken.UNKNOWN_WIDGET) + ": ${widget::class.simpleName}", 
                 color = designSystem.composeColor(ColorToken.TEXT_SECONDARY)
             )
         }

@@ -15,7 +15,7 @@ class DesignSystem(
     fun color(token: ColorToken): String = resources.getColorHex(token, isDark)
     fun dimen(token: DimenToken): Float = resources.getDimension(token)
     fun string(token: StringToken): String = resources.getString(token)
-    fun icon(key: String): IconResource = resources.getSystemIcon(key)
+    fun icon(token: IconToken): IconResource = resources.getIcon(token)
 }
 
 /**

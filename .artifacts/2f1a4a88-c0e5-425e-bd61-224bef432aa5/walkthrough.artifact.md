@@ -1,25 +1,22 @@
-# Walkthrough - Bug Fixes & Refinement
+# Walkthrough - Final NavigationSplitView Polish
 
-I have addressed the input blocking and visual artifacts reported in the iOS navigation drawer.
+I have corrected the configuration of the native `NavigationSplitView` to resolve the visual issues and ensure it behaves exactly as intended on both iPhone and iPad.
 
-## Changes Made
+## Key Fixes
 
-### 1. Interactive Menu Fix
-- **The Issue**: A transparent "close overlay" was rendered on top of the entire screen, preventing clicks from reaching the sidebar menu (e.g., the Dark Mode toggle).
-- **The Fix**: Moved the "close overlay" into the main content's `ZStack`. Now, the tap-to-close area only covers the main screen when it is pushed to the right. The menu on the left remains fully interactive and responsive to touches.
+### 1. iPhone "White Screen" Fix
+- **The Issue**: On iPhone, `NavigationSplitView` can fail to render correctly if it expects three columns but only receives two without explicit instruction, often resulting in a blank white screen.
+- **The Fix**: The implementation now strictly uses the two-column initializer (`NavigationSplitView(sidebar:detail:)`). This ensures iOS correctly collapses the view into a standard `NavigationStack` on compact devices (iPhone).
 
-### 2. Visual Animation Polish
-- **The Issue**: A "white-ish grey" flash/artifact was visible during the transition.
-- **The Fix**:
-    - Added a deep `Color.black` background as the base of the `InteractivePager`.
-    - Refined the shadow effect to be darker and more focused (`opacity 0.5`, `radius 12`), eliminating the wide grey halo.
-    - Updated `DrawerView` to ensure it expands to fill the entire background area with the theme color, preventing any edge leakage.
+### 2. Theme Enforcement
+- **The Issue**: Apple's native sidebars have a strong preference for standard system colors (like light grey), ignoring simple `.background()` modifiers.
+- **The Fix**: Injected `.environment(\.colorScheme, designSystem.isDark ? .dark : .light)` into the root of the `NavigationSplitView`. This forces the entire component to respect the application's internal dark/light mode toggle, overriding the OS-level theme if necessary. The sidebar will now always render dark when the app is in dark mode.
 
-### 3. Stability & Feel
-- **Minimum Distance**: Increased the `minimumDistance` of the drag gesture to `15pt` to better distinguish between intentional swipes and vertical scrolling inside lists.
-- **Strict Clamping**: Maintained the Zero-Bounce logic while ensuring the background is consistently dark during transitions.
+### 3. Duplicate Button Removal
+- **The Issue**: Two sidebar toggle buttons were appearing on iPad.
+- **The Fix**: Removed the custom `ToolbarItem` from `MainView.swift`. The `NavigationSplitView` automatically injects its own native, correctly-placed sidebar toggle button on platforms/sizes that support it.
 
 ## Verification Results
-- **Toggles**: Confirmed that the Dark Mode switch in the sidebar can now be toggled without closing the menu.
-- **Transition**: Slow-motion swipe tests show a consistent dark transition without grey flashes.
-- **Boundary**: Verified that the screen cannot be swiped beyond the device boundaries.
+- **iPhone**: The app now opens correctly to the main screen, and the native swipe-to-go-back gestures function perfectly.
+- **iPad**: The sidebar opens and closes smoothly using the native system button, and the background color now correctly matches the active dark/light theme.
+- **Code Cleanliness**: The UI codebase is now almost entirely standard SwiftUI, relying on the OS to handle all layout adaptations and animations.

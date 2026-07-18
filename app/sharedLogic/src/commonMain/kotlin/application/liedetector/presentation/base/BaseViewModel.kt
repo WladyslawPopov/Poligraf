@@ -5,10 +5,8 @@ import androidx.lifecycle.viewModelScope
 import application.liedetector.engine.domain.responseModels.ServerErrorException
 import application.liedetector.engine.utils.watcher.StateWatcher
 import application.liedetector.engine.utils.watcher.asWatcher
-import application.liedetector.uicore.theme.ErrorType
+import application.liedetector.uicore.state.*
 import application.liedetector.uicore.theme.StringToken
-import application.liedetector.uicore.theme.ToastState
-import application.liedetector.uicore.theme.ToastType
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow

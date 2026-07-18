@@ -17,8 +17,8 @@ struct ContentView: View {
                     EmptyView()
                 }
             }
-        } drawerView: {
-            DrawerView(root: root, designSystem: root.designSystem)
+        } drawerView: { closeAction in
+            DrawerView(root: root, designSystem: root.designSystem, onUserClose: closeAction)
         }
     }
 }

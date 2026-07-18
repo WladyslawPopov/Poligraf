@@ -2,15 +2,16 @@ package application.liedetector.theme
 
 import android.content.Context
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.HelpOutline
 import androidx.compose.material.icons.rounded.*
 import application.liedetector.uicore.theme.StringToken
+import application.liedetector.uicore.theme.IconToken
 import application.liedetector.uicore.theme.IconResource
 import application.liedetector.uicore.theme.ResourceProvider
 
 class AndroidResourceProvider(private val context: Context) : ResourceProvider {
     override fun getString(token: StringToken): String {
         val resId = when(token) {
+            StringToken.APP_NAME -> application.liedetector.R.string.app_name
             StringToken.WELCOME_TITLE -> application.liedetector.R.string.welcome_title
             StringToken.WELCOME_SUBTITLE -> application.liedetector.R.string.welcome_subtitle
             StringToken.START_INVESTIGATION -> application.liedetector.R.string.start_investigation
@@ -28,19 +29,25 @@ class AndroidResourceProvider(private val context: Context) : ResourceProvider {
             StringToken.TOAST_AUTH_SUCCESS -> application.liedetector.R.string.toast_auth_success
             StringToken.TOAST_AUTH_FAILED -> application.liedetector.R.string.toast_auth_failed
             StringToken.TOAST_GENERIC_WARNING -> application.liedetector.R.string.toast_generic_warning
+
+            StringToken.RECORD -> application.liedetector.R.string.record
+            StringToken.ANALYSIS_SCORE -> application.liedetector.R.string.analysis_score
+            StringToken.UNKNOWN_WIDGET -> application.liedetector.R.string.unknown_widget
+            StringToken.MENU -> application.liedetector.R.string.menu
+            StringToken.CLOSE -> application.liedetector.R.string.close
         }
         return context.getString(resId)
     }
 
-    override fun getSystemIcon(key: String): IconResource {
-        return when(key) {
-            "mic" -> Icons.Rounded.Mic
-            "history" -> Icons.Rounded.History
-            "settings" -> Icons.Rounded.Settings
-            "profile" -> Icons.Rounded.AccountCircle
-            "chevron_right" -> Icons.Rounded.ChevronRight
-            "menu" -> Icons.Rounded.Menu
-            else -> Icons.Outlined.HelpOutline
+    override fun getIcon(token: IconToken): IconResource {
+        return when(token) {
+            IconToken.MIC -> Icons.Rounded.Mic
+            IconToken.HISTORY -> Icons.Rounded.History
+            IconToken.SETTINGS -> Icons.Rounded.Settings
+            IconToken.PROFILE -> Icons.Rounded.AccountCircle
+            IconToken.CHEVRON_RIGHT -> Icons.Rounded.ChevronRight
+            IconToken.MENU -> Icons.Rounded.Menu
+            IconToken.CLOSE -> Icons.Rounded.Close
         }
     }
 }

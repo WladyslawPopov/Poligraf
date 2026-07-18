@@ -5,14 +5,46 @@ class IosResourceProvider: ResourceProvider {
     func getString(token: StringToken) -> String {
         let key: String
         switch token {
+        case .appName: key = "app_name"
         case .welcomeTitle: key = "welcome_title"
         case .welcomeSubtitle: key = "welcome_subtitle"
         case .startInvestigation: key = "start_investigation"
         case .drawerSettings: key = "drawer_settings"
         case .drawerDarkMode: key = "drawer_dark_mode"
-default: key = ""
+        
+        case .errorNoInternetTitle: key = "error_no_internet_title"
+        case .errorNoInternetMsg: key = "error_no_internet_msg"
+        case .errorServerTitle: key = "error_server_title"
+        case .errorServerMsg: key = "error_server_msg"
+        case .errorUnknownTitle: key = "error_unknown_title"
+        case .errorUnknownMsg: key = "error_unknown_msg"
+        case .errorRetry: key = "error_retry"
+        
+        case .toastAuthSuccess: key = "toast_auth_success"
+        case .toastAuthFailed: key = "toast_auth_failed"
+        case .toastGenericWarning: key = "toast_generic_warning"
+
+        case .record: key = "record"
+        case .analysisScore: key = "analysis_score"
+        case .unknownWidget: key = "unknown_widget"
+        case .menu: key = "menu"
+        case .close: key = "close"
+        default: key = ""
         }
         return NSLocalizedString(key, comment: "")
+    }
+    
+    func getIcon(token: IconToken) -> String {
+        switch token {
+        case .mic: return "mic.fill"
+        case .history: return "clock.fill"
+        case .settings: return "gearshape.fill"
+        case .profile: return "person.circle.fill"
+        case .chevronRight: return "chevron.right"
+        case .menu: return "line.3.horizontal"
+        case .close: return "xmark"
+        default: return "questionmark.circle"
+        }
     }
     
     func getColorHex(token: ColorToken, isDark: Bool) -> String {
@@ -21,9 +53,5 @@ default: key = ""
     
     func getDimension(token: DimenToken) -> Float {
         return ThemeDefaults.shared.getDimension(token: token)
-    }
-    
-    func getSystemIcon(key: String) -> String {
-        return key
     }
 }

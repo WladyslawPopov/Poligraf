@@ -11,8 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import application.liedetector.theme.utils.composeColor
-import application.liedetector.uicore.theme.ColorToken
-import application.liedetector.uicore.theme.LocalDesignSystem
+import application.liedetector.uicore.theme.*
 
 /**
  * A non-blocking loading indicator overlay.
@@ -29,14 +28,14 @@ fun LoadingView(
             visible = isVisible,
             enter = fadeIn() + expandVertically(),
             exit = fadeOut() + shrinkVertically(),
-            modifier = Modifier.align(Alignment.TopCenter).padding(top = 16.dp)
+            modifier = Modifier.align(Alignment.TopCenter).padding(top = designSystem.dimen(DimenToken.SPACING_MEDIUM).dp)
         ) {
             Box(
                 modifier = Modifier
                     .size(44.dp)
                     .clip(CircleShape)
                     .background(designSystem.composeColor(ColorToken.SURFACE).copy(alpha = 0.8f))
-                    .padding(8.dp),
+                    .padding(designSystem.dimen(DimenToken.PADDING_LOADING).dp),
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator(
