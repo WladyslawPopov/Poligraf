@@ -4,18 +4,19 @@ import SharedLogic
 struct MainView: View {
     let component: MainComponent
     let designSystem: DesignSystem
+    let navigator: IosNavigator<AnyObject>
+    
     @ObservedObject var state: ObservableState<MainState>
-    @ObservedObject var root: RootComponentWrapper
     
     // Bridging common states for AppScaffold
     @ObservedObject var loading: ObservableState<KotlinBoolean>
     @ObservedObject var error: ObservableState<ErrorType>
     @ObservedObject var toast: ObservableState<ToastState>
 
-    init(component: MainComponent, designSystem: DesignSystem, root: RootComponentWrapper) {
+    init(component: MainComponent, designSystem: DesignSystem, navigator: IosNavigator<AnyObject>) {
         self.component = component
         self.designSystem = designSystem
-        self.root = root
+        self.navigator = navigator
         self._state = ObservedObject(wrappedValue: ObservableState<MainState>(component.stateWatcher))
         
         // Bridging BaseViewModel states to SwiftUI
@@ -37,17 +38,20 @@ struct MainView: View {
             ScrollView {
                 LazyVStack(spacing: CGFloat(designSystem.dimen(token: .widgetSpacing))) {
                     Spacer().frame(height: CGFloat(designSystem.dimen(token: .spacingLarge)))
-                    ForEach(state.value.widgets, id: \.id) { widget in
-                        WidgetView(widget: widget, designSystem: designSystem, onAction: { component.onAction(action: $0) })
+                    
+                    if let widgets = state.value?.widgets {
+                        ForEach(widgets, id: \.id) { widget in
+                            WidgetView(widget: widget, designSystem: designSystem, onAction: { component.onAction(action: $0) })
+                        }
                     }
                 }
             }
             .scrollContentBackground(.hidden)
-            .navigationTitle(state.value.topBarState.title)
+            .navigationTitle(state.value?.topBarState.title ?? "")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button(action: { root.navigator.toggleDrawer() }) {
+                    Button(action: { navigator.toggleDrawer() }) {
                         Image(systemName: "line.3.horizontal")
                     }
                 }

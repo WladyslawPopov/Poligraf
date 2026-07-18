@@ -10,6 +10,7 @@ struct AppScaffold<Content: View>: View {
     let errorType: ErrorType?
     let toastState: ToastState?
     let designSystem: DesignSystem
+    let useAnimatedBackground: Bool
     let onRetry: () -> Void
     let onClearError: () -> Void
     let onClearToast: () -> Void
@@ -18,16 +19,17 @@ struct AppScaffold<Content: View>: View {
     init(
         viewModel: IBaseViewModel,
         designSystem: DesignSystem,
+        useAnimatedBackground: Bool = true,
         onRetry: @escaping () -> Void = {},
         @ViewBuilder content: @escaping () -> Content
     ) {
         // Bridging StateFlow to simple Swift values for this wrapper
-        // In a real reactive bridge, these would be Observed properties
         self.isLoading = viewModel.isLoading.value as? Bool ?? false
         self.errorType = viewModel.errorType.value as? ErrorType
         self.toastState = viewModel.toastState.value as? ToastState
         
         self.designSystem = designSystem
+        self.useAnimatedBackground = useAnimatedBackground
         self.onRetry = onRetry
         self.onClearError = { viewModel.clearError() }
         self.onClearToast = { viewModel.clearToast() }
@@ -40,6 +42,7 @@ struct AppScaffold<Content: View>: View {
         errorType: ErrorType?,
         toastState: ToastState?,
         designSystem: DesignSystem,
+        useAnimatedBackground: Bool = true,
         onRetry: @escaping () -> Void = {},
         onClearError: @escaping () -> Void = {},
         onClearToast: @escaping () -> Void = {},
@@ -49,6 +52,7 @@ struct AppScaffold<Content: View>: View {
         self.errorType = errorType
         self.toastState = toastState
         self.designSystem = designSystem
+        self.useAnimatedBackground = useAnimatedBackground
         self.onRetry = onRetry
         self.onClearError = onClearError
         self.onClearToast = onClearToast
@@ -57,6 +61,15 @@ struct AppScaffold<Content: View>: View {
 
     var body: some View {
         ZStack {
+            // 0. Background Layer
+            if useAnimatedBackground {
+                ScalesView(designSystem: designSystem)
+                    .ignoresSafeArea()
+            } else {
+                IosTheme.color(.background, from: designSystem)
+                    .ignoresSafeArea()
+            }
+
             // Main Layer
             content()
             
@@ -83,6 +96,6 @@ struct AppScaffold<Content: View>: View {
                     onDismiss: onClearToast
                 )
             }
-        }
+        }.containerBackground(.clear, for: .navigation)
     }
 }

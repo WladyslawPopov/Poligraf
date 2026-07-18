@@ -1,0 +1,4 @@
+- [x] Fix Navigation Bugs
+    - [x] Update `InteractivePager.swift` (Overlay & Visuals)
+    - [x] Sync theme colors in `DrawerView.swift`
+- [x] Verification & Final Walkthrough

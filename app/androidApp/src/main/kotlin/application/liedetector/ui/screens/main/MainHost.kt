@@ -17,6 +17,7 @@ import application.liedetector.uicore.theme.DimenToken
 import application.liedetector.theme.utils.composeColor
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Menu
+import androidx.compose.ui.graphics.Color
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -46,7 +47,7 @@ fun MainHost(component: MainComponent) {
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = androidx.compose.ui.graphics.Color.Transparent
+                    containerColor = Color.Transparent
                 )
             )
         }
@@ -58,7 +59,7 @@ fun MainHost(component: MainComponent) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             item { 
-                Spacer(modifier = Modifier.height(designSystem.dimen(DimenToken.SPACING_LARGE).dp)) 
+                Spacer(modifier = Modifier.height(designSystem.dimen(DimenToken.SPACING_LARGE).dp))
             }
             
             items(state.widgets) { widget ->

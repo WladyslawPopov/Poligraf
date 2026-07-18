@@ -14,7 +14,8 @@ struct WidgetView: View {
     
     var body: some View {
         Group {
-            if let header = widget as? UiWidget.Header {
+            switch widget {
+            case let header as UiWidget.Header:
                 VStack(alignment: .center, spacing: CGFloat(designSystem.dimen(token: .spacingSmall))) {
                     Text(designSystem.string(token: header.titleToken))
                         .font(.title2)
@@ -39,10 +40,10 @@ struct WidgetView: View {
                 .padding(.horizontal, CGFloat(designSystem.dimen(token: .spacingMedium)))
                 .padding(.vertical, CGFloat(designSystem.dimen(token: .spacingSmall)))
                 
-            } else if let verdict = widget as? UiWidget.VerdictCard {
+            case let verdict as UiWidget.VerdictCard:
                 HStack(spacing: CGFloat(designSystem.dimen(token: .spacingLarge))) {
                     VStack(alignment: .leading, spacing: CGFloat(designSystem.dimen(token: .spacingTiny))) {
-                        Text(designSystem.string(key: verdict.verdictKey))
+                        Text(designSystem.string(token: verdict.verdictToken))
                             .font(.headline)
                             .foregroundColor(IosTheme.color(verdict.colorToken, from: designSystem))
                         
@@ -76,7 +77,7 @@ struct WidgetView: View {
                 .padding(.horizontal, CGFloat(designSystem.dimen(token: .spacingMedium)))
                 .padding(.vertical, CGFloat(designSystem.dimen(token: .spacingSmall)))
 
-            } else if let graph = widget as? UiWidget.AcousticGraph {
+            case let graph as UiWidget.AcousticGraph:
                 VStack(alignment: .leading, spacing: CGFloat(designSystem.dimen(token: .spacingSmall))) {
                     GeometryReader { geo in
                         SwiftUI.Path { path in
@@ -104,7 +105,7 @@ struct WidgetView: View {
                 .padding(.horizontal, CGFloat(designSystem.dimen(token: .spacingMedium)))
                 .padding(.vertical, CGFloat(designSystem.dimen(token: .spacingSmall)))
 
-            } else if let micBtn = widget as? UiWidget.MicrophoneButton {
+            case let micBtn as UiWidget.MicrophoneButton:
                 Button(action: { onAction(micBtn.action) }) {
                     ZStack {
                         Circle()
@@ -119,7 +120,7 @@ struct WidgetView: View {
                 }
                 .padding(.vertical, CGFloat(designSystem.dimen(token: .spacingLarge)))
                 
-            } else if let stdBtn = widget as? UiWidget.StandardButton {
+            case let stdBtn as UiWidget.StandardButton:
                 Button(action: { onAction(stdBtn.action) }) {
                     Text(designSystem.string(token: stdBtn.textToken))
                         .font(.headline)
@@ -136,7 +137,7 @@ struct WidgetView: View {
                 .padding(.horizontal, CGFloat(designSystem.dimen(token: .spacingMedium)))
                 .padding(.vertical, CGFloat(designSystem.dimen(token: .spacingSmall)))
 
-            } else {
+            default:
                 Text("Unknown widget")
                     .foregroundColor(IosTheme.color(.textSecondary, from: designSystem))
             }

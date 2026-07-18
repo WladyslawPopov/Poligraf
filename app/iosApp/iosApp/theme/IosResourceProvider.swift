@@ -10,7 +10,7 @@ class IosResourceProvider: ResourceProvider {
         case .startInvestigation: key = "start_investigation"
         case .drawerSettings: key = "drawer_settings"
         case .drawerDarkMode: key = "drawer_dark_mode"
-        default: key = ""
+default: key = ""
         }
         return NSLocalizedString(key, comment: "")
     }

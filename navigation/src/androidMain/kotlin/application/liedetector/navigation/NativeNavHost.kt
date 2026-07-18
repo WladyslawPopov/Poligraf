@@ -54,7 +54,6 @@ fun <C : Any> NativeNavHost(
     navigator: AppNavigator<C>,
     drawerState: DrawerState? = null,
     drawerContent: @Composable (() -> Unit)? = null,
-    background: @Composable (() -> Unit)? = null,
     content: @Composable (C) -> Unit
 ) {
     val stack by navigator.stack.collectAsState()
@@ -69,22 +68,17 @@ fun <C : Any> NativeNavHost(
         }
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        // 1. Permanent Background Layer
-        background?.invoke()
-
-        // 2. Navigation & Drawer Layer
-        if (drawerContent != null && drawerState != null) {
-            ModalNavigationDrawer(
-                drawerState = drawerState,
-                drawerContent = drawerContent,
-                modifier = Modifier.fillMaxSize()
-            ) {
-                NavigationContent(topChild, content)
-            }
-        } else {
+    // Navigation & Drawer Layer
+    if (drawerContent != null && drawerState != null) {
+        ModalNavigationDrawer(
+            drawerState = drawerState,
+            drawerContent = drawerContent,
+            modifier = Modifier.fillMaxSize()
+        ) {
             NavigationContent(topChild, content)
         }
+    } else {
+        NavigationContent(topChild, content)
     }
 }
 

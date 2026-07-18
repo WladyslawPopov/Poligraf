@@ -14,19 +14,17 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
 class RootComponent(
-    val context: NavigationContext,
-    onToggleDrawer: (() -> Unit)? = null
+    val context: NavigationContext
 ) : KoinComponent {
     
     private val userRepository: UserRepository by inject()
 
     val viewModel = RootViewModel(userRepository)
     val stateWatcher = viewModel.state.asWatcher(context.lifecycle.coroutineScope)
-
+    
     val navigator: AppNavigator<Any> = DefaultAppNavigator(
         startScreen = AppRoute.Main,
         rootContext = context,
-        onToggleDrawer = onToggleDrawer,
         componentFactory = { route, childContext ->
             when (route) {
                 is AppRoute.Main -> MainComponent(
@@ -38,8 +36,14 @@ class RootComponent(
                     childContext, 
                     InvestigationViewModel(route.subjectId)
                 )
+                is AppRoute.Menu -> MainComponent(
+                    childContext,
+                    MainViewModel(userRepository)
+                )
                 else -> throw IllegalArgumentException("Unknown route: $route")
             }
         }
     )
+
+    val drawerOpenWatcher = navigator.isDrawerOpen.asWatcher(context.lifecycle.coroutineScope)
 }

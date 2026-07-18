@@ -16,4 +16,7 @@ sealed class AppRoute : NavRoute {
     
     @Serializable
     data object Profile : AppRoute()
+
+    @Serializable
+    data object Menu : AppRoute()
 }

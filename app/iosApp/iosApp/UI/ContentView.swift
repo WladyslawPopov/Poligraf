@@ -8,12 +8,14 @@ struct ContentView: View {
         IosNavHost(
             navigator: root.navigator,
             designSystem: root.designSystem
-        ) { component in
-            switch component {
-            case let main as MainComponent:
-                MainView(component: main, designSystem: root.designSystem, root: root)
-            default:
-                EmptyView()
+        ) { component, navigator in
+            Group {
+                switch component {
+                case let main as MainComponent:
+                    MainView(component: main, designSystem: root.designSystem, navigator: navigator)
+                default:
+                    EmptyView()
+                }
             }
         } drawerView: {
             DrawerView(root: root, designSystem: root.designSystem)

@@ -56,6 +56,16 @@ interface AppNavigator<C : Any> {
     fun toggleDrawer()
 
     /**
+     * Explicitly set drawer state.
+     */
+    fun setDrawerOpen(isOpen: Boolean)
+
+    /**
+     * Events for triggering drawer toggle in UI.
+     */
+    val isDrawerOpen: StateFlow<Boolean>
+
+    /**
      * State restoration: Save current stack as a list of serialized strings.
      */
     fun saveState(serializer: (NavRoute) -> String): List<String>
@@ -73,12 +83,14 @@ class DefaultAppNavigator<C : Any>(
     startScreen: NavRoute,
     private val rootContext: NavigationContext,
     private val componentFactory: (NavRoute, NavigationContext) -> C,
-    private val stackKey: String = "default_stack",
-    private val onToggleDrawer: (() -> Unit)? = null
+    private val stackKey: String = "default_stack"
 ) : AppNavigator<C> {
 
     private val _stack = MutableStateFlow<List<Child<C>>>(emptyList())
     override val stack: StateFlow<List<Child<C>>> = _stack.asStateFlow()
+
+    private val _isDrawerOpen = MutableStateFlow(false)
+    override val isDrawerOpen: StateFlow<Boolean> = _isDrawerOpen.asStateFlow()
 
     private val resultCallbacks = mutableMapOf<String, (Any) -> Unit>()
 
@@ -90,7 +102,11 @@ class DefaultAppNavigator<C : Any>(
     }
 
     override fun toggleDrawer() {
-        onToggleDrawer?.invoke()
+        _isDrawerOpen.value = !_isDrawerOpen.value
+    }
+
+    override fun setDrawerOpen(isOpen: Boolean) {
+        _isDrawerOpen.value = isOpen
     }
 
     override fun push(route: NavRoute) {

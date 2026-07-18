@@ -12,11 +12,9 @@ import application.liedetector.navigation.navigationContext
 import application.liedetector.presentation.main.MainComponent
 import application.liedetector.presentation.root.RootComponent
 import application.liedetector.theme.LieDetectorTheme
-import application.liedetector.ui.components.background.ScalesBackground
 import application.liedetector.ui.screens.main.MainHost
 import application.liedetector.uicore.theme.LocalDesignSystem
 import application.liedetector.ui.screens.drawer.MainDrawer
-import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
 
@@ -29,22 +27,33 @@ class MainActivity : ComponentActivity() {
         setContent {
             LieDetectorTheme {
                 val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-                val scope = rememberCoroutineScope()
                 val designSystem = LocalDesignSystem.current
 
-                val root = remember {
-                    RootComponent(navigationContext()) {
-                        scope.launch {
-                            if (drawerState.isClosed) drawerState.open() else drawerState.close()
-                        }
+                val root = remember { RootComponent(navigationContext()) }
+
+                // Sync drawer state between Navigator and Compose
+                val isDrawerOpen by root.navigator.isDrawerOpen.collectAsState()
+                
+                LaunchedEffect(isDrawerOpen) {
+                    if (isDrawerOpen && drawerState.isClosed) {
+                        drawerState.open()
+                    } else if (!isDrawerOpen && drawerState.isOpen) {
+                        drawerState.close()
+                    }
+                }
+
+                // Sync back when drawer is closed by swipe/tap
+                LaunchedEffect(drawerState.currentValue) {
+                    val isOpen = drawerState.currentValue == DrawerValue.Open
+                    if (isOpen != root.navigator.isDrawerOpen.value) {
+                        root.navigator.setDrawerOpen(isOpen)
                     }
                 }
 
                 NativeNavHost(
                     navigator = root.navigator,
                     drawerState = drawerState,
-                    background = { ScalesBackground() },
-                    drawerContent = { MainDrawer(designSystem) }
+                    drawerContent = { MainDrawer(designSystem) },
                 ) { component ->
                     when (component) {
                         is MainComponent -> MainHost(component)

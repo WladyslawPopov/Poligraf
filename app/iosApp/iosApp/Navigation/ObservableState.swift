@@ -3,22 +3,20 @@ import SharedLogic
 
 /**
  * A generic Swift wrapper that turns a Kotlin StateWatcher into a SwiftUI ObservableObject.
+ * Handles nullable Kotlin states by making the value optional.
  */
 class ObservableState<T: AnyObject>: ObservableObject {
-    @Published var value: T
+    @Published var value: T?
     
     private var closeable: WatcherCloseable?
     
     init(_ watcher: StateWatcher<T>) {
-        // Force unwrap because Kotlin StateFlow always has a value.
-        // If watcher.value is nil here, check if the KMP side is initialized.
-        self.value = watcher.value!
+        // Safe assignment - Kotlin StateFlow might be initialized with null
+        self.value = watcher.value
         
         self.closeable = watcher.watch { [weak self] newValue in
             DispatchQueue.main.async {
-                if let val = newValue {
-                    self?.value = val
-                }
+                self?.value = newValue
             }
         }
     }
