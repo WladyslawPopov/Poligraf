@@ -12,6 +12,7 @@ struct AppScaffold<Content: View>: View {
     let designSystem: DesignSystem
     let useAnimatedBackground: Bool
     let onRetry: () -> Void
+    let onRefresh: (() -> Void)?
     let onClearError: () -> Void
     let onClearToast: () -> Void
     let content: () -> Content
@@ -21,6 +22,7 @@ struct AppScaffold<Content: View>: View {
         designSystem: DesignSystem,
         useAnimatedBackground: Bool = true,
         onRetry: @escaping () -> Void = {},
+        onRefresh: (() -> Void)? = nil,
         @ViewBuilder content: @escaping () -> Content
     ) {
         // Bridging StateFlow to simple Swift values for this wrapper
@@ -31,6 +33,7 @@ struct AppScaffold<Content: View>: View {
         self.designSystem = designSystem
         self.useAnimatedBackground = useAnimatedBackground
         self.onRetry = onRetry
+        self.onRefresh = onRefresh
         self.onClearError = { viewModel.clearError() }
         self.onClearToast = { viewModel.clearToast() }
         self.content = content
@@ -44,6 +47,7 @@ struct AppScaffold<Content: View>: View {
         designSystem: DesignSystem,
         useAnimatedBackground: Bool = true,
         onRetry: @escaping () -> Void = {},
+        onRefresh: (() -> Void)? = nil,
         onClearError: @escaping () -> Void = {},
         onClearToast: @escaping () -> Void = {},
         @ViewBuilder content: @escaping () -> Content
@@ -54,6 +58,7 @@ struct AppScaffold<Content: View>: View {
         self.designSystem = designSystem
         self.useAnimatedBackground = useAnimatedBackground
         self.onRetry = onRetry
+        self.onRefresh = onRefresh
         self.onClearError = onClearError
         self.onClearToast = onClearToast
         self.content = content
@@ -96,6 +101,6 @@ struct AppScaffold<Content: View>: View {
                     onDismiss: onClearToast
                 )
             }
-        }.containerBackground(.clear, for: .navigation)
+        }.containerBackground(IosTheme.color(.background, from: designSystem), for: .navigation)
     }
 }

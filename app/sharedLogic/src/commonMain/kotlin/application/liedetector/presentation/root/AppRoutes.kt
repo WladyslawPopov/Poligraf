@@ -19,4 +19,7 @@ sealed class AppRoute : NavRoute {
 
     @Serializable
     data object Menu : AppRoute()
+
+    @Serializable
+    data object Debug : AppRoute()
 }

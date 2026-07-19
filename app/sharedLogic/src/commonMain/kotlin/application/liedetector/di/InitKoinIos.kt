@@ -20,7 +20,8 @@ fun doInitKoinIos(
     reviewManager: ReviewManager,
     resourceProvider: ResourceProvider,
     driverFactory: DriverFactory,
-    settings: Settings
+    settings: Settings,
+    isDebug: Boolean
 ) {
     val iosModule = module {
         single { authService }
@@ -28,7 +29,7 @@ fun doInitKoinIos(
         single { integrity }
         single { reviewManager }
         single { resourceProvider }
-        single { DesignSystem(get()) }
+        single { DesignSystem(get(), isDebug = isDebug) }
         single { driverFactory }
         single { settings }
     }

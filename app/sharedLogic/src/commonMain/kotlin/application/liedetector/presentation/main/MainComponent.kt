@@ -4,6 +4,7 @@ import androidx.compose.runtime.Stable
 import application.liedetector.data.user.UserRepository
 import application.liedetector.models.KmpResult
 import application.liedetector.navigation.NavigationContext
+import application.liedetector.navigation.AppNavigation
 import application.liedetector.presentation.base.BaseViewModel
 import application.liedetector.uiwidgets.models.UiWidget
 import application.liedetector.uiwidgets.models.WidgetAction
@@ -39,7 +40,10 @@ data class MainState(
     val errorToken: StringToken? = null
 )
 
-class MainViewModel(private val userRepository: UserRepository) : BaseViewModel() {
+class MainViewModel(
+    private val userRepository: UserRepository,
+    private val navigation: AppNavigation
+) : BaseViewModel() {
     private val _state = MutableStateFlow(MainState())
     val state: StateFlow<MainState> = _state.asStateFlow()
 
@@ -78,5 +82,14 @@ class MainViewModel(private val userRepository: UserRepository) : BaseViewModel(
 
     fun onWidgetAction(action: WidgetAction) {
         println("Action triggered: $action")
+        when (action) {
+            WidgetAction.OPEN_HISTORY -> {
+                navigation.openMain() // Change later to history
+            }
+            WidgetAction.OPEN_SETTINGS -> {
+                navigation.toggleDrawer()
+            }
+            else -> {}
+        }
     }
 }

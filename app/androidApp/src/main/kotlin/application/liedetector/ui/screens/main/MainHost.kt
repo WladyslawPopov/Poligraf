@@ -13,6 +13,7 @@ import application.liedetector.ui.components.AppScaffold
 import application.liedetector.ui.components.widgets.WidgetRenderer
 import application.liedetector.uicore.theme.*
 import application.liedetector.theme.utils.composeColor
+import application.liedetector.uiwidgets.models.WidgetAction
 import androidx.compose.ui.graphics.Color
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -24,6 +25,7 @@ fun MainHost(component: MainComponent) {
     AppScaffold(
         viewModel = component.viewModel,
         onRetry = { component.retry() },
+        onRefresh = { component.retry() },
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
@@ -37,7 +39,7 @@ fun MainHost(component: MainComponent) {
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = { component.context.navigator?.toggleDrawer() }) {
+                    IconButton(onClick = { component.onAction(WidgetAction.OPEN_SETTINGS) }) {
                         Icon(
                             imageVector = designSystem.icon(IconToken.MENU),
                             contentDescription = designSystem.string(StringToken.MENU),

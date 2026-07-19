@@ -23,7 +23,10 @@ fun LoadingView(
 ) {
     val designSystem = LocalDesignSystem.current
 
-    Box(modifier = modifier.fillMaxSize()) {
+    Box(modifier = modifier
+        .fillMaxSize()
+        .statusBarsPadding()
+    ) {
         AnimatedVisibility(
             visible = isVisible,
             enter = fadeIn() + expandVertically(),

@@ -9,7 +9,8 @@ import androidx.compose.runtime.staticCompositionLocalOf
 @Stable
 class DesignSystem(
     val resources: ResourceProvider,
-    val isDark: Boolean = true
+    val isDark: Boolean = true,
+    val isDebug: Boolean = false
 ) {
     // Helper methods to get values easily in UI
     fun color(token: ColorToken): String = resources.getColorHex(token, isDark)

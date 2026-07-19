@@ -16,7 +16,9 @@ tasks.withType<JavaExec> {
     // Using rootProject.file ensures the path is absolute and reachable from anywhere
     val gcpKeyFile = rootProject.file("gcp-key.json")
     
+    environment("APP_ENV", "dev") //prod or dev
     environment("DB_URL", "jdbc:postgresql://localhost:5432/liedetector")
+    environment("DB_URL_TEST", "jdbc:postgresql://localhost:5432/liedetector_test")
     environment("DB_USER", "krampus")
     environment("DB_PASSWORD", "password123")
     environment("GOOGLE_APPLICATION_CREDENTIALS", gcpKeyFile.absolutePath)

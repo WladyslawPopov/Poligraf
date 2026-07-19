@@ -18,3 +18,21 @@
 "toast_auth_success" = "Welcome back!";
 "toast_auth_failed" = "Authentication failed. Please log in again.";
 "toast_generic_warning" = "Warning: Proceed with caution.";
+
+"record" = "Record";
+"analysis_score" = "Analysis Score";
+"unknown_widget" = "Unknown Widget";
+"menu" = "Menu";
+"close" = "Close";
+
+/* Debug Dashboard */
+"debug_title" = "Architecture Debug";
+"debug_trigger_loading" = "Show Loading";
+"debug_trigger_error_blocking" = "Blocking Error";
+"debug_trigger_error_toast" = "Toast Error";
+"debug_trigger_success_toast" = "Success Toast";
+
+"tab_states" = "States";
+"tab_widgets" = "Widgets";
+"tab_labs" = "Labs";
+"open_debug_sandbox" = "Debug Sandbox";

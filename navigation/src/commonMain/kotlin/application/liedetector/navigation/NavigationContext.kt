@@ -8,12 +8,17 @@ import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryOwner
 
 /**
+ * Marker interface for screen destinations.
+ * Real routes should be @Serializable.
+ */
+interface NavRoute
+
+/**
  * Our version of ComponentContext. 
- * Bridges navigation with KMP Lifecycle, State and Instances.
+ * Bridges components with KMP Lifecycle, State and Instances.
  */
 interface NavigationContext : LifecycleOwner, ViewModelStoreOwner, SavedStateRegistryOwner {
     val backPressedHandler: BackPressedHandler
-    val navigator: AppNavigator<Any>? // Access to global navigation actions
 }
 
 interface BackPressedHandler {
@@ -43,6 +48,5 @@ class DefaultNavigationContext(
     override val lifecycle: Lifecycle,
     override val viewModelStore: ViewModelStore,
     override val savedStateRegistry: SavedStateRegistry,
-    override val navigator: AppNavigator<Any>? = null,
     override val backPressedHandler: BackPressedHandler = DefaultBackPressedHandler()
 ) : NavigationContext

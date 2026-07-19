@@ -35,6 +35,18 @@ class AndroidResourceProvider(private val context: Context) : ResourceProvider {
             StringToken.UNKNOWN_WIDGET -> application.liedetector.R.string.unknown_widget
             StringToken.MENU -> application.liedetector.R.string.menu
             StringToken.CLOSE -> application.liedetector.R.string.close
+
+            StringToken.DEBUG_TITLE -> application.liedetector.R.string.debug_title
+            StringToken.DEBUG_TRIGGER_LOADING -> application.liedetector.R.string.debug_trigger_loading
+            StringToken.DEBUG_TRIGGER_ERROR_BLOCKING -> application.liedetector.R.string.debug_trigger_error_blocking
+            StringToken.DEBUG_TRIGGER_ERROR_TOAST -> application.liedetector.R.string.debug_trigger_error_toast
+            StringToken.DEBUG_TRIGGER_SUCCESS_TOAST -> application.liedetector.R.string.debug_trigger_success_toast
+
+            StringToken.DEBUG_DASHBOARD -> application.liedetector.R.string.debug_title
+            StringToken.TAB_STATES -> application.liedetector.R.string.tab_states
+            StringToken.TAB_WIDGETS -> application.liedetector.R.string.tab_widgets
+            StringToken.TAB_LABS -> application.liedetector.R.string.tab_labs
+            StringToken.OPEN_DEBUG_SANDBOX -> application.liedetector.R.string.open_debug_sandbox
         }
         return context.getString(resId)
     }

@@ -23,10 +23,14 @@ import application.liedetector.uicore.theme.ColorToken
 import application.liedetector.uicore.theme.DesignSystem
 import application.liedetector.uicore.theme.DimenToken
 import application.liedetector.uicore.theme.StringToken
+import androidx.compose.foundation.clickable
+import application.liedetector.navigation.AppNavigation
+import application.liedetector.presentation.root.AppRoute
 
 @Composable
 fun MainDrawer(
-    designSystem: DesignSystem
+    designSystem: DesignSystem,
+    navigation: AppNavigation
 ){
     ModalDrawerSheet(
         drawerContainerColor = designSystem.composeColor(ColorToken.SURFACE),
@@ -64,5 +68,22 @@ fun MainDrawer(
             },
             colors = ListItemDefaults.colors(containerColor = Color.Transparent)
         )
+
+        if (designSystem.isDebug) {
+            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp))
+            ListItem(
+                headlineContent = {
+                    Text(
+                        designSystem.string(StringToken.OPEN_DEBUG_SANDBOX),
+                        color = designSystem.composeColor(ColorToken.ACCENT_ENERGY)
+                    )
+                },
+                modifier = Modifier.clickable {
+                    navigation.setDrawerOpen(false)
+                    navigation.openDebug()
+                },
+                colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+            )
+        }
     }
 }

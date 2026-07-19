@@ -1,51 +1,42 @@
-# Refactor UI Core: Split Tokens and Extract UI States
+# Complete Legacy Navigator Cleanup
 
-This plan aims to improve the organization of the `ui-core` module by splitting the large `ThemeTokens.kt` file into smaller, specialized files and moving UI-related states to a separate package.
+This plan focuses on removing all legacy navigation code (`AppNavigator`, `DefaultAppNavigator`, etc.) and simplifying the `navigation` module to only support `NavigationContext` and `NavRoute`.
 
 ## Proposed Changes
 
-### [UI Core (Shared)]
+### [Navigation (Shared)]
 
-#### [NEW] [ColorToken.kt](file:///Users/krampus/AndroidStudioProjects/KMP/LieDetector/ui-core/src/commonMain/kotlin/application/liedetector/uicore/theme/ColorToken.kt)
-- Contains the `ColorToken` enum.
+#### [MODIFY] [NavigationContext.kt](file:///Users/krampus/AndroidStudioProjects/KMP/LieDetector/navigation/src/commonMain/kotlin/application/liedetector/navigation/NavigationContext.kt)
+- Add `interface NavRoute`.
+- Remove `navigator: AppNavigator<Any>?` from `NavigationContext` interface.
+- Remove `navigator` parameter and property from `DefaultNavigationContext`.
 
-#### [NEW] [DimenToken.kt](file:///Users/krampus/AndroidStudioProjects/KMP/LieDetector/ui-core/src/commonMain/kotlin/application/liedetector/uicore/theme/DimenToken.kt)
-- Contains the `DimenToken` enum.
+#### [DELETE] [Navigator.kt](file:///Users/krampus/AndroidStudioProjects/KMP/LieDetector/navigation/src/commonMain/kotlin/application/liedetector/navigation/Navigator.kt)
+- Remove entire file containing legacy stack management.
 
-#### [NEW] [IconToken.kt](file:///Users/krampus/AndroidStudioProjects/KMP/LieDetector/ui-core/src/commonMain/kotlin/application/liedetector/uicore/theme/IconToken.kt)
-- Contains the `IconToken` enum.
+#### [DELETE] [NativeNavStack.kt](file:///Users/krampus/AndroidStudioProjects/KMP/LieDetector/navigation/src/nativeMain/kotlin/application/liedetector/navigation/NativeNavStack.kt)
+- Remove legacy iOS wrapper.
 
-#### [NEW] [StringToken.kt](file:///Users/krampus/AndroidStudioProjects/KMP/LieDetector/ui-core/src/commonMain/kotlin/application/liedetector/uicore/theme/StringToken.kt)
-- Contains the `StringToken` enum.
+### [Navigation (Android)]
 
-#### [NEW] [TypographyToken.kt](file:///Users/krampus/AndroidStudioProjects/KMP/LieDetector/ui-core/src/commonMain/kotlin/application/liedetector/uicore/theme/TypographyToken.kt)
-- Contains the `TypographyToken` enum.
+#### [NEW] [NavigatorUtils.kt](file:///Users/krampus/AndroidStudioProjects/KMP/LieDetector/navigation/src/androidMain/kotlin/application/liedetector/navigation/NavigatorUtils.kt)
+- Implement `ComponentActivity.navigationContext()` extension without legacy navigator parameters.
 
-#### [NEW] [UiState.kt](file:///Users/krampus/AndroidStudioProjects/KMP/LieDetector/ui-core/src/commonMain/kotlin/application/liedetector/uicore/state/UiState.kt)
-- New package: `application.liedetector.uicore.state`.
-- Contains `ErrorType`, `ToastType`, and `ToastState`.
+### [Shared Logic]
 
-#### [DELETE] [ThemeTokens.kt](file:///Users/krampus/AndroidStudioProjects/KMP/LieDetector/ui-core/src/commonMain/kotlin/application/liedetector/uicore/theme/ThemeTokens.kt)
-- Remove the old monolithic file.
+#### [MODIFY] [IosComponentFactory.kt](file:///Users/krampus/AndroidStudioProjects/KMP/LieDetector/app/sharedLogic/src/nativeMain/kotlin/application/liedetector/di/IosComponentFactory.kt)
+- Update `DefaultNavigationContext` initialization to reflect the simplified constructor.
 
-### [Import Updates]
+### [Android Implementation]
 
-#### [MODIFY] Multiple Files
-- Update imports of `ErrorType`, `ToastType`, and `ToastState` from `application.liedetector.uicore.theme` to `application.liedetector.uicore.state`.
-- Affected files include:
-    - `BaseViewModel.kt`
-    - `ServerErrorException.kt`
-    - `ErrorView.kt`
-    - `ToastView.kt`
-    - `AppScaffold.kt` (Android & iOS)
-    - `MainView.swift` (if applicable, though usually bridged)
+#### [MODIFY] [MainActivity.kt](file:///Users/krampus/AndroidStudioProjects/KMP/LieDetector/app/androidApp/src/main/kotlin/application/liedetector/MainActivity.kt)
+- Ensure all calls to `navigationContext()` are clean.
 
 ## Verification Plan
 
 ### Automated Tests
-- Run `gradle :ui-core:assemble` to verify the module builds correctly with new file structure.
-- Run `gradle :app:androidApp:assembleDebug` to ensure all imports are fixed.
+- Run `gradle :navigation:assemble` to ensure the simplified module builds.
+- Run `gradle :app:androidApp:assembleDebug` to verify no legacy navigator imports remain.
 
 ### Manual Verification
-- Check that the project builds in Android Studio.
-- Verify that no duplicate definitions exist.
+- Verify that the app still navigates correctly on both platforms using the new native stack.

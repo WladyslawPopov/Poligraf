@@ -3,9 +3,9 @@ import SharedLogic
 
 struct MainView: View {
     @Environment(\.horizontalSizeClass) var sizeClass
+    @ObservedObject var root: RootComponentWrapper
     let component: MainComponent
     let designSystem: DesignSystem
-    let navigator: IosNavigator<AnyObject>
     
     @ObservedObject var state: ObservableState<MainState>
     
@@ -14,10 +14,10 @@ struct MainView: View {
     @ObservedObject var error: ObservableState<ErrorType>
     @ObservedObject var toast: ObservableState<ToastState>
 
-    init(component: MainComponent, designSystem: DesignSystem, navigator: IosNavigator<AnyObject>) {
+    init(root: RootComponentWrapper, component: MainComponent, designSystem: DesignSystem) {
+        self.root = root
         self.component = component
         self.designSystem = designSystem
-        self.navigator = navigator
         self._state = ObservedObject(wrappedValue: ObservableState<MainState>(component.stateWatcher))
         
         // Bridging BaseViewModel states to SwiftUI
@@ -33,6 +33,7 @@ struct MainView: View {
             toastState: toast.value,
             designSystem: designSystem,
             onRetry: { component.retry() },
+            onRefresh: { component.retry() },
             onClearError: { component.viewModel.clearError() },
             onClearToast: { component.viewModel.clearToast() }
         ) {
@@ -51,13 +52,16 @@ struct MainView: View {
                 }
                 .frame(maxWidth: .infinity) // Center the capped container
             }
+            .refreshable {
+                component.retry()
+            }
             .scrollContentBackground(.hidden)
             .navigationTitle(state.value?.topBarState.titleToken.map { designSystem.string(token: $0) } ?? state.value?.topBarState.titleRaw ?? "")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                if sizeClass == .compact && navigator.path.isEmpty {
+                if sizeClass == .compact && root.path.isEmpty {
                     ToolbarItem(placement: .navigationBarLeading) {
-                        Button(action: { navigator.toggleDrawer() }) {
+                        Button(action: { root.toggleDrawer() }) {
                             Image(systemName: designSystem.icon(token: .menu))
                                 .font(.system(size: 18, weight: .bold))
                                 .foregroundColor(IosTheme.color(.textPrimary, from: designSystem))                        }

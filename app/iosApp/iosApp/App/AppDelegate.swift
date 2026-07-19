@@ -13,6 +13,12 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         // 2. Setup Koin using Kotlin Factories
         let settings = IosSettingsFactoryKt.createIosSettings()
         
+        #if DEBUG
+        let isDebug = true
+        #else
+        let isDebug = false
+        #endif
+        
         InitKoinIosKt.doInitKoinIos(
             authService: IosAuthService(),
             analytics: IosAnalytics(),
@@ -20,7 +26,8 @@ class AppDelegate: NSObject, UIApplicationDelegate {
             reviewManager: IosReviewManagerImpl(),
             resourceProvider: IosResourceProvider(),
             driverFactory: DriverFactory(),
-            settings: settings
+            settings: settings,
+            isDebug: isDebug
         )
         
         return true

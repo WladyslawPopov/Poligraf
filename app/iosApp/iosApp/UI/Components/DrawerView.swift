@@ -51,6 +51,23 @@ struct DrawerView: View {
             }
             .padding(CGFloat(designSystem.dimen(token: .mainPadding)))
 
+            if designSystem.isDebug {
+                Divider().padding(.horizontal)
+                Button(action: {
+                    onUserClose()
+                    root.openDebug()
+                }) {
+                    HStack {
+                        Text(designSystem.string(token: .openDebugSandbox))
+                            .foregroundColor(IosTheme.color(.accentEnergy, from: designSystem))
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                            .font(.caption)
+                            .foregroundColor(IosTheme.color(.accentEnergy, from: designSystem))
+                    }
+                    .padding()
+                }
+            }
 
             Spacer()
         }

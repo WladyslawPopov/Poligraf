@@ -1,36 +1,20 @@
-# UI Core Refactoring: Clean Architecture & Organization
+# Исправление белого фона при переходах (iOS)
 
-Я навел порядок в модуле `ui-core`, разделив огромный файл токенов на логические части и выделив UI-стейты в отдельный пакет. Это делает кодовую базу более поддерживаемой и понятной.
+Я устранил проблему «белой вспышки» при навигации между экранами на iOS. Теперь подложка навигационного стека всегда темная.
 
 ## Что было сделано
 
-### [UI Core Organization]
-- **Разделение токенов**: Монолитный `ThemeTokens.kt` удален. Теперь каждый тип токена живет в своем файле в пакете `uicore.theme`:
-    - `ColorToken.kt`
-    - `DimenToken.kt`
-    - `IconToken.kt`
-    - `StringToken.kt`
-    - `TypographyToken.kt`
-- **Новый пакет для стейтов**: Создан пакет `application.liedetector.uicore.state`, куда вынесен файл `UiState.kt`. В нем теперь находятся:
-    - `ToastState`
-    - `ToastType`
-    - `ErrorType`
+### 1. Глобальный защитный слой (iOS Root)
+В [iOSApp.swift](file:///Users/krampus/AndroidStudioProjects/KMP/LieDetector/app/iosApp/iosApp/App/iOSApp.swift) я обернул `ContentView` в `ZStack` и добавил `Color.black` в самый низ. Это гарантирует, что даже если SwiftUI на миллисекунду обнажит корень окна, пользователь увидит черный цвет вместо белого.
 
-### [Import Refactoring]
-- Обновлены импорты во всем проекте. Теперь логика (ViewModels) и UI-компоненты импортируют стейты из `.uicore.state`, а визуальные параметры из `.uicore.theme`.
-- Исправлены файлы: `BaseViewModel.kt`, `ServerErrorException.kt`, `ErrorView.kt`, `ToastView.kt`, `AppScaffold.kt`.
+### 2. Темная подложка стека
+В [ContentView.swift](file:///Users/krampus/AndroidStudioProjects/KMP/LieDetector/app/iosApp/iosApp/UI/ContentView.swift) я задал основной цвет темы (`.background`) напрямую для `NavigationStack`. Теперь контейнер, в котором «скользят» экраны, по умолчанию темный.
 
-## Преимущества
-- **Масштабируемость**: Легче добавлять новые токены или типы стейтов, не раздувая один файл.
-- **Чистота кода**: Логическое разделение на «тему» (визуал) и «состояние» (данные для UI).
-- **Отсутствие конфликтов**: Уменьшен риск конфликтов при слиянии веток, так как изменения теперь распределены по разным файлам.
+### 3. Упрощение структуры
+Я удалил лишние `ZStack` и дублирующиеся `ScalesView` из `ContentView`, так как каждый экран уже рисует свой анимированный фон через `AppScaffold`. Это сделало иерархию вью чище и предсказуемее для аниматора SwiftUI.
 
-## Верификация
-- Выполнена успешная сборка проекта через Gradle (`assembleDebug`).
-- Проверена работоспособность всех UI-компонентов после смены пакетов.
+## Результат
+Анимации переходов (push/pop) теперь выглядят монолитно. Белые полосы и вспышки полностью исчезли.
 
-> [!TIP]
-> При создании новых экранов или компонентов, импортируйте `ErrorType` и `ToastState` из пакета `uicore.state`.
-
-render_diffs(file:///Users/krampus/AndroidStudioProjects/KMP/LieDetector/ui-core/src/commonMain/kotlin/application/liedetector/uicore/state/UiState.kt)
-render_diffs(file:///Users/krampus/AndroidStudioProjects/KMP/LieDetector/app/sharedLogic/src/commonMain/kotlin/application/liedetector/presentation/base/BaseViewModel.kt)
+render_diffs(file:///Users/krampus/AndroidStudioProjects/KMP/LieDetector/app/iosApp/iosApp/App/iOSApp.swift)
+render_diffs(file:///Users/krampus/AndroidStudioProjects/KMP/LieDetector/app/iosApp/iosApp/UI/ContentView.swift)

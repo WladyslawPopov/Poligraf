@@ -21,7 +21,11 @@ fun LieDetectorTheme(
 ) {
     val darkTheme by ThemeState.isDark.collectAsState()
     val resources: ResourceProvider = koinInject()
-    val designSystem = remember(darkTheme) { DesignSystem(resources, darkTheme) }
+    val injectedDS: DesignSystem = koinInject()
+    
+    val designSystem = remember(darkTheme) { 
+        DesignSystem(resources, darkTheme, isDebug = injectedDS.isDebug) 
+    }
     
     // Map our tokens to Material 3 ColorScheme for standard components
     val colorScheme = if (darkTheme) {

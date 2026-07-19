@@ -1,5 +1,6 @@
 package application.liedetector.di
 
+import application.liedetector.navigation.AppNavigation
 import application.liedetector.navigation.DefaultBackPressedHandler
 import application.liedetector.navigation.DefaultNavigationContext
 import application.liedetector.presentation.root.RootComponent
@@ -11,7 +12,7 @@ import androidx.savedstate.SavedStateRegistryController
 /**
  * Factory for Swift to create the RootComponent.
  */
-fun createRootComponent(): RootComponent {
+fun createRootComponent(navigation: AppNavigation): RootComponent {
     // Correct way to initialize Lifecycle on Native
     val lifecycle = LifecycleRegistry(object : androidx.lifecycle.LifecycleOwner {
         override val lifecycle: androidx.lifecycle.Lifecycle get() = throw IllegalStateException()
@@ -29,5 +30,8 @@ fun createRootComponent(): RootComponent {
         savedStateRegistry = controller.savedStateRegistry,
         backPressedHandler = DefaultBackPressedHandler()
     )
-    return RootComponent(context)
+    
+    lifecycle.currentState = androidx.lifecycle.Lifecycle.State.RESUMED
+    
+    return RootComponent(context, navigation)
 }

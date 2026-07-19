@@ -8,7 +8,6 @@ struct LoadingView: View {
     var body: some View {
         if isVisible {
             VStack {
-                Spacer().frame(height: 16)
                 ProgressView()
                     .progressViewStyle(CircularProgressViewStyle(tint: IosTheme.color(.accentEnergy, from: designSystem)))
                     .padding(10)
@@ -16,6 +15,7 @@ struct LoadingView: View {
                     .clipShape(Circle())
                 Spacer()
             }
+            .padding(.top, 8)
             .transition(.move(edge: .top).combined(with: .opacity))
             .animation(.spring(), value: isVisible)
         }

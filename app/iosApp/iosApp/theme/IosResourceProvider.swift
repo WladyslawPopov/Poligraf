@@ -29,6 +29,18 @@ class IosResourceProvider: ResourceProvider {
         case .unknownWidget: key = "unknown_widget"
         case .menu: key = "menu"
         case .close: key = "close"
+
+        case .debugTitle: key = "debug_title"
+        case .debugTriggerLoading: key = "debug_trigger_loading"
+        case .debugTriggerErrorBlocking: key = "debug_trigger_error_blocking"
+        case .debugTriggerErrorToast: key = "debug_trigger_error_toast"
+        case .debugTriggerSuccessToast: key = "debug_trigger_success_toast"
+
+        case .debugDashboard: key = "debug_title"
+        case .tabStates: key = "tab_states"
+        case .tabWidgets: key = "tab_widgets"
+        case .tabLabs: key = "tab_labs"
+        case .openDebugSandbox: key = "open_debug_sandbox"
         default: key = ""
         }
         return NSLocalizedString(key, comment: "")

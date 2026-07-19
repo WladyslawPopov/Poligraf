@@ -1,19 +1,5 @@
-- [x] Split `ThemeTokens.kt` into specialized files
-    - [x] Create `ColorToken.kt`
-    - [x] Create `DimenToken.kt`
-    - [x] Create `IconToken.kt`
-    - [x] Create `StringToken.kt`
-    - [x] Create `TypographyToken.kt`
-- [x] Extract UI states to a new package
-    - [x] Create `application.liedetector.uicore.state` package
-    - [x] Create `UiState.kt`
-- [x] Clean up
-    - [x] Delete `ThemeTokens.kt`
-- [x] Update imports across the project
-    - [x] Update `BaseViewModel.kt`
-    - [x] Update `ServerErrorException.kt`
-    - [x] Update `ErrorView.kt`
-    - [x] Update `ToastView.kt`
-    - [x] Update `AppScaffold.kt` (Android & iOS)
-- [x] Verification
-    - [x] Gradle build
+- [x] **Fix iOS Transition Background**
+    - [x] Update `iOSApp.swift` with root background.
+    - [x] Simplify and fix background in `ContentView.swift`.
+- [x] **Verification**
+    - [x] Build and manual check.

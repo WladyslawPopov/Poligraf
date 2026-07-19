@@ -26,4 +26,16 @@
     <string name="unknown_widget">Unknown Widget</string>
     <string name="menu">Menu</string>
     <string name="close">Close</string>
+
+    <!-- Debug Dashboard -->
+    <string name="debug_title">Architecture Debug</string>
+    <string name="debug_trigger_loading">Show Loading</string>
+    <string name="debug_trigger_error_blocking">Blocking Error</string>
+    <string name="debug_trigger_error_toast">Toast Error</string>
+    <string name="debug_trigger_success_toast">Success Toast</string>
+
+    <string name="tab_states">States</string>
+    <string name="tab_widgets">Widgets</string>
+    <string name="tab_labs">Labs</string>
+    <string name="open_debug_sandbox">Debug Sandbox</string>
 </resources>
