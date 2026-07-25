@@ -1,37 +1,38 @@
 package application.liedetector.di
 
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
 import application.liedetector.navigation.AppNavigation
-import application.liedetector.navigation.DefaultBackPressedHandler
-import application.liedetector.navigation.DefaultNavigationContext
 import application.liedetector.presentation.root.RootComponent
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.LifecycleRegistry
 import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryController
+import androidx.savedstate.SavedStateRegistryOwner
+import application.liedetector.engine.component.DefaultComponentContext
 
 /**
  * Factory for Swift to create the RootComponent.
  */
 fun createRootComponent(navigation: AppNavigation): RootComponent {
     // Correct way to initialize Lifecycle on Native
-    val lifecycle = LifecycleRegistry(object : androidx.lifecycle.LifecycleOwner {
-        override val lifecycle: androidx.lifecycle.Lifecycle get() = throw IllegalStateException()
+    val lifecycle = LifecycleRegistry(object : LifecycleOwner {
+        override val lifecycle: Lifecycle get() = throw IllegalStateException()
     })
     
     // Correct way to initialize SavedState on Native
-    val controller = SavedStateRegistryController.create(object : androidx.savedstate.SavedStateRegistryOwner {
-        override val lifecycle: androidx.lifecycle.Lifecycle = lifecycle
+    val controller = SavedStateRegistryController.create(object : SavedStateRegistryOwner {
+        override val lifecycle: Lifecycle = lifecycle
         override val savedStateRegistry: SavedStateRegistry get() = throw IllegalStateException()
     })
     
-    val context = DefaultNavigationContext(
+    val context = DefaultComponentContext(
         lifecycle = lifecycle,
         viewModelStore = ViewModelStore(),
         savedStateRegistry = controller.savedStateRegistry,
-        backPressedHandler = DefaultBackPressedHandler()
     )
     
-    lifecycle.currentState = androidx.lifecycle.Lifecycle.State.RESUMED
+    lifecycle.currentState = Lifecycle.State.RESUMED
     
     return RootComponent(context, navigation)
 }

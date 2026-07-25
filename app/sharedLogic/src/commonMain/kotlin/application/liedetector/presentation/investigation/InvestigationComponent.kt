@@ -1,6 +1,6 @@
 package application.liedetector.presentation.investigation
 
-import application.liedetector.navigation.NavigationContext
+import application.liedetector.engine.component.ComponentContext
 import application.liedetector.presentation.base.BaseViewModel
 import application.liedetector.uiwidgets.models.UiWidget
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.asStateFlow
 
 class InvestigationComponent(
     val subjectId: String,
-    val context: NavigationContext,
+    val context: ComponentContext,
     val viewModel: InvestigationViewModel
 )
 

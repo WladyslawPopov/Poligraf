@@ -63,14 +63,14 @@ class RootComponentWrapper: ObservableObject, AppNavigation {
     
     func getMainComponent() -> MainComponent {
         if let cached = mainComponent { return cached }
-        let comp = component.createMainComponent(childContext: component.context)
+        let comp = component.createMainComponent()
         mainComponent = comp
         return comp
     }
     
     func getDebugComponent() -> DebugComponent {
         if let cached = debugComponent { return cached }
-        let comp = component.createDebugComponent(childContext: component.context)
+        let comp = component.createDebugComponent()
         debugComponent = comp
         return comp
     }

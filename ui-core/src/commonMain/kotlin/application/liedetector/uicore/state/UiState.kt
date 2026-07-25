@@ -1,5 +1,6 @@
 package application.liedetector.uicore.state
 
+import androidx.compose.runtime.Stable
 import application.liedetector.uicore.theme.StringToken
 import kotlinx.serialization.Serializable
 
@@ -18,6 +19,7 @@ enum class ToastType {
     ERROR
 }
 
+@Stable
 @Serializable
 data class ToastState(
     val messageToken: StringToken? = null,

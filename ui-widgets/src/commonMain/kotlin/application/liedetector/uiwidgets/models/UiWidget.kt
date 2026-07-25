@@ -3,6 +3,7 @@ package application.liedetector.uiwidgets.models
 import androidx.compose.runtime.Immutable
 import application.liedetector.uicore.theme.ColorToken
 import application.liedetector.uicore.theme.StringToken
+import application.liedetector.uicore.types.WidgetAction
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -56,19 +57,4 @@ sealed class UiWidget {
         val action: WidgetAction,
         val isPrimary: Boolean = true
     ) : UiWidget()
-}
-
-@Serializable
-enum class WidgetAction {
-    START_RECORDING,
-    STOP_RECORDING,
-    OPEN_HISTORY,
-    OPEN_SETTINGS,
-    RETRY_ANALYSIS,
-    
-    // Debug Actions
-    DEBUG_TRIGGER_LOADING,
-    DEBUG_TRIGGER_ERROR_BLOCKING,
-    DEBUG_TRIGGER_ERROR_NON_BLOCKING,
-    DEBUG_TRIGGER_SUCCESS_TOAST
 }

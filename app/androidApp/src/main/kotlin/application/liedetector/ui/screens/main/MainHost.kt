@@ -13,8 +13,8 @@ import application.liedetector.ui.components.AppScaffold
 import application.liedetector.ui.components.widgets.WidgetRenderer
 import application.liedetector.uicore.theme.*
 import application.liedetector.theme.utils.composeColor
-import application.liedetector.uiwidgets.models.WidgetAction
 import androidx.compose.ui.graphics.Color
+import application.liedetector.uicore.types.WidgetAction
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

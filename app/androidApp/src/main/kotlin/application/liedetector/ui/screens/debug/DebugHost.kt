@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
+import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -14,8 +15,8 @@ import application.liedetector.ui.components.AppScaffold
 import application.liedetector.ui.components.widgets.WidgetRenderer
 import application.liedetector.uicore.theme.*
 import application.liedetector.theme.utils.composeColor
+import application.liedetector.uicore.types.WidgetAction
 import application.liedetector.uiwidgets.models.UiWidget
-import application.liedetector.uiwidgets.models.WidgetAction
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -27,30 +28,35 @@ fun DebugHost(component: DebugComponent) {
         viewModel = component.viewModel,
         topBar = {
             Column {
+
                 CenterAlignedTopAppBar(
                     title = { Text(designSystem.string(StringToken.DEBUG_TITLE)) },
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = designSystem.composeColor(ColorToken.BACKGROUND))
                 )
-                TabRow(
+
+                SecondaryTabRow(
                     selectedTabIndex = state.selectedTab.ordinal,
+                    modifier = Modifier,
                     containerColor = designSystem.composeColor(ColorToken.BACKGROUND),
-                    contentColor = designSystem.composeColor(ColorToken.ACCENT_ENERGY)
-                ) {
-                    DebugTab.entries.forEach { tab ->
-                        Tab(
-                            selected = state.selectedTab == tab,
-                            onClick = { component.setTab(tab) },
-                            text = {
-                                val token = when (tab) {
-                                    DebugTab.STATES -> StringToken.TAB_STATES
-                                    DebugTab.WIDGETS -> StringToken.TAB_WIDGETS
-                                    DebugTab.LABS -> StringToken.TAB_LABS
+                    contentColor = designSystem.composeColor(ColorToken.ACCENT_ENERGY),
+                    divider = @Composable { HorizontalDivider() },
+                    tabs = {
+                        DebugTab.entries.forEach { tab ->
+                            Tab(
+                                selected = state.selectedTab == tab,
+                                onClick = { component.setTab(tab) },
+                                text = {
+                                    val token = when (tab) {
+                                        DebugTab.STATES -> StringToken.TAB_STATES
+                                        DebugTab.WIDGETS -> StringToken.TAB_WIDGETS
+                                        DebugTab.LABS -> StringToken.TAB_LABS
+                                    }
+                                    Text(designSystem.string(token))
                                 }
-                                Text(designSystem.string(token))
-                            }
-                        )
+                            )
+                        }
                     }
-                }
+                )
             }
         }
     ) { padding ->

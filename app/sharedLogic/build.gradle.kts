@@ -17,7 +17,6 @@ kotlin {
             
             // Export dependencies to make them visible in iOS
             export(projects.core)
-            export(projects.navigation)
             export(projects.uiCore)
             export(projects.uiWidgets)
             export(libs.multiplatform.settings)
@@ -45,7 +44,6 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             api(projects.core)
-            api(projects.navigation)
             api(projects.uiCore)
             api(projects.uiWidgets)
             
@@ -67,6 +65,10 @@ kotlin {
             
             // DI: Koin
             api(libs.koin.core)
+
+            // Lifecycle
+            implementation(libs.androidx.lifecycle.viewmodelCompose)
+            implementation(libs.androidx.lifecycle.runtimeCompose)
             
             // UI Stability
             implementation(libs.compose.runtime)
@@ -75,6 +77,9 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.sqldelight.android.driver)
             implementation(libs.ktor.client.android)
+
+            implementation(libs.androidx.activity.compose)
+            implementation(libs.androidx.appcompat)
         }
 
         nativeMain.dependencies {

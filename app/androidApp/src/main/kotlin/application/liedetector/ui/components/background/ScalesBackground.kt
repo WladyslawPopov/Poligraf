@@ -32,8 +32,8 @@ fun ScalesBackground(
     val context = LocalContext.current
     
     // Native Sensor State
-    var tiltX by remember { mutableStateOf(0f) }
-    var tiltY by remember { mutableStateOf(0f) }
+    var tiltX by remember { mutableFloatStateOf(0f) }
+    var tiltY by remember { mutableFloatStateOf(0f) }
     
     DisposableEffect(context) {
         val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager

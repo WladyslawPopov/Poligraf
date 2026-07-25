@@ -1,5 +1,6 @@
 package application.liedetector.presentation.base
 
+import androidx.compose.runtime.Stable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import application.liedetector.engine.domain.responseModels.ServerErrorException
@@ -44,6 +45,7 @@ fun Throwable.toErrorType(): ErrorType {
 /**
  * Base Interface for ViewModels to handle common UI states: Loading, Error, and Toasts.
  */
+@Stable
 interface IBaseViewModel {
     val scope: CoroutineScope
     val isLoading: StateFlow<Boolean>

@@ -12,10 +12,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import application.liedetector.navigation.navigationContext
+import application.liedetector.engine.component.componentContext
 import application.liedetector.navigation.AppNavigation
 import application.liedetector.presentation.root.RootComponent
-import application.liedetector.presentation.root.AppRoute
+import application.liedetector.navigation.AppRoute
 import application.liedetector.theme.LieDetectorTheme
 import application.liedetector.ui.screens.main.MainHost
 import application.liedetector.ui.screens.debug.DebugHost
@@ -66,7 +66,7 @@ class MainActivity : ComponentActivity(), AppNavigation {
                 val designSystem = LocalDesignSystem.current
 
                 val root = remember { 
-                    RootComponent(navigationContext(), this).also { rootComponent = it } 
+                    RootComponent(componentContext(), this).also { rootComponent = it }
                 }
 
                 // Sync drawer state between Command and Compose
@@ -98,11 +98,11 @@ class MainActivity : ComponentActivity(), AppNavigation {
                     Box(modifier = Modifier.fillMaxSize()) {
                         when (topRoute) {
                             is AppRoute.Main -> {
-                                val component = remember(topRoute) { root.createMainComponent(navigationContext()) }
+                                val component = remember(topRoute) { root.createMainComponent() }
                                 MainHost(component)
                             }
                             is AppRoute.Debug -> {
-                                val component = remember(topRoute) { root.createDebugComponent(navigationContext()) }
+                                val component = remember(topRoute) { root.createDebugComponent() }
                                 DebugHost(component)
                             }
                             else -> {

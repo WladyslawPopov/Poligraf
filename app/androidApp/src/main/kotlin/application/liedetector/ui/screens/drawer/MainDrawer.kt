@@ -25,7 +25,6 @@ import application.liedetector.uicore.theme.DimenToken
 import application.liedetector.uicore.theme.StringToken
 import androidx.compose.foundation.clickable
 import application.liedetector.navigation.AppNavigation
-import application.liedetector.presentation.root.AppRoute
 
 @Composable
 fun MainDrawer(

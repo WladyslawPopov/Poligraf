@@ -3,22 +3,22 @@ package application.liedetector.presentation.main
 import androidx.compose.runtime.Stable
 import application.liedetector.data.user.UserRepository
 import application.liedetector.models.KmpResult
-import application.liedetector.navigation.NavigationContext
 import application.liedetector.navigation.AppNavigation
 import application.liedetector.presentation.base.BaseViewModel
 import application.liedetector.uiwidgets.models.UiWidget
-import application.liedetector.uiwidgets.models.WidgetAction
-import application.liedetector.uiwidgets.states.TopBarUiState
+import application.liedetector.uicore.state.TopBarUiState
 import application.liedetector.uicore.theme.StringToken
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import androidx.lifecycle.coroutineScope
+import application.liedetector.engine.component.ComponentContext
 import application.liedetector.engine.utils.watcher.asWatcher
+import application.liedetector.uicore.types.WidgetAction
 
 @Stable
 class MainComponent(
-    val context: NavigationContext,
+    val context: ComponentContext,
     val viewModel: MainViewModel
 ) {
     val stateWatcher = viewModel.state.asWatcher(context.lifecycle.coroutineScope)

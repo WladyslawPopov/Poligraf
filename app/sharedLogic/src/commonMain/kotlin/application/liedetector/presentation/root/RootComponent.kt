@@ -1,8 +1,9 @@
 package application.liedetector.presentation.root
 
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleRegistry
 import application.liedetector.data.user.UserRepository
 import application.liedetector.navigation.AppNavigation
-import application.liedetector.navigation.NavigationContext
 import application.liedetector.presentation.main.MainComponent
 import application.liedetector.presentation.main.MainViewModel
 import application.liedetector.presentation.investigation.InvestigationComponent
@@ -11,12 +12,13 @@ import application.liedetector.presentation.debug.DebugComponent
 import application.liedetector.presentation.debug.DebugViewModel
 import application.liedetector.engine.utils.watcher.asWatcher
 import androidx.lifecycle.coroutineScope
+import application.liedetector.engine.component.ComponentContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
 class RootComponent(
-    val context: NavigationContext,
+    val context: ComponentContext,
     val navigation: AppNavigation
 ) : KoinComponent {
     
@@ -38,19 +40,19 @@ class RootComponent(
     
     // Factory methods for Native Platforms to create screen components
     
-    fun createMainComponent(childContext: NavigationContext): MainComponent {
-        return MainComponent(childContext, MainViewModel(userRepository, navigation))
+    fun createMainComponent(): MainComponent {
+        return MainComponent(context, MainViewModel(userRepository, navigation))
     }
     
-    fun createDebugComponent(childContext: NavigationContext): DebugComponent {
-        return DebugComponent(childContext, DebugViewModel(navigation))
+    fun createDebugComponent(): DebugComponent {
+        return DebugComponent(context, DebugViewModel(navigation))
     }
     
-    fun createInvestigationComponent(childContext: NavigationContext, subjectId: String): InvestigationComponent {
-        return InvestigationComponent(subjectId, childContext, InvestigationViewModel(subjectId))
+    fun createInvestigationComponent(subjectId: String): InvestigationComponent {
+        return InvestigationComponent(subjectId, context, InvestigationViewModel(subjectId))
     }
 
     fun onDestroy() {
-        (context.lifecycle as? androidx.lifecycle.LifecycleRegistry)?.currentState = androidx.lifecycle.Lifecycle.State.DESTROYED
+        (context.lifecycle as? LifecycleRegistry)?.currentState = Lifecycle.State.DESTROYED
     }
 }

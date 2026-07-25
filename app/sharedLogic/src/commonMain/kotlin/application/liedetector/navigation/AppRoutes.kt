@@ -1,10 +1,9 @@
-package application.liedetector.presentation.root
+package application.liedetector.navigation
 
-import application.liedetector.navigation.NavRoute
 import kotlinx.serialization.Serializable
 
 @Serializable
-sealed class AppRoute : NavRoute {
+sealed class AppRoute {
     @Serializable
     data object Main : AppRoute()
     

@@ -9,9 +9,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import application.liedetector.uicore.theme.*
-import application.liedetector.uiwidgets.models.WidgetAction
 import application.liedetector.uiwidgets.models.UiWidget
 import application.liedetector.theme.utils.composeColor
+import application.liedetector.uicore.types.WidgetAction
 
 @Composable
 fun WidgetRenderer(

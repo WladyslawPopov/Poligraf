@@ -1,24 +1,25 @@
 package application.liedetector.presentation.debug
 
 import androidx.compose.runtime.Stable
-import application.liedetector.navigation.NavigationContext
 import application.liedetector.navigation.AppNavigation
 import application.liedetector.presentation.base.BaseViewModel
 import application.liedetector.uiwidgets.models.UiWidget
-import application.liedetector.uiwidgets.models.WidgetAction
 import application.liedetector.uicore.state.*
 import application.liedetector.uicore.theme.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import androidx.lifecycle.coroutineScope
+import application.liedetector.engine.component.ComponentContext
 import application.liedetector.engine.utils.watcher.asWatcher
+import application.liedetector.uicore.types.WidgetAction
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.milliseconds
 
 @Stable
 class DebugComponent(
-    val context: NavigationContext,
+    val context: ComponentContext,
     val viewModel: DebugViewModel
 ) {
     val stateWatcher = viewModel.state.asWatcher(context.lifecycle.coroutineScope)
@@ -99,7 +100,7 @@ class DebugViewModel(private val navigation: AppNavigation) : BaseViewModel() {
             WidgetAction.DEBUG_TRIGGER_LOADING -> {
                 scope.launch {
                     setLoading(true)
-                    delay(2000)
+                    delay(2000.milliseconds)
                     setLoading(false)
                 }
             }
