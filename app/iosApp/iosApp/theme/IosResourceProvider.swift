@@ -41,6 +41,8 @@ class IosResourceProvider: ResourceProvider {
         case .tabWidgets: key = "tab_widgets"
         case .tabLabs: key = "tab_labs"
         case .openDebugSandbox: key = "open_debug_sandbox"
+        case .labsEmptyMessage: key = "labs_empty_message"
+        case .investigationScreenPlaceholder: key = "investigation_screen_placeholder"
         default: key = ""
         }
         return NSLocalizedString(key, comment: "")

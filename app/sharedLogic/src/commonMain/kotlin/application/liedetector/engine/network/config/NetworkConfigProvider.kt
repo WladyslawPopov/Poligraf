@@ -1,5 +1,7 @@
 package application.liedetector.engine.network.config
 
+import io.github.aakira.napier.Napier
+
 interface NetworkConfigProvider {
     val apiBaseUrl: String
     val headers: Map<String, String>
@@ -8,7 +10,7 @@ interface NetworkConfigProvider {
 class NetworkConfigProviderImpl : NetworkConfigProvider {
     override val apiBaseUrl: String by lazy {
         val url = getDebugUrl()
-        println("NETWORK: Using API URL -> $url")
+        Napier.d { "NETWORK: Using API URL -> $url" }
         url
     }
     

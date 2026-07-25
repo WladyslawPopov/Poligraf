@@ -104,7 +104,8 @@ private fun WidgetsTab(widgets: List<UiWidget>, component: DebugComponent) {
 
 @Composable
 private fun LabsTab() {
+    val designSystem = LocalDesignSystem.current
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text("Experimental Features will appear here", color = LocalDesignSystem.current.composeColor(ColorToken.TEXT_SECONDARY))
+        Text(designSystem.string(StringToken.LABS_EMPTY_MESSAGE), color = designSystem.composeColor(ColorToken.TEXT_SECONDARY))
     }
 }

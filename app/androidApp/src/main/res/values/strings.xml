@@ -38,4 +38,6 @@
     <string name="tab_widgets">Widgets</string>
     <string name="tab_labs">Labs</string>
     <string name="open_debug_sandbox">Debug Sandbox</string>
+    <string name="labs_empty_message">Experimental Features will appear here</string>
+    <string name="investigation_screen_placeholder">Investigation Screen</string>
 </resources>

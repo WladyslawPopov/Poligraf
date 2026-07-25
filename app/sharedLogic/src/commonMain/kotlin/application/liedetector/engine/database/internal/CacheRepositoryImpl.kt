@@ -7,6 +7,7 @@ import application.liedetector.engine.database.CacheRepository
 import application.liedetector.engine.database.common.dbDispatcher
 import application.liedetector.engine.utils.getMinutesRemainingUntil
 import application.liedetector.engine.utils.jsonSerializer
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -32,7 +33,7 @@ internal class CacheRepositoryImpl(private val db: LieDetectorDatabase) : CacheR
                 null
             }
         } catch (e: Throwable) {
-            println("Error in CacheRepository.get for key '$key': ${e.message}")
+            Napier.e(e) { "Error in CacheRepository.get for key '$key'" }
             null
         }
     }
@@ -48,7 +49,7 @@ internal class CacheRepositoryImpl(private val db: LieDetectorDatabase) : CacheR
                     timestamp = expiredTs
                 )
             } catch (e: Throwable) {
-                println("Error in CacheRepository.put for key '$key': ${e.message}")
+                Napier.e(e) { "Error in CacheRepository.put for key '$key'" }
             }
         }
     }
@@ -85,7 +86,7 @@ internal class CacheRepositoryImpl(private val db: LieDetectorDatabase) : CacheR
             try {
                 db.cacheQueries.deleteByRequestId(key)
             } catch (e: Throwable) {
-                println("Error deleting key '$key': ${e.message}")
+                Napier.e(e) { "Error deleting key '$key'" }
             }
         }
     }
@@ -95,7 +96,7 @@ internal class CacheRepositoryImpl(private val db: LieDetectorDatabase) : CacheR
             try {
                 db.cacheQueries.clearAll()
             } catch (e: Throwable) {
-                println("Error clearing cache: ${e.message}")
+                Napier.e(e) { "Error clearing cache" }
             }
         }
     }

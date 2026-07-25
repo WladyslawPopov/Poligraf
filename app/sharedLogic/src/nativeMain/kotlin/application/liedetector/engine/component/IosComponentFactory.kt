@@ -1,4 +1,4 @@
-package application.liedetector.di
+package application.liedetector.engine.component
 
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
@@ -9,7 +9,6 @@ import androidx.lifecycle.LifecycleRegistry
 import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
-import application.liedetector.engine.component.DefaultComponentContext
 
 /**
  * Factory for Swift to create the RootComponent.

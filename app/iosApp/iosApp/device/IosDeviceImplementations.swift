@@ -2,13 +2,13 @@ import Foundation
 import SharedLogic
 
 class IosIntegrityImpl: DeviceIntegrity {
-    func checkIntegrity() async throws -> KmpResult<KotlinUnit> {
+    func __checkIntegrity() async throws -> KmpResult<KotlinUnit> {
         return KmpResultSuccess(data: KotlinUnit())
     }
 }
 
 class IosReviewManagerImpl: ReviewManager {
-    func requestReview() async throws -> KmpResult<KotlinUnit> {
+    func __requestReview() async throws -> KmpResult<KotlinUnit> {
         return KmpResultSuccess(data: KotlinUnit())
     }
 }

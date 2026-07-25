@@ -6,6 +6,8 @@ import application.liedetector.di.androidModule
 import application.liedetector.di.initKoin
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
+import io.github.aakira.napier.DebugAntilog
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -31,6 +33,11 @@ class LieDetectorApp : Application() {
         }
         
         super.onCreate()
+
+        // 0. Initialize Logging
+        if (BuildConfig.DEBUG) {
+            Napier.base(DebugAntilog())
+        }
 
         // 1. Initialize Firebase
         FirebaseApp.initializeApp(this)

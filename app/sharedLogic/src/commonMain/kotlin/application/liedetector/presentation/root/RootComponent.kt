@@ -10,8 +10,6 @@ import application.liedetector.presentation.investigation.InvestigationComponent
 import application.liedetector.presentation.investigation.InvestigationViewModel
 import application.liedetector.presentation.debug.DebugComponent
 import application.liedetector.presentation.debug.DebugViewModel
-import application.liedetector.engine.utils.watcher.asWatcher
-import androidx.lifecycle.coroutineScope
 import application.liedetector.engine.component.ComponentContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.koin.core.component.KoinComponent
@@ -24,30 +22,17 @@ class RootComponent(
     
     private val userRepository: UserRepository by inject()
 
-    val isDrawerOpen = MutableStateFlow(false)
-    val drawerOpenWatcher = isDrawerOpen.asWatcher(context.lifecycle.coroutineScope)
-
     val viewModel = RootViewModel(userRepository)
-    val stateWatcher = viewModel.state.asWatcher(context.lifecycle.coroutineScope)
 
-    fun toggleDrawer() {
-        isDrawerOpen.value = !isDrawerOpen.value
+    // Child components owned by the Root (Tree structure)
+    val mainComponent: MainComponent by lazy {
+        MainComponent(context, MainViewModel(userRepository, navigation))
     }
 
-    fun setDrawerOpen(isOpen: Boolean) {
-        isDrawerOpen.value = isOpen
+    val debugComponent: DebugComponent by lazy {
+        DebugComponent(context, DebugViewModel(navigation))
     }
-    
-    // Factory methods for Native Platforms to create screen components
-    
-    fun createMainComponent(): MainComponent {
-        return MainComponent(context, MainViewModel(userRepository, navigation))
-    }
-    
-    fun createDebugComponent(): DebugComponent {
-        return DebugComponent(context, DebugViewModel(navigation))
-    }
-    
+
     fun createInvestigationComponent(subjectId: String): InvestigationComponent {
         return InvestigationComponent(subjectId, context, InvestigationViewModel(subjectId))
     }

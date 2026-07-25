@@ -26,9 +26,9 @@ struct AppScaffold<Content: View>: View {
         @ViewBuilder content: @escaping () -> Content
     ) {
         // Bridging StateFlow to simple Swift values for this wrapper
-        self.isLoading = viewModel.isLoading.value as? Bool ?? false
-        self.errorType = viewModel.errorType.value as? ErrorType
-        self.toastState = viewModel.toastState.value as? ToastState
+        self.isLoading = viewModel.isLoading.value.boolValue
+        self.errorType = viewModel.errorType.value
+        self.toastState = viewModel.toastState.value
         
         self.designSystem = designSystem
         self.useAnimatedBackground = useAnimatedBackground

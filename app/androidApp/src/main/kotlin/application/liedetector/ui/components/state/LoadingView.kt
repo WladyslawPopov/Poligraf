@@ -35,14 +35,14 @@ fun LoadingView(
         ) {
             Box(
                 modifier = Modifier
-                    .size(44.dp)
+                    .size(designSystem.dimen(DimenToken.LOADING_INDICATOR_SIZE).dp)
                     .clip(CircleShape)
                     .background(designSystem.composeColor(ColorToken.SURFACE).copy(alpha = 0.8f))
                     .padding(designSystem.dimen(DimenToken.PADDING_LOADING).dp),
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator(
-                    strokeWidth = 3.dp,
+                    strokeWidth = designSystem.dimen(DimenToken.LOADING_INDICATOR_STROKE).dp,
                     color = designSystem.composeColor(ColorToken.ACCENT_ENERGY)
                 )
             }

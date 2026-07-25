@@ -63,6 +63,9 @@ object ThemeDefaults {
             DimenToken.PADDING_ERROR -> 32f
             DimenToken.PADDING_LOADING -> 8f
             DimenToken.PARALLAX_INTENSITY -> 40f
+            DimenToken.MAX_CONTENT_WIDTH -> 600f
+            DimenToken.LOADING_INDICATOR_SIZE -> 44f
+            DimenToken.LOADING_INDICATOR_STROKE -> 3f
         }
     }
 }

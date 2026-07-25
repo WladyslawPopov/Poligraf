@@ -4,6 +4,8 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidMultiplatformLibrary)
     alias(libs.plugins.sqlDelight)
+    alias(libs.plugins.skie)
+    alias(libs.plugins.kotlinSerialization)
 }
 
 kotlin {
@@ -20,6 +22,7 @@ kotlin {
             export(projects.uiCore)
             export(projects.uiWidgets)
             export(libs.multiplatform.settings)
+            export(libs.napier)
             
             linkerOpts("-lsqlite3")
         }
@@ -72,6 +75,9 @@ kotlin {
             
             // UI Stability
             implementation(libs.compose.runtime)
+
+            // Logging
+            api(libs.napier)
         }
 
         androidMain.dependencies {

@@ -1,0 +1,24 @@
+# Tasks: Final Architectural Polish & Design System Audit
+
+- [x] Build Configuration
+    - [x] Add Napier to `libs.versions.toml`
+    - [x] Add Napier to `sharedLogic/build.gradle.kts`
+    - [x] Sync Gradle
+- [x] Design System Expansion
+    - [x] Add `MAX_CONTENT_WIDTH`, `LOADING_INDICATOR_SIZE`, `LOADING_INDICATOR_STROKE` to `DimenToken`
+    - [x] Add `LABS_EMPTY_MESSAGE` to `StringToken`
+    - [x] Update `AndroidResourceProvider.kt` and `IosResourceProvider.swift`
+- [x] Shared Logic Polish
+    - [x] Initialize Napier in Android and iOS entry points
+    - [x] Refactor logging in `BaseViewModel.kt`, `MainViewModel.kt`, `CacheRepositoryImpl.kt` and `NetworkConfigProviderImpl.kt`
+- [x] UI Audit & Polish (Remove Hardcode)
+    - [x] Fix `MainHost.kt` and `DebugHost.kt` (Android)
+    - [x] Fix `MainView.swift` and `DebugView.swift` (iOS)
+    - [x] Update `AppScaffold.swift` for SKIE type safety
+- [x] Final Navigation completion
+    - [x] Handle `Investigation` route on Android and iOS
+    - [x] Create placeholder screens for `Investigation`
+- [x] Verification
+    - [x] Build shared logic
+    - [x] Build iOS app
+    - [x] Build Android app

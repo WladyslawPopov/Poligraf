@@ -4,10 +4,9 @@ import androidx.compose.runtime.Stable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import application.liedetector.engine.domain.responseModels.ServerErrorException
-import application.liedetector.engine.utils.watcher.StateWatcher
-import application.liedetector.engine.utils.watcher.asWatcher
 import application.liedetector.uicore.state.*
 import application.liedetector.uicore.theme.StringToken
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -52,11 +51,6 @@ interface IBaseViewModel {
     val errorType: StateFlow<ErrorType?>
     val toastState: StateFlow<ToastState?>
     
-    // Watchers for iOS
-    val isLoadingWatcher: StateWatcher<Boolean>
-    val errorTypeWatcher: StateWatcher<ErrorType?>
-    val toastStateWatcher: StateWatcher<ToastState?>
-    
     fun setLoading(value: Boolean)
     fun setManualError(type: ErrorType?)
     fun showToast(token: StringToken, type: ToastType)
@@ -79,10 +73,6 @@ class BaseViewModelImpl(private val parentScope: CoroutineScope) : IBaseViewMode
 
     private val _toastState = MutableStateFlow<ToastState?>(null)
     override val toastState = _toastState.asStateFlow()
-
-    override val isLoadingWatcher: StateWatcher<Boolean> = isLoading.asWatcher(scope)
-    override val errorTypeWatcher: StateWatcher<ErrorType?> = errorType.asWatcher(scope)
-    override val toastStateWatcher: StateWatcher<ToastState?> = toastState.asWatcher(scope)
 
     override fun setLoading(value: Boolean) {
         _isLoading.value = value
@@ -121,9 +111,6 @@ abstract class BaseViewModel : ViewModel(), IBaseViewModel {
     override val isLoading get() = delegate.isLoading
     override val errorType get() = delegate.errorType
     override val toastState get() = delegate.toastState
-    override val isLoadingWatcher get() = delegate.isLoadingWatcher
-    override val errorTypeWatcher get() = delegate.errorTypeWatcher
-    override val toastStateWatcher get() = delegate.toastStateWatcher
 
     override fun setLoading(value: Boolean) = delegate.setLoading(value)
     override fun setManualError(type: ErrorType?) = delegate.setManualError(type)
@@ -159,7 +146,7 @@ abstract class BaseViewModel : ViewModel(), IBaseViewModel {
     }
 
     private fun handleException(e: Throwable, type: ErrorType, isBlocking: Boolean) {
-        e.printStackTrace()
+        Napier.e(e) { "ViewModel catch error: ${e.message}" }
         if (isBlocking) {
             setManualError(type)
         } else {

@@ -3,7 +3,8 @@ import FirebaseAuth
 import SharedLogic
 
 class IosAuthService: AuthService {
-    func signInAnonymously() async throws -> KmpResult<KotlinUnit> {
+    
+    func __signInAnonymously() async throws -> KmpResult<KotlinUnit> {
         do {
             _ = try await Auth.auth().signInAnonymously()
             return KmpResultSuccess(data: KotlinUnit())
@@ -12,7 +13,7 @@ class IosAuthService: AuthService {
         }
     }
     
-    func getIdToken() async throws -> String? {
+    func __getIdToken() async throws -> String? {
         return try await Auth.auth().currentUser?.getIDToken()
     }
     

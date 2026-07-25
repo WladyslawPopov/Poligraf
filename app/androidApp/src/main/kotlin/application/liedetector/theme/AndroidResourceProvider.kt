@@ -47,6 +47,8 @@ class AndroidResourceProvider(private val context: Context) : ResourceProvider {
             StringToken.TAB_WIDGETS -> application.liedetector.R.string.tab_widgets
             StringToken.TAB_LABS -> application.liedetector.R.string.tab_labs
             StringToken.OPEN_DEBUG_SANDBOX -> application.liedetector.R.string.open_debug_sandbox
+            StringToken.LABS_EMPTY_MESSAGE -> application.liedetector.R.string.labs_empty_message
+            StringToken.INVESTIGATION_SCREEN_PLACEHOLDER -> application.liedetector.R.string.investigation_screen_placeholder
         }
         return context.getString(resId)
     }

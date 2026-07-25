@@ -3,7 +3,7 @@ import SharedLogic
 
 struct DrawerView: View {
     @Environment(\.horizontalSizeClass) var sizeClass
-    @ObservedObject var root: RootComponentWrapper
+    @ObservedObject var navigator: IosNavigator
     let designSystem: DesignSystem
     let onUserClose: () -> Void 
     
@@ -39,8 +39,8 @@ struct DrawerView: View {
                     Spacer()
                     
                     Toggle("", isOn: Binding(
-                        get: { root.isDark },
-                        set: { _ in root.toggleTheme() }
+                        get: { navigator.isDark },
+                        set: { _ in navigator.toggleTheme() }
                     ))
                     .tint(IosTheme.color(.accentEnergy, from: designSystem))
                     .labelsHidden()
@@ -55,7 +55,7 @@ struct DrawerView: View {
                 Divider().padding(.horizontal)
                 Button(action: {
                     onUserClose()
-                    root.openDebug()
+                    navigator.openDebug()
                 }) {
                     HStack {
                         Text(designSystem.string(token: .openDebugSandbox))

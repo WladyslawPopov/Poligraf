@@ -9,9 +9,7 @@ import application.liedetector.uicore.theme.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import androidx.lifecycle.coroutineScope
 import application.liedetector.engine.component.ComponentContext
-import application.liedetector.engine.utils.watcher.asWatcher
 import application.liedetector.uicore.types.WidgetAction
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -22,8 +20,6 @@ class DebugComponent(
     val context: ComponentContext,
     val viewModel: DebugViewModel
 ) {
-    val stateWatcher = viewModel.state.asWatcher(context.lifecycle.coroutineScope)
-
     fun onAction(action: WidgetAction) {
         viewModel.onWidgetAction(action)
     }
