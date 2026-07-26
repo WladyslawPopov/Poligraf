@@ -3,7 +3,7 @@ package application.liedetector.data.user.remote
 import application.liedetector.models.AnalysisRequest
 import application.liedetector.models.ApiConstants
 import application.liedetector.models.SubjectDto
-import application.liedetector.uiwidgets.models.UiWidget
+import application.liedetector.uicore.widgets.UiWidget
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*

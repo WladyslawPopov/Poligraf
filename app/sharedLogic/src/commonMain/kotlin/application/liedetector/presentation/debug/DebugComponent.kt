@@ -3,7 +3,7 @@ package application.liedetector.presentation.debug
 import androidx.compose.runtime.Stable
 import application.liedetector.navigation.AppNavigation
 import application.liedetector.presentation.base.BaseViewModel
-import application.liedetector.uiwidgets.models.UiWidget
+import application.liedetector.uicore.widgets.UiWidget
 import application.liedetector.uicore.state.*
 import application.liedetector.uicore.theme.*
 import kotlinx.coroutines.flow.MutableStateFlow

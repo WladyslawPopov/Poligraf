@@ -5,7 +5,7 @@ import application.liedetector.data.user.UserRepository
 import application.liedetector.models.KmpResult
 import application.liedetector.navigation.AppNavigation
 import application.liedetector.presentation.base.BaseViewModel
-import application.liedetector.uiwidgets.models.UiWidget
+import application.liedetector.uicore.widgets.UiWidget
 import application.liedetector.uicore.state.TopBarUiState
 import application.liedetector.uicore.theme.StringToken
 import kotlinx.coroutines.flow.MutableStateFlow

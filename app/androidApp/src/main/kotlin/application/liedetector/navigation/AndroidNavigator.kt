@@ -1,9 +1,11 @@
 package application.liedetector.navigation
 
+import androidx.compose.runtime.Stable
 import androidx.navigation.NavController
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
+@Stable
 class AndroidNavigator : AppNavigation {
     
     private var navController: NavController? = null
@@ -27,10 +29,6 @@ class AndroidNavigator : AppNavigation {
 
     override fun openDebug() {
         navController?.navigate(AppRoute.Debug)
-    }
-
-    override fun openInvestigation(subjectId: String) {
-        navController?.navigate(AppRoute.Investigation(subjectId))
     }
 
     override fun back() {

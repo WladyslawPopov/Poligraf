@@ -1,4 +1,4 @@
-package application.liedetector.uiwidgets.models
+package application.liedetector.uicore.widgets
 
 import application.liedetector.uicore.models.MenuItem
 import kotlinx.serialization.Serializable

@@ -6,7 +6,7 @@ import application.liedetector.engine.database.CacheRepository
 import application.liedetector.models.AnalysisRequest
 import application.liedetector.models.KmpResult
 import application.liedetector.models.SubjectDto
-import application.liedetector.uiwidgets.models.UiWidget
+import application.liedetector.uicore.widgets.UiWidget
 
 interface UserRepository {
     suspend fun loginAnonymously(): KmpResult<Unit>

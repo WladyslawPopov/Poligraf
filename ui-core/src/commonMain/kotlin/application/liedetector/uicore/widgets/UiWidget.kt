@@ -1,4 +1,4 @@
-package application.liedetector.uiwidgets.models
+package application.liedetector.uicore.widgets
 
 import androidx.compose.runtime.Immutable
 import application.liedetector.uicore.theme.ColorToken

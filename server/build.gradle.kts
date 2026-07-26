@@ -27,7 +27,8 @@ tasks.withType<JavaExec> {
 
 dependencies {
     api(projects.core)
-    api(projects.uiWidgets)
+    api(projects.uiCore)
+    // Logging
     implementation(libs.logback)
     
     // Ktor Server

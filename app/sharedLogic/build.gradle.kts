@@ -20,7 +20,6 @@ kotlin {
             // Export dependencies to make them visible in iOS
             export(projects.core)
             export(projects.uiCore)
-            export(projects.uiWidgets)
             export(libs.multiplatform.settings)
             export(libs.napier)
             
@@ -48,7 +47,6 @@ kotlin {
         commonMain.dependencies {
             api(projects.core)
             api(projects.uiCore)
-            api(projects.uiWidgets)
             
             // Network: Ktor
             implementation(libs.ktor.client.core)

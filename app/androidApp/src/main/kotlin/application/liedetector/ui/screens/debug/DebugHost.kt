@@ -16,7 +16,7 @@ import application.liedetector.ui.components.widgets.WidgetRenderer
 import application.liedetector.uicore.theme.*
 import application.liedetector.theme.utils.composeColor
 import application.liedetector.uicore.types.WidgetAction
-import application.liedetector.uiwidgets.models.UiWidget
+import application.liedetector.uicore.widgets.UiWidget
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

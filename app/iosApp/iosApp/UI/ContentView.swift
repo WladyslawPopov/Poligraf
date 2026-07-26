@@ -46,8 +46,6 @@ struct ContentView: View {
             MainView(navigator: navigator, component: component.mainComponent, designSystem: designSystem)
         case is AppRoute.Debug:
             DebugView(navigator: navigator, component: component.debugComponent, designSystem: designSystem)
-        case let route as AppRoute.Investigation:
-            InvestigationView(component: component.createInvestigationComponent(subjectId: route.subjectId), designSystem: designSystem)
         default:
             EmptyView()
         }

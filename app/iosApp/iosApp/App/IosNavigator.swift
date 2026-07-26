@@ -16,10 +16,6 @@ class IosNavigator: ObservableObject, AppNavigation {
         path.append(AppRoute.Debug())
     }
     
-    func openInvestigation(subjectId: String) {
-        path.append(AppRoute.Investigation(subjectId: subjectId))
-    }
-    
     func back() {
         if !path.isEmpty {
             path.removeLast()

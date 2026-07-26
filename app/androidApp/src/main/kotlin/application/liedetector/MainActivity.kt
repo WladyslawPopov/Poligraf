@@ -12,7 +12,6 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.toRoute
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
 import application.liedetector.engine.component.componentContext
@@ -22,7 +21,6 @@ import application.liedetector.navigation.AppRoute
 import application.liedetector.theme.LieDetectorTheme
 import application.liedetector.ui.screens.main.MainHost
 import application.liedetector.ui.screens.debug.DebugHost
-import application.liedetector.ui.screens.investigation.InvestigationHost
 import application.liedetector.uicore.theme.LocalDesignSystem
 
 class MainActivity : ComponentActivity() {
@@ -83,10 +81,6 @@ class MainActivity : ComponentActivity() {
                     }
                     composable<AppRoute.Debug> {
                         DebugHost(root.debugComponent)
-                    }
-                    composable<AppRoute.Investigation> { backStackEntry ->
-                        val route = backStackEntry.toRoute<AppRoute.Investigation>()
-                        InvestigationHost(root.createInvestigationComponent(route.subjectId))
                     }
                 }
             }
