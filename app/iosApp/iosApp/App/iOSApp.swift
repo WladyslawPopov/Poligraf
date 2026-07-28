@@ -11,13 +11,7 @@ struct iOSApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ZStack {
-                Color.black.ignoresSafeArea() // Hardware-level safety background
-                
-                ContentView()
-                    .ignoresSafeArea(edges: .all)
-                    .ignoresSafeArea(.keyboard)
-            }
+            RootView()
         }
     }
 }

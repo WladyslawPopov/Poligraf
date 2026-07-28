@@ -2,6 +2,7 @@ package application.liedetector.theme
 
 import android.content.Context
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.*
 import androidx.compose.material.icons.rounded.*
 import application.liedetector.uicore.theme.StringToken
 import application.liedetector.uicore.theme.IconToken
@@ -62,6 +63,7 @@ class AndroidResourceProvider(private val context: Context) : ResourceProvider {
             IconToken.CHEVRON_RIGHT -> Icons.Rounded.ChevronRight
             IconToken.MENU -> Icons.Rounded.Menu
             IconToken.CLOSE -> Icons.Rounded.Close
+            IconToken.ARROW_BACK -> Icons.AutoMirrored.Rounded.ArrowBack
         }
     }
 }

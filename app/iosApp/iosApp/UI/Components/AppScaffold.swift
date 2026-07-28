@@ -76,26 +76,29 @@ struct AppScaffold<Content: View>: View {
             }
 
             // Main Layer
-            content()
+            if let error = errorType {
+                ErrorView(
+                    type: error,
+                    designSystem: designSystem,
+                    onRetry: {
+                        onClearError()
+                        onRetry()
+                    }
+                )
+            } else {
+                content()
+            }
             
             // Overlay states
             
             // 1. Loading
             LoadingView(isVisible: isLoading, designSystem: designSystem)
             
-            // 2. Error
-            if let error = errorType {
-                ErrorView(
-                    type: error,
-                    designSystem: designSystem,
-                    onRetry: onRetry,
-                    onDismiss: onClearError
-                )
-            }
+            // 2. Error is now integrated into Main Layer
             
             // 3. Toasts
             if let toast = toastState {
-                ToastView(
+                AppToast(
                     state: toast,
                     designSystem: designSystem,
                     onDismiss: onClearToast

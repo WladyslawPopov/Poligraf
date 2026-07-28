@@ -57,56 +57,11 @@ struct DebugView: View {
     private var contentView: some View {
         switch state.value.selectedTab {
         case .widgets:
-            widgetsTab
+            WidgetsTab(widgets: state.value.widgets, component: component, designSystem: designSystem)
         case .labs:
-            labsTab
+            LabsTab(designSystem: designSystem)
         default:
-            statesTab
+            StatesTab(component: component, designSystem: designSystem)
         }
-    }
-    
-    private var statesTab: some View {
-        VStack(spacing: CGFloat(designSystem.dimen(token: .widgetSpacing))) {
-            Button(designSystem.string(token: .debugTriggerLoading)) {
-                component.onAction(action: .debugTriggerLoading)
-            }
-            .buttonStyle(.borderedProminent)
-            
-            Button(designSystem.string(token: .debugTriggerErrorBlocking)) {
-                component.onAction(action: .debugTriggerErrorBlocking)
-            }
-            .buttonStyle(.borderedProminent)
-            
-            Button(designSystem.string(token: .debugTriggerErrorToast)) {
-                component.onAction(action: .debugTriggerErrorNonBlocking)
-            }
-            .buttonStyle(.borderedProminent)
-            
-            Button(designSystem.string(token: .debugTriggerSuccessToast)) {
-                component.onAction(action: .debugTriggerSuccessToast)
-            }
-            .buttonStyle(.borderedProminent)
-            
-            Spacer()
-        }
-        .padding(CGFloat(designSystem.dimen(token: .mainPadding)))
-    }
-    
-    private var widgetsTab: some View {
-        ScrollView {
-            VStack {
-                ForEach(state.value.widgets, id: \.id) { widget in
-                    WidgetView(widget: widget, designSystem: designSystem, onAction: { component.onAction(action: $0) })
-                }
-            }
-        }
-    }
-    
-    private var labsTab: some View {
-        VStack {
-            Text(designSystem.string(token: .labsEmptyMessage))
-                .foregroundColor(IosTheme.color(.textSecondary, from: designSystem))
-        }
-        .frame(maxHeight: .infinity)
     }
 }

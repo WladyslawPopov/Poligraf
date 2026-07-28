@@ -10,5 +10,6 @@ enum class IconToken {
     PROFILE,
     CHEVRON_RIGHT,
     MENU,
-    CLOSE
+    CLOSE,
+    ARROW_BACK
 }

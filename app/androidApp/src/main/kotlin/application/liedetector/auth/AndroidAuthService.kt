@@ -3,6 +3,8 @@ package application.liedetector.auth
 import application.liedetector.engine.auth.AuthService
 import application.liedetector.models.KmpResult
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
 class AndroidAuthService : AuthService {

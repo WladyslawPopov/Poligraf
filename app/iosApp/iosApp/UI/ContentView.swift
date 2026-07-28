@@ -6,7 +6,15 @@ struct ContentView: View {
     
     // Manage RootComponent lifecycle directly
     private let component: RootComponent
-    private let designSystem: DesignSystem
+
+    private var designSystem: DesignSystem {
+        #if DEBUG
+        let isDebug = true
+        #else
+        let isDebug = false
+        #endif
+        return DesignSystem(resources: IosResourceProvider(), isDark: navigator.isDark, isDebug: isDebug)
+    }
 
     init() {
         let nav = IosNavigator()
@@ -16,14 +24,6 @@ struct ContentView: View {
         // We use a temporary navigator for init, but it will be replaced by the @StateObject
         // In SwiftUI, init() is called multiple times, so we need to be careful with @StateObject
         self._navigator = StateObject(wrappedValue: nav)
-        
-        // Design system depends on navigator's theme state
-        #if DEBUG
-        let isDebug = true
-        #else
-        let isDebug = false
-        #endif
-        self.designSystem = DesignSystem(resources: IosResourceProvider(), isDark: nav.isDark, isDebug: isDebug)
     }
 
     var body: some View {

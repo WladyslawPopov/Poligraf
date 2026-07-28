@@ -8,21 +8,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import application.liedetector.theme.utils.composeColor
 import application.liedetector.uicore.state.ErrorType
 import application.liedetector.uicore.theme.*
 
 /**
- * Renders an error state. 
- * Now uses Dialog for all types to be non-intrusive to the underlying screen structure.
+ * Renders an error state as a full-page overlay within the screen's content area.
  */
 @Composable
 fun ErrorView(
     type: ErrorType,
     onRetry: () -> Unit,
-    onDismiss: () -> Unit
+    modifier: Modifier = Modifier
 ) {
     val designSystem = LocalDesignSystem.current
 
@@ -38,58 +35,36 @@ fun ErrorView(
         else -> StringToken.ERROR_UNKNOWN_MSG
     }
 
-    if (type == ErrorType.UNKNOWN || type == ErrorType.UNAUTHORIZED) {
-        AlertDialog(
-            onDismissRequest = onDismiss,
-            title = { Text(designSystem.string(titleToken)) },
-            text = { Text(designSystem.string(msgToken)) },
-            confirmButton = {
-                TextButton(onClick = onDismiss) {
-                    Text(designSystem.string(StringToken.ERROR_RETRY))
-                }
-            },
-            containerColor = designSystem.composeColor(ColorToken.SURFACE),
-            titleContentColor = designSystem.composeColor(ColorToken.TEXT_PRIMARY),
-            textContentColor = designSystem.composeColor(ColorToken.TEXT_SECONDARY)
-        )
-    } else {
-        // Full screen overlay using Dialog so it doesn't break the Scaffold body composition
-        Dialog(
-            onDismissRequest = onDismiss,
-            properties = DialogProperties(usePlatformDefaultWidth = false)
-        ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(designSystem.composeColor(ColorToken.BACKGROUND)) // Keep it opaque to focus on the error
-                    .padding(designSystem.dimen(DimenToken.PADDING_ERROR).dp),
-                contentAlignment = Alignment.Center
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(designSystem.composeColor(ColorToken.BACKGROUND).copy(alpha = 0.8f))
+            .padding(designSystem.dimen(DimenToken.PADDING_ERROR).dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(
+                text = designSystem.string(titleToken),
+                style = MaterialTheme.typography.headlineMedium,
+                color = designSystem.composeColor(ColorToken.TEXT_PRIMARY),
+                textAlign = TextAlign.Center
+            )
+            Spacer(modifier = Modifier.height(designSystem.dimen(DimenToken.SPACING_SMALL).dp))
+            Text(
+                text = designSystem.string(msgToken),
+                style = MaterialTheme.typography.bodyLarge,
+                color = designSystem.composeColor(ColorToken.TEXT_SECONDARY),
+                textAlign = TextAlign.Center
+            )
+            Spacer(modifier = Modifier.height(designSystem.dimen(DimenToken.SPACING_LARGE).dp))
+            Button(
+                onClick = onRetry,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = designSystem.composeColor(ColorToken.ACCENT_ENERGY),
+                    contentColor = designSystem.composeColor(ColorToken.TEXT_INVERTED)
+                )
             ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(
-                        text = designSystem.string(titleToken),
-                        style = MaterialTheme.typography.headlineMedium,
-                        color = designSystem.composeColor(ColorToken.TEXT_PRIMARY),
-                        textAlign = TextAlign.Center
-                    )
-                    Spacer(modifier = Modifier.height(designSystem.dimen(DimenToken.SPACING_SMALL).dp))
-                    Text(
-                        text = designSystem.string(msgToken),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = designSystem.composeColor(ColorToken.TEXT_SECONDARY),
-                        textAlign = TextAlign.Center
-                    )
-                    Spacer(modifier = Modifier.height(designSystem.dimen(DimenToken.SPACING_LARGE).dp))
-                    Button(
-                        onClick = onRetry,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = designSystem.composeColor(ColorToken.PRIMARY),
-                            contentColor = designSystem.composeColor(ColorToken.ON_PRIMARY)
-                        )
-                    ) {
-                        Text(designSystem.string(StringToken.ERROR_RETRY))
-                    }
-                }
+                Text(designSystem.string(StringToken.ERROR_RETRY))
             }
         }
     }

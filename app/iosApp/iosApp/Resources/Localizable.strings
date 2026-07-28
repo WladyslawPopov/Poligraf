@@ -6,18 +6,18 @@
 "drawer_dark_mode" = "Dark Mode";
 
 /* Error States */
-"error_no_internet_title" = "No Connection";
-"error_no_internet_msg" = "Please check your internet settings and try again.";
-"error_server_title" = "Server Error";
-"error_server_msg" = "The server is currently unavailable. We are working on it!";
-"error_unknown_title" = "Oops!";
-"error_unknown_msg" = "Something went wrong. Please try again later.";
-"error_retry" = "Retry";
+"error_no_internet_title" = "Connection Lost";
+"error_no_internet_msg" = "It looks like you're offline. Check your connection and we'll be ready when you are.";
+"error_server_title" = "Server Sync Issue";
+"error_server_msg" = "Our servers are taking a short break. Please try again in a few moments.";
+"error_unknown_title" = "Something Went Wrong";
+"error_unknown_msg" = "We encountered an unexpected error. Please try again shortly.";
+"error_retry" = "Try Again";
 
 /* Toast Notifications */
-"toast_auth_success" = "Welcome back!";
-"toast_auth_failed" = "Authentication failed. Please log in again.";
-"toast_generic_warning" = "Warning: Proceed with caution.";
+"toast_auth_success" = "Welcome back! You're successfully signed in.";
+"toast_auth_failed" = "We couldn't verify your account. Please sign in again.";
+"toast_generic_warning" = "Heads up! Please double-check before continuing.";
 
 "record" = "Record";
 "analysis_score" = "Analysis Score";
@@ -29,8 +29,8 @@
 "debug_title" = "Architecture Debug";
 "debug_trigger_loading" = "Show Loading";
 "debug_trigger_error_blocking" = "Blocking Error";
-"debug_trigger_error_toast" = "Toast Error";
-"debug_trigger_success_toast" = "Success Toast";
+"debug_trigger_error_toast" = "Test Error Notification";
+"debug_trigger_success_toast" = "Test Success Notification";
 
 "tab_states" = "States";
 "tab_widgets" = "Widgets";

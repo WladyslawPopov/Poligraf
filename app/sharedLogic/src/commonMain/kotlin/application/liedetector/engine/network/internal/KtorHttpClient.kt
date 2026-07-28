@@ -10,7 +10,6 @@ import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.serialization.kotlinx.json.*
-import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import kotlin.coroutines.cancellation.CancellationException
 
@@ -74,7 +73,6 @@ fun getKtorClient(
 ) = HttpClient {
     installPlugins(networkConfig, authService)
 }.apply {
-    // Use interceptor for asynchronous token injection
     sendPipeline.intercept(HttpSendPipeline.State) {
         authService.getIdToken()?.let { token ->
             context.header(ApiConstants.HEADER_AUTHORIZATION, ApiConstants.BEARER_PREFIX + token)

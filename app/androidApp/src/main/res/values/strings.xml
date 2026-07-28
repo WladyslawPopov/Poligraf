@@ -8,18 +8,18 @@
     <string name="drawer_dark_mode">Dark Mode</string>
 
     <!-- Error States -->
-    <string name="error_no_internet_title">No Connection</string>
-    <string name="error_no_internet_msg">Please check your internet settings and try again.</string>
-    <string name="error_server_title">Server Error</string>
-    <string name="error_server_msg">The server is currently unavailable. We are working on it!</string>
-    <string name="error_unknown_title">Oops!</string>
-    <string name="error_unknown_msg">Something went wrong. Please try again later.</string>
-    <string name="error_retry">Retry</string>
+    <string name="error_no_internet_title">Connection Lost</string>
+    <string name="error_no_internet_msg">It looks like you\'re offline. Check your connection and we\'ll be ready when you are.</string>
+    <string name="error_server_title">Server Sync Issue</string>
+    <string name="error_server_msg">Our servers are taking a short break. Please try again in a few moments.</string>
+    <string name="error_unknown_title">Something Went Wrong</string>
+    <string name="error_unknown_msg">We encountered an unexpected error. Please try again shortly.</string>
+    <string name="error_retry">Try Again</string>
 
     <!-- Toast Notifications -->
-    <string name="toast_auth_success">Welcome back!</string>
-    <string name="toast_auth_failed">Authentication failed. Please log in again.</string>
-    <string name="toast_generic_warning">Warning: Proceed with caution.</string>
+    <string name="toast_auth_success">Welcome back! You\'re successfully signed in.</string>
+    <string name="toast_auth_failed">We couldn\'t verify your account. Please sign in again.</string>
+    <string name="toast_generic_warning">Heads up! Please double-check before continuing.</string>
 
     <string name="record">Record</string>
     <string name="analysis_score">Analysis Score</string>
@@ -31,8 +31,8 @@
     <string name="debug_title">Architecture Debug</string>
     <string name="debug_trigger_loading">Show Loading</string>
     <string name="debug_trigger_error_blocking">Blocking Error</string>
-    <string name="debug_trigger_error_toast">Toast Error</string>
-    <string name="debug_trigger_success_toast">Success Toast</string>
+    <string name="debug_trigger_error_toast">Test Error Notification</string>
+    <string name="debug_trigger_success_toast">Test Success Notification</string>
 
     <string name="tab_states">States</string>
     <string name="tab_widgets">Widgets</string>

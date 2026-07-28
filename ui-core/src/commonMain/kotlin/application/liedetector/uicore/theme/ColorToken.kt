@@ -19,7 +19,8 @@ enum class ColorToken {
     // Semantic (Neon Accents)
     TRUTH,           // Bio-Green Neon
     STRESS,          // Pulse-Red Neon
-    ACCENT_ENERGY,   // Cyan aura
+    ACCENT_PRIMARY,  // Main interaction (Buttons, Tabs)
+    ACCENT_ENERGY,   // Background aura / glow
     
     // Text
     TEXT_PRIMARY,
