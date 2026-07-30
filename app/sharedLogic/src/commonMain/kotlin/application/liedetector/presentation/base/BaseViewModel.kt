@@ -5,7 +5,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import application.liedetector.engine.domain.responseModels.ServerErrorException
 import application.liedetector.uicore.state.*
-import application.liedetector.uicore.theme.StringToken
+import application.liedetector.uicore.theme.tokens.StringToken
+import application.liedetector.uicore.types.ErrorType
+import application.liedetector.uicore.types.ToastType
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope

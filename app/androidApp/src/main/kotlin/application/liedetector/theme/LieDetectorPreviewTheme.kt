@@ -7,6 +7,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import application.liedetector.uicore.theme.*
+import application.liedetector.uicore.theme.tokens.ColorToken
+import application.liedetector.uicore.theme.tokens.DimenToken
+import application.liedetector.uicore.theme.tokens.IconToken
+import application.liedetector.uicore.theme.tokens.StringToken
 
 /**
  * A mock resource provider for IDE Previews.

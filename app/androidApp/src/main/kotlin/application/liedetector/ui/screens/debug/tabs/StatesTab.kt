@@ -8,9 +8,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import application.liedetector.presentation.debug.DebugComponent
 import application.liedetector.theme.utils.composeColor
-import application.liedetector.uicore.theme.ColorToken
 import application.liedetector.uicore.theme.LocalDesignSystem
-import application.liedetector.uicore.theme.StringToken
+import application.liedetector.uicore.theme.tokens.ColorToken
+import application.liedetector.uicore.theme.tokens.StringToken
 import application.liedetector.uicore.types.WidgetAction
 
 @Composable

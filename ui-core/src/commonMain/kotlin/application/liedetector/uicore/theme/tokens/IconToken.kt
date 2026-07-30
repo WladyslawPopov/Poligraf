@@ -1,4 +1,4 @@
-package application.liedetector.uicore.theme
+package application.liedetector.uicore.theme.tokens
 
 import kotlinx.serialization.Serializable
 

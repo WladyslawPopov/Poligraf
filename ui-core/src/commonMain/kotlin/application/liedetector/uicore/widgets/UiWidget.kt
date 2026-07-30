@@ -1,60 +1,67 @@
 package application.liedetector.uicore.widgets
 
 import androidx.compose.runtime.Immutable
-import application.liedetector.uicore.theme.ColorToken
-import application.liedetector.uicore.theme.StringToken
+import androidx.compose.runtime.Stable
+import application.liedetector.uicore.theme.tokens.ColorToken
+import application.liedetector.uicore.theme.tokens.StringToken
+import application.liedetector.uicore.theme.tokens.TypographyToken
 import application.liedetector.uicore.types.WidgetAction
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonClassDiscriminator
 
-@Immutable
+@Stable
 @Serializable
+@OptIn(ExperimentalSerializationApi::class)
+@JsonClassDiscriminator("type")
 sealed class UiWidget {
     abstract val id: String
 
     @Immutable
     @Serializable
-    @SerialName("header")
-    data class Header(
+    @SerialName("app_toolbar")
+    data class AppToolbar(
         override val id: String,
-        val titleToken: StringToken,
-        val subtitleToken: StringToken? = null
+        val titleToken: StringToken? = null,
+        val menuAction: WidgetAction = WidgetAction.OPEN_SETTINGS,
+        val profileAction: WidgetAction = WidgetAction.OPEN_PROFILE,
+        val backgroundColor: ColorToken = ColorToken.BACKGROUND,
+        val contentColor: ColorToken = ColorToken.TEXT_PRIMARY,
+        val typographyToken: TypographyToken = TypographyToken.HEADER
     ) : UiWidget()
 
     @Immutable
     @Serializable
-    @SerialName("verdict_card")
-    data class VerdictCard(
-        override val id: String,
-        val verdictToken: StringToken,
-        val score: Int,
-        val colorToken: ColorToken
-    ) : UiWidget()
-
-    @Immutable
-    @Serializable
-    @SerialName("microphone_button")
-    data class MicrophoneButton(
-        override val id: String,
-        val action: WidgetAction
-    ) : UiWidget()
-
-    @Immutable
-    @Serializable
-    @SerialName("acoustic_graph")
-    data class AcousticGraph(
-        override val id: String,
-        val points: List<Float>,
-        val colorToken: ColorToken = ColorToken.PRIMARY
-    ) : UiWidget()
-
-    @Immutable
-    @Serializable
-    @SerialName("standard_button")
-    data class StandardButton(
+    @SerialName("welcome_text")
+    data class WelcomeText(
         override val id: String,
         val textToken: StringToken,
+        val emoji: String? = null,
+        val colorToken: ColorToken = ColorToken.TEXT_PRIMARY,
+        val typographyToken: TypographyToken = TypographyToken.HEADER,
+        val typingDelay: Long = 40L
+    ) : UiWidget()
+
+    @Immutable
+    @Serializable
+    data class SubjectCard(
+        val id: String,
+        val titleToken: StringToken,
+        val emoji: String,
         val action: WidgetAction,
-        val isPrimary: Boolean = true
+        val backgroundColor: ColorToken = ColorToken.SURFACE_VARIANT,
+        val titleColor: ColorToken = ColorToken.TEXT_PRIMARY,
+        val titleTypography: TypographyToken = TypographyToken.SUBHEADER,
+        val buttonColor: ColorToken = ColorToken.PRIMARY
+    )
+
+    @Immutable
+    @Serializable
+    @SerialName("subject_slider")
+    data class SubjectSlider(
+        override val id: String,
+        val items: List<SubjectCard>,
+        val itemSpacing: Int = 16
     ) : UiWidget()
 }

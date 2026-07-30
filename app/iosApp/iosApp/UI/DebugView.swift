@@ -23,12 +23,9 @@ struct DebugView: View {
 
     var body: some View {
         AppScaffold(
-            isLoading: loading.value.boolValue,
-            errorType: error.value,
-            toastState: toast.value,
-            designSystem: designSystem,
-            onClearError: { component.viewModel.clearError() },
-            onClearToast: { component.viewModel.clearToast() }
+            viewModel: component.viewModel,
+            state: state.value,
+            designSystem: designSystem
         ) {
             VStack(spacing: 0) {
                 tabPicker
@@ -41,27 +38,38 @@ struct DebugView: View {
     }
 
     private var tabPicker: some View {
-        Picker("", selection: Binding(
-            get: { state.value.selectedTab },
-            set: { component.setTab(tab: $0) }
-        )) {
-            Text(designSystem.string(token: .tabStates)).tag(DebugTab.states)
-            Text(designSystem.string(token: .tabWidgets)).tag(DebugTab.widgets)
-            Text(designSystem.string(token: .tabLabs)).tag(DebugTab.labs)
-        }
-        .pickerStyle(.segmented)
-        .padding()
+        GlassSegmentedTabRow(
+            items: [DebugTab.states, DebugTab.widgets, DebugTab.labs],
+            selection: Binding(
+                get: { state.value.selectedTab },
+                set: { component.setTab(tab: $0) }
+            ),
+            designSystem: designSystem,
+            labelProvider: { tab in
+                switch tab {
+                case .states: return designSystem.string(token: .tabStates)
+                case .widgets: return designSystem.string(token: .tabWidgets)
+                case .labs: return designSystem.string(token: .tabLabs)
+                }
+            }
+        )
     }
     
     @ViewBuilder
     private var contentView: some View {
-        switch state.value.selectedTab {
-        case .widgets:
-            WidgetsTab(widgets: state.value.widgets, component: component, designSystem: designSystem)
-        case .labs:
-            LabsTab(designSystem: designSystem)
-        default:
+        TabView(selection: Binding(
+            get: { state.value.selectedTab },
+            set: { component.setTab(tab: $0) }
+        )) {
             StatesTab(component: component, designSystem: designSystem)
+                .tag(DebugTab.states)
+            
+            WidgetsTab(widgets: state.value.widgets, component: component, designSystem: designSystem)
+                .tag(DebugTab.widgets)
+            
+            LabsTab(designSystem: designSystem)
+                .tag(DebugTab.labs)
         }
+        .tabViewStyle(.page(indexDisplayMode: .never))
     }
 }

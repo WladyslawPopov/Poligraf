@@ -7,9 +7,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import application.liedetector.theme.utils.composeColor
-import application.liedetector.uicore.theme.ColorToken
 import application.liedetector.uicore.theme.LocalDesignSystem
-import application.liedetector.uicore.theme.StringToken
+import application.liedetector.uicore.theme.tokens.ColorToken
+import application.liedetector.uicore.theme.tokens.StringToken
 
 @Composable
 fun LabsTab() {

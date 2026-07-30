@@ -1,0 +1,110 @@
+package application.liedetector.ui.components.widgets
+
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import application.liedetector.uicore.theme.tokens.ColorToken
+import application.liedetector.uicore.theme.tokens.DimenToken
+import application.liedetector.uicore.theme.LocalDesignSystem
+import application.liedetector.uicore.theme.tokens.StringToken
+import application.liedetector.uicore.widgets.UiWidget
+import application.liedetector.theme.utils.composeColor
+import application.liedetector.theme.utils.typography
+import application.liedetector.uicore.theme.DesignSystem
+import application.liedetector.uicore.types.WidgetAction
+
+@Composable
+fun SubjectSliderRenderer(
+    widget: UiWidget.SubjectSlider,
+    onAction: (WidgetAction) -> Unit
+) {
+    val designSystem = LocalDesignSystem.current
+    val state = rememberLazyListState()
+    
+    LazyRow(
+        state = state,
+        flingBehavior = rememberSnapFlingBehavior(lazyListState = state),
+        modifier = Modifier.fillMaxWidth(),
+        contentPadding = PaddingValues(horizontal = designSystem.dimen(DimenToken.SPACING_MEDIUM).dp),
+        horizontalArrangement = Arrangement.spacedBy(widget.itemSpacing.dp)
+    ) {
+        items(widget.items) { item ->
+            SubjectCardRenderer(item, designSystem, onAction)
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SubjectCardRenderer(
+    item: UiWidget.SubjectCard,
+    designSystem: DesignSystem,
+    onAction: (WidgetAction) -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .width(designSystem.dimen(DimenToken.SUBJECT_CARD_WIDTH).dp)
+            .height(designSystem.dimen(DimenToken.SUBJECT_CARD_HEIGHT).dp),
+        colors = CardDefaults.cardColors(
+            containerColor = designSystem.composeColor(item.backgroundColor).copy(alpha = 0.6f)
+        ),
+        shape = MaterialTheme.shapes.extraLarge,
+        onClick = { onAction(item.action) },
+        border = BorderStroke(
+            1.dp, 
+            designSystem.composeColor(ColorToken.GLASS_BORDER).copy(alpha = 0.2f)
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(designSystem.dimen(DimenToken.SPACING_LARGE).dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(designSystem.dimen(DimenToken.SUBJECT_CARD_ICON_SIZE).dp)
+                    .background(
+                        designSystem.composeColor(item.buttonColor).copy(alpha = 0.15f),
+                        CircleShape
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(text = item.emoji, style = MaterialTheme.typography.displayMedium)
+            }
+            
+            Text(
+                text = designSystem.string(item.titleToken),
+                style = designSystem.typography(item.titleTypography),
+                color = designSystem.composeColor(item.titleColor),
+                textAlign = TextAlign.Center,
+                fontWeight = FontWeight.SemiBold
+            )
+            
+            Button(
+                onClick = { onAction(item.action) },
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = designSystem.composeColor(item.buttonColor),
+                    contentColor = designSystem.composeColor(ColorToken.TEXT_INVERTED)
+                ),
+                shape = MaterialTheme.shapes.large
+            ) {
+                Text(text = designSystem.string(StringToken.SUBJECT_NEW_BUTTON))
+            }
+        }
+    }
+}

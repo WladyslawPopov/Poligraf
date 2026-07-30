@@ -1,6 +1,6 @@
 package application.liedetector.engine.domain.responseModels
 
-import application.liedetector.uicore.state.ErrorType
+import application.liedetector.uicore.types.ErrorType
 
 class ServerErrorException(
     val errorCode: String,

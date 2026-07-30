@@ -6,9 +6,9 @@ class IosResourceProvider: ResourceProvider {
         let key: String
         switch token {
         case .appName: key = "app_name"
-        case .welcomeTitle: key = "welcome_title"
-        case .welcomeSubtitle: key = "welcome_subtitle"
-        case .startInvestigation: key = "start_investigation"
+        case .welcomeText: key = "welcome_text"
+        case .subjectNewTitle: key = "subject_new_title"
+        case .subjectNewButton: key = "subject_new_button"
         case .drawerSettings: key = "drawer_settings"
         case .drawerDarkMode: key = "drawer_dark_mode"
         

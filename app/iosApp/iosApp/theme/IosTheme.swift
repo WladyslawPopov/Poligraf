@@ -9,6 +9,17 @@ struct IosTheme {
         let hex = designSystem.color(token: token)
         return Color(hex: hex)
     }
+    
+    static func font(_ token: TypographyToken) -> Font {
+        switch token {
+        case .header: return .system(size: 34, weight: .bold)
+        case .subheader: return .system(size: 24, weight: .semibold)
+        case .body: return .system(size: 17, weight: .regular)
+        case .caption: return .system(size: 12, weight: .regular)
+        case .dataNumeric: return .system(size: 20, weight: .bold, design: .monospaced)
+        default: return .body
+        }
+    }
 }
 
 extension Color {

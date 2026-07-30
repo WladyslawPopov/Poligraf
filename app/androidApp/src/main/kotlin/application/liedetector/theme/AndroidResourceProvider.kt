@@ -4,8 +4,7 @@ import android.content.Context
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.*
 import androidx.compose.material.icons.rounded.*
-import application.liedetector.uicore.theme.StringToken
-import application.liedetector.uicore.theme.IconToken
+import application.liedetector.uicore.theme.tokens.*
 import application.liedetector.uicore.theme.IconResource
 import application.liedetector.uicore.theme.ResourceProvider
 
@@ -13,9 +12,9 @@ class AndroidResourceProvider(private val context: Context) : ResourceProvider {
     override fun getString(token: StringToken): String {
         val resId = when(token) {
             StringToken.APP_NAME -> application.liedetector.R.string.app_name
-            StringToken.WELCOME_TITLE -> application.liedetector.R.string.welcome_title
-            StringToken.WELCOME_SUBTITLE -> application.liedetector.R.string.welcome_subtitle
-            StringToken.START_INVESTIGATION -> application.liedetector.R.string.start_investigation
+            StringToken.WELCOME_TEXT -> application.liedetector.R.string.welcome_text
+            StringToken.SUBJECT_NEW_TITLE -> application.liedetector.R.string.subject_new_title
+            StringToken.SUBJECT_NEW_BUTTON -> application.liedetector.R.string.subject_new_button
             StringToken.DRAWER_SETTINGS -> application.liedetector.R.string.drawer_settings
             StringToken.DRAWER_DARK_MODE -> application.liedetector.R.string.drawer_dark_mode
             

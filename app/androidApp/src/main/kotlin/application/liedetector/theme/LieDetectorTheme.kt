@@ -9,10 +9,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import application.liedetector.theme.utils.toComposeColor
-import application.liedetector.uicore.theme.ColorToken
 import application.liedetector.uicore.theme.DesignSystem
 import application.liedetector.uicore.theme.LocalDesignSystem
 import application.liedetector.uicore.theme.ResourceProvider
+import application.liedetector.uicore.theme.tokens.ColorToken
 import org.koin.compose.koinInject
 
 @Composable

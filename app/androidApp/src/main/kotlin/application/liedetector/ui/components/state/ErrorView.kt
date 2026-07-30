@@ -9,8 +9,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import application.liedetector.theme.utils.composeColor
-import application.liedetector.uicore.state.ErrorType
 import application.liedetector.uicore.theme.*
+import application.liedetector.uicore.theme.tokens.ColorToken
+import application.liedetector.uicore.theme.tokens.DimenToken
+import application.liedetector.uicore.theme.tokens.StringToken
+import application.liedetector.uicore.types.ErrorType
 
 /**
  * Renders an error state as a full-page overlay within the screen's content area.

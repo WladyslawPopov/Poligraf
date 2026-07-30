@@ -1,7 +1,7 @@
-"welcome_title" = "Digital Investigation";
-"welcome_subtitle" = "Analyze voice markers with AI precision.";
 "app_name" = "Lie Detector";
-"start_investigation" = "Start Investigation";
+"welcome_text" = "Welcome to Lie Detector 🤖";
+"subject_new_title" = "New Investigation";
+"subject_new_button" = "Start Recording ⏺️";
 "drawer_settings" = "Settings";
 "drawer_dark_mode" = "Dark Mode";
 

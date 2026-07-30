@@ -9,10 +9,11 @@ struct MainView: View {
     
     @ObservedObject var state: SKIEStateObserver<MainState>
     
-    // Bridging common states for AppScaffold
     @ObservedObject var loading: SKIEStateObserver<KotlinBoolean>
     @ObservedObject var error: SKIEOptionalStateObserver<ErrorType>
     @ObservedObject var toast: SKIEOptionalStateObserver<ToastState>
+
+    @State private var contentVisible: Bool = false
 
     init(navigator: IosNavigator, component: MainComponent, designSystem: DesignSystem) {
         self.navigator = navigator
@@ -20,7 +21,6 @@ struct MainView: View {
         self.designSystem = designSystem
         self._state = ObservedObject(wrappedValue: SKIEStateObserver(component.viewModel.state))
         
-        // Bridging BaseViewModel states to SwiftUI
         self._loading = ObservedObject(wrappedValue: SKIEStateObserver(component.viewModel.isLoading))
         self._error = ObservedObject(wrappedValue: SKIEOptionalStateObserver(component.viewModel.errorType))
         self._toast = ObservedObject(wrappedValue: SKIEOptionalStateObserver(component.viewModel.toastState))
@@ -28,16 +28,20 @@ struct MainView: View {
 
     var body: some View {
         AppScaffold(
-            isLoading: loading.value.boolValue,
-            errorType: error.value,
-            toastState: toast.value,
+            viewModel: component.viewModel,
+            state: state.value,
             designSystem: designSystem,
             onRetry: { component.retry() },
-            onRefresh: { component.retry() },
-            onClearError: { component.viewModel.clearError() },
-            onClearToast: { component.viewModel.clearToast() }
+            onRefresh: { component.retry() }
         ) {
             mainContent
+        }
+        .onAppear {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                withAnimation(.easeOut(duration: 0.6)) {
+                    contentVisible = true
+                }
+            }
         }
     }
 
@@ -53,7 +57,6 @@ struct MainView: View {
             component.retry()
         }
         .scrollContentBackground(.hidden)
-        .navigationTitle(navigationTitle)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             navigationToolbar
@@ -65,27 +68,42 @@ struct MainView: View {
 
     private var widgetList: some View {
         LazyVStack(spacing: CGFloat(designSystem.dimen(token: .widgetSpacing))) {
-            Spacer().frame(height: CGFloat(designSystem.dimen(token: .spacingLarge)))
+            if let welcome = state.value.welcomeWidget {
+                WidgetView(widget: welcome, designSystem: designSystem, onAction: { component.onAction(action: $0) })
+            }
             
-            ForEach(state.value.widgets, id: \.id) { widget in
-                WidgetView(widget: widget, designSystem: designSystem, onAction: { component.onAction(action: $0) })
+            if contentVisible {
+                ForEach(state.value.widgets, id: \.id) { widget in
+                    WidgetView(widget: widget, designSystem: designSystem, onAction: { component.onAction(action: $0) })
+                }
+                .transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }
     }
 
     private var navigationTitle: String {
-        let topBar = state.value.topBarState
-        return topBar.titleToken.map { designSystem.string(token: $0) } ?? topBar.titleRaw ?? ""
+        if let toolbar = state.value.toolbar {
+            return toolbar.titleToken.map { designSystem.string(token: $0) } ?? ""
+        }
+        return ""
     }
 
     @ToolbarContentBuilder
     private var navigationToolbar: some ToolbarContent {
-        if sizeClass == .compact && navigator.path.isEmpty {
+        if let toolbar = state.value.toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
-                Button(action: { navigator.toggleDrawer() }) {
+                Button(action: { component.onAction(action: toolbar.menuAction) }) {
                     Image(systemName: designSystem.icon(token: .menu))
                         .font(.system(size: 18, weight: .bold))
-                        .foregroundColor(IosTheme.color(.textPrimary, from: designSystem))
+                        .foregroundColor(IosTheme.color(toolbar.contentColor, from: designSystem))
+                }
+            }
+            
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button(action: { component.onAction(action: toolbar.profileAction) }) {
+                    Image(systemName: designSystem.icon(token: .profile))
+                        .font(.system(size: 18, weight: .bold))
+                        .foregroundColor(IosTheme.color(toolbar.contentColor, from: designSystem))
                 }
             }
         }

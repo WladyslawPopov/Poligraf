@@ -15,8 +15,10 @@ import application.liedetector.ui.components.background.ScalesBackground
 import application.liedetector.ui.components.state.AppSnackBar
 import application.liedetector.ui.components.state.ErrorView
 import application.liedetector.ui.components.state.LoadingView
-import application.liedetector.uicore.state.ToastType
-import application.liedetector.uicore.theme.*
+import application.liedetector.uicore.state.ScaffoldUiState
+import application.liedetector.uicore.theme.LocalDesignSystem
+import application.liedetector.uicore.types.ToastType
+import application.liedetector.uicore.widgets.AppBackground
 
 /**
  * Universal Scaffold for LieDetector.
@@ -26,8 +28,8 @@ import application.liedetector.uicore.theme.*
 @Composable
 fun AppScaffold(
     viewModel: IBaseViewModel,
+    state: ScaffoldUiState,
     modifier: Modifier = Modifier,
-    useAnimatedBackground: Boolean = true,
     onRetry: () -> Unit = {},
     onRefresh: (() -> Unit)? = null,
     topBar: @Composable () -> Unit = {},
@@ -41,10 +43,9 @@ fun AppScaffold(
 
     val snackbarHostState = remember { SnackbarHostState() }
 
-    // Sync ViewModel ToastState to Material Snackbar
     LaunchedEffect(toastState) {
-        toastState?.let { state ->
-            val message = state.messageToken?.let { designSystem.string(it) } ?: state.messageRaw ?: ""
+        toastState?.let { s ->
+            val message = s.messageToken?.let { designSystem.string(it) } ?: s.messageRaw ?: ""
             snackbarHostState.showSnackbar(
                 message = message,
                 duration = SnackbarDuration.Short,
@@ -55,15 +56,18 @@ fun AppScaffold(
     }
 
     Box(modifier = modifier.fillMaxSize()) {
-        // 0. Background Layer
-        if (useAnimatedBackground) {
-            ScalesBackground()
-        } else {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(designSystem.composeColor(ColorToken.BACKGROUND))
-            )
+        // Background Dispatcher
+        when (val bg = state.background) {
+            is AppBackground.AnimatedScales -> {
+                ScalesBackground(config = bg)
+            }
+            is AppBackground.Solid -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(designSystem.composeColor(bg.colorToken))
+                )
+            }
         }
 
         Scaffold(

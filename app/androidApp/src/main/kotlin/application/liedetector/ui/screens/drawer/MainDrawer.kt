@@ -19,12 +19,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import application.liedetector.theme.ThemeState
 import application.liedetector.theme.utils.composeColor
-import application.liedetector.uicore.theme.ColorToken
 import application.liedetector.uicore.theme.DesignSystem
-import application.liedetector.uicore.theme.DimenToken
-import application.liedetector.uicore.theme.StringToken
 import androidx.compose.foundation.clickable
 import application.liedetector.navigation.AppNavigation
+import application.liedetector.uicore.theme.tokens.ColorToken
+import application.liedetector.uicore.theme.tokens.DimenToken
+import application.liedetector.uicore.theme.tokens.StringToken
 
 @Composable
 fun MainDrawer(

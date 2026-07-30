@@ -9,8 +9,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import application.liedetector.theme.utils.composeColor
-import application.liedetector.uicore.state.ToastType
 import application.liedetector.uicore.theme.*
+import application.liedetector.uicore.theme.tokens.ColorToken
+import application.liedetector.uicore.theme.tokens.DimenToken
+import application.liedetector.uicore.theme.tokens.IconToken
+import application.liedetector.uicore.types.ToastType
 
 /**
  * A custom Snackbar that follows the Design System's glass and neon aesthetic.

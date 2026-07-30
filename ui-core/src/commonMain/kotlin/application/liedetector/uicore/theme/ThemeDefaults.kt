@@ -1,5 +1,7 @@
 package application.liedetector.uicore.theme
 
+import application.liedetector.uicore.theme.tokens.*
+
 /**
  * Central repository for all Design System values.
  * This ensures consistency across Android and iOS.
@@ -68,6 +70,11 @@ object ThemeDefaults {
             DimenToken.MAX_CONTENT_WIDTH -> 600f
             DimenToken.LOADING_INDICATOR_SIZE -> 44f
             DimenToken.LOADING_INDICATOR_STROKE -> 3f
+            
+            DimenToken.WELCOME_MIN_HEIGHT -> 160f
+            DimenToken.SUBJECT_CARD_WIDTH -> 220f
+            DimenToken.SUBJECT_CARD_HEIGHT -> 280f
+            DimenToken.SUBJECT_CARD_ICON_SIZE -> 90f
         }
     }
 }

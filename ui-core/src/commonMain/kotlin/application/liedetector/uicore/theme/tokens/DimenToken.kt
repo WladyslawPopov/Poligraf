@@ -1,4 +1,4 @@
-package application.liedetector.uicore.theme
+package application.liedetector.uicore.theme.tokens
 
 import kotlinx.serialization.Serializable
 
@@ -28,5 +28,11 @@ enum class DimenToken {
     MAX_CONTENT_WIDTH,
     
     LOADING_INDICATOR_SIZE,
-    LOADING_INDICATOR_STROKE
+    LOADING_INDICATOR_STROKE,
+    
+    // Feature specific
+    WELCOME_MIN_HEIGHT,
+    SUBJECT_CARD_WIDTH,
+    SUBJECT_CARD_HEIGHT,
+    SUBJECT_CARD_ICON_SIZE
 }

@@ -1,20 +1,33 @@
-# Walkthrough - iOS Theme Switching Fix
+# Walkthrough - iOS Swipeable Tabs & Universal Component
 
-I have fixed the issue where theme switching on iOS was "incomplete" or stuck. The root cause was that the `DesignSystem` object was initialized only once and did not react to changes in the theme state.
+I have implemented swipeable tab content on iOS, matching the modern experience of the Android version. This included creating a reusable, glass-styled segmented control.
 
 ## Changes Made
 
-### 🛠️ Reactive Design System
-- **[ContentView.swift](file:///Users/krampus/AndroidStudioProjects/KMP/LieDetector/app/iosApp/iosApp/UI/ContentView.swift)**:
-    - Converted the `designSystem` property into a **computed property**.
-    - Now, every time the `navigator.isDark` state changes (triggered by the user in Settings), `ContentView` re-evaluates its body and generates a fresh `DesignSystem` instance with the correct theme flag.
-    - This new instance is automatically propagated to all child views (`MainView`, `DebugView`, `AppScaffold`, `ScalesView`, etc.), ensuring the entire UI updates synchronously.
+### 🧱 Reusable UI Components (iOS)
+- **[AppTabs.swift](file:///Users/krampus/AndroidStudioProjects/KMP/LieDetector/app/iosApp/iosApp/UI/Components/AppTabs.swift)**: Created `GlassSegmentedTabRow`.
+    - Supports generic `Hashable` types (perfect for Enums).
+    - Custom implementation using `.ultraThinMaterial` for a native glass feel.
+    - Animated selection indicator that slides between tabs.
+    - Consistent with the "no checkmark" design request.
+
+### 📱 Debug Screen Refinement (iOS)
+- **[DebugView.swift](file:///Users/krampus/AndroidStudioProjects/KMP/LieDetector/app/iosApp/iosApp/UI/DebugView.swift)**:
+    - Replaced the standard SwiftUI `Picker` with the new `GlassSegmentedTabRow`.
+    - Replaced the static `switch` content with a `TabView` using `.tabViewStyle(.page)`.
+    - This enables full-screen swiping between States, Widgets, and Labs tabs.
+
+### 🤖 Android Consistency Check
+- Verified **[DebugHost.kt](file:///Users/krampus/AndroidStudioProjects/KMP/LieDetector/app/androidApp/src/main/kotlin/application/liedetector/ui/screens/debug/DebugHost.kt)**:
+    - Confirmed it already uses `HorizontalPager` and syncs bidirectional state with the ViewModel.
+    - The experience is now identical across both platforms.
 
 ## Verification Results
 
-### Theme Reactivity
-- **Background Update**: Toggling Dark Mode now immediately updates the background color (e.g., from Dark Anthracite to the new Light Blue-Gray).
-- **Text & Accent Sync**: All labels and neon accents now correctly switch their color sets based on the active theme.
-- **Glass Materials**: The "frosted glass" panels now correctly switch between Dark and White materials when the theme is toggled.
+### iOS UX
+- **Swiping**: Users can now swipe between content pages.
+- **Header Sync**: Clicking a header item smoothly animates both the selection indicator and the content page.
+- **Glass Look**: The new tab row blends perfectly with the background `ScalesView`.
 
-render_diffs(file:///Users/krampus/AndroidStudioProjects/KMP/LieDetector/app/iosApp/iosApp/UI/ContentView.swift)
+render_diffs(file:///Users/krampus/AndroidStudioProjects/KMP/LieDetector/app/iosApp/iosApp/UI/Components/AppTabs.swift)
+render_diffs(file:///Users/krampus/AndroidStudioProjects/KMP/LieDetector/app/iosApp/iosApp/UI/DebugView.swift)

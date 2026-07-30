@@ -8,6 +8,8 @@ enum class WidgetAction {
     STOP_RECORDING,
     OPEN_HISTORY,
     OPEN_SETTINGS,
+    OPEN_PROFILE,
+    START_NEW_INVESTIGATION,
     RETRY_ANALYSIS,
     
     // Debug Actions

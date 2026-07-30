@@ -2,6 +2,7 @@ package application.liedetector.uicore.theme
 
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.staticCompositionLocalOf
+import application.liedetector.uicore.theme.tokens.*
 
 /**
  * Main entry point for the Design System logic.

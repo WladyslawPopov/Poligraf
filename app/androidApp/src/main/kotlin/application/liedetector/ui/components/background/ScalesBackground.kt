@@ -7,6 +7,8 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -17,21 +19,21 @@ import androidx.compose.ui.draw.blur
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import application.liedetector.theme.utils.composeColor
-import application.liedetector.uicore.theme.ColorToken
-import application.liedetector.uicore.theme.DimenToken
+import application.liedetector.uicore.theme.tokens.DimenToken
 import application.liedetector.uicore.theme.LocalDesignSystem
+import application.liedetector.uicore.widgets.AppBackground
 import kotlin.math.abs
 import kotlin.math.pow
 import kotlin.math.sin
 
 @Composable
 fun ScalesBackground(
+    config: AppBackground.AnimatedScales,
     modifier: Modifier = Modifier
 ) {
     val designSystem = LocalDesignSystem.current
     val context = LocalContext.current
     
-    // Native Sensor State
     var tiltX by remember { mutableFloatStateOf(0f) }
     var tiltY by remember { mutableFloatStateOf(0f) }
     
@@ -59,7 +61,6 @@ fun ScalesBackground(
         }
     }
     
-    // Smooth tilt for parallax
     val smoothX by animateFloatAsState(
         targetValue = tiltX,
         animationSpec = spring(stiffness = 100f, dampingRatio = Spring.DampingRatioLowBouncy)
@@ -73,68 +74,69 @@ fun ScalesBackground(
     val time by infiniteTransition.animateFloat(
         initialValue = 0f,
         targetValue = 6.28f,
-        animationSpec = infiniteRepeatable(animation = tween(8000, easing = LinearEasing))
+        animationSpec = infiniteRepeatable(
+            animation = tween((8000 / config.animationSpeed).toInt(), easing = LinearEasing)
+        )
     )
 
-    val bgColor = designSystem.composeColor(ColorToken.BACKGROUND)
-    val scaleColor = designSystem.composeColor(ColorToken.SURFACE_VARIANT)
-    val energyColor = designSystem.composeColor(ColorToken.ACCENT_ENERGY)
-    val parallaxIntensity = designSystem.dimen(DimenToken.PARALLAX_INTENSITY)
-    val cornerRadius = designSystem.dimen(DimenToken.CORNER_RADIUS)
+    val bgColor = designSystem.composeColor(config.baseColor)
+    val scaleColor = designSystem.composeColor(config.particleColor)
+    val energyColor = designSystem.composeColor(config.energyColor)
+    
+    val baseParallax = designSystem.dimen(DimenToken.PARALLAX_INTENSITY)
+    val parallaxIntensity = baseParallax * config.parallaxIntensity
+    val cornerRadiusValue = designSystem.dimen(DimenToken.CORNER_RADIUS)
 
-    Canvas(
-        modifier = modifier
-            .fillMaxSize()
-            .blur(8.dp) // Integrated matte glass effect
-    ) {
-        drawRect(bgColor)
-        
-        // Add a subtle "fog" layer inside the canvas for better matte feel
-        drawRect(
-            color = bgColor.copy(alpha = 0.4f),
-            size = size
-        )
-        
-        val rows = 36
-        val cols = 18
-        val cellW = size.width / cols
-        val cellH = size.height / rows
+    val rows = 36
+    val cols = 18
 
-        // Parallax shift based on tilt
-        val parallaxOffsetX = smoothX * parallaxIntensity
-        val parallaxOffsetY = smoothY * parallaxIntensity
+    Box(modifier = modifier.fillMaxSize().background(bgColor)) {
+        Canvas(
+            modifier = Modifier
+                .fillMaxSize()
+                .blur(config.blurRadius.dp)
+        ) {
+            val cellW = size.width / cols
+            val cellH = size.height / rows
+            val px = smoothX * parallaxIntensity
+            val py = smoothY * parallaxIntensity
 
-        for (r in 0 until rows) {
-            for (c in 0 until cols) {
-                // Base position with parallax shift
-                val basePos = Offset(
-                    c * cellW + cellW / 2 + parallaxOffsetX, 
-                    r * cellH + cellH / 2 + parallaxOffsetY
-                )
-                
-                val dxNorm = abs(basePos.x - size.width / 2) / (size.width * 0.5f)
-                val dyNorm = abs(basePos.y - size.height / 2) / (size.height * 0.5f)
-                val distMask = (dxNorm.pow(4) + dyNorm.pow(4)).pow(0.25f)
-                
-                val wave = sin(distMask * 10f - time).coerceIn(0f, 1f)
-                val energyIntensity = (distMask * 1.2f).coerceIn(0.2f, 1f)
+            val rectSize = Size(cellW / 1.5f, cellH / 2.0f)
+            val halfRectW = rectSize.width / 2
+            val halfRectH = rectSize.height / 2
 
-                // Particles are static but shifted by parallax
-                drawRoundRect(
-                    color = scaleColor,
-                    topLeft = Offset(basePos.x - cellW / 3, basePos.y - cellH / 4),
-                    size = Size(cellW / 1.5f, cellH / 2f),
-                    cornerRadius = CornerRadius(cornerRadius, cornerRadius),
-                    alpha = 0.3f
-                )
+            // Expanded loop range to prevent dark edges during parallax
+            for (r in -2..rows + 2) {
+                val y = r * cellH + cellH / 2 + py
+                val dyNorm = abs(y - size.height / 2) / (size.height * 0.5f)
+                val dy4 = dyNorm * dyNorm * dyNorm * dyNorm
 
-                // Energy Glow
-                drawRoundRect(
-                    color = energyColor.copy(alpha = energyIntensity * 0.3f * (0.3f + wave * 0.7f)),
-                    topLeft = Offset(basePos.x - cellW / 3, basePos.y - cellH / 4),
-                    size = Size(cellW / 1.5f, cellH / 2f),
-                    cornerRadius = CornerRadius(cornerRadius, cornerRadius)
-                )
+                for (c in -2..cols + 2) {
+                    val x = c * cellW + cellW / 2 + px
+                    val dxNorm = abs(x - size.width / 2) / (size.width * 0.5f)
+                    val distMask = (dxNorm * dxNorm * dxNorm * dxNorm + dy4).pow(0.25f)
+                    
+                    val wave = sin(distMask * 10f - time).coerceIn(0f, 1f)
+                    val energyIntensity = (distMask * 1.2f).coerceIn(0.2f, 1f)
+                    val rectTopLeft = Offset(x - halfRectW, y - halfRectH)
+
+                    // Draw Scale
+                    drawRoundRect(
+                        color = scaleColor,
+                        topLeft = rectTopLeft,
+                        size = rectSize,
+                        cornerRadius = CornerRadius(cornerRadiusValue, cornerRadiusValue),
+                        alpha = 0.3f
+                    )
+
+                    // Draw Energy
+                    drawRoundRect(
+                        color = energyColor.copy(alpha = energyIntensity * 0.4f * (0.3f + wave * 0.7f)),
+                        topLeft = rectTopLeft,
+                        size = rectSize,
+                        cornerRadius = CornerRadius(cornerRadiusValue, cornerRadiusValue)
+                    )
+                }
             }
         }
     }

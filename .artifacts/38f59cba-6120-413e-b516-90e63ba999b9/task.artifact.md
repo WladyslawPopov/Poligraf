@@ -1,6 +1,8 @@
-# Tasks - iOS Theme Switching Fix
-
-- [x] Fix Reactive Design System
-    - [x] Update `ContentView.swift` to use a computed `designSystem` property
+- [x] Restore Native iOS Tabs
+    - [x] Update `AppTabs.swift` to use `Picker` with segmented style
+    - [x] Apply glass background to the picker
+- [x] Update Debug View
+    - [x] Ensure sync between `Picker` and `TabView`
 - [x] Verification
-    - [x] Verified that `ContentView` now reacts to `navigator.isDark` and provides a fresh `DesignSystem` instance to the entire view hierarchy.
+    - [x] Verified native sliding indicator behavior on iOS
+    - [x] Verified paging synchronization on iOS

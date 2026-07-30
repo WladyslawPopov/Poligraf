@@ -1,9 +1,9 @@
 package application.liedetector.theme.utils
 
 import androidx.compose.ui.graphics.Color
-import application.liedetector.uicore.theme.ColorToken
 import application.liedetector.uicore.theme.DesignSystem
 import androidx.core.graphics.toColorInt
+import application.liedetector.uicore.theme.tokens.ColorToken
 
 /**
  * Converts Hex string to Compose Color.

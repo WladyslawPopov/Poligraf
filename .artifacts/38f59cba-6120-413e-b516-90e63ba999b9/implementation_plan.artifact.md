@@ -1,25 +1,30 @@
-# Implementation Plan - iOS Theme Switching Fix
+# Implementation Plan - Reverting to Standard Native Tabs (iOS)
 
-The user reported that theme switching on iOS is "incomplete". This is because the `DesignSystem` instance in `ContentView` was initialized once and did not react to changes in the `IosNavigator.isDark` state.
+The user wants to use the standard native tab component (Picker with segmented style) on iOS instead of the custom implementation, while keeping the glass effect and swipe functionality.
 
 ## Proposed Changes
 
-### [iosApp] Root UI
+### [iosApp] UI Components
 
-#### [MODIFY] [ContentView.swift](file:///Users/krampus/AndroidStudioProjects/KMP/LieDetector/app/iosApp/iosApp/UI/ContentView.swift)
-- Change `designSystem` from a private `let` to a private computed property.
-- The computed property will instantiate a new `DesignSystem` using `navigator.isDark` every time it's accessed.
-- This ensures that when the `navigator` state changes, a new `DesignSystem` object with the correct theme flag is passed down to all child views (`MainView`, `DebugView`, `AppScaffold`, etc.).
-- Ensure `isDebug` flag is also correctly derived in the computed property.
+#### [MODIFY] [AppTabs.swift](file:///Users/krampus/AndroidStudioProjects/KMP/LieDetector/app/iosApp/iosApp/UI/Components/AppTabs.swift)
+- Replace the custom `HStack` and `Button` logic with a standard SwiftUI `Picker`.
+- Apply `.pickerStyle(.segmented)`.
+- Use `.background(.ultraThinMaterial)` and established glass tokens to keep it styled correctly without breaking the "standard component" feel.
+
+### [iosApp] Debug Screen
+
+#### [MODIFY] [DebugView.swift](file:///Users/krampus/AndroidStudioProjects/KMP/LieDetector/app/iosApp/iosApp/UI/DebugView.swift)
+- Ensure the `Binding` correctly triggers animations and syncs with the `TabView`.
+
+### [androidApp] Verification
+- Confirm that `GlassSegmentedTabRow` on Android uses the standard `SingleChoiceSegmentedButtonRow`. (Checked: it does).
 
 ## Verification Plan
 
 ### Manual Verification
 - Run the iOS app.
-- Open the Drawer (Settings).
-- Toggle the "Dark Mode" switch.
 - **Verify**:
-    - The background color changes immediately (e.g., from Dark Anthracite to Blue-Gray).
-    - Text colors invert correctly (White <-> Slate).
-    - All "glass" components update their materials and tints.
-    - Navigation remains functional and the theme state is preserved across screens.
+    - The tab header uses the standard iOS segmented control (with the smooth sliding pill).
+    - The background of the header remains "glassy".
+    - Swiping between pages in the `TabView` updates the `Picker` correctly.
+    - Clicking the `Picker` updates the `TabView` correctly.

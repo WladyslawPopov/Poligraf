@@ -1,13 +1,13 @@
-package application.liedetector.uicore.theme
+package application.liedetector.uicore.theme.tokens
 
 import kotlinx.serialization.Serializable
 
 @Serializable
 enum class StringToken {
     APP_NAME,
-    WELCOME_TITLE,
-    WELCOME_SUBTITLE,
-    START_INVESTIGATION,
+    WELCOME_TEXT,
+    SUBJECT_NEW_TITLE,
+    SUBJECT_NEW_BUTTON,
     DRAWER_SETTINGS,
     DRAWER_DARK_MODE,
     

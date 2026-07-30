@@ -17,6 +17,9 @@ import application.liedetector.ui.screens.debug.tabs.StatesTab
 import application.liedetector.ui.screens.debug.tabs.WidgetsTab
 import application.liedetector.uicore.theme.*
 import application.liedetector.theme.utils.composeColor
+import application.liedetector.uicore.theme.tokens.ColorToken
+import application.liedetector.uicore.theme.tokens.IconToken
+import application.liedetector.uicore.theme.tokens.StringToken
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -43,6 +46,7 @@ fun DebugHost(component: DebugComponent) {
 
     AppScaffold(
         viewModel = component.viewModel,
+        state = state,
         topBar = {
             Column(modifier = Modifier.statusBarsPadding()) {
                 CenterAlignedTopAppBar(

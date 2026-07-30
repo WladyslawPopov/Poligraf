@@ -1,5 +1,7 @@
 package application.liedetector.uicore.theme
 
+import application.liedetector.uicore.theme.tokens.*
+
 /**
  * Interface that platforms must implement to provide real native resources.
  */

@@ -2,7 +2,7 @@ package application.liedetector.uicore.state
 
 import androidx.compose.runtime.Stable
 import application.liedetector.uicore.models.MenuItem
-import application.liedetector.uicore.theme.StringToken
+import application.liedetector.uicore.theme.tokens.StringToken
 
 @Stable
 data class TopBarUiState(

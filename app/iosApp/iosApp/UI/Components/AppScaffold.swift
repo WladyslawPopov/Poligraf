@@ -1,16 +1,12 @@
 import SwiftUI
 import SharedLogic
 
-/**
- * Universal wrapper for iOS screens. 
- * Automatically handles Loading, Error, and Toast states from the View Model.
- */
 struct AppScaffold<Content: View>: View {
     let isLoading: Bool
     let errorType: ErrorType?
     let toastState: ToastState?
     let designSystem: DesignSystem
-    let useAnimatedBackground: Bool
+    let state: ScaffoldUiState
     let onRetry: () -> Void
     let onRefresh: (() -> Void)?
     let onClearError: () -> Void
@@ -19,61 +15,29 @@ struct AppScaffold<Content: View>: View {
 
     init(
         viewModel: IBaseViewModel,
+        state: ScaffoldUiState,
         designSystem: DesignSystem,
-        useAnimatedBackground: Bool = true,
         onRetry: @escaping () -> Void = {},
         onRefresh: (() -> Void)? = nil,
         @ViewBuilder content: @escaping () -> Content
     ) {
-        // Bridging StateFlow to simple Swift values for this wrapper
         self.isLoading = viewModel.isLoading.value.boolValue
         self.errorType = viewModel.errorType.value
         self.toastState = viewModel.toastState.value
-        
+        self.state = state
         self.designSystem = designSystem
-        self.useAnimatedBackground = useAnimatedBackground
         self.onRetry = onRetry
         self.onRefresh = onRefresh
         self.onClearError = { viewModel.clearError() }
         self.onClearToast = { viewModel.clearToast() }
         self.content = content
     }
-    
-    // Explicit init with direct values for better SwiftUI reactivity if needed
-    init(
-        isLoading: Bool,
-        errorType: ErrorType?,
-        toastState: ToastState?,
-        designSystem: DesignSystem,
-        useAnimatedBackground: Bool = true,
-        onRetry: @escaping () -> Void = {},
-        onRefresh: (() -> Void)? = nil,
-        onClearError: @escaping () -> Void = {},
-        onClearToast: @escaping () -> Void = {},
-        @ViewBuilder content: @escaping () -> Content
-    ) {
-        self.isLoading = isLoading
-        self.errorType = errorType
-        self.toastState = toastState
-        self.designSystem = designSystem
-        self.useAnimatedBackground = useAnimatedBackground
-        self.onRetry = onRetry
-        self.onRefresh = onRefresh
-        self.onClearError = onClearError
-        self.onClearToast = onClearToast
-        self.content = content
-    }
 
     var body: some View {
         ZStack {
-            // 0. Background Layer
-            if useAnimatedBackground {
-                ScalesView(designSystem: designSystem)
-                    .ignoresSafeArea()
-            } else {
-                IosTheme.color(.background, from: designSystem)
-                    .ignoresSafeArea()
-            }
+            // Background Dispatcher
+            BackgroundView(background: state.background, designSystem: designSystem)
+                .ignoresSafeArea()
 
             // Main Layer
             if let error = errorType {
@@ -89,14 +53,8 @@ struct AppScaffold<Content: View>: View {
                 content()
             }
             
-            // Overlay states
-            
-            // 1. Loading
             LoadingView(isVisible: isLoading, designSystem: designSystem)
             
-            // 2. Error is now integrated into Main Layer
-            
-            // 3. Toasts
             if let toast = toastState {
                 AppToast(
                     state: toast,
@@ -105,5 +63,22 @@ struct AppScaffold<Content: View>: View {
                 )
             }
         }.containerBackground(IosTheme.color(.background, from: designSystem), for: .navigation)
+    }
+}
+
+struct BackgroundView: View {
+    let background: AppBackground
+    let designSystem: DesignSystem
+    
+    var body: some View {
+        Group {
+            if let scales = background as? AppBackground.AnimatedScales {
+                ScalesView(designSystem: designSystem, config: scales) 
+            } else if let solid = background as? AppBackground.Solid {
+                IosTheme.color(solid.colorToken, from: designSystem)
+            } else {
+                IosTheme.color(.background, from: designSystem)
+            }
+        }
     }
 }

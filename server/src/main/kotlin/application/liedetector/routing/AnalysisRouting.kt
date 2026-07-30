@@ -7,8 +7,6 @@ import application.liedetector.models.AnalysisStatus
 import application.liedetector.models.ApiConstants
 import application.liedetector.security.UserPrincipal
 import application.liedetector.uicore.widgets.UiWidget
-import application.liedetector.uicore.theme.StringToken
-import application.liedetector.uicore.types.WidgetAction
 import io.ktor.http.*
 import io.ktor.server.auth.*
 import io.ktor.server.request.*
@@ -23,19 +21,10 @@ fun Route.configureAnalysisRouting(
         route(ApiConstants.API_V1) {
             // Get initial screen template
             get("/screen/main") {
-                val widgets = listOf(
-                    UiWidget.Header(
-                        id = "welcome_h",
-                        titleToken = StringToken.WELCOME_TITLE,
-                        subtitleToken = StringToken.WELCOME_SUBTITLE
-                    ),
-                    UiWidget.StandardButton(
-                        id = "start_btn",
-                        textToken = StringToken.START_INVESTIGATION,
-                        action = WidgetAction.OPEN_HISTORY
-                    )
-                )
-                call.respond(widgets)
+                // Server returns actual saved content. 
+                // For now, it's empty as "New Investigation" is handled by the client.
+                val widgets = emptyList<UiWidget>()
+                call.respond<List<UiWidget>>(widgets)
             }
 
             post(ApiConstants.ENDPOINT_ANALYZE) {

@@ -7,8 +7,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import application.liedetector.theme.utils.composeColor
-import application.liedetector.uicore.theme.ColorToken
 import application.liedetector.uicore.theme.LocalDesignSystem
+import application.liedetector.uicore.theme.tokens.ColorToken
 
 /**
  * A universal segmented tab row with a "glass" style.
