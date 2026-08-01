@@ -1,55 +1,106 @@
 package application.liedetector.ui.screens.debug.tabs
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import application.liedetector.presentation.debug.DebugComponent
 import application.liedetector.theme.utils.composeColor
 import application.liedetector.uicore.theme.LocalDesignSystem
 import application.liedetector.uicore.theme.tokens.ColorToken
+import application.liedetector.uicore.theme.tokens.DimenToken
 import application.liedetector.uicore.theme.tokens.StringToken
 import application.liedetector.uicore.types.WidgetAction
 
 @Composable
-fun StatesTab(component: DebugComponent) {
+fun StatesTab(
+    component: DebugComponent,
+    contentPadding: PaddingValues = PaddingValues(0.dp)
+) {
     val designSystem = LocalDesignSystem.current
-    val buttonColors = ButtonDefaults.buttonColors(
-        containerColor = designSystem.composeColor(ColorToken.ACCENT_PRIMARY),
-        contentColor = designSystem.composeColor(ColorToken.TEXT_INVERTED)
-    )
+    
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .verticalScroll(rememberScrollState())
+            .padding(contentPadding)
+            .padding(designSystem.dimen(DimenToken.SPACING_MEDIUM).dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Button(
-            onClick = { component.onAction(WidgetAction.DEBUG_TRIGGER_LOADING) },
-            colors = buttonColors
-        ) {
-            Text(designSystem.string(StringToken.DEBUG_TRIGGER_LOADING))
+        DebugSection(title = "Engine States") {
+            DebugActionButton(
+                text = designSystem.string(StringToken.DEBUG_TRIGGER_LOADING),
+                onClick = { component.onAction(WidgetAction.DEBUG_TRIGGER_LOADING) },
+                color = ColorToken.ACCENT_PRIMARY
+            )
+            DebugActionButton(
+                text = designSystem.string(StringToken.DEBUG_TRIGGER_ERROR_BLOCKING),
+                onClick = { component.onAction(WidgetAction.DEBUG_TRIGGER_ERROR_BLOCKING) },
+                color = ColorToken.STRESS
+            )
         }
-        Button(
-            onClick = { component.onAction(WidgetAction.DEBUG_TRIGGER_ERROR_BLOCKING) },
-            colors = buttonColors
-        ) {
-            Text(designSystem.string(StringToken.DEBUG_TRIGGER_ERROR_BLOCKING))
+
+        DebugSection(title = "Notifications / Toasts") {
+            DebugActionButton(
+                text = designSystem.string(StringToken.DEBUG_TRIGGER_ERROR_TOAST),
+                onClick = { component.onAction(WidgetAction.DEBUG_TRIGGER_ERROR_NON_BLOCKING) },
+                color = ColorToken.ERROR
+            )
+            DebugActionButton(
+                text = designSystem.string(StringToken.DEBUG_TRIGGER_SUCCESS_TOAST),
+                onClick = { component.onAction(WidgetAction.DEBUG_TRIGGER_SUCCESS_TOAST) },
+                color = ColorToken.TRUTH
+            )
         }
-        Button(
-            onClick = { component.onAction(WidgetAction.DEBUG_TRIGGER_ERROR_NON_BLOCKING) },
-            colors = buttonColors
-        ) {
-            Text(designSystem.string(StringToken.DEBUG_TRIGGER_ERROR_TOAST))
-        }
-        Button(
-            onClick = { component.onAction(WidgetAction.DEBUG_TRIGGER_SUCCESS_TOAST) },
-            colors = buttonColors
-        ) {
-            Text(designSystem.string(StringToken.DEBUG_TRIGGER_SUCCESS_TOAST))
-        }
+    }
+}
+
+@Composable
+private fun DebugSection(
+    title: String,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    val designSystem = LocalDesignSystem.current
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(MaterialTheme.shapes.large)
+            .background(designSystem.composeColor(ColorToken.SURFACE_VARIANT).copy(alpha = 0.4f))
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Text(
+            text = title.uppercase(),
+            style = MaterialTheme.typography.labelMedium,
+            color = designSystem.composeColor(ColorToken.TEXT_SECONDARY),
+            fontWeight = FontWeight.Bold
+        )
+        content()
+    }
+}
+
+@Composable
+private fun DebugActionButton(
+    text: String,
+    onClick: () -> Unit,
+    color: ColorToken
+) {
+    val designSystem = LocalDesignSystem.current
+    Button(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth(),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = designSystem.composeColor(color).copy(alpha = 0.8f),
+            contentColor = designSystem.composeColor(ColorToken.TEXT_INVERTED)
+        ),
+        shape = MaterialTheme.shapes.medium
+    ) {
+        Text(text = text)
     }
 }

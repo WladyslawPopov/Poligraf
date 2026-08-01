@@ -49,9 +49,7 @@ struct MainView: View {
         ScrollView {
             VStack {
                 widgetList
-                    .frame(maxWidth: sizeClass == .compact ? .infinity : CGFloat(designSystem.dimen(token: .maxContentWidth)))
             }
-            .frame(maxWidth: .infinity)
         }
         .refreshable {
             component.retry()

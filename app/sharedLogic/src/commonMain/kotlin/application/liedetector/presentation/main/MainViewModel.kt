@@ -15,6 +15,8 @@ import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 
 class MainViewModel(
     private val userRepository: UserRepository,
@@ -25,6 +27,13 @@ class MainViewModel(
     val state: StateFlow<MainState> = _state.asStateFlow()
 
     init {
+        // Observe display metrics and adjust widgets
+        displayMetrics
+            .onEach { metrics ->
+                updateAdaptiveContent(metrics.isLandscape)
+            }
+            .launchIn(scope)
+
         _state.value = _state.value.copy(
             background = AppBackground.AnimatedScales(
                 baseColor = ColorToken.BACKGROUND,
@@ -65,6 +74,16 @@ class MainViewModel(
             id = "main_slider",
             itemSpacing = 16,
             items = listOf(defaultCard) + serverItems
+        )
+    }
+
+    private fun updateAdaptiveContent(isLandscape: Boolean) {
+        val welcome = _state.value.welcomeWidget ?: return
+        // Example of adjusting typing delay or other properties based on orientation
+        _state.value = _state.value.copy(
+            welcomeWidget = welcome.copy(
+                typingDelay = if (isLandscape) 20L else 40L 
+            )
         )
     }
     

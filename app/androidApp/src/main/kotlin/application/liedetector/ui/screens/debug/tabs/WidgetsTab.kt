@@ -1,17 +1,32 @@
 package application.liedetector.ui.screens.debug.tabs
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import application.liedetector.presentation.debug.DebugComponent
 import application.liedetector.ui.components.widgets.WidgetRenderer
+import application.liedetector.uicore.theme.LocalDesignSystem
+import application.liedetector.uicore.theme.tokens.DimenToken
 import application.liedetector.uicore.widgets.UiWidget
 
 @Composable
-fun WidgetsTab(widgets: List<UiWidget>, component: DebugComponent) {
-    LazyColumn(modifier = Modifier.fillMaxSize()) {
+fun WidgetsTab(
+    widgets: List<UiWidget>, 
+    component: DebugComponent,
+    contentPadding: PaddingValues = PaddingValues(0.dp)
+) {
+    val designSystem = LocalDesignSystem.current
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(
+            top = contentPadding.calculateTopPadding(),
+            bottom = contentPadding.calculateBottomPadding() + designSystem.dimen(DimenToken.SPACING_LARGE).dp
+        )
+    ) {
         items(widgets) { widget ->
             WidgetRenderer(widget, onAction = { component.onAction(it) })
         }

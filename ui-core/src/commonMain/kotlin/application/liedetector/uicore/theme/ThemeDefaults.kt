@@ -75,6 +75,9 @@ object ThemeDefaults {
             DimenToken.SUBJECT_CARD_WIDTH -> 220f
             DimenToken.SUBJECT_CARD_HEIGHT -> 280f
             DimenToken.SUBJECT_CARD_ICON_SIZE -> 90f
+            
+            DimenToken.BACKGROUND_CELL_WIDTH -> 22f
+            DimenToken.BACKGROUND_CELL_HEIGHT -> 22f
         }
     }
 }

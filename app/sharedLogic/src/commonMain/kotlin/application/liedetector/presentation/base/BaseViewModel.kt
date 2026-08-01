@@ -4,6 +4,7 @@ import androidx.compose.runtime.Stable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import application.liedetector.engine.domain.responseModels.ServerErrorException
+import application.liedetector.uicore.models.DisplayMetrics
 import application.liedetector.uicore.state.*
 import application.liedetector.uicore.theme.tokens.StringToken
 import application.liedetector.uicore.types.ErrorType
@@ -52,11 +53,13 @@ interface IBaseViewModel {
     val isLoading: StateFlow<Boolean>
     val errorType: StateFlow<ErrorType?>
     val toastState: StateFlow<ToastState?>
+    val displayMetrics: StateFlow<DisplayMetrics>
     
     fun setLoading(value: Boolean)
     fun setManualError(type: ErrorType?)
     fun showToast(token: StringToken, type: ToastType)
     fun showRawToast(message: String, type: ToastType)
+    fun setDisplayMetrics(metrics: DisplayMetrics)
     fun clearError()
     fun clearToast()
 }
@@ -64,7 +67,7 @@ interface IBaseViewModel {
 /**
  * Delegation implementation of IBaseViewModel.
  */
-class BaseViewModelImpl(private val parentScope: CoroutineScope) : IBaseViewModel {
+class BaseViewModelImpl(parentScope: CoroutineScope) : IBaseViewModel {
     override val scope: CoroutineScope = parentScope
 
     private val _isLoading = MutableStateFlow(false)
@@ -75,6 +78,9 @@ class BaseViewModelImpl(private val parentScope: CoroutineScope) : IBaseViewMode
 
     private val _toastState = MutableStateFlow<ToastState?>(null)
     override val toastState = _toastState.asStateFlow()
+
+    private val _displayMetrics = MutableStateFlow(DisplayMetrics())
+    override val displayMetrics = _displayMetrics.asStateFlow()
 
     override fun setLoading(value: Boolean) {
         _isLoading.value = value
@@ -90,6 +96,10 @@ class BaseViewModelImpl(private val parentScope: CoroutineScope) : IBaseViewMode
 
     override fun showRawToast(message: String, type: ToastType) {
         _toastState.value = ToastState(messageRaw = message, type = type)
+    }
+
+    override fun setDisplayMetrics(metrics: DisplayMetrics) {
+        _displayMetrics.value = metrics
     }
 
     override fun clearError() {
@@ -113,11 +123,13 @@ abstract class BaseViewModel : ViewModel(), IBaseViewModel {
     override val isLoading get() = delegate.isLoading
     override val errorType get() = delegate.errorType
     override val toastState get() = delegate.toastState
+    override val displayMetrics get() = delegate.displayMetrics
 
     override fun setLoading(value: Boolean) = delegate.setLoading(value)
     override fun setManualError(type: ErrorType?) = delegate.setManualError(type)
     override fun showToast(token: StringToken, type: ToastType) = delegate.showToast(token, type)
     override fun showRawToast(message: String, type: ToastType) = delegate.showRawToast(message, type)
+    override fun setDisplayMetrics(metrics: DisplayMetrics) = delegate.setDisplayMetrics(metrics)
     override fun clearError() = delegate.clearError()
     override fun clearToast() = delegate.clearToast()
     

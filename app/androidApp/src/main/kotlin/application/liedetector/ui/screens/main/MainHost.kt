@@ -38,7 +38,7 @@ fun MainHost(
     var contentVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        delay(200) // Small delay for entrance polish
+        delay(200.milliseconds) // Small delay for entrance polish
         contentVisible = true
     }
 
@@ -111,9 +111,8 @@ fun MainHost(
             }
         ) { padding ->
             LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding),
+                modifier = Modifier.fillMaxHeight(),
+                contentPadding = padding,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 state.welcomeWidget?.let { welcome ->

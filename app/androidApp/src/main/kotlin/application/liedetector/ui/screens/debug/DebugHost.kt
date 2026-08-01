@@ -81,14 +81,12 @@ fun DebugHost(component: DebugComponent) {
     ) { padding ->
         HorizontalPager(
             state = pagerState,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding),
+            modifier = Modifier.fillMaxSize(),
             verticalAlignment = Alignment.Top
         ) { page ->
             when (DebugTab.entries[page]) {
-                DebugTab.STATES -> StatesTab(component)
-                DebugTab.WIDGETS -> WidgetsTab(state.widgets, component)
+                DebugTab.STATES -> StatesTab(component, padding)
+                DebugTab.WIDGETS -> WidgetsTab(state.widgets, component, padding)
                 DebugTab.LABS -> LabsTab()
             }
         }

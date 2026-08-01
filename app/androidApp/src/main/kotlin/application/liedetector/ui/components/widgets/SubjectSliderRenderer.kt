@@ -103,7 +103,11 @@ private fun SubjectCardRenderer(
                 ),
                 shape = MaterialTheme.shapes.large
             ) {
-                Text(text = designSystem.string(StringToken.SUBJECT_NEW_BUTTON))
+                Text(
+                    text = designSystem.string(StringToken.SUBJECT_NEW_BUTTON),
+                    maxLines = 1,
+                    softWrap = false
+                )
             }
         }
     }

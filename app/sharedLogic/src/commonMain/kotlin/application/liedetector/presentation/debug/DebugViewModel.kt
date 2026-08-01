@@ -4,10 +4,14 @@ import application.liedetector.navigation.AppNavigation
 import application.liedetector.presentation.base.BaseViewModel
 import application.liedetector.presentation.debug.data.DebugState
 import application.liedetector.presentation.debug.data.DebugTab
+import application.liedetector.uicore.theme.tokens.ColorToken
 import application.liedetector.uicore.theme.tokens.StringToken
+import application.liedetector.uicore.theme.tokens.TypographyToken
 import application.liedetector.uicore.types.ErrorType
 import application.liedetector.uicore.types.ToastType
 import application.liedetector.uicore.types.WidgetAction
+import application.liedetector.uicore.widgets.AppBackground
+import application.liedetector.uicore.widgets.UiWidget
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,6 +22,67 @@ import kotlin.time.Duration.Companion.milliseconds
 class DebugViewModel(private val navigation: AppNavigation) : BaseViewModel() {
     private val _state = MutableStateFlow(DebugState())
     val state: StateFlow<DebugState> = _state.asStateFlow()
+
+    init {
+        _state.value = _state.value.copy(
+            background = AppBackground.AnimatedScales(
+                baseColor = ColorToken.BACKGROUND,
+                energyColor = ColorToken.ACCENT_ENERGY,
+                particleColor = ColorToken.SURFACE_VARIANT,
+                parallaxIntensity = 1.0f,
+                blurRadius = 6.0f
+            ),
+            widgets = createMockWidgets()
+        )
+    }
+
+    private fun createMockWidgets(): List<UiWidget> {
+        return listOf(
+            UiWidget.WelcomeText(
+                id = "debug_welcome",
+                textToken = StringToken.WELCOME_TEXT,
+                emoji = " 🛠️",
+                colorToken = ColorToken.ACCENT_PRIMARY,
+                typographyToken = TypographyToken.HEADER
+            ),
+            UiWidget.SubjectSlider(
+                id = "debug_slider_1",
+                items = listOf(
+                    UiWidget.SubjectCard(
+                        id = "mock_1",
+                        titleToken = StringToken.SUBJECT_NEW_TITLE,
+                        emoji = "🧪",
+                        action = WidgetAction.DEBUG_TRIGGER_SUCCESS_TOAST,
+                        backgroundColor = ColorToken.GLASS_BASE,
+                        buttonColor = ColorToken.TRUTH
+                    ),
+                    UiWidget.SubjectCard(
+                        id = "mock_2",
+                        titleToken = StringToken.SUBJECT_NEW_TITLE,
+                        emoji = "💥",
+                        action = WidgetAction.DEBUG_TRIGGER_ERROR_NON_BLOCKING,
+                        backgroundColor = ColorToken.GLASS_BASE,
+                        buttonColor = ColorToken.STRESS
+                    ),
+                    UiWidget.SubjectCard(
+                        id = "mock_3",
+                        titleToken = StringToken.SUBJECT_NEW_TITLE,
+                        emoji = "⏳",
+                        action = WidgetAction.DEBUG_TRIGGER_LOADING,
+                        backgroundColor = ColorToken.GLASS_BASE,
+                        buttonColor = ColorToken.ACCENT_ENERGY
+                    )
+                )
+            ),
+            UiWidget.WelcomeText(
+                id = "debug_info",
+                textToken = StringToken.DEBUG_TITLE,
+                colorToken = ColorToken.TEXT_SECONDARY,
+                typographyToken = TypographyToken.SUBHEADER,
+                typingDelay = 10L
+            )
+        )
+    }
 
     fun setTab(tab: DebugTab) {
         _state.value = _state.value.copy(selectedTab = tab)

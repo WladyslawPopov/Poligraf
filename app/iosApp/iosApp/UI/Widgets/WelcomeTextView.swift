@@ -5,7 +5,13 @@ struct WelcomeTextView: View {
     let widget: UiWidget.WelcomeText
     let designSystem: DesignSystem
     
+    @Environment(\.verticalSizeClass) var verticalSizeClass
+    
     var body: some View {
+        let minHeight = verticalSizeClass == .compact 
+            ? CGFloat(truncating: designSystem.dimen(token: .welcomeMinHeight) as NSNumber) / 2.5
+            : CGFloat(truncating: designSystem.dimen(token: .welcomeMinHeight) as NSNumber)
+            
         VStack(alignment: .leading) {
             TypingTextView(
                 text: designSystem.string(token: widget.textToken) + (widget.emoji ?? ""),
@@ -16,7 +22,7 @@ struct WelcomeTextView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(CGFloat(truncating: designSystem.dimen(token: .spacingLarge) as NSNumber))
-        .frame(minHeight: CGFloat(truncating: designSystem.dimen(token: .welcomeMinHeight) as NSNumber), alignment: .center)
+        .frame(minHeight: minHeight, alignment: .center)
     }
 }
 

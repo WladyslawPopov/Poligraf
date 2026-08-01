@@ -2,6 +2,10 @@ import SwiftUI
 import SharedLogic
 
 struct AppScaffold<Content: View>: View {
+    @Environment(\.verticalSizeClass) var verticalSizeClass
+    @Environment(\.horizontalSizeClass) var horizontalSizeClass
+    
+    let viewModel: IBaseViewModel
     let isLoading: Bool
     let errorType: ErrorType?
     let toastState: ToastState?
@@ -21,6 +25,7 @@ struct AppScaffold<Content: View>: View {
         onRefresh: (() -> Void)? = nil,
         @ViewBuilder content: @escaping () -> Content
     ) {
+        self.viewModel = viewModel
         self.isLoading = viewModel.isLoading.value.boolValue
         self.errorType = viewModel.errorType.value
         self.toastState = viewModel.toastState.value
@@ -50,7 +55,11 @@ struct AppScaffold<Content: View>: View {
                     }
                 )
             } else {
+                let layout = state.layoutConfig
+                
                 content()
+                    .frame(maxWidth: layout.maxContentWidth != nil ? CGFloat(truncating: designSystem.dimen(token: layout.maxContentWidth!) as NSNumber) : .infinity)
+                    .frame(maxWidth: .infinity, alignment: layout.isCentered ? .center : .leading)
             }
             
             LoadingView(isVisible: isLoading, designSystem: designSystem)
@@ -62,7 +71,22 @@ struct AppScaffold<Content: View>: View {
                     onDismiss: onClearToast
                 )
             }
-        }.containerBackground(IosTheme.color(.background, from: designSystem), for: .navigation)
+        }
+        .containerBackground(IosTheme.color(.background, from: designSystem), for: .navigation)
+        .onAppear {
+            updateMetrics()
+        }
+        .onChange(of: verticalSizeClass) { _ in updateMetrics() }
+        .onChange(of: horizontalSizeClass) { _ in updateMetrics() }
+    }
+    
+    private func updateMetrics() {
+        let metrics = DisplayMetrics(
+            isLandscape: verticalSizeClass == .compact,
+            windowWidthPx: Int32(UIScreen.main.bounds.width),
+            windowHeightPx: Int32(UIScreen.main.bounds.height)
+        )
+        viewModel.setDisplayMetrics(metrics: metrics)
     }
 }
 

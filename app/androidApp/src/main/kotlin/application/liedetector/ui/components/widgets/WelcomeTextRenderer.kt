@@ -6,6 +6,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
+import android.content.res.Configuration
 import androidx.compose.ui.unit.dp
 import application.liedetector.uicore.theme.tokens.DimenToken
 import application.liedetector.uicore.theme.LocalDesignSystem
@@ -22,11 +24,23 @@ fun WelcomeTextRenderer(
     val designSystem = LocalDesignSystem.current
     val fullText = designSystem.string(widget.textToken) + (widget.emoji ?: "")
     
+    // We get orientation info from the common logic now if needed, 
+    // but the ViewModel can already adjust the widget properties.
+    // For now, let's keep the minHeight logic here but simplified.
+    val configuration = LocalConfiguration.current
+    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+    
+    val minHeight = if (isLandscape) {
+        designSystem.dimen(DimenToken.WELCOME_MIN_HEIGHT).dp / 2.5f
+    } else {
+        designSystem.dimen(DimenToken.WELCOME_MIN_HEIGHT).dp
+    }
+    
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(designSystem.dimen(DimenToken.SPACING_LARGE).dp)
-            .heightIn(min = designSystem.dimen(DimenToken.WELCOME_MIN_HEIGHT).dp),
+            .heightIn(min = minHeight),
         verticalArrangement = Arrangement.Center
     ) {
         TypingText(

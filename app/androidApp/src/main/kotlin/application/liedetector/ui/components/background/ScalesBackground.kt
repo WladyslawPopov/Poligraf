@@ -17,6 +17,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import application.liedetector.theme.utils.composeColor
 import application.liedetector.uicore.theme.tokens.DimenToken
@@ -85,10 +86,11 @@ fun ScalesBackground(
     
     val baseParallax = designSystem.dimen(DimenToken.PARALLAX_INTENSITY)
     val parallaxIntensity = baseParallax * config.parallaxIntensity
-    val cornerRadiusValue = designSystem.dimen(DimenToken.CORNER_RADIUS)
-
-    val rows = 36
-    val cols = 18
+    val density = LocalDensity.current
+    val cornerRadiusPx = with(density) { designSystem.dimen(DimenToken.CORNER_RADIUS).dp.toPx() }
+    
+    val cellWidthPx = with(density) { designSystem.dimen(DimenToken.BACKGROUND_CELL_WIDTH).dp.toPx() }
+    val cellHeightPx = with(density) { designSystem.dimen(DimenToken.BACKGROUND_CELL_HEIGHT).dp.toPx() }
 
     Box(modifier = modifier.fillMaxSize().background(bgColor)) {
         Canvas(
@@ -96,6 +98,9 @@ fun ScalesBackground(
                 .fillMaxSize()
                 .blur(config.blurRadius.dp)
         ) {
+            val cols = (size.width / cellWidthPx).toInt()
+            val rows = (size.height / cellHeightPx).toInt()
+            
             val cellW = size.width / cols
             val cellH = size.height / rows
             val px = smoothX * parallaxIntensity
@@ -125,7 +130,7 @@ fun ScalesBackground(
                         color = scaleColor,
                         topLeft = rectTopLeft,
                         size = rectSize,
-                        cornerRadius = CornerRadius(cornerRadiusValue, cornerRadiusValue),
+                        cornerRadius = CornerRadius(cornerRadiusPx, cornerRadiusPx),
                         alpha = 0.3f
                     )
 
@@ -134,7 +139,7 @@ fun ScalesBackground(
                         color = energyColor.copy(alpha = energyIntensity * 0.4f * (0.3f + wave * 0.7f)),
                         topLeft = rectTopLeft,
                         size = rectSize,
-                        cornerRadius = CornerRadius(cornerRadiusValue, cornerRadiusValue)
+                        cornerRadius = CornerRadius(cornerRadiusPx, cornerRadiusPx)
                     )
                 }
             }

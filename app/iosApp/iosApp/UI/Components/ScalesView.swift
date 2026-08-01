@@ -15,14 +15,17 @@ struct ScalesView: View {
             let speed = Double(config.animationSpeed)
             let time = timeline.date.timeIntervalSinceReferenceDate.remainder(dividingBy: 8.0 / speed) * (Double.pi * 2 / (8.0 / speed))
             
-            let rows = 36
-            let cols = 18
+            let cellWidth = CGFloat(designSystem.dimen(token: .backgroundCellWidth))
+            let cellHeight = CGFloat(designSystem.dimen(token: .backgroundCellHeight))
             
             ZStack {
                 IosTheme.color(config.baseColor, from: designSystem)
                     .ignoresSafeArea()
                 
                 Canvas { context, size in
+                    let cols = Int(size.width / cellWidth)
+                    let rows = Int(size.height / cellHeight)
+                    
                     let cellW = size.width / CGFloat(cols)
                     let cellH = size.height / CGFloat(rows)
                     
