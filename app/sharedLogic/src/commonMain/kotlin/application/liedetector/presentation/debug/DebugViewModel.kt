@@ -11,27 +11,50 @@ import application.liedetector.uicore.types.ErrorType
 import application.liedetector.uicore.types.ToastType
 import application.liedetector.uicore.types.WidgetAction
 import application.liedetector.uicore.widgets.AppBackground
+import application.liedetector.uicore.widgets.BackgroundMode
 import application.liedetector.uicore.widgets.UiWidget
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.milliseconds
 
 class DebugViewModel(private val navigation: AppNavigation) : BaseViewModel() {
-    private val _state = MutableStateFlow(DebugState())
+    private val _state = MutableStateFlow(DebugState(
+        background = AppBackground.AnimatedScales(
+            baseColor = ColorToken.BACKGROUND,
+            energyColor = ColorToken.ACCENT_ENERGY,
+            particleColor = ColorToken.SURFACE_VARIANT,
+            parallaxIntensity = 1.0f,
+            blurRadius = 6.0f
+        )
+    ))
     val state: StateFlow<DebugState> = _state.asStateFlow()
 
     init {
+        // Sync background mode with application states
+        combine(isLoading, errorType, toastState) { loading, error, toast ->
+            val currentBg = _state.value.background
+            if (currentBg is AppBackground.AnimatedScales) {
+                val newMode = when {
+                    error != null -> BackgroundMode.ERROR
+                    toast != null -> {
+                        if (toast.type == ToastType.SUCCESS) BackgroundMode.SUCCESS else BackgroundMode.ERROR
+                    }
+                    loading -> BackgroundMode.PROCESSING
+                    else -> BackgroundMode.IDLE
+                }
+                
+                _state.value = _state.value.copy(
+                    background = currentBg.copy(mode = newMode)
+                )
+            }
+        }.launchIn(scope)
+
         _state.value = _state.value.copy(
-            background = AppBackground.AnimatedScales(
-                baseColor = ColorToken.BACKGROUND,
-                energyColor = ColorToken.ACCENT_ENERGY,
-                particleColor = ColorToken.SURFACE_VARIANT,
-                parallaxIntensity = 1.0f,
-                blurRadius = 6.0f
-            ),
             widgets = createMockWidgets()
         )
     }

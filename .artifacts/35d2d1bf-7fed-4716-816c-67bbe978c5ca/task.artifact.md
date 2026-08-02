@@ -1,5 +1,0 @@
-- [x] **Fix iOS Transition Background**
-    - [x] Update `iOSApp.swift` with root background.
-    - [x] Simplify and fix background in `ContentView.swift`.
-- [x] **Verification**
-    - [x] Build and manual check.

@@ -31,6 +31,34 @@ data class AnalysisResponse(
 data class SubjectDto(
     val id: String? = null,
     val name: String,
+    val avatar: String? = null, // Emoji or URL
+    val isDefaultAvatar: Boolean = true,
     val description: String? = null,
-    val isPublic: Boolean = false
+    val isPublic: Boolean = false,
+    val metadata: Map<String, String> = emptyMap()
 )
+
+@Serializable
+data class UserDto(
+    val id: String? = null,
+    val email: String? = null,
+    val displayName: String? = null,
+    val avatarUrl: String? = null,
+    val subscriptionTier: String = "free",
+    val metadata: Map<String, String> = emptyMap() // For device info, locale, etc.
+)
+
+@Serializable
+data class MaterialDto(
+    val id: String? = null,
+    val subjectId: String,
+    val type: MaterialType,
+    val storagePath: String? = null,
+    val content: String? = null, // For text evidence
+    val createdAt: String? = null
+)
+
+@Serializable
+enum class MaterialType {
+    AUDIO, IMAGE, TEXT
+}

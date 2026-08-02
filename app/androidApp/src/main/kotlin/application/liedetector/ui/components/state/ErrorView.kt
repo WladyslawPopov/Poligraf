@@ -38,14 +38,34 @@ fun ErrorView(
         else -> StringToken.ERROR_UNKNOWN_MSG
     }
 
+    val emoji = when (type) {
+        ErrorType.NO_INTERNET -> "🌐"
+        ErrorType.SERVER_UNAVAILABLE -> "📡"
+        else -> "⚠️"
+    }
+
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(designSystem.composeColor(ColorToken.BACKGROUND).copy(alpha = 0.8f))
             .padding(designSystem.dimen(DimenToken.PADDING_ERROR).dp),
         contentAlignment = Alignment.Center
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    designSystem.composeColor(ColorToken.GLASS_BASE).copy(alpha = 0.3f),
+                    MaterialTheme.shapes.extraLarge
+                )
+                .padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = emoji,
+                style = MaterialTheme.typography.displayLarge,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+            
             Text(
                 text = designSystem.string(titleToken),
                 style = MaterialTheme.typography.headlineMedium,
@@ -65,7 +85,8 @@ fun ErrorView(
                 colors = ButtonDefaults.buttonColors(
                     containerColor = designSystem.composeColor(ColorToken.ACCENT_ENERGY),
                     contentColor = designSystem.composeColor(ColorToken.TEXT_INVERTED)
-                )
+                ),
+                shape = MaterialTheme.shapes.large
             ) {
                 Text(designSystem.string(StringToken.ERROR_RETRY))
             }

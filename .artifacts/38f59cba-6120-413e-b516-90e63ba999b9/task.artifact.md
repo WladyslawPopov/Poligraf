@@ -1,8 +1,0 @@
-- [x] Restore Native iOS Tabs
-    - [x] Update `AppTabs.swift` to use `Picker` with segmented style
-    - [x] Apply glass background to the picker
-- [x] Update Debug View
-    - [x] Ensure sync between `Picker` and `TabView`
-- [x] Verification
-    - [x] Verified native sliding indicator behavior on iOS
-    - [x] Verified paging synchronization on iOS

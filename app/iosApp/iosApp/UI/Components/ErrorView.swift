@@ -9,12 +9,13 @@ struct ErrorView: View {
     var body: some View {
         let titleToken = getTitleToken()
         let msgToken = getMsgToken()
+        let emoji = getEmoji()
 
         ZStack {
-            IosTheme.color(.background, from: designSystem)
-                .opacity(0.8)
-
             VStack(spacing: 24) {
+                Text(emoji)
+                    .font(.system(size: 64))
+
                 VStack(spacing: 8) {
                     Text(designSystem.string(token: titleToken))
                         .font(.title2)
@@ -38,6 +39,21 @@ struct ErrorView: View {
                         .cornerRadius(12)
                 }
             }
+            .padding(.vertical, 40)
+            .frame(maxWidth: .infinity)
+            .background(IosTheme.color(.glassBase, from: designSystem).opacity(0.3))
+            .background(.ultraThinMaterial)
+            .cornerRadius(28)
+            .padding(24)
+        }
+        .frame(maxHeight: .infinity)
+    }
+
+    private func getEmoji() -> String {
+        switch type {
+        case .noInternet: return "🌐"
+        case .serverUnavailable: return "📡"
+        default: return "⚠️"
         }
     }
 

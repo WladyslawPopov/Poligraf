@@ -45,6 +45,7 @@ object DatabaseFactory {
         transaction(database) {
             SchemaUtils.create(
                 UserTable,
+                UserDeviceTable,
                 SubjectTable,
                 RecordingTable,
                 AnalysisTable,

@@ -2,6 +2,7 @@ package application.liedetector.database.tables
 
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.jsonObject
 import org.jetbrains.exposed.v1.core.dao.id.java.UUIDTable
 import org.jetbrains.exposed.v1.datetime.CurrentDateTime
 import org.jetbrains.exposed.v1.datetime.datetime
@@ -10,7 +11,7 @@ import org.jetbrains.exposed.v1.json.jsonb
 object UserTable : UUIDTable("users") {
     // Identity & Security
     val firebaseUid = varchar("firebase_uid", 128).uniqueIndex()
-    val email = varchar("email", 255).uniqueIndex()
+    val email = varchar("email", 255).nullable().uniqueIndex()
     val phoneNumber = varchar("phone_number", 32).nullable()
     val isBanned = bool("is_banned").default(false)
 
@@ -29,7 +30,9 @@ object UserTable : UUIDTable("users") {
 
     // Extensibility
     val preferences = jsonb<JsonObject>("preferences", { it.toString() }, { Json.decodeFromString(it) })
+        .default(Json.parseToJsonElement("{}").jsonObject)
     val additionalData = jsonb<JsonObject>("additional_data", { it.toString() }, { Json.decodeFromString(it) })
+        .default(Json.parseToJsonElement("{}").jsonObject)
 
     // Stats & Activity
     val totalAnalysesCount = long("total_analyses_count").default(0L)

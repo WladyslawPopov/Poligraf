@@ -62,7 +62,9 @@ struct AppScaffold<Content: View>: View {
                     .frame(maxWidth: .infinity, alignment: layout.isCentered ? .center : .leading)
             }
             
-            LoadingView(isVisible: isLoading, designSystem: designSystem)
+            if !(state.background is AppBackground.AnimatedScales) {
+                LoadingView(isVisible: isLoading, designSystem: designSystem)
+            }
             
             if let toast = toastState {
                 AppToast(

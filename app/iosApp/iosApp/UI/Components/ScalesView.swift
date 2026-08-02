@@ -12,8 +12,26 @@ struct ScalesView: View {
     
     var body: some View {
         TimelineView(.animation) { timeline in
-            let speed = Double(config.animationSpeed)
+            let speedMultiplier: Double = {
+                switch config.mode {
+                case .processing: return 5.0
+                case .recording: return 0.4
+                case .error: return 0.2
+                case .success: return 1.5
+                default: return 1.0
+                }
+            }()
+            
+            let speed = Double(config.animationSpeed) * speedMultiplier
             let time = timeline.date.timeIntervalSinceReferenceDate.remainder(dividingBy: 8.0 / speed) * (Double.pi * 2 / (8.0 / speed))
+            
+            let pulseScale: CGFloat = {
+                if config.mode == .recording {
+                    let p = sin(timeline.date.timeIntervalSinceReferenceDate * 4.0) * 0.1 + 1.1
+                    return CGFloat(p)
+                }
+                return 1.0
+            }()
             
             let cellWidth = CGFloat(designSystem.dimen(token: .backgroundCellWidth))
             let cellHeight = CGFloat(designSystem.dimen(token: .backgroundCellHeight))
@@ -34,7 +52,18 @@ struct ScalesView: View {
                     let py = CGFloat(tiltY * intensity)
                     
                     let cornerRadius = CGFloat(designSystem.dimen(token: .cornerRadius))
-                    let energyColor = IosTheme.color(config.energyColor, from: designSystem)
+                    
+                    let energyColorToken: ColorToken = {
+                        switch config.mode {
+                        case .error: return .error
+                        case .success: return .truth
+                        case .recording: return .stress
+                        case .processing: return .warning
+                        default: return config.energyColor
+                        }
+                    }()
+                    
+                    let energyColor = IosTheme.color(energyColorToken, from: designSystem)
                     let variantColor = IosTheme.color(config.particleColor, from: designSystem)
                     
                     // Expanded range (-2 to +2) to ensure no edge gaps during parallax
@@ -48,7 +77,12 @@ struct ScalesView: View {
                             let dyNorm = abs(y - size.height / 2) / (size.height * 0.5)
                             let distMask = pow(pow(dxNorm, 4) + pow(dyNorm, 4), 0.25)
                             
-                            let rect = CGRect(x: x - cellW/3, y: y - cellH/4, width: cellW/1.5, height: cellH/2)
+                            let rect = CGRect(
+                                x: x - (cellW/3) * pulseScale, 
+                                y: y - (cellH/4) * pulseScale, 
+                                width: (cellW/1.5) * pulseScale, 
+                                height: (cellH/2) * pulseScale
+                            )
                             let path = RoundedRectangle(cornerRadius: cornerRadius).path(in: rect)
                             
                             // 1. Draw Scale (Sharp)

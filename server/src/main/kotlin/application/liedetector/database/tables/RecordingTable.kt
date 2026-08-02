@@ -2,6 +2,7 @@ package application.liedetector.database.tables
 
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.jsonObject
 import org.jetbrains.exposed.v1.core.dao.id.java.UUIDTable
 import org.jetbrains.exposed.v1.datetime.CurrentDateTime
 import org.jetbrains.exposed.v1.datetime.datetime
@@ -19,9 +20,11 @@ object RecordingTable : UUIDTable("recordings") {
 
     // Our "Golden Asset" - the mathematical graph
     val acousticFingerprint = jsonb<JsonObject>("acoustic_fingerprint", { it.toString() }, { Json.decodeFromString(it) })
+        .default(Json.parseToJsonElement("{}").jsonObject)
     
     // AI-extracted metadata for analysis without original audio
     val aiTranscriptionMetadata = jsonb<JsonObject>("ai_transcription_metadata", { it.toString() }, { Json.decodeFromString(it) })
+        .default(Json.parseToJsonElement("{}").jsonObject)
 
     val createdAt = datetime("created_at").defaultExpression(CurrentDateTime)
 }

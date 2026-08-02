@@ -21,6 +21,7 @@ enum class ColorToken {
     STRESS,          // Pulse-Red Neon
     ACCENT_PRIMARY,  // Main interaction (Buttons, Tabs)
     ACCENT_ENERGY,   // Background aura / glow
+    WARNING,         // Yellow for processing/onboarding
     
     // Text
     TEXT_PRIMARY,

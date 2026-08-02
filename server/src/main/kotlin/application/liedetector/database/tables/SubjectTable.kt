@@ -11,7 +11,8 @@ object SubjectTable : UUIDTable("subjects") {
     val ownerId = reference("owner_id", UserTable).nullable() // Nullable for global public subjects
     val isPublic = bool("is_public").default(false)
     val name = varchar("name", 255)
-    val photoUrl = varchar("photo_url", 512).nullable()
+    val avatar = varchar("avatar", 512).nullable() // Emoji or URL
+    val isDefaultAvatar = bool("is_default_avatar").default(true)
     val description = text("description").nullable()
 
     // Personality & Acoustic Config (Temperament, speech patterns, public presets)

@@ -2,9 +2,12 @@ package application.liedetector
 
 import application.liedetector.database.DatabaseFactory
 import application.liedetector.database.repository.AnalysisRepositoryImpl
+import application.liedetector.database.repository.SubjectRepositoryImpl
 import application.liedetector.database.repository.UserRepositoryImpl
 import application.liedetector.models.ApiConstants
 import application.liedetector.routing.configureAnalysisRouting
+import application.liedetector.routing.configureSubjectRouting
+import application.liedetector.routing.configureUserRouting
 import application.liedetector.security.FirebaseAdmin
 import application.liedetector.security.firebase
 import io.ktor.serialization.kotlinx.json.*
@@ -40,6 +43,7 @@ fun Application.module() {
 
     val userRepository = UserRepositoryImpl()
     val analysisRepository = AnalysisRepositoryImpl()
+    val subjectRepository = SubjectRepositoryImpl()
     
     routing {
         get(ApiConstants.ENDPOINT_STATUS) {
@@ -47,5 +51,7 @@ fun Application.module() {
         }
 
         configureAnalysisRouting(userRepository, analysisRepository)
+        configureUserRouting(userRepository)
+        configureSubjectRouting(userRepository, subjectRepository)
     }
 }

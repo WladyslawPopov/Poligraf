@@ -162,12 +162,14 @@ fun AppScaffold(
                     } else {
                         Box(modifier = Modifier.fillMaxSize()) {
                             content(contentPadding)
-                            LoadingView(
-                                isVisible = isLoading,
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(padding)
-                            )
+                            if (state.background !is AppBackground.AnimatedScales) {
+                                LoadingView(
+                                    isVisible = isLoading,
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(padding)
+                                )
+                            }
                         }
                     }
                 }

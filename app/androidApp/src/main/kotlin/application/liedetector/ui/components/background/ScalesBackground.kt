@@ -5,6 +5,7 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -23,6 +24,8 @@ import application.liedetector.theme.utils.composeColor
 import application.liedetector.uicore.theme.tokens.DimenToken
 import application.liedetector.uicore.theme.LocalDesignSystem
 import application.liedetector.uicore.widgets.AppBackground
+import application.liedetector.uicore.widgets.BackgroundMode
+import application.liedetector.uicore.theme.tokens.ColorToken
 import kotlin.math.abs
 import kotlin.math.pow
 import kotlin.math.sin
@@ -71,18 +74,55 @@ fun ScalesBackground(
         animationSpec = spring(stiffness = 100f, dampingRatio = Spring.DampingRatioLowBouncy)
     )
 
+    val speedMultiplier = when (config.mode) {
+        BackgroundMode.PROCESSING -> 5.0f
+        BackgroundMode.RECORDING -> 0.4f
+        BackgroundMode.ERROR -> 0.2f
+        BackgroundMode.SUCCESS -> 1.5f
+        else -> 1.0f
+    }
+
     val infiniteTransition = rememberInfiniteTransition(label = "aura")
     val time by infiniteTransition.animateFloat(
         initialValue = 0f,
         targetValue = 6.28f,
         animationSpec = infiniteRepeatable(
-            animation = tween((8000 / config.animationSpeed).toInt(), easing = LinearEasing)
+            animation = tween((8000 / (config.animationSpeed * speedMultiplier)).toInt(), easing = LinearEasing)
         )
     )
 
-    val bgColor = designSystem.composeColor(config.baseColor)
+    val pulseScale by if (config.mode == BackgroundMode.RECORDING) {
+        infiniteTransition.animateFloat(
+            initialValue = 1f,
+            targetValue = 1.2f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(1000, easing = FastOutSlowInEasing),
+                repeatMode = RepeatMode.Reverse
+            )
+        )
+    } else {
+        remember { mutableFloatStateOf(1f) }
+    }
+
+    val baseBgColor = designSystem.composeColor(config.baseColor)
     val scaleColor = designSystem.composeColor(config.particleColor)
-    val energyColor = designSystem.composeColor(config.energyColor)
+    
+    val energyColorToken = when (config.mode) {
+        BackgroundMode.ERROR -> ColorToken.ERROR
+        BackgroundMode.SUCCESS -> ColorToken.TRUTH
+        BackgroundMode.RECORDING -> ColorToken.STRESS
+        BackgroundMode.PROCESSING -> ColorToken.WARNING
+        else -> config.energyColor
+    }
+    val energyColor by animateColorAsState(
+        targetValue = designSystem.composeColor(energyColorToken),
+        animationSpec = tween(400)
+    )
+
+    val blurRadius by animateFloatAsState(
+        targetValue = if (config.mode == BackgroundMode.ERROR) config.blurRadius * 1.5f else config.blurRadius,
+        animationSpec = tween(600)
+    )
     
     val baseParallax = designSystem.dimen(DimenToken.PARALLAX_INTENSITY)
     val parallaxIntensity = baseParallax * config.parallaxIntensity
@@ -92,11 +132,11 @@ fun ScalesBackground(
     val cellWidthPx = with(density) { designSystem.dimen(DimenToken.BACKGROUND_CELL_WIDTH).dp.toPx() }
     val cellHeightPx = with(density) { designSystem.dimen(DimenToken.BACKGROUND_CELL_HEIGHT).dp.toPx() }
 
-    Box(modifier = modifier.fillMaxSize().background(bgColor)) {
+    Box(modifier = modifier.fillMaxSize().background(baseBgColor)) {
         Canvas(
             modifier = Modifier
                 .fillMaxSize()
-                .blur(config.blurRadius.dp)
+                .blur(blurRadius.dp)
         ) {
             val cols = (size.width / cellWidthPx).toInt()
             val rows = (size.height / cellHeightPx).toInt()
@@ -106,7 +146,10 @@ fun ScalesBackground(
             val px = smoothX * parallaxIntensity
             val py = smoothY * parallaxIntensity
 
-            val rectSize = Size(cellW / 1.5f, cellH / 2.0f)
+            val rectSize = Size(
+                (cellW / 1.5f) * pulseScale, 
+                (cellH / 2.0f) * pulseScale
+            )
             val halfRectW = rectSize.width / 2
             val halfRectH = rectSize.height / 2
 

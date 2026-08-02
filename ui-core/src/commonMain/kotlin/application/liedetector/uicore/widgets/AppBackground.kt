@@ -25,6 +25,16 @@ sealed class AppBackground {
         val particleColor: ColorToken = ColorToken.SURFACE_VARIANT,
         val parallaxIntensity: Float = 1.0f,
         val blurRadius: Float = 2.0f,
-        val animationSpeed: Float = 1.0f
+        val animationSpeed: Float = 1.0f,
+        val mode: BackgroundMode = BackgroundMode.IDLE
     ) : AppBackground()
+}
+
+@Serializable
+enum class BackgroundMode {
+    IDLE,
+    PROCESSING,
+    RECORDING,
+    ERROR,
+    SUCCESS
 }

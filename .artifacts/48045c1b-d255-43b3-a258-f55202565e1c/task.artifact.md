@@ -1,5 +1,0 @@
-- [x] Implement Native iOS Navigation Experience
-    - [x] Simplify `IosNavigator.swift`: Remove complex animation logic, implement `.sheet` for iPhone
-    - [x] Update `MainView.swift`: Clean up toolbar buttons to trigger native sheet
-    - [x] Update `DrawerView.swift`: Refine layout for native sheet appearance
-    - [x] Verify native behavior on iPhone (sheet) and iPad (split-view)

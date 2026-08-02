@@ -4,6 +4,7 @@ object ApiConstants {
     const val AUTH_CONFIG_NAME = "firebase-auth"
     const val API_V1 = "/api/v1"
     const val ENDPOINT_ANALYZE = "/analyze"
+    const val ENDPOINT_USER_SYNC = "/user/sync"
     const val ENDPOINT_STATUS = "/"
     
     // Header keys

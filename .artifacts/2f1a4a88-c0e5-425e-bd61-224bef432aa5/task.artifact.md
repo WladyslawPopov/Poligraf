@@ -1,5 +1,0 @@
-- [ ] Fix Native NavigationSplitView Configuration
-    - [x] Update `IosNavigator.swift` with `preferredCompactColumn` toggle logic
-    - [x] Update `MainView.swift` to hide custom button on iPad
-    - [x] Fix `DrawerView.swift` theme colors
-- [ ] Verification & Summary
