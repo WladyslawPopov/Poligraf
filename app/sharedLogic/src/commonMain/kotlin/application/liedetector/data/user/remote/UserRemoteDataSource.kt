@@ -11,17 +11,14 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 
 interface UserRemoteDataSource {
-    suspend fun getMainScreen(): List<UiWidget>
     suspend fun startAnalysis(request: AnalysisRequest): Map<String, String>
     suspend fun createSubject(subject: SubjectDto): SubjectDto
+    suspend fun getSubject(id: String): SubjectDto
+    suspend fun getSubjects(): List<SubjectDto>
     suspend fun syncUser(user: UserDto): String
 }
 
 class UserRemoteDataSourceImpl(private val client: HttpClient) : UserRemoteDataSource {
-    override suspend fun getMainScreen(): List<UiWidget> {
-        return client.get("${ApiConstants.API_V1}/screen/main").body()
-    }
-
     override suspend fun startAnalysis(request: AnalysisRequest): Map<String, String> {
         return client.post("${ApiConstants.API_V1}${ApiConstants.ENDPOINT_ANALYZE}") {
             setBody(request)
@@ -34,6 +31,14 @@ class UserRemoteDataSourceImpl(private val client: HttpClient) : UserRemoteDataS
             setBody(subject)
             contentType(ContentType.Application.Json)
         }.body()
+    }
+
+    override suspend fun getSubject(id: String): SubjectDto {
+        return client.get("${ApiConstants.API_V1}/subject/$id").body()
+    }
+
+    override suspend fun getSubjects(): List<SubjectDto> {
+        return client.get("${ApiConstants.API_V1}/subjects").body()
     }
 
     override suspend fun syncUser(user: UserDto): String {

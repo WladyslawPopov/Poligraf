@@ -18,7 +18,7 @@ import application.liedetector.uicore.theme.LocalDesignSystem
 import application.liedetector.theme.utils.composeColor
 import androidx.compose.ui.graphics.Color
 import application.liedetector.navigation.AndroidNavigator
-import application.liedetector.ui.screens.drawer.MainDrawer
+import application.liedetector.ui.components.drawer.MainDrawer
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn

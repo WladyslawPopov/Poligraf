@@ -63,6 +63,8 @@ class AndroidResourceProvider(private val context: Context) : ResourceProvider {
             IconToken.MENU -> Icons.Rounded.Menu
             IconToken.CLOSE -> Icons.Rounded.Close
             IconToken.ARROW_BACK -> Icons.AutoMirrored.Rounded.ArrowBack
+            IconToken.GALLERY -> Icons.Rounded.Image
+            IconToken.NOTE -> Icons.Rounded.Description
         }
     }
 }

@@ -11,5 +11,7 @@ enum class IconToken {
     CHEVRON_RIGHT,
     MENU,
     CLOSE,
-    ARROW_BACK
+    ARROW_BACK,
+    GALLERY,
+    NOTE
 }

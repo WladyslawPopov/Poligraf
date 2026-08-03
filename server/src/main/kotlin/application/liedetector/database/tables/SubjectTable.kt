@@ -2,6 +2,7 @@ package application.liedetector.database.tables
 
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.jsonObject
 import org.jetbrains.exposed.v1.core.dao.id.java.UUIDTable
 import org.jetbrains.exposed.v1.datetime.CurrentDateTime
 import org.jetbrains.exposed.v1.datetime.datetime
@@ -17,12 +18,15 @@ object SubjectTable : UUIDTable("subjects") {
 
     // Personality & Acoustic Config (Temperament, speech patterns, public presets)
     val personalityConfig = jsonb<JsonObject>("personality_config", { it.toString() }, { Json.decodeFromString(it) })
+        .default(Json.parseToJsonElement("{}").jsonObject)
 
     // Aggregated stats (Total checks, truth ratio, trending score)
     val stats = jsonb<JsonObject>("stats", { it.toString() }, { Json.decodeFromString(it) })
+        .default(Json.parseToJsonElement("{}").jsonObject)
 
     // Extensibility
     val additionalData = jsonb<JsonObject>("additional_data", { it.toString() }, { Json.decodeFromString(it) })
+        .default(Json.parseToJsonElement("{}").jsonObject)
 
     val createdAt = datetime("created_at").defaultExpression(CurrentDateTime)
     val updatedAt = datetime("updated_at").defaultExpression(CurrentDateTime)

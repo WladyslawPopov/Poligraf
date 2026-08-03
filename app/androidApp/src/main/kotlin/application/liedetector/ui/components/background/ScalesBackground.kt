@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -112,12 +113,16 @@ fun ScalesBackground(
         BackgroundMode.SUCCESS -> ColorToken.TRUTH
         BackgroundMode.RECORDING -> ColorToken.STRESS
         BackgroundMode.PROCESSING -> ColorToken.WARNING
+        BackgroundMode.WAITING -> ColorToken.ACCENT_ENERGY // Mixed dynamically
         else -> config.energyColor
     }
     val energyColor by animateColorAsState(
         targetValue = designSystem.composeColor(energyColorToken),
         animationSpec = tween(400)
     )
+
+    val truthColor = designSystem.composeColor(ColorToken.TRUTH)
+    val stressColor = designSystem.composeColor(ColorToken.STRESS)
 
     val blurRadius by animateFloatAsState(
         targetValue = if (config.mode == BackgroundMode.ERROR) config.blurRadius * 1.5f else config.blurRadius,
@@ -168,6 +173,13 @@ fun ScalesBackground(
                     val energyIntensity = (distMask * 1.2f).coerceIn(0.2f, 1f)
                     val rectTopLeft = Offset(x - halfRectW, y - halfRectH)
 
+                    val finalEnergyColor = if (config.mode == BackgroundMode.WAITING) {
+                        val mix = (sin(x * 0.01f + time) * 0.5f + 0.5f)
+                        lerp(truthColor, stressColor, mix)
+                    } else {
+                        energyColor
+                    }
+
                     // Draw Scale
                     drawRoundRect(
                         color = scaleColor,
@@ -179,7 +191,7 @@ fun ScalesBackground(
 
                     // Draw Energy
                     drawRoundRect(
-                        color = energyColor.copy(alpha = energyIntensity * 0.4f * (0.3f + wave * 0.7f)),
+                        color = finalEnergyColor.copy(alpha = energyIntensity * 0.4f * (0.3f + wave * 0.7f)),
                         topLeft = rectTopLeft,
                         size = rectSize,
                         cornerRadius = CornerRadius(cornerRadiusPx, cornerRadiusPx)

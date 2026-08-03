@@ -9,6 +9,8 @@ import application.liedetector.presentation.main.MainComponent
 import application.liedetector.presentation.main.MainViewModel
 import application.liedetector.presentation.debug.DebugComponent
 import application.liedetector.presentation.debug.DebugViewModel
+import application.liedetector.presentation.investigation.InvestigationComponent
+import application.liedetector.presentation.investigation.InvestigationViewModel
 import application.liedetector.engine.component.ComponentContext
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -30,6 +32,13 @@ class RootComponent(
 
     val debugComponent: DebugComponent by lazy {
         DebugComponent(context, DebugViewModel(navigation))
+    }
+
+    fun createInvestigationComponent(subjectId: String): InvestigationComponent {
+        return InvestigationComponent(
+            context = context,
+            viewModel = InvestigationViewModel(subjectId, navigation, userRepository)
+        )
     }
 
     fun onDestroy() {

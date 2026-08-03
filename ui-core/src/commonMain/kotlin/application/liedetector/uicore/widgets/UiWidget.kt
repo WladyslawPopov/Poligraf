@@ -47,7 +47,8 @@ sealed class UiWidget {
     @Serializable
     data class SubjectCard(
         val id: String,
-        val titleToken: StringToken,
+        val titleToken: StringToken = StringToken.SUBJECT_NEW_TITLE,
+        val title: String? = null,
         val emoji: String,
         val action: WidgetAction,
         val backgroundColor: ColorToken = ColorToken.SURFACE_VARIANT,

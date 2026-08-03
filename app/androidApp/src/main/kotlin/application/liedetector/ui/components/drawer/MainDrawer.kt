@@ -1,4 +1,4 @@
-package application.liedetector.ui.screens.drawer
+package application.liedetector.ui.components.drawer
 
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height

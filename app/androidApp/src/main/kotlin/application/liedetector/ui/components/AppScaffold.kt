@@ -148,13 +148,15 @@ fun AppScaffold(
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.TopCenter,
                             indicator = {
-                                PullToRefreshDefaults.Indicator(
-                                    state = pullToRefreshState,
-                                    isRefreshing = isLoading,
-                                    modifier = Modifier
-                                        .align(Alignment.TopCenter)
-                                        .padding(top = padding.calculateTopPadding())
-                                )
+                                if (state.background !is AppBackground.AnimatedScales) {
+                                    PullToRefreshDefaults.Indicator(
+                                        state = pullToRefreshState,
+                                        isRefreshing = isLoading,
+                                        modifier = Modifier
+                                            .align(Alignment.TopCenter)
+                                            .padding(top = padding.calculateTopPadding())
+                                    )
+                                }
                             }
                         ) {
                             content(contentPadding)

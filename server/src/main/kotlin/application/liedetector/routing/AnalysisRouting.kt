@@ -19,14 +19,6 @@ fun Route.configureAnalysisRouting(
 ) {
     authenticate(ApiConstants.AUTH_CONFIG_NAME) {
         route(ApiConstants.API_V1) {
-            // Get initial screen template
-            get("/screen/main") {
-                // Server returns actual saved content. 
-                // For now, it's empty as "New Investigation" is handled by the client.
-                val widgets = emptyList<UiWidget>()
-                call.respond<List<UiWidget>>(widgets)
-            }
-
             post(ApiConstants.ENDPOINT_ANALYZE) {
                 val principal = call.principal<UserPrincipal>() ?: return@post call.respond(
                     HttpStatusCode.Unauthorized, "User not found in context"

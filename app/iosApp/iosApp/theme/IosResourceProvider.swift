@@ -57,6 +57,9 @@ class IosResourceProvider: ResourceProvider {
         case .chevronRight: return "chevron.right"
         case .menu: return "line.3.horizontal"
         case .close: return "xmark"
+        case .arrowBack: return "chevron.left"
+        case .gallery: return "photo.on.rectangle"
+        case .note: return "text.quote"
         default: return "questionmark.circle"
         }
     }

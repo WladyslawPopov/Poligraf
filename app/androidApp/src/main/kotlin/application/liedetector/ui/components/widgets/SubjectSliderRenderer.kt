@@ -87,7 +87,7 @@ private fun SubjectCardRenderer(
             }
             
             Text(
-                text = designSystem.string(item.titleToken),
+                text = item.title ?: designSystem.string(item.titleToken),
                 style = designSystem.typography(item.titleTypography),
                 color = designSystem.composeColor(item.titleColor),
                 textAlign = TextAlign.Center,

@@ -31,6 +31,10 @@ class AndroidNavigator : AppNavigation {
         navController?.navigate(AppRoute.Debug)
     }
 
+    override fun openInvestigation(subjectId: String) {
+        navController?.navigate(AppRoute.Investigation(subjectId))
+    }
+
     override fun back() {
         navController?.popBackStack()
     }

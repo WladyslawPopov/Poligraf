@@ -59,10 +59,13 @@ struct ScalesView: View {
                         case .success: return .truth
                         case .recording: return .stress
                         case .processing: return .warning
+                        case .waiting: return .accentEnergy
                         default: return config.energyColor
                         }
                     }()
                     
+                    let truthColor = IosTheme.color(.truth, from: designSystem)
+                    let stressColor = IosTheme.color(.stress, from: designSystem)
                     let energyColor = IosTheme.color(energyColorToken, from: designSystem)
                     let variantColor = IosTheme.color(config.particleColor, from: designSystem)
                     
@@ -94,8 +97,21 @@ struct ScalesView: View {
                             let energyIntensity = max(0.2, min(1.0, distMask * 1.2))
                             let alpha = energyIntensity * 0.4 * (0.3 + max(0, wave) * 0.7)
                             
+                            let finalEnergyColor: Color = {
+                                if config.mode == .waiting {
+                                    let mix = (sin(Double(x) * 0.01 + time) * 0.5 + 0.5)
+                                    return Color(
+                                        red: Double(truthColor.components.red) * (1.0 - mix) + Double(stressColor.components.red) * mix,
+                                        green: Double(truthColor.components.green) * (1.0 - mix) + Double(stressColor.components.green) * mix,
+                                        blue: Double(truthColor.components.blue) * (1.0 - mix) + Double(stressColor.components.blue) * mix,
+                                        opacity: Double(truthColor.components.opacity) * (1.0 - mix) + Double(stressColor.components.opacity) * mix
+                                    )
+                                }
+                                return energyColor
+                            }()
+                            
                             context.opacity = alpha
-                            context.fill(path, with: .color(energyColor))
+                            context.fill(path, with: .color(finalEnergyColor))
                         }
                     }
                 }

@@ -12,9 +12,17 @@ import application.liedetector.uicore.widgets.UiWidget
 interface UserRepository {
     suspend fun loginAnonymously(): KmpResult<Unit>
     suspend fun syncUser(userDto: UserDto): KmpResult<String>
-    suspend fun getMainScreen(): KmpResult<List<UiWidget>>
     suspend fun startAnalysis(storagePath: String, context: String, subjectId: String?): KmpResult<String>
-    suspend fun createSubject(name: String, description: String?): KmpResult<SubjectDto>
+    suspend fun createSubject(
+        name: String, 
+        avatar: String? = null,
+        isDefaultAvatar: Boolean = true,
+        description: String? = null
+    ): KmpResult<SubjectDto>
+
+    suspend fun getSubject(id: String): KmpResult<SubjectDto>
+
+    suspend fun getSubjects(): KmpResult<List<SubjectDto>>
 }
 
 class UserRepositoryImpl(
@@ -36,14 +44,6 @@ class UserRepositoryImpl(
         }
     }
 
-    override suspend fun getMainScreen(): KmpResult<List<UiWidget>> {
-        return try {
-            KmpResult.Success(remote.getMainScreen())
-        } catch (e: Throwable) {
-            KmpResult.Error(e)
-        }
-    }
-
     override suspend fun startAnalysis(
         storagePath: String, 
         context: String, 
@@ -60,10 +60,38 @@ class UserRepositoryImpl(
         }
     }
 
-    override suspend fun createSubject(name: String, description: String?): KmpResult<SubjectDto> {
+    override suspend fun createSubject(
+        name: String, 
+        avatar: String?,
+        isDefaultAvatar: Boolean,
+        description: String?
+    ): KmpResult<SubjectDto> {
         return try {
-            val result = remote.createSubject(SubjectDto(name = name, description = description))
+            val result = remote.createSubject(
+                SubjectDto(
+                    name = name, 
+                    avatar = avatar,
+                    isDefaultAvatar = isDefaultAvatar,
+                    description = description
+                )
+            )
             KmpResult.Success(result)
+        } catch (e: Throwable) {
+            KmpResult.Error(e)
+        }
+    }
+
+    override suspend fun getSubject(id: String): KmpResult<SubjectDto> {
+        return try {
+            KmpResult.Success(remote.getSubject(id))
+        } catch (e: Throwable) {
+            KmpResult.Error(e)
+        }
+    }
+
+    override suspend fun getSubjects(): KmpResult<List<SubjectDto>> {
+        return try {
+            KmpResult.Success(remote.getSubjects())
         } catch (e: Throwable) {
             KmpResult.Error(e)
         }

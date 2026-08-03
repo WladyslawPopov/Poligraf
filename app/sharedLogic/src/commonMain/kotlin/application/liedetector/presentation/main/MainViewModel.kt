@@ -2,6 +2,7 @@ package application.liedetector.presentation.main
 
 import application.liedetector.data.user.UserRepository
 import application.liedetector.models.KmpResult
+import application.liedetector.models.SubjectDto
 import application.liedetector.navigation.AppNavigation
 import application.liedetector.presentation.base.BaseViewModel
 import application.liedetector.presentation.base.toErrorType
@@ -20,12 +21,14 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlin.random.Random
 
 class MainViewModel(
     private val userRepository: UserRepository,
     private val navigation: AppNavigation
 ) : BaseViewModel()
 {
+    private val defaultEmojis = listOf("🕵️", "👤", "👥", "❓", "👀", "🧠", "💼", "🔐")
     private val _state = MutableStateFlow(MainState(
         background = AppBackground.AnimatedScales(
             baseColor = ColorToken.BACKGROUND,
@@ -115,17 +118,21 @@ class MainViewModel(
         
         launchSafe(
             block = {
-                val result = userRepository.getMainScreen()
+                val result = userRepository.getSubjects()
                 if (result is KmpResult.Success) {
                     Napier.d { "MAIN: Content loaded successfully from SERVER" }
                     // Filter out any SubjectSliders from server to replace them with our merged one
-                    val otherWidgets = result.data.filter { it !is UiWidget.SubjectSlider }
-                    val serverCards = result.data
-                        .filterIsInstance<UiWidget.SubjectSlider>()
-                        .flatMap { it.items }
-
+                    val otherWidgets = result.data.map { data ->
+                        UiWidget.SubjectCard(
+                            id = data.id ?: "",
+                            title = data.name,
+                            emoji = data.avatar ?: "",
+                            action = WidgetAction.OPEN_INVESTIGATION(data.id ?: ""),
+                            backgroundColor = ColorToken.GLASS_BASE
+                        )
+                    }
                     _state.value = _state.value.copy(
-                        widgets = listOf(createDefaultSlider(serverCards)) + otherWidgets,
+                        widgets = listOf(createDefaultSlider(otherWidgets)),
                         errorRaw = null, 
                         errorToken = null
                     )
@@ -140,19 +147,42 @@ class MainViewModel(
     fun onWidgetAction(action: WidgetAction) {
         Napier.d { "Action triggered: $action" }
         when (action) {
-            WidgetAction.OPEN_HISTORY -> {
+            is WidgetAction.OPEN_HISTORY -> {
                 navigation.openMain()
             }
-            WidgetAction.OPEN_SETTINGS -> {
+            is WidgetAction.OPEN_SETTINGS -> {
                 navigation.toggleDrawer()
             }
-            WidgetAction.OPEN_PROFILE -> {
+            is WidgetAction.OPEN_PROFILE -> {
                 Napier.d { "MAIN: Profile action triggered" }
             }
-            WidgetAction.START_NEW_INVESTIGATION -> {
-                Napier.d { "MAIN: Start New Investigation triggered" }
+            is WidgetAction.START_NEW_INVESTIGATION -> {
+                startNewInvestigation()
+            }
+            is WidgetAction.OPEN_INVESTIGATION -> {
+                navigation.openInvestigation(action.subjectId)
             }
             else -> {}
         }
+    }
+
+    private fun startNewInvestigation() {
+        launchSafe(
+            isBlocking = true,
+            block = {
+                val emoji = defaultEmojis[Random.nextInt(defaultEmojis.size)]
+                val result = userRepository.createSubject(
+                    name = "Undefined-1",
+                    avatar = emoji,
+                    isDefaultAvatar = true,
+                    description = "Initial automated subject"
+                )
+                
+                if (result is KmpResult.Success) {
+                    val subject = result.data
+                    navigation.openInvestigation(subject.id ?: "")
+                }
+            }
+        )
     }
 }
