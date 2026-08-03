@@ -2,7 +2,6 @@ package application.liedetector.presentation.root
 
 import application.liedetector.data.user.UserRepository
 import application.liedetector.engine.device.DeviceInfoProvider
-import application.liedetector.models.UserDto
 import application.liedetector.presentation.base.BaseViewModel
 
 class RootViewModel(
@@ -31,7 +30,7 @@ class RootViewModel(
                     "app_version" to deviceProvider.getAppVersion()
                 )
                 
-                userRepository.syncUser(UserDto(metadata = metadata))
+                userRepository.syncUser(metadata)
             }
         )
     }

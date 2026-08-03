@@ -3,11 +3,11 @@ package application.liedetector.presentation.base
 import androidx.compose.runtime.Stable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import application.liedetector.engine.domain.responseModels.ServerErrorException
+import application.liedetector.domain.error.AppException
+import application.liedetector.domain.model.ErrorType
 import application.liedetector.uicore.models.DisplayMetrics
 import application.liedetector.uicore.state.*
 import application.liedetector.uicore.theme.tokens.StringToken
-import application.liedetector.uicore.types.ErrorType
 import application.liedetector.uicore.types.ToastType
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CancellationException
@@ -133,10 +133,6 @@ abstract class BaseViewModel : ViewModel(), IBaseViewModel {
     override fun clearError() = delegate.clearError()
     override fun clearToast() = delegate.clearToast()
     
-    /**
-     * Executes a network or background task.
-     * @param isBlocking If true, shows a full-screen error on failure. If false, shows a Toast.
-     */
     protected fun launchSafe(
         isBlocking: Boolean = true,
         block: suspend () -> Unit,
@@ -146,8 +142,8 @@ abstract class BaseViewModel : ViewModel(), IBaseViewModel {
             try {
                 setLoading(true)
                 block()
-            } catch (e: ServerErrorException) {
-                handleException(e, e.errorType, isBlocking)
+            } catch (e: AppException) {
+                handleException(e, e.type, isBlocking)
             } catch (e: Throwable) {
                 if (!e.isIgnorableException()) {
                     handleException(e, e.toErrorType(), isBlocking)

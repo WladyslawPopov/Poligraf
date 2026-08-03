@@ -1,7 +1,7 @@
 package application.liedetector.presentation.debug
 
 import androidx.compose.runtime.Stable
-import application.liedetector.engine.component.ComponentContext
+import application.liedetector.component.ComponentContext
 import application.liedetector.presentation.debug.data.DebugTab
 import application.liedetector.uicore.types.WidgetAction
 

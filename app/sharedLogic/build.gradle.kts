@@ -3,7 +3,6 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidMultiplatformLibrary)
-    alias(libs.plugins.sqlDelight)
     alias(libs.plugins.skie)
     alias(libs.plugins.kotlinSerialization)
 }
@@ -19,6 +18,8 @@ kotlin {
             
             // Export dependencies to make them visible in iOS
             export(projects.core)
+            export(projects.app.data)
+            export(projects.app.engine)
             export(projects.uiCore)
             export(libs.multiplatform.settings)
             export(libs.napier)
@@ -46,23 +47,12 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             api(projects.core)
+            api(projects.app.data)
+            api(projects.app.engine)
             api(projects.uiCore)
-            
-            // Network: Ktor
-            implementation(libs.ktor.client.core)
-            implementation(libs.ktor.client.logging)
-            implementation(libs.ktor.client.content.negotiation)
-            implementation(libs.ktor.serialization.kotlinx.json)
-            implementation(libs.ktor.client.auth)
             
             // Settings
             api(libs.multiplatform.settings)
-
-            // DateTime
-            implementation(libs.kotlinx.datetime)
-            
-            // SQLDelight
-            implementation(libs.sqldelight.coroutines)
             
             // DI: Koin
             api(libs.koin.core)
@@ -79,16 +69,11 @@ kotlin {
         }
 
         androidMain.dependencies {
-            implementation(libs.sqldelight.android.driver)
-            implementation(libs.ktor.client.android)
-
             implementation(libs.androidx.activity.compose)
             implementation(libs.androidx.appcompat)
         }
 
         nativeMain.dependencies {
-            implementation(libs.sqldelight.native.driver)
-            implementation(libs.ktor.client.darwin)
         }
 
         commonTest.dependencies {
@@ -96,11 +81,5 @@ kotlin {
         }
     }
 
-    sqldelight {
-        databases {
-            create("LieDetectorDatabase") {
-                packageName.set("application.liedetector.database")
-            }
-        }
-    }
+    
 }

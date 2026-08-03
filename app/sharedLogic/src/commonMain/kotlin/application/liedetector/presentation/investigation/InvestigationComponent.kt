@@ -1,7 +1,7 @@
 package application.liedetector.presentation.investigation
 
 import androidx.compose.runtime.Stable
-import application.liedetector.engine.component.ComponentContext
+import application.liedetector.component.ComponentContext
 
 @Stable
 class InvestigationComponent(

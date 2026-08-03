@@ -1,0 +1,71 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
+plugins {
+    alias(libs.plugins.kotlinMultiplatform)
+    alias(libs.plugins.androidMultiplatformLibrary)
+    alias(libs.plugins.sqlDelight)
+    alias(libs.plugins.kotlinSerialization)
+}
+
+kotlin {
+    listOf(
+        iosArm64(),
+        iosSimulatorArm64()
+    )
+    
+    android {
+       namespace = "application.liedetector.engine"
+       compileSdk = libs.versions.android.compileSdk.get().toInt()
+       minSdk = libs.versions.android.minSdk.get().toInt()
+    
+       compilerOptions {
+           jvmTarget = JvmTarget.JVM_11
+       }
+    }
+    
+    sourceSets {
+        commonMain.dependencies {
+            api(projects.core) 
+            
+            // Network: Ktor
+            api(libs.ktor.client.core)
+            implementation(libs.ktor.client.logging)
+            implementation(libs.ktor.client.content.negotiation)
+            implementation(libs.ktor.serialization.kotlinx.json)
+            implementation(libs.ktor.client.auth)
+            
+            // Settings
+            api(libs.multiplatform.settings)
+
+            // DateTime
+            implementation(libs.kotlinx.datetime)
+            
+            // SQLDelight
+            api(libs.sqldelight.coroutines)
+            
+            // DI: Koin
+            api(libs.koin.core)
+
+            // Logging
+            api(libs.napier)
+        }
+
+        androidMain.dependencies {
+            implementation(libs.sqldelight.android.driver)
+            implementation(libs.ktor.client.android)
+        }
+
+        nativeMain.dependencies {
+            implementation(libs.sqldelight.native.driver)
+            implementation(libs.ktor.client.darwin)
+        }
+    }
+
+    sqldelight {
+        databases {
+            create("LieDetectorDatabase") {
+                packageName.set("application.liedetector.database")
+            }
+        }
+    }
+}

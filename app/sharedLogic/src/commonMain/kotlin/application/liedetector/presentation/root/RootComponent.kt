@@ -11,7 +11,7 @@ import application.liedetector.presentation.debug.DebugComponent
 import application.liedetector.presentation.debug.DebugViewModel
 import application.liedetector.presentation.investigation.InvestigationComponent
 import application.liedetector.presentation.investigation.InvestigationViewModel
-import application.liedetector.engine.component.ComponentContext
+import application.liedetector.component.ComponentContext
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 

@@ -34,6 +34,8 @@ plugins {
 
 include(":app:androidApp")
 include(":app:sharedLogic")
+include(":app:engine")
+include(":app:data")
 include(":core")
 include(":server")
 include(":ui-core")

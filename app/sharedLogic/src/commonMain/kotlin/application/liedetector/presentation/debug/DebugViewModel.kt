@@ -1,5 +1,6 @@
 package application.liedetector.presentation.debug
 
+import application.liedetector.domain.model.ErrorType
 import application.liedetector.navigation.AppNavigation
 import application.liedetector.presentation.base.BaseViewModel
 import application.liedetector.presentation.debug.data.DebugState
@@ -7,7 +8,6 @@ import application.liedetector.presentation.debug.data.DebugTab
 import application.liedetector.uicore.theme.tokens.ColorToken
 import application.liedetector.uicore.theme.tokens.StringToken
 import application.liedetector.uicore.theme.tokens.TypographyToken
-import application.liedetector.uicore.types.ErrorType
 import application.liedetector.uicore.types.ToastType
 import application.liedetector.uicore.types.WidgetAction
 import application.liedetector.uicore.widgets.AppBackground

@@ -9,7 +9,6 @@ import application.liedetector.engine.device.DeviceIntegrity
 import application.liedetector.engine.device.ReviewManager
 import application.liedetector.engine.database.common.DriverFactory
 import application.liedetector.uicore.theme.ResourceProvider
-import application.liedetector.models.KmpResult
 import application.liedetector.BuildConfig
 import com.russhwolf.settings.Settings
 import com.russhwolf.settings.SharedPreferencesSettings
@@ -41,12 +40,12 @@ val androidModule = module {
     // 6. Native Device Services (Placeholders)
     single<DeviceIntegrity> { 
         object : DeviceIntegrity { 
-            override suspend fun checkIntegrity(): KmpResult<Unit> = KmpResult.Success(Unit) 
+            override suspend fun checkIntegrity(): Boolean = true 
         } 
     }
     single<ReviewManager> { 
         object : ReviewManager { 
-            override suspend fun requestReview(): KmpResult<Unit> = KmpResult.Success(Unit) 
+            override suspend fun requestReview(): Boolean = true 
         } 
     }
 }

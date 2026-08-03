@@ -1,6 +1,6 @@
 package application.liedetector.di
 
-import application.liedetector.data.user.di.userDataModule
+import application.liedetector.data.di.dataModule
 import application.liedetector.engine.database.di.databaseModule
 import application.liedetector.engine.device.di.devicePlatformModule
 import application.liedetector.engine.network.di.networkModule
@@ -21,9 +21,9 @@ fun initKoin(
 }
 
 val sharedModules = listOf(
+    dataModule,
     networkModule,
     databaseModule,
     settingsModule,
-    userDataModule,
     devicePlatformModule
 )

@@ -1,8 +1,8 @@
 package application.liedetector.presentation.main
 
 import application.liedetector.data.user.UserRepository
+import application.liedetector.domain.model.Subject
 import application.liedetector.models.KmpResult
-import application.liedetector.models.SubjectDto
 import application.liedetector.navigation.AppNavigation
 import application.liedetector.presentation.base.BaseViewModel
 import application.liedetector.presentation.base.toErrorType
