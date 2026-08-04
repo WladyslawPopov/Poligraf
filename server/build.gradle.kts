@@ -26,8 +26,8 @@ tasks.withType<JavaExec> {
 }
 
 dependencies {
-    api(projects.core)
-    api(projects.uiCore)
+    implementation(projects.core)
+    
     // Logging
     implementation(libs.logback)
     

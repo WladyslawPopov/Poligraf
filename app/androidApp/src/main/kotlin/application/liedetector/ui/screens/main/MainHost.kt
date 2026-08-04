@@ -77,12 +77,21 @@ fun MainHost(
                 state.toolbar?.let { toolbar ->
                     CenterAlignedTopAppBar(
                         title = {
-                            toolbar.titleToken?.let { token ->
-                                Text(
-                                    text = designSystem.string(token),
-                                    color = designSystem.composeColor(ColorToken.TEXT_PRIMARY),
-                                    style = MaterialTheme.typography.titleLarge
-                                )
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                toolbar.titleToken?.let { token ->
+                                    Text(
+                                        text = designSystem.string(token),
+                                        color = designSystem.composeColor(ColorToken.TEXT_PRIMARY),
+                                        style = MaterialTheme.typography.titleLarge
+                                    )
+                                }
+                                toolbar.subtitleToken?.let { token ->
+                                    Text(
+                                        text = designSystem.string(token),
+                                        color = designSystem.composeColor(ColorToken.TEXT_SECONDARY),
+                                        style = MaterialTheme.typography.labelSmall
+                                    )
+                                }
                             }
                         },
                         navigationIcon = {

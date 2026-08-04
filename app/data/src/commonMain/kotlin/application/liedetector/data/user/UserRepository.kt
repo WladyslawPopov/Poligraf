@@ -8,11 +8,14 @@ import application.liedetector.engine.error.ServerErrorException
 import application.liedetector.domain.error.AppException
 import application.liedetector.domain.model.ErrorType
 import application.liedetector.domain.model.Subject
-import application.liedetector.domain.model.User
 import application.liedetector.models.AnalysisRequest
 import application.liedetector.models.KmpResult
 import application.liedetector.models.SubjectDto
 import application.liedetector.models.UserDto
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import kotlinx.serialization.builtins.ListSerializer
+import application.liedetector.engine.utils.nowAsEpochSeconds
 
 private fun Throwable.toAppException(): AppException {
     return when (this) {
@@ -43,7 +46,9 @@ interface UserRepository {
 
     suspend fun getSubject(id: String): KmpResult<Subject>
 
-    suspend fun getSubjects(): KmpResult<List<Subject>>
+    fun getSubjects(): Flow<List<Subject>>
+    
+    suspend fun syncSubjects(): KmpResult<Unit>
 }
 
 class UserRepositoryImpl(
@@ -114,11 +119,26 @@ class UserRepositoryImpl(
         }
     }
 
-    override suspend fun getSubjects(): KmpResult<List<Subject>> {
+    override fun getSubjects(): Flow<List<Subject>> {
+        val cacheKey = "subjects_list"
+        val serializer = ListSerializer(SubjectDto.serializer())
+        
+        return cache.getFlow(cacheKey, serializer).map { cached ->
+            cached?.map { it.toDomain() } ?: emptyList()
+        }
+    }
+
+    override suspend fun syncSubjects(): KmpResult<Unit> {
         return try {
-            KmpResult.Success(remote.getSubjects().map { it.toDomain() })
+            val cacheKey = "subjects_list"
+            val serializer = ListSerializer(SubjectDto.serializer())
+            
+            val remoteSubjects = remote.getSubjects()
+            // Update cache (expire in 1 hour)
+            cache.put(cacheKey, remoteSubjects, nowAsEpochSeconds() + 3600, serializer)
+            KmpResult.Success(Unit)
         } catch (e: Throwable) {
-            throw e.toAppException()
+            KmpResult.Error(e.toAppException())
         }
     }
 }

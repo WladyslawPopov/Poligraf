@@ -2,7 +2,7 @@ package application.liedetector.presentation.main
 
 import androidx.compose.runtime.Stable
 import application.liedetector.component.ComponentContext
-import application.liedetector.uicore.types.WidgetAction
+import application.liedetector.uicore.actions.WidgetAction
 
 @Stable
 class MainComponent(

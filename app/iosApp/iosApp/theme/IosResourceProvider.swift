@@ -43,6 +43,8 @@ class IosResourceProvider: ResourceProvider {
         case .openDebugSandbox: key = "open_debug_sandbox"
         case .labsEmptyMessage: key = "labs_empty_message"
         case .investigationScreenPlaceholder: key = "investigation_screen_placeholder"
+        case .sectionTemplates: key = "section_templates"
+        case .sectionSubjects: key = "section_subjects"
         default: key = ""
         }
         return NSLocalizedString(key, comment: "")
@@ -60,6 +62,10 @@ class IosResourceProvider: ResourceProvider {
         case .arrowBack: return "chevron.left"
         case .gallery: return "photo.on.rectangle"
         case .note: return "text.quote"
+        case .delete: return "trash.fill"
+        case .dragHandle: return "line.3.horizontal"
+        case .edit: return "pencil"
+        case .check: return "checkmark.circle.fill"
         default: return "questionmark.circle"
         }
     }

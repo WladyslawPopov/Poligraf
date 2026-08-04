@@ -6,7 +6,6 @@ import application.liedetector.models.AnalysisRequest
 import application.liedetector.models.AnalysisStatus
 import application.liedetector.models.ApiConstants
 import application.liedetector.security.UserPrincipal
-import application.liedetector.uicore.widgets.UiWidget
 import io.ktor.http.*
 import io.ktor.server.auth.*
 import io.ktor.server.request.*

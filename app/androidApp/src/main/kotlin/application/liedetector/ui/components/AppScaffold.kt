@@ -18,10 +18,10 @@ import application.liedetector.ui.components.background.ScalesBackground
 import application.liedetector.ui.components.state.AppSnackBar
 import application.liedetector.ui.components.state.ErrorView
 import application.liedetector.ui.components.state.LoadingView
-import application.liedetector.uicore.models.ContentPaddingType
 import application.liedetector.uicore.models.DisplayMetrics
 import application.liedetector.uicore.state.ScaffoldUiState
 import application.liedetector.uicore.theme.LocalDesignSystem
+import application.liedetector.uicore.types.ContentPaddingType
 import application.liedetector.uicore.types.ToastType
 import application.liedetector.uicore.widgets.AppBackground
 

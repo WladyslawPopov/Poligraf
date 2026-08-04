@@ -25,8 +25,8 @@ import application.liedetector.theme.utils.composeColor
 import application.liedetector.uicore.theme.tokens.DimenToken
 import application.liedetector.uicore.theme.LocalDesignSystem
 import application.liedetector.uicore.widgets.AppBackground
-import application.liedetector.uicore.widgets.BackgroundMode
 import application.liedetector.uicore.theme.tokens.ColorToken
+import application.liedetector.uicore.types.BackgroundMode
 import kotlin.math.abs
 import kotlin.math.pow
 import kotlin.math.sin

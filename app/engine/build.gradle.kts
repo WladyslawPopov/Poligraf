@@ -25,7 +25,7 @@ kotlin {
     
     sourceSets {
         commonMain.dependencies {
-            api(projects.core) 
+            api(projects.core)
             
             // Network: Ktor
             api(libs.ktor.client.core)
@@ -34,14 +34,17 @@ kotlin {
             implementation(libs.ktor.serialization.kotlinx.json)
             implementation(libs.ktor.client.auth)
             
+            // Serialization
+            api(libs.kotlinx.serialization.json)
+            
             // Settings
             api(libs.multiplatform.settings)
 
             // DateTime
-            implementation(libs.kotlinx.datetime)
+            api(libs.kotlinx.datetime)
             
             // SQLDelight
-            api(libs.sqldelight.coroutines)
+            implementation(libs.sqldelight.coroutines)
             
             // DI: Koin
             api(libs.koin.core)

@@ -8,10 +8,12 @@ import application.liedetector.presentation.debug.data.DebugTab
 import application.liedetector.uicore.theme.tokens.ColorToken
 import application.liedetector.uicore.theme.tokens.StringToken
 import application.liedetector.uicore.theme.tokens.TypographyToken
+import application.liedetector.uicore.actions.DebugAction
+import application.liedetector.uicore.actions.NavigationAction
+import application.liedetector.uicore.actions.WidgetAction
+import application.liedetector.uicore.types.BackgroundMode
 import application.liedetector.uicore.types.ToastType
-import application.liedetector.uicore.types.WidgetAction
 import application.liedetector.uicore.widgets.AppBackground
-import application.liedetector.uicore.widgets.BackgroundMode
 import application.liedetector.uicore.widgets.UiWidget
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -75,7 +77,7 @@ class DebugViewModel(private val navigation: AppNavigation) : BaseViewModel() {
                         id = "mock_1",
                         titleToken = StringToken.SUBJECT_NEW_TITLE,
                         emoji = "🧪",
-                        action = WidgetAction.DEBUG_TRIGGER_SUCCESS_TOAST,
+                        action = DebugAction.TriggerSuccessToast,
                         backgroundColor = ColorToken.GLASS_BASE,
                         buttonColor = ColorToken.TRUTH
                     ),
@@ -83,7 +85,7 @@ class DebugViewModel(private val navigation: AppNavigation) : BaseViewModel() {
                         id = "mock_2",
                         titleToken = StringToken.SUBJECT_NEW_TITLE,
                         emoji = "💥",
-                        action = WidgetAction.DEBUG_TRIGGER_ERROR_NON_BLOCKING,
+                        action = DebugAction.TriggerErrorNonBlocking,
                         backgroundColor = ColorToken.GLASS_BASE,
                         buttonColor = ColorToken.STRESS
                     ),
@@ -91,7 +93,7 @@ class DebugViewModel(private val navigation: AppNavigation) : BaseViewModel() {
                         id = "mock_3",
                         titleToken = StringToken.SUBJECT_NEW_TITLE,
                         emoji = "⏳",
-                        action = WidgetAction.DEBUG_TRIGGER_LOADING,
+                        action = DebugAction.TriggerLoading,
                         backgroundColor = ColorToken.GLASS_BASE,
                         buttonColor = ColorToken.ACCENT_ENERGY
                     )
@@ -117,23 +119,23 @@ class DebugViewModel(private val navigation: AppNavigation) : BaseViewModel() {
 
     fun onWidgetAction(action: WidgetAction) {
         when (action) {
-            WidgetAction.OPEN_HISTORY -> {
+            NavigationAction.History -> {
                 navigation.openMain()
             }
-            WidgetAction.DEBUG_TRIGGER_LOADING -> {
+            DebugAction.TriggerLoading -> {
                 scope.launch {
                     setLoading(true)
                     delay(2000.milliseconds)
                     setLoading(false)
                 }
             }
-            WidgetAction.DEBUG_TRIGGER_ERROR_BLOCKING -> {
+            DebugAction.TriggerErrorBlocking -> {
                 setManualError(ErrorType.SERVER_UNAVAILABLE)
             }
-            WidgetAction.DEBUG_TRIGGER_ERROR_NON_BLOCKING -> {
+            DebugAction.TriggerErrorNonBlocking -> {
                 showToast(StringToken.ERROR_UNKNOWN_TITLE, ToastType.ERROR)
             }
-            WidgetAction.DEBUG_TRIGGER_SUCCESS_TOAST -> {
+            DebugAction.TriggerSuccessToast -> {
                 showToast(StringToken.TOAST_AUTH_SUCCESS, ToastType.SUCCESS)
             }
             else -> {}

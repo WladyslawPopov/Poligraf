@@ -16,7 +16,7 @@ import application.liedetector.uicore.theme.LocalDesignSystem
 import application.liedetector.uicore.theme.tokens.ColorToken
 import application.liedetector.uicore.theme.tokens.DimenToken
 import application.liedetector.uicore.theme.tokens.StringToken
-import application.liedetector.uicore.types.WidgetAction
+import application.liedetector.uicore.actions.DebugAction
 
 @Composable
 fun StatesTab(
@@ -36,12 +36,12 @@ fun StatesTab(
         DebugSection(title = "Engine States") {
             DebugActionButton(
                 text = designSystem.string(StringToken.DEBUG_TRIGGER_LOADING),
-                onClick = { component.onAction(WidgetAction.DEBUG_TRIGGER_LOADING) },
+                onClick = { component.onAction(DebugAction.TriggerLoading) },
                 color = ColorToken.ACCENT_PRIMARY
             )
             DebugActionButton(
                 text = designSystem.string(StringToken.DEBUG_TRIGGER_ERROR_BLOCKING),
-                onClick = { component.onAction(WidgetAction.DEBUG_TRIGGER_ERROR_BLOCKING) },
+                onClick = { component.onAction(DebugAction.TriggerErrorBlocking) },
                 color = ColorToken.STRESS
             )
         }
@@ -49,12 +49,12 @@ fun StatesTab(
         DebugSection(title = "Notifications / Toasts") {
             DebugActionButton(
                 text = designSystem.string(StringToken.DEBUG_TRIGGER_ERROR_TOAST),
-                onClick = { component.onAction(WidgetAction.DEBUG_TRIGGER_ERROR_NON_BLOCKING) },
+                onClick = { component.onAction(DebugAction.TriggerErrorNonBlocking) },
                 color = ColorToken.ERROR
             )
             DebugActionButton(
                 text = designSystem.string(StringToken.DEBUG_TRIGGER_SUCCESS_TOAST),
-                onClick = { component.onAction(WidgetAction.DEBUG_TRIGGER_SUCCESS_TOAST) },
+                onClick = { component.onAction(DebugAction.TriggerSuccessToast) },
                 color = ColorToken.TRUTH
             )
         }

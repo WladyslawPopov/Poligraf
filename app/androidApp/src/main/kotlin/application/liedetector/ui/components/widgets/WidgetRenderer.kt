@@ -5,7 +5,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import application.liedetector.uicore.types.WidgetAction
+import application.liedetector.uicore.actions.WidgetAction
 import application.liedetector.uicore.widgets.UiWidget
 
 @Composable
@@ -20,6 +20,10 @@ fun WidgetRenderer(
         
         is UiWidget.SubjectSlider -> {
             SubjectSliderRenderer(widget, onAction)
+        }
+        
+        is UiWidget.SubjectList -> {
+            SubjectListRenderer(widget, onAction)
         }
         
         else -> {

@@ -24,11 +24,7 @@ kotlin {
     
     sourceSets {
         commonMain.dependencies {
-            api(project(":app:engine"))
-            api(projects.core) // For DTOs in Repository Impl
-            implementation(libs.kotlinx.serialization.json)
-            
-            api(libs.koin.core)
+            implementation(projects.app.engine)
             implementation(libs.kotlinx.coroutines.core)
         }
     }

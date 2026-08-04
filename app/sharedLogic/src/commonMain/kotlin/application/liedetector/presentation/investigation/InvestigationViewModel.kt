@@ -6,9 +6,9 @@ import application.liedetector.navigation.AppNavigation
 import application.liedetector.presentation.base.BaseViewModel
 import application.liedetector.presentation.investigation.data.InvestigationState
 import application.liedetector.uicore.theme.tokens.StringToken
+import application.liedetector.uicore.types.BackgroundMode
 import application.liedetector.uicore.types.ToastType
 import application.liedetector.uicore.widgets.AppBackground
-import application.liedetector.uicore.widgets.BackgroundMode
 import application.liedetector.uicore.widgets.UiWidget
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*

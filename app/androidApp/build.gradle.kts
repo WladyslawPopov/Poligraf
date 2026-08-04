@@ -56,9 +56,8 @@ dependencies {
     implementation(libs.compose.uiToolingPreview)
     debugImplementation(libs.compose.uiTooling)
     
-    // Ktor Client & Serialization
+    // Ktor Client
     implementation(libs.ktor.client.android)
-    implementation(libs.ktor.serialization.kotlinx.json)
     
     // Firebase
     implementation(platform("com.google.firebase:firebase-bom:33.5.1"))

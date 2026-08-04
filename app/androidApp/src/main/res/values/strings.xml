@@ -40,4 +40,6 @@
     <string name="open_debug_sandbox">Debug Sandbox</string>
     <string name="labs_empty_message">Experimental Features will appear here</string>
     <string name="investigation_screen_placeholder">Investigation Screen</string>
+    <string name="section_templates">Templates</string>
+    <string name="section_subjects">Investigations</string>
 </resources>

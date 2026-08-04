@@ -20,9 +20,9 @@ kotlin {
             export(projects.core)
             export(projects.app.data)
             export(projects.app.engine)
-            export(projects.uiCore)
-            export(libs.multiplatform.settings)
+            export(projects.app.uiCore)
             export(libs.napier)
+            export(libs.multiplatform.settings)
             
             linkerOpts("-lsqlite3")
         }
@@ -46,26 +46,16 @@ kotlin {
     
     sourceSets {
         commonMain.dependencies {
-            api(projects.core)
             api(projects.app.data)
             api(projects.app.engine)
-            api(projects.uiCore)
-            
-            // Settings
-            api(libs.multiplatform.settings)
-            
-            // DI: Koin
-            api(libs.koin.core)
+            api(projects.app.uiCore)
 
             // Lifecycle
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
-            
+
             // UI Stability
             implementation(libs.compose.runtime)
-
-            // Logging
-            api(libs.napier)
         }
 
         androidMain.dependencies {
@@ -80,6 +70,4 @@ kotlin {
             implementation(libs.kotlin.test)
         }
     }
-
-    
 }

@@ -12,6 +12,8 @@ struct WidgetView: View {
                 WelcomeTextView(widget: welcome, designSystem: designSystem)
             } else if let slider = widget as? UiWidget.SubjectSlider {
                 SubjectSliderView(widget: slider, designSystem: designSystem, onAction: onAction)
+            } else if let list = widget as? UiWidget.SubjectList {
+                SubjectListView(widget: list, designSystem: designSystem, onAction: onAction)
             } else {
                 EmptyView()
             }

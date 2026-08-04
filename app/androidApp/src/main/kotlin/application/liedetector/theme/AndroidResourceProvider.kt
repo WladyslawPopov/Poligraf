@@ -49,6 +49,8 @@ class AndroidResourceProvider(private val context: Context) : ResourceProvider {
             StringToken.OPEN_DEBUG_SANDBOX -> application.liedetector.R.string.open_debug_sandbox
             StringToken.LABS_EMPTY_MESSAGE -> application.liedetector.R.string.labs_empty_message
             StringToken.INVESTIGATION_SCREEN_PLACEHOLDER -> application.liedetector.R.string.investigation_screen_placeholder
+            StringToken.SECTION_TEMPLATES -> application.liedetector.R.string.section_templates
+            StringToken.SECTION_SUBJECTS -> application.liedetector.R.string.section_subjects
         }
         return context.getString(resId)
     }
@@ -65,6 +67,10 @@ class AndroidResourceProvider(private val context: Context) : ResourceProvider {
             IconToken.ARROW_BACK -> Icons.AutoMirrored.Rounded.ArrowBack
             IconToken.GALLERY -> Icons.Rounded.Image
             IconToken.NOTE -> Icons.Rounded.Description
+            IconToken.DELETE -> Icons.Rounded.Delete
+            IconToken.DRAG_HANDLE -> Icons.Rounded.DragHandle
+            IconToken.EDIT -> Icons.Rounded.Edit
+            IconToken.CHECK -> Icons.Rounded.CheckCircle
         }
     }
 }

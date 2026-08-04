@@ -38,3 +38,5 @@
 "open_debug_sandbox" = "Debug Sandbox";
 "labs_empty_message" = "Experimental Features will appear here";
 "investigation_screen_placeholder" = "Investigation Screen";
+"section_templates" = "Templates";
+"section_subjects" = "Investigations";

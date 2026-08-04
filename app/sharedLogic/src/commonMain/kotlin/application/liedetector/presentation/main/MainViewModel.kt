@@ -1,7 +1,7 @@
 package application.liedetector.presentation.main
 
-import application.liedetector.data.user.UserRepository
 import application.liedetector.domain.model.Subject
+import application.liedetector.data.user.UserRepository
 import application.liedetector.models.KmpResult
 import application.liedetector.navigation.AppNavigation
 import application.liedetector.presentation.base.BaseViewModel
@@ -9,10 +9,12 @@ import application.liedetector.presentation.base.toErrorType
 import application.liedetector.uicore.theme.tokens.ColorToken
 import application.liedetector.uicore.theme.tokens.StringToken
 import application.liedetector.uicore.theme.tokens.TypographyToken
+import application.liedetector.uicore.actions.InvestigationAction
+import application.liedetector.uicore.actions.NavigationAction
+import application.liedetector.uicore.actions.WidgetAction
+import application.liedetector.uicore.types.BackgroundMode
 import application.liedetector.uicore.types.ToastType
-import application.liedetector.uicore.types.WidgetAction
 import application.liedetector.uicore.widgets.AppBackground
-import application.liedetector.uicore.widgets.BackgroundMode
 import application.liedetector.uicore.widgets.UiWidget
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -39,7 +41,7 @@ class MainViewModel(
         ),
         toolbar = UiWidget.AppToolbar(
             id = "main_toolbar",
-            titleToken = null,
+            titleToken = StringToken.APP_NAME,
             backgroundColor = ColorToken.BACKGROUND,
             contentColor = ColorToken.TEXT_PRIMARY
         ),
@@ -49,7 +51,7 @@ class MainViewModel(
             colorToken = ColorToken.TEXT_PRIMARY,
             typographyToken = TypographyToken.HEADER
         ),
-        widgets = listOf(createDefaultSlider(emptyList()))
+        widgets = listOf(MainWidgetFactory.createSubjectSlider(emptyList(), UiWidget.SubjectSlider.DisplayMode.FULL))
     ))
     val state: StateFlow<MainState> = _state.asStateFlow()
 
@@ -58,6 +60,13 @@ class MainViewModel(
         displayMetrics
             .onEach { metrics ->
                 updateAdaptiveContent(metrics.isLandscape)
+            }
+            .launchIn(scope)
+
+        // Observe subjects from cache/DB
+        userRepository.getSubjects()
+            .onEach { subjects ->
+                updateStateWithSubjects(subjects)
             }
             .launchIn(scope)
 
@@ -85,24 +94,6 @@ class MainViewModel(
         loadContent()
     }
 
-    private fun createDefaultSlider(serverItems: List<UiWidget.SubjectCard>): UiWidget.SubjectSlider {
-        val defaultCard = UiWidget.SubjectCard(
-            id = "new_investigation",
-            titleToken = StringToken.SUBJECT_NEW_TITLE,
-            emoji = "🕵️",
-            action = WidgetAction.START_NEW_INVESTIGATION,
-            backgroundColor = ColorToken.GLASS_BASE,
-            titleColor = ColorToken.TEXT_PRIMARY,
-            titleTypography = TypographyToken.SUBHEADER,
-            buttonColor = ColorToken.ACCENT_PRIMARY
-        )
-        return UiWidget.SubjectSlider(
-            id = "main_slider",
-            itemSpacing = 16,
-            items = listOf(defaultCard) + serverItems
-        )
-    }
-
     private fun updateAdaptiveContent(isLandscape: Boolean) {
         val welcome = _state.value.welcomeWidget ?: return
         // Example of adjusting typing delay or other properties based on orientation
@@ -113,31 +104,53 @@ class MainViewModel(
         )
     }
     
+    private fun updateStateWithSubjects(subjects: List<Subject>) {
+        if (subjects.isEmpty()) {
+            _state.value = _state.value.copy(
+                toolbar = UiWidget.AppToolbar(
+                    id = "main_toolbar",
+                    titleToken = StringToken.APP_NAME,
+                    backgroundColor = ColorToken.BACKGROUND,
+                    contentColor = ColorToken.TEXT_PRIMARY
+                ),
+                welcomeWidget = UiWidget.WelcomeText(
+                    id = "main_welcome",
+                    textToken = StringToken.WELCOME_TEXT,
+                    colorToken = ColorToken.TEXT_PRIMARY,
+                    typographyToken = TypographyToken.HEADER
+                ),
+                widgets = listOf(MainWidgetFactory.createSubjectSlider(emptyList(), UiWidget.SubjectSlider.DisplayMode.FULL)),
+                errorRaw = null,
+                errorToken = null
+            )
+        } else {
+            _state.value = _state.value.copy(
+                toolbar = UiWidget.AppToolbar(
+                    id = "main_toolbar",
+                    titleToken = StringToken.APP_NAME,
+                    subtitleToken = StringToken.WELCOME_TEXT,
+                    backgroundColor = ColorToken.BACKGROUND,
+                    contentColor = ColorToken.TEXT_PRIMARY
+                ),
+                welcomeWidget = null,
+                widgets = listOf(
+                    MainWidgetFactory.createSubjectSlider(emptyList(), UiWidget.SubjectSlider.DisplayMode.RECT_STORY),
+                    MainWidgetFactory.createSubjectList(subjects)
+                ),
+                errorRaw = null,
+                errorToken = null
+            )
+        }
+    }
+
     fun loadContent() {
         _state.value = _state.value.copy(errorRaw = null, errorToken = null)
         
         launchSafe(
+            isBlocking = false,
             block = {
-                val result = userRepository.getSubjects()
-                if (result is KmpResult.Success) {
-                    Napier.d { "MAIN: Content loaded successfully from SERVER" }
-                    // Filter out any SubjectSliders from server to replace them with our merged one
-                    val otherWidgets = result.data.map { data ->
-                        UiWidget.SubjectCard(
-                            id = data.id ?: "",
-                            title = data.name,
-                            emoji = data.avatar ?: "",
-                            action = WidgetAction.OPEN_INVESTIGATION(data.id ?: ""),
-                            backgroundColor = ColorToken.GLASS_BASE
-                        )
-                    }
-                    _state.value = _state.value.copy(
-                        widgets = listOf(createDefaultSlider(otherWidgets)),
-                        errorRaw = null, 
-                        errorToken = null
-                    )
-                } else if (result is KmpResult.Error) {
-                    Napier.e(result.throwable) { "MAIN: Server Error - ${result.throwable.message}" }
+                val result = userRepository.syncSubjects()
+                if (result is KmpResult.Error) {
                     setManualError(result.throwable.toErrorType())
                 }
             }
@@ -147,23 +160,107 @@ class MainViewModel(
     fun onWidgetAction(action: WidgetAction) {
         Napier.d { "Action triggered: $action" }
         when (action) {
-            is WidgetAction.OPEN_HISTORY -> {
+            is WidgetAction.ToggleSelection -> toggleSelection(action.id)
+            is WidgetAction.DeleteSelected -> deleteSelected()
+            is WidgetAction.ClearSelection -> clearSelection()
+            is NavigationAction.History -> {
                 navigation.openMain()
             }
-            is WidgetAction.OPEN_SETTINGS -> {
+            is NavigationAction.Settings -> {
                 navigation.toggleDrawer()
             }
-            is WidgetAction.OPEN_PROFILE -> {
+            is NavigationAction.Profile -> {
                 Napier.d { "MAIN: Profile action triggered" }
             }
-            is WidgetAction.START_NEW_INVESTIGATION -> {
+            is InvestigationAction.StartNew -> {
                 startNewInvestigation()
             }
-            is WidgetAction.OPEN_INVESTIGATION -> {
-                navigation.openInvestigation(action.subjectId)
+            is InvestigationAction.Open -> {
+                val currentList = _state.value.widgets.filterIsInstance<UiWidget.SubjectList>().firstOrNull()
+                if (currentList?.isSelectionMode == true) {
+                    toggleSelection(action.subjectId)
+                } else {
+                    navigation.openInvestigation(action.subjectId)
+                }
             }
             else -> {}
         }
+    }
+
+    private fun toggleSelection(id: String) {
+        val currentWidgets = _state.value.widgets.toMutableList()
+        val listIndex = currentWidgets.indexOfFirst { it is UiWidget.SubjectList }
+        if (listIndex != -1) {
+            val list = currentWidgets[listIndex] as UiWidget.SubjectList
+            val newSelected = list.selectedIds.toMutableSet()
+            if (newSelected.contains(id)) newSelected.remove(id) else newSelected.add(id)
+            
+            val isSelectionMode = newSelected.isNotEmpty()
+            currentWidgets[listIndex] = list.copy(
+                isSelectionMode = isSelectionMode,
+                selectedIds = newSelected
+            )
+            
+            // Update toolbar for selection mode
+            val newToolbar = if (isSelectionMode) {
+                _state.value.toolbar?.copy(
+                    titleToken = null, // Or show count
+                    subtitleToken = null,
+                    menuAction = WidgetAction.ClearSelection,
+                    profileAction = WidgetAction.DeleteSelected
+                )
+            } else {
+                _state.value.toolbar?.copy(
+                    titleToken = StringToken.APP_NAME,
+                    subtitleToken = StringToken.WELCOME_TEXT,
+                    menuAction = NavigationAction.Settings,
+                    profileAction = NavigationAction.Profile
+                )
+            }
+            
+            _state.value = _state.value.copy(
+                widgets = currentWidgets,
+                toolbar = newToolbar
+            )
+        }
+    }
+
+    private fun clearSelection() {
+        val currentWidgets = _state.value.widgets.toMutableList()
+        val listIndex = currentWidgets.indexOfFirst { it is UiWidget.SubjectList }
+        if (listIndex != -1) {
+            val list = currentWidgets[listIndex] as UiWidget.SubjectList
+            currentWidgets[listIndex] = list.copy(
+                isSelectionMode = false,
+                selectedIds = emptySet()
+            )
+            _state.value = _state.value.copy(
+                widgets = currentWidgets,
+                toolbar = _state.value.toolbar?.copy(
+                    titleToken = StringToken.APP_NAME,
+                    subtitleToken = StringToken.WELCOME_TEXT,
+                    menuAction = NavigationAction.Settings,
+                    profileAction = NavigationAction.Profile
+                )
+            )
+        }
+    }
+
+    private fun deleteSelected() {
+        val currentList = _state.value.widgets.filterIsInstance<UiWidget.SubjectList>().firstOrNull() ?: return
+        val idsToDelete = currentList.selectedIds
+        
+        launchSafe(
+            isBlocking = true,
+            block = {
+                // In a real app, we would call a bulk delete API. 
+                // For now, we'll just refresh content after a simulated delay or assume it works.
+                Napier.d { "Deleting subjects: $idsToDelete" }
+                // userRepository.deleteSubjects(idsToDelete) // Not implemented in repository yet
+                clearSelection()
+                loadContent()
+            }
+        )
     }
 
     private fun startNewInvestigation() {

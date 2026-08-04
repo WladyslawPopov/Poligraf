@@ -14,7 +14,7 @@ struct StatesTab: View {
                         color: .accentPrimary,
                         designSystem: designSystem,
                         action: {
-                           component.onAction(action: WidgetAction.DEBUG_TRIGGER_LOADING())
+                           component.onAction(action: DebugAction.TriggerLoading())
                         }
                     )
                     
@@ -22,7 +22,7 @@ struct StatesTab: View {
                         text: designSystem.string(token: .debugTriggerErrorBlocking),
                         color: .stress,
                         designSystem: designSystem,
-                        action: { component.onAction(action: WidgetAction.DEBUG_TRIGGER_ERROR_BLOCKING()) }
+                        action: { component.onAction(action: DebugAction.TriggerErrorBlocking()) }
                     )
                 }
                 
@@ -31,14 +31,14 @@ struct StatesTab: View {
                         text: designSystem.string(token: .debugTriggerErrorToast),
                         color: .error,
                         designSystem: designSystem,
-                        action: { component.onAction(action: WidgetAction.DEBUG_TRIGGER_ERROR_NON_BLOCKING()) }
+                        action: { component.onAction(action: DebugAction.TriggerErrorNonBlocking()) }
                     )
                     
                     DebugActionButton(
                         text: designSystem.string(token: .debugTriggerSuccessToast),
                         color: .truth,
                         designSystem: designSystem,
-                        action: { component.onAction(action: WidgetAction.DEBUG_TRIGGER_SUCCESS_TOAST()) }
+                        action: { component.onAction(action: DebugAction.TriggerSuccessToast()) }
                     )
                 }
             }
