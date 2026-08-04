@@ -1,24 +1,31 @@
 package application.liedetector
 
+import application.liedetector.api.*
 import application.liedetector.database.DatabaseFactory
-import application.liedetector.database.repository.AnalysisRepositoryImpl
-import application.liedetector.database.repository.SubjectRepositoryImpl
-import application.liedetector.database.repository.UserRepositoryImpl
-import application.liedetector.models.ApiConstants
-import application.liedetector.routing.configureAnalysisRouting
-import application.liedetector.routing.configureSubjectRouting
-import application.liedetector.routing.configureUserRouting
+import application.liedetector.database.repository.*
+import application.liedetector.di.appModule
+import application.liedetector.exceptions.*
+import application.liedetector.models.ApiErrorResponse
 import application.liedetector.security.FirebaseAdmin
 import application.liedetector.security.firebase
+import application.liedetector.service.AnalysisService
+import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
-import kotlinx.serialization.json.Json
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
+import io.ktor.server.plugins.calllogging.*
 import io.ktor.server.plugins.contentnegotiation.*
+import io.ktor.server.plugins.statuspages.*
+import io.ktor.server.resources.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import kotlinx.serialization.json.Json
+import org.koin.ktor.ext.inject
+import org.koin.ktor.plugin.Koin
+import org.koin.logger.slf4jLogger
+import org.slf4j.event.Level
 
 fun main() {
     DatabaseFactory.init()
@@ -28,6 +35,15 @@ fun main() {
 }
 
 fun Application.module() {
+    install(Koin) {
+        slf4jLogger()
+        modules(appModule)
+    }
+
+    install(CallLogging) {
+        level = Level.INFO
+    }
+
     install(ContentNegotiation) {
         json(Json {
             ignoreUnknownKeys = true
@@ -36,21 +52,59 @@ fun Application.module() {
         })
     }
 
+    install(Resources)
+
+    install(StatusPages) {
+        exception<AppException> { call, cause ->
+            val status = when (cause) {
+                is UserNotFoundException, is SubjectNotFoundException -> HttpStatusCode.NotFound
+                is UnauthorizedException -> HttpStatusCode.Unauthorized
+                is ForbiddenException -> HttpStatusCode.Forbidden
+                is InvalidRequestException -> HttpStatusCode.BadRequest
+            }
+            call.respond(
+                status,
+                ApiErrorResponse(
+                    message = cause.message ?: "An error occurred",
+                    code = cause.code
+                )
+            )
+        }
+
+        exception<Throwable> { call, cause ->
+            call.respond(
+                HttpStatusCode.InternalServerError,
+                ApiErrorResponse(
+                    message = cause.message ?: "An unexpected error occurred",
+                    code = "INTERNAL_SERVER_ERROR"
+                )
+            )
+        }
+        
+        status(HttpStatusCode.Unauthorized) { call, status ->
+            call.respond(
+                status,
+                ApiErrorResponse(
+                    message = "Unauthorized access",
+                    code = "UNAUTHORIZED"
+                )
+            )
+        }
+    }
+
     install(Authentication) {
         firebase()
     }
 
-    val userRepository = UserRepositoryImpl()
-    val analysisRepository = AnalysisRepositoryImpl()
-    val subjectRepository = SubjectRepositoryImpl()
+    // Dependencies injected via Koin
+    val userRepository by inject<UserRepository>()
+    val subjectRepository by inject<SubjectRepository>()
+    val analysisService by inject<AnalysisService>()
     
     routing {
-        get(ApiConstants.ENDPOINT_STATUS) {
-            call.respond(mapOf("status" to "LieDetector Server is Running"))
-        }
-
-        configureAnalysisRouting(userRepository, analysisRepository)
-        configureUserRouting(userRepository)
-        configureSubjectRouting(userRepository, subjectRepository)
+        statusApi()
+        UserApi(userRepository).register(this)
+        SubjectApi(userRepository, subjectRepository).register(this)
+        AnalysisApi(analysisService).register(this)
     }
 }

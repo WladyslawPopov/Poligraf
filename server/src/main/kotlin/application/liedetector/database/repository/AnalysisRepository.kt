@@ -5,13 +5,17 @@ import application.liedetector.database.tables.AnalysisTable
 import application.liedetector.database.tables.RecordingTable
 import application.liedetector.models.AnalysisRequest
 import application.liedetector.models.AnalysisStatus
+import application.liedetector.models.Verdict
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
+import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.insertAndGetId
+import org.jetbrains.exposed.v1.jdbc.update
 import java.util.*
 
 interface AnalysisRepository {
     suspend fun createInitialAnalysis(userId: UUID, request: AnalysisRequest): UUID
+    suspend fun updateAnalysisResult(analysisId: UUID, verdict: Verdict, reasoning: String)
 }
 
 class AnalysisRepositoryImpl : AnalysisRepository {
@@ -39,5 +43,13 @@ class AnalysisRepositoryImpl : AnalysisRepository {
             it[this.detailedMetrics] = buildJsonObject { }
             it[this.rawAiResponse] = buildJsonObject { }
         }.value
+    }
+
+    override suspend fun updateAnalysisResult(analysisId: UUID, verdict: Verdict, reasoning: String): Unit = dbQuery {
+        AnalysisTable.update({ AnalysisTable.id eq analysisId }) {
+            it[this.verdict] = verdict.name
+            it[this.reasoning] = reasoning
+        }
+        Unit
     }
 }

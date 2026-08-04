@@ -5,12 +5,16 @@ import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.transactions.suspendTransaction
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import org.slf4j.LoggerFactory
 
 object DatabaseFactory {
+    private val logger = LoggerFactory.getLogger(DatabaseFactory::class.java)
+
     fun init() {
         val appEnv = System.getenv("APP_ENV") ?: throw IllegalStateException("APP_ENV missing!")
         val isProd = appEnv.lowercase() == "prod"
@@ -21,8 +25,7 @@ object DatabaseFactory {
             System.getenv("DB_URL_TEST") ?: throw IllegalStateException("DB_URL_TEST missing!")
         }
         
-        println("DATABASE: INITIALIZING IN [${appEnv.uppercase()}] MODE")
-        println("DATABASE: TARGET URL -> $jdbcUrl")
+        logger.info("DATABASE: INITIALIZING IN [{}] MODE", appEnv.uppercase())
 
         val user = System.getenv("DB_USER") ?: throw IllegalStateException("DB_USER missing!")
         val password = System.getenv("DB_PASSWORD") ?: throw IllegalStateException("DB_PASSWORD missing!")
@@ -40,6 +43,10 @@ object DatabaseFactory {
         }
         
         val dataSource = HikariDataSource(config)
+        
+        // Run Flyway Migrations
+        runFlyway(dataSource)
+        
         val database = Database.connect(dataSource)
         
         transaction(database) {
@@ -54,6 +61,21 @@ object DatabaseFactory {
                 SystemPromptTable,
                 AppConfigTable
             )
+        }
+    }
+
+    private fun runFlyway(dataSource: javax.sql.DataSource) {
+        val flyway = Flyway.configure()
+            .dataSource(dataSource)
+            .baselineOnMigrate(true)
+            .load()
+        
+        try {
+            flyway.migrate()
+            logger.info("FLYWAY: Database migration successful.")
+        } catch (e: Exception) {
+            logger.error("FLYWAY: Migration failed!", e)
+            throw e
         }
     }
 

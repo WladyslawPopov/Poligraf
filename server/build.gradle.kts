@@ -28,6 +28,11 @@ tasks.withType<JavaExec> {
 dependencies {
     implementation(projects.core)
     
+    // DI: Koin
+    implementation(libs.koin.core)
+    implementation(libs.koin.ktor)
+    implementation(libs.koin.logger.slf4j)
+    
     // Logging
     implementation(libs.logback)
     
@@ -36,6 +41,9 @@ dependencies {
     implementation(libs.ktor.serverNetty)
     implementation(libs.ktor.serverContentNegotiation)
     implementation(libs.ktor.serverAuth)
+    implementation(libs.ktor.serverResources)
+    implementation(libs.ktor.serverStatusPages)
+    implementation(libs.ktor.serverCallLogging)
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.kotlinx.serialization.json)
     
@@ -47,6 +55,8 @@ dependencies {
     implementation(libs.exposed.kotlin.datetime)
     implementation(libs.postgresql)
     implementation(libs.hikaricp)
+    implementation(libs.flyway.core)
+    implementation(libs.flyway.database.postgresql)
 
     // AI (Google Vertex AI)
     implementation(libs.google.vertexai)

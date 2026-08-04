@@ -4,8 +4,10 @@ import application.liedetector.database.DatabaseFactory.dbQuery
 import application.liedetector.database.tables.SubjectTable
 import application.liedetector.models.SubjectDto
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.encodeToJsonElement
 import kotlinx.serialization.json.jsonObject
+import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.*
 import org.jetbrains.exposed.v1.jdbc.insertAndGetId
@@ -13,7 +15,7 @@ import java.util.*
 
 interface SubjectRepository {
     suspend fun createSubject(userId: UUID, dto: SubjectDto): UUID
-    suspend fun getSubject(id: UUID): SubjectDto?
+    suspend fun getSubject(id: UUID, userId: UUID): SubjectDto?
     suspend fun getSubjectsByUser(userId: UUID): List<SubjectDto>
 }
 
@@ -44,18 +46,24 @@ class SubjectRepositoryImpl : SubjectRepository {
         }.value
     }
 
-    override suspend fun getSubject(id: UUID): SubjectDto? = dbQuery {
+    override suspend fun getSubject(id: UUID, userId: UUID): SubjectDto? = dbQuery {
         SubjectTable.selectAll()
-            .where { SubjectTable.id eq id }
-            .singleOrNull()?.let {
+            .where { (SubjectTable.id eq id) and (SubjectTable.ownerId eq userId) }
+            .singleOrNull()?.let { row ->
+                val metadata: Map<String, String> = try {
+                    Json.decodeFromJsonElement(row[SubjectTable.additionalData])
+                } catch (e: Exception) {
+                    emptyMap()
+                }
+                
                 SubjectDto(
-                    id = it[SubjectTable.id].value.toString(),
-                    name = it[SubjectTable.name],
-                    avatar = it[SubjectTable.avatar],
-                    isDefaultAvatar = it[SubjectTable.isDefaultAvatar],
-                    description = it[SubjectTable.description],
-                    isPublic = it[SubjectTable.isPublic],
-                    metadata = emptyMap()
+                    id = row[SubjectTable.id].value.toString(),
+                    name = row[SubjectTable.name],
+                    avatar = row[SubjectTable.avatar],
+                    isDefaultAvatar = row[SubjectTable.isDefaultAvatar],
+                    description = row[SubjectTable.description],
+                    isPublic = row[SubjectTable.isPublic],
+                    metadata = metadata
                 )
             }
     }
@@ -64,15 +72,21 @@ class SubjectRepositoryImpl : SubjectRepository {
         SubjectTable.selectAll()
             .where { SubjectTable.ownerId eq userId }
             .orderBy(SubjectTable.updatedAt, org.jetbrains.exposed.v1.core.SortOrder.DESC)
-            .map { 
+            .map { row ->
+                val metadata: Map<String, String> = try {
+                    Json.decodeFromJsonElement(row[SubjectTable.additionalData])
+                } catch (e: Exception) {
+                    emptyMap()
+                }
+
                 SubjectDto(
-                    id = it[SubjectTable.id].value.toString(),
-                    name = it[SubjectTable.name],
-                    avatar = it[SubjectTable.avatar],
-                    isDefaultAvatar = it[SubjectTable.isDefaultAvatar],
-                    description = it[SubjectTable.description],
-                    isPublic = it[SubjectTable.isPublic],
-                    metadata = emptyMap()
+                    id = row[SubjectTable.id].value.toString(),
+                    name = row[SubjectTable.name],
+                    avatar = row[SubjectTable.avatar],
+                    isDefaultAvatar = row[SubjectTable.isDefaultAvatar],
+                    description = row[SubjectTable.description],
+                    isPublic = row[SubjectTable.isPublic],
+                    metadata = metadata
                 )
             }
     }
