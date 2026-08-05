@@ -70,6 +70,7 @@ ktor-serverAuth = { module = "io.ktor:ktor-server-auth-jvm", version.ref = "ktor
 ktor-serverResources = { module = "io.ktor:ktor-server-resources-jvm", version.ref = "ktor" }
 ktor-serverStatusPages = { module = "io.ktor:ktor-server-status-pages-jvm", version.ref = "ktor" }
 ktor-serverCallLogging = { module = "io.ktor:ktor-server-call-logging-jvm", version.ref = "ktor" }
+ktor-serverRateLimit = { module = "io.ktor:ktor-server-rate-limit-jvm", version.ref = "ktor" }
 ktor-serverTestHost = { module = "io.ktor:ktor-server-test-host-jvm", version.ref = "ktor" }
 napier = { module = "io.github.aakira:napier", version.ref = "napier" }
 

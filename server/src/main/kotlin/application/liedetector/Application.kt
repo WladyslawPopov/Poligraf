@@ -5,9 +5,11 @@ import application.liedetector.database.DatabaseFactory
 import application.liedetector.database.repository.*
 import application.liedetector.di.appModule
 import application.liedetector.exceptions.*
+import application.liedetector.models.ApiConstants
 import application.liedetector.models.ApiErrorResponse
 import application.liedetector.security.FirebaseAdmin
 import application.liedetector.security.firebase
+import application.liedetector.security.UserPrincipal
 import application.liedetector.service.AnalysisService
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
@@ -18,9 +20,11 @@ import io.ktor.server.netty.*
 import io.ktor.server.plugins.calllogging.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.statuspages.*
+import io.ktor.server.plugins.ratelimit.*
 import io.ktor.server.resources.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.serialization.json.Json
 import org.koin.ktor.ext.inject
 import org.koin.ktor.plugin.Koin
@@ -53,6 +57,33 @@ fun Application.module() {
     }
 
     install(Resources)
+
+    // Security: Payload size limit (e.g., 5MB)
+    intercept(ApplicationCallPipeline.Plugins) {
+        val contentLength = call.request.headers[HttpHeaders.ContentLength]?.toLongOrNull()
+        if (contentLength != null && contentLength > 5 * 1024 * 1024) {
+            call.respond(HttpStatusCode.PayloadTooLarge, "Request size exceeds limit (5MB)")
+            finish()
+        }
+    }
+
+    // Security: Rate Limiting
+    install(RateLimit) {
+        global {
+            rateLimiter(limit = 100, refillPeriod = 60.seconds)
+            requestKey { call ->
+                val uid = call.principal<UserPrincipal>()?.uid 
+                uid ?: call.request.headers["X-Device-ID"] ?: call.request.local.remoteHost
+            }
+        }
+        register(RateLimitName(ApiConstants.RATE_LIMIT_HEAVY)) {
+            rateLimiter(limit = 5, refillPeriod = 60.seconds)
+            requestKey { call ->
+                val uid = call.principal<UserPrincipal>()?.uid 
+                uid ?: call.request.headers["X-Device-ID"] ?: call.request.local.remoteHost
+            }
+        }
+    }
 
     install(StatusPages) {
         exception<AppException> { call, cause ->
@@ -103,8 +134,8 @@ fun Application.module() {
     
     routing {
         statusApi()
-        UserApi(userRepository).register(this)
-        SubjectApi(userRepository, subjectRepository).register(this)
-        AnalysisApi(analysisService).register(this)
+        userApi(userRepository)
+        subjectApi(userRepository, subjectRepository)
+        analysisApi(analysisService)
     }
 }

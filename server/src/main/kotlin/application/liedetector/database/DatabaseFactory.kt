@@ -6,11 +6,13 @@ import com.zaxxer.hikari.HikariDataSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.flywaydb.core.Flyway
+import org.jetbrains.exposed.v1.core.StdOutSqlLogger
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.transactions.suspendTransaction
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.slf4j.LoggerFactory
+import javax.sql.DataSource
 
 object DatabaseFactory {
     private val logger = LoggerFactory.getLogger(DatabaseFactory::class.java)
@@ -44,12 +46,13 @@ object DatabaseFactory {
         
         val dataSource = HikariDataSource(config)
         
-        // Run Flyway Migrations
-        runFlyway(dataSource)
+        // Run Flyway Migrations (Disabled for MVP)
+        // runFlyway(dataSource)
         
         val database = Database.connect(dataSource)
         
         transaction(database) {
+            addLogger(StdOutSqlLogger)
             SchemaUtils.create(
                 UserTable,
                 UserDeviceTable,
@@ -64,7 +67,7 @@ object DatabaseFactory {
         }
     }
 
-    private fun runFlyway(dataSource: javax.sql.DataSource) {
+    private fun runFlyway(dataSource: DataSource) {
         val flyway = Flyway.configure()
             .dataSource(dataSource)
             .baselineOnMigrate(true)

@@ -13,4 +13,7 @@ object ApiConstants {
     // Header keys
     const val HEADER_AUTHORIZATION = "Authorization"
     const val BEARER_PREFIX = "Bearer "
+
+    // Rate Limit Names
+    const val RATE_LIMIT_HEAVY = "heavy_api"
 }
