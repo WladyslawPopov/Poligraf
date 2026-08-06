@@ -3,6 +3,7 @@ package application.liedetector.presentation.root
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleRegistry
 import application.liedetector.data.user.UserRepository
+import application.liedetector.data.subject.SubjectRepository
 import application.liedetector.engine.device.DeviceInfoProvider
 import application.liedetector.navigation.AppNavigation
 import application.liedetector.presentation.main.MainComponent
@@ -21,13 +22,14 @@ class RootComponent(
 ) : KoinComponent {
     
     private val userRepository: UserRepository by inject()
+    private val subjectRepository: SubjectRepository by inject()
     private val deviceProvider: DeviceInfoProvider by inject()
 
     val viewModel = RootViewModel(userRepository, deviceProvider)
 
     // Child components owned by the Root (Tree structure)
     val mainComponent: MainComponent by lazy {
-        MainComponent(context, MainViewModel(userRepository, navigation))
+        MainComponent(context, MainViewModel(subjectRepository, navigation))
     }
 
     val debugComponent: DebugComponent by lazy {
@@ -37,7 +39,7 @@ class RootComponent(
     fun createInvestigationComponent(subjectId: String): InvestigationComponent {
         return InvestigationComponent(
             context = context,
-            viewModel = InvestigationViewModel(subjectId, navigation, userRepository)
+            viewModel = InvestigationViewModel(subjectId, navigation, subjectRepository)
         )
     }
 

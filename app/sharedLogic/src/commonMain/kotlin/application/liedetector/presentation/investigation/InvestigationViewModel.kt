@@ -1,6 +1,6 @@
 package application.liedetector.presentation.investigation
 
-import application.liedetector.data.user.UserRepository
+import application.liedetector.data.subject.SubjectRepository
 import application.liedetector.models.KmpResult
 import application.liedetector.navigation.AppNavigation
 import application.liedetector.presentation.base.BaseViewModel
@@ -17,7 +17,7 @@ import kotlin.time.Duration.Companion.milliseconds
 class InvestigationViewModel(
     private val subjectId: String,
     private val navigation: AppNavigation,
-    private val userRepository: UserRepository
+    private val subjectRepository: SubjectRepository
 ) : BaseViewModel() {
 
     private val _state = MutableStateFlow(InvestigationState())
@@ -53,7 +53,7 @@ class InvestigationViewModel(
     private fun loadInvestigation() {
         launchSafe(
             block = {
-                val result = userRepository.getSubject(subjectId)
+                val result = subjectRepository.getSubject(subjectId)
                 if (result is KmpResult.Success) {
                     _state.value = _state.value.copy(
                         subject = result.data,

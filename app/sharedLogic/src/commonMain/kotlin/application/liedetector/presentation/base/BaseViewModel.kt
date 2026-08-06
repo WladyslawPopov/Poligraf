@@ -3,8 +3,8 @@ package application.liedetector.presentation.base
 import androidx.compose.runtime.Stable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import application.liedetector.domain.error.AppException
-import application.liedetector.domain.model.ErrorType
+import application.liedetector.engine.error.AppException
+import application.liedetector.engine.error.ErrorType
 import application.liedetector.uicore.models.DisplayMetrics
 import application.liedetector.uicore.state.*
 import application.liedetector.uicore.theme.tokens.StringToken

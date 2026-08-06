@@ -1,7 +1,7 @@
 package application.liedetector.presentation.main
 
 import application.liedetector.domain.model.Subject
-import application.liedetector.data.user.UserRepository
+import application.liedetector.data.subject.SubjectRepository
 import application.liedetector.models.KmpResult
 import application.liedetector.navigation.AppNavigation
 import application.liedetector.presentation.base.BaseViewModel
@@ -26,7 +26,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlin.random.Random
 
 class MainViewModel(
-    private val userRepository: UserRepository,
+    private val subjectRepository: SubjectRepository,
     private val navigation: AppNavigation
 ) : BaseViewModel()
 {
@@ -64,7 +64,7 @@ class MainViewModel(
             .launchIn(scope)
 
         // Observe subjects from cache/DB
-        userRepository.getSubjects()
+        subjectRepository.getSubjects()
             .onEach { subjects ->
                 updateStateWithSubjects(subjects)
             }
@@ -149,7 +149,7 @@ class MainViewModel(
         launchSafe(
             isBlocking = false,
             block = {
-                val result = userRepository.syncSubjects()
+                val result = subjectRepository.syncSubjects()
                 if (result is KmpResult.Error) {
                     setManualError(result.throwable.toErrorType())
                 }
@@ -268,7 +268,7 @@ class MainViewModel(
             isBlocking = true,
             block = {
                 val emoji = defaultEmojis[Random.nextInt(defaultEmojis.size)]
-                val result = userRepository.createSubject(
+                val result = subjectRepository.createSubject(
                     name = "Undefined-1",
                     avatar = emoji,
                     isDefaultAvatar = true,

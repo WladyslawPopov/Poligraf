@@ -13,7 +13,7 @@ import application.liedetector.uicore.theme.*
 import application.liedetector.uicore.theme.tokens.ColorToken
 import application.liedetector.uicore.theme.tokens.DimenToken
 import application.liedetector.uicore.theme.tokens.StringToken
-import application.liedetector.domain.model.ErrorType
+import application.liedetector.engine.error.ErrorType
 
 /**
  * Renders an error state as a full-page overlay within the screen's content area.

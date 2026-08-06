@@ -1,6 +1,6 @@
 package application.liedetector.presentation.debug
 
-import application.liedetector.domain.model.ErrorType
+import application.liedetector.engine.error.ErrorType
 import application.liedetector.navigation.AppNavigation
 import application.liedetector.presentation.base.BaseViewModel
 import application.liedetector.presentation.debug.data.DebugState
