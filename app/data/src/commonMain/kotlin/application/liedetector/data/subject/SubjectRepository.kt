@@ -72,7 +72,12 @@ class SubjectRepositoryImpl(
     override suspend fun syncSubjects(): KmpResult<Unit> {
         return try {
             val remoteSubjects = remote.getSubjects()
-            cache.put("subjects_list", remoteSubjects, nowAsEpochSeconds() + 3600, ListSerializer(SubjectDto.serializer()))
+            cache.put(
+                "subjects_list",
+                remoteSubjects,
+                nowAsEpochSeconds() + 3600,
+                ListSerializer(SubjectDto.serializer())
+            )
             KmpResult.Success(Unit)
         } catch (e: Throwable) {
             KmpResult.Error(e.toAppException())

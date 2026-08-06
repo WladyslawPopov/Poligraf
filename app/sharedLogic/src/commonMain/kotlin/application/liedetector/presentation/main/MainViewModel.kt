@@ -108,6 +108,7 @@ class MainViewModel(
     }
     
     private fun updateStateWithSubjects(subjects: List<Subject>) {
+        Napier.d { "MAIN: Received ${subjects.size} subjects from stream" }
         if (subjects.isEmpty()) {
             _state.value = _state.value.copy(
                 toolbar = UiWidget.AppToolbar(
@@ -122,7 +123,11 @@ class MainViewModel(
                     colorToken = ColorToken.TEXT_PRIMARY,
                     typographyToken = TypographyToken.HEADER
                 ),
-                widgets = listOf(MainWidgetFactory.createSubjectSlider(UiWidget.SubjectSlider.DisplayMode.FULL)),
+                widgets = listOf(
+                    MainWidgetFactory.createSubjectSlider(
+                        UiWidget.SubjectSlider.DisplayMode.FULL
+                    )
+                ),
                 errorRaw = null,
                 errorToken = null
             )
@@ -136,7 +141,9 @@ class MainViewModel(
                 ),
                 welcomeWidget = null,
                 widgets = listOf(
-                    MainWidgetFactory.createSubjectSlider(UiWidget.SubjectSlider.DisplayMode.RECT_STORY),
+                    MainWidgetFactory.createSubjectSlider(
+                        UiWidget.SubjectSlider.DisplayMode.RECT_STORY
+                    ),
                     MainWidgetFactory.createSubjectList(subjects)
                 ),
                 errorRaw = null,

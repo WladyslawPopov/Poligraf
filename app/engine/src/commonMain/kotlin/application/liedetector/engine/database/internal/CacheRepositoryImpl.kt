@@ -67,7 +67,6 @@ internal class CacheRepositoryImpl(private val db: LieDetectorDatabase) : CacheR
                     false
                 }
             }
-            .distinctUntilChanged { old, new -> old?.response == new?.response }
             .map { cached ->
                 if (cached != null && !isCacheExpired(cached.timestamp)) {
                     try {
@@ -79,6 +78,7 @@ internal class CacheRepositoryImpl(private val db: LieDetectorDatabase) : CacheR
                     null
                 }
             }
+            .distinctUntilChanged()
     }
 
     override suspend fun deleteById(key: String) {
