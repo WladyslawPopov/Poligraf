@@ -5,6 +5,7 @@ struct DrawerView: View {
     @Environment(\.horizontalSizeClass) var sizeClass
     @ObservedObject var navigator: IosNavigator
     let designSystem: DesignSystem
+    let appConfig: AppConfig?
     let onUserClose: () -> Void 
     
     var body: some View {
@@ -18,8 +19,6 @@ struct DrawerView: View {
                 
                 Spacer()
                 
-                // Show explicit close button only on iPad (Sidebar)
-                // On iPhone, native sheet has a drag indicator and swipe-to-close
                 if sizeClass != .compact {
                     Button(action: onUserClose) {
                         Image(systemName: designSystem.icon(token: .close))
@@ -28,10 +27,10 @@ struct DrawerView: View {
                     }
                 }
             }
-            .padding(.top, sizeClass == .compact ? CGFloat(designSystem.dimen(token: .paddingError)) : CGFloat(designSystem.dimen(token: .headerHeight)))
-            .padding(.horizontal, CGFloat(designSystem.dimen(token: .mainPadding)))
+            .padding(.top, sizeClass == .compact ? CGFloat(truncating: designSystem.dimen(token: .paddingError) as NSNumber) : CGFloat(truncating: designSystem.dimen(token: .headerHeight) as NSNumber))
+            .padding(.horizontal, CGFloat(truncating: designSystem.dimen(token: .mainPadding) as NSNumber))
             
-            VStack(alignment: .leading, spacing: CGFloat(designSystem.dimen(token: .spacingLarge))) {
+            VStack(alignment: .leading, spacing: CGFloat(truncating: designSystem.dimen(token: .spacingLarge) as NSNumber)) {
                 HStack {
                     Text(designSystem.string(token: .drawerDarkMode))
                         .foregroundColor(IosTheme.color(.textPrimary, from: designSystem))
@@ -45,11 +44,11 @@ struct DrawerView: View {
                     .tint(IosTheme.color(.accentEnergy, from: designSystem))
                     .labelsHidden()
                 }
-                .padding(CGFloat(designSystem.dimen(token: .mainPadding)))
+                .padding(CGFloat(truncating: designSystem.dimen(token: .mainPadding) as NSNumber))
                 .background(.ultraThinMaterial)
-                .clipShape(RoundedRectangle(cornerRadius: CGFloat(designSystem.dimen(token: .cornerRadius))))
+                .clipShape(RoundedRectangle(cornerRadius: CGFloat(truncating: designSystem.dimen(token: .cornerRadius) as NSNumber)))
             }
-            .padding(CGFloat(designSystem.dimen(token: .mainPadding)))
+            .padding(CGFloat(truncating: designSystem.dimen(token: .mainPadding) as NSNumber))
 
             if designSystem.isDebug {
                 Divider().padding(.horizontal)
@@ -70,6 +69,20 @@ struct DrawerView: View {
             }
 
             Spacer()
+
+            // Footer Info
+            VStack(alignment: .leading, spacing: 4) {
+                Text(designSystem.string(token: .drawerFooterTitle).uppercased())
+                    .font(.caption)
+                    .fontWeight(.bold)
+                    .foregroundColor(IosTheme.color(.textPrimary, from: designSystem))
+                
+                Text("\(designSystem.string(token: .drawerFooterSubtitle)) \(appConfig?.appVersion ?? "1.0.0")".uppercased())
+                    .font(.caption2)
+                    .foregroundColor(IosTheme.color(.accentPrimary, from: designSystem).opacity(0.8))
+            }
+            .padding(.horizontal, CGFloat(truncating: designSystem.dimen(token: .spacingLarge) as NSNumber))
+            .padding(.bottom, 32) // Safe area bottom padding
         }
     }
 }

@@ -21,7 +21,6 @@ import application.liedetector.uicore.theme.LocalDesignSystem
 import application.liedetector.uicore.theme.tokens.StringToken
 import application.liedetector.uicore.widgets.UiWidget
 import application.liedetector.theme.utils.composeColor
-import application.liedetector.theme.utils.typography
 import application.liedetector.uicore.theme.DesignSystem
 import application.liedetector.uicore.actions.WidgetAction
 
@@ -33,16 +32,22 @@ fun SubjectSliderRenderer(
     val designSystem = LocalDesignSystem.current
     val state = rememberLazyListState()
     
-    Column(modifier = Modifier.fillMaxWidth()) {
-        if (widget.displayMode == UiWidget.SubjectSlider.DisplayMode.RECT_STORY) {
+    Column(modifier = Modifier.fillMaxWidth().padding(vertical = designSystem.dimen(DimenToken.SPACING_SMALL).dp)) {
+        // Header for Slider
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    horizontal = designSystem.dimen(DimenToken.SPACING_LARGE).dp, 
+                    vertical = designSystem.dimen(DimenToken.SPACING_SMALL).dp
+                ),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Text(
-                text = designSystem.string(StringToken.SECTION_TEMPLATES),
+                text = designSystem.string(StringToken.SECTION_TEMPLATES).uppercase(),
                 style = MaterialTheme.typography.labelMedium,
                 color = designSystem.composeColor(ColorToken.TEXT_SECONDARY),
-                modifier = Modifier.padding(
-                    horizontal = designSystem.dimen(DimenToken.SPACING_MEDIUM).dp,
-                    vertical = designSystem.dimen(DimenToken.SPACING_SMALL).dp
-                )
+                fontWeight = FontWeight.Bold
             )
         }
 
@@ -53,7 +58,7 @@ fun SubjectSliderRenderer(
             contentPadding = PaddingValues(horizontal = designSystem.dimen(DimenToken.SPACING_MEDIUM).dp),
             horizontalArrangement = Arrangement.spacedBy(widget.itemSpacing.dp)
         ) {
-            items(widget.items) { item ->
+            items(widget.items, key = { it.id }) { item ->
                 if (widget.displayMode == UiWidget.SubjectSlider.DisplayMode.RECT_STORY) {
                     SubjectStoryRenderer(item, designSystem, onAction)
                 } else {
@@ -81,7 +86,7 @@ private fun SubjectStoryRenderer(
         shape = MaterialTheme.shapes.large,
         onClick = { onAction(item.action) },
         border = BorderStroke(
-            1.dp, 
+            designSystem.dimen(DimenToken.DIVIDER_THICKNESS).dp, 
             designSystem.composeColor(ColorToken.GLASS_BORDER).copy(alpha = 0.15f)
         )
     ) {
@@ -125,14 +130,14 @@ private fun SubjectCardRenderer(
         shape = MaterialTheme.shapes.extraLarge,
         onClick = { onAction(item.action) },
         border = BorderStroke(
-            1.dp, 
+            designSystem.dimen(DimenToken.DIVIDER_THICKNESS).dp, 
             designSystem.composeColor(ColorToken.GLASS_BORDER).copy(alpha = 0.2f)
         )
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(designSystem.dimen(DimenToken.SPACING_LARGE).dp),
+                .padding(designSystem.dimen(DimenToken.SPACING_MEDIUM).dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween
         ) {
@@ -150,7 +155,7 @@ private fun SubjectCardRenderer(
             
             Text(
                 text = item.title ?: designSystem.string(item.titleToken),
-                style = designSystem.typography(item.titleTypography),
+                style = MaterialTheme.typography.titleMedium,
                 color = designSystem.composeColor(item.titleColor),
                 textAlign = TextAlign.Center,
                 fontWeight = FontWeight.SemiBold

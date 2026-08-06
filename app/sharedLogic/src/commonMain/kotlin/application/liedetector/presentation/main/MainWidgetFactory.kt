@@ -10,19 +10,8 @@ import application.liedetector.uicore.widgets.UiWidget
 object MainWidgetFactory {
 
     fun createSubjectSlider(
-        subjects: List<Subject>,
         displayMode: UiWidget.SubjectSlider.DisplayMode
     ): UiWidget.SubjectSlider {
-        val serverCards = subjects.map { data ->
-            UiWidget.SubjectCard(
-                id = data.id ?: "",
-                title = data.name,
-                emoji = data.avatar ?: "",
-                action = InvestigationAction.Open(data.id ?: ""),
-                backgroundColor = ColorToken.GLASS_BASE
-            )
-        }
-        
         val defaultCard = UiWidget.SubjectCard(
             id = "new_investigation",
             titleToken = StringToken.SUBJECT_NEW_TITLE,
@@ -37,7 +26,7 @@ object MainWidgetFactory {
         return UiWidget.SubjectSlider(
             id = "main_slider",
             itemSpacing = 16,
-            items = listOf(defaultCard) + serverCards,
+            items = listOf(defaultCard), // Only templates here
             displayMode = displayMode
         )
     }

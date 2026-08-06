@@ -1,11 +1,14 @@
 package application.liedetector.ui.screens.main
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.unit.dp
 import application.liedetector.presentation.main.MainComponent
 import application.liedetector.ui.components.AppScaffold
@@ -66,7 +69,7 @@ fun MainHost(
 
     ModalNavigationDrawer(
         drawerState = drawerState,
-        drawerContent = { MainDrawer(designSystem, navigator) }
+        drawerContent = { MainDrawer(state, designSystem, navigator) }
     ) {
         AppScaffold(
             viewModel = component.viewModel,
@@ -82,7 +85,7 @@ fun MainHost(
                                     Text(
                                         text = designSystem.string(token),
                                         color = designSystem.composeColor(ColorToken.TEXT_PRIMARY),
-                                        style = MaterialTheme.typography.titleLarge
+                                        style = MaterialTheme.typography.titleMedium
                                     )
                                 }
                                 toolbar.subtitleToken?.let { token ->
@@ -95,7 +98,13 @@ fun MainHost(
                             }
                         },
                         navigationIcon = {
-                            IconButton(onClick = { component.onAction(toolbar.menuAction) }) {
+                            IconButton(
+                                onClick = { component.onAction(toolbar.menuAction) },
+                                modifier = Modifier
+                                    .padding(start = designSystem.dimen(DimenToken.SPACING_SMALL).dp)
+                                    .clip(CircleShape)
+                                    .background(designSystem.composeColor(ColorToken.GLASS_BASE).copy(alpha = 0.3f))
+                            ) {
                                 Icon(
                                     imageVector = designSystem.icon(IconToken.MENU),
                                     contentDescription = designSystem.string(StringToken.MENU),
@@ -104,7 +113,13 @@ fun MainHost(
                             }
                         },
                         actions = {
-                            IconButton(onClick = { component.onAction(toolbar.profileAction) }) {
+                            IconButton(
+                                onClick = { component.onAction(toolbar.profileAction) },
+                                modifier = Modifier
+                                    .padding(end = designSystem.dimen(DimenToken.SPACING_SMALL).dp)
+                                    .clip(CircleShape)
+                                    .background(designSystem.composeColor(ColorToken.GLASS_BASE).copy(alpha = 0.3f))
+                            ) {
                                 Icon(
                                     imageVector = designSystem.icon(IconToken.PROFILE),
                                     contentDescription = null,

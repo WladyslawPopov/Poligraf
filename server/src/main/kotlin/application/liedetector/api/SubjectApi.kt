@@ -9,6 +9,7 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.resources.post
 import io.ktor.server.resources.get
+import io.ktor.server.resources.delete
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.resources.*
@@ -56,6 +57,16 @@ fun Route.subjectApi(
                 ?: return@get call.respond(HttpStatusCode.NotFound)
             
             call.respond(subject)
+        }
+
+        // DELETE /api/v1/subjects
+        delete<SubjectResources.Subjects> {
+            val principal = call.requirePrincipal()
+            val ids = call.receive<List<String>>()
+            val internalUserId = userRepository.getOrCreateUser(principal.uid, principal.email)
+            
+            val success = subjectRepository.deleteSubjects(internalUserId, ids.map { UUID.fromString(it) })
+            if (success) call.respond(HttpStatusCode.OK) else call.respond(HttpStatusCode.NotFound)
         }
     }
 }

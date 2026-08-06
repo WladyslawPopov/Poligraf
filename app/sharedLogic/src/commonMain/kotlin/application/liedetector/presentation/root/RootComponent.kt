@@ -5,6 +5,7 @@ import androidx.lifecycle.LifecycleRegistry
 import application.liedetector.data.user.UserRepository
 import application.liedetector.data.subject.SubjectRepository
 import application.liedetector.engine.device.DeviceInfoProvider
+import application.liedetector.engine.config.AppConfig
 import application.liedetector.navigation.AppNavigation
 import application.liedetector.presentation.main.MainComponent
 import application.liedetector.presentation.main.MainViewModel
@@ -24,12 +25,13 @@ class RootComponent(
     private val userRepository: UserRepository by inject()
     private val subjectRepository: SubjectRepository by inject()
     private val deviceProvider: DeviceInfoProvider by inject()
+    private val appConfig: AppConfig by inject()
 
     val viewModel = RootViewModel(userRepository, deviceProvider)
 
     // Child components owned by the Root (Tree structure)
     val mainComponent: MainComponent by lazy {
-        MainComponent(context, MainViewModel(subjectRepository, navigation))
+        MainComponent(context, MainViewModel(subjectRepository, appConfig, navigation))
     }
 
     val debugComponent: DebugComponent by lazy {

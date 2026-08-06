@@ -121,9 +121,14 @@ struct MainView: View {
     }
 
     private var drawerSheet: some View {
-        DrawerView(navigator: navigator, designSystem: designSystem, onUserClose: {
-            navigator.setDrawerOpen(isOpen: false)
-        })
+        DrawerView(
+            navigator: navigator,
+            designSystem: designSystem,
+            appConfig: state.value.appConfig,
+            onUserClose: {
+                navigator.setDrawerOpen(isOpen: false)
+            }
+        )
         .environment(\.colorScheme, navigator.isDark ? .dark : .light)
         .presentationDetents([.medium, .large])
         .presentationDragIndicator(.visible)

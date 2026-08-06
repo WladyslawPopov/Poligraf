@@ -14,5 +14,6 @@ enum class IconToken {
     DELETE,
     DRAG_HANDLE,
     EDIT,
-    CHECK
+    CHECK,
+    MORE_VERT
 }

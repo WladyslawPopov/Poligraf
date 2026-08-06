@@ -7,6 +7,7 @@ import application.liedetector.engine.device.ReviewManager
 import application.liedetector.engine.database.common.DriverFactory
 import application.liedetector.uicore.theme.ResourceProvider
 import application.liedetector.uicore.theme.DesignSystem
+import application.liedetector.engine.config.AppConfig
 import com.russhwolf.settings.Settings
 import org.koin.dsl.module
 
@@ -21,6 +22,8 @@ fun doInitKoinIos(
     resourceProvider: ResourceProvider,
     driverFactory: DriverFactory,
     settings: Settings,
+    appVersion: String,
+    deviceId: String,
     isDebug: Boolean
 ) {
     val iosModule = module {
@@ -32,6 +35,14 @@ fun doInitKoinIos(
         single { DesignSystem(get(), isDebug = isDebug) }
         single { driverFactory }
         single { settings }
+        single { 
+            AppConfig(
+                appVersion = appVersion,
+                deviceId = deviceId,
+                isDebug = isDebug,
+                platform = "iOS"
+            )
+        }
     }
     
     initKoin(

@@ -7,14 +7,16 @@ struct SubjectSliderView: View {
     let onAction: (WidgetAction) -> Void
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            if widget.displayMode == .rectStory {
-                Text(designSystem.string(token: .sectionTemplates))
-                    .font(.caption2)
+        VStack(alignment: .leading, spacing: 0) {
+            // Header for Slider (Templates)
+            HStack(spacing: 6) {
+                Text(designSystem.string(token: .sectionTemplates).uppercased())
+                    .font(.system(size: 10, weight: .bold))
                     .foregroundColor(IosTheme.color(.textSecondary, from: designSystem))
-                    .padding(.horizontal, CGFloat(truncating: designSystem.dimen(token: .spacingMedium) as NSNumber))
             }
-            
+            .padding(.horizontal, CGFloat(truncating: designSystem.dimen(token: .spacingLarge) as NSNumber))
+            .padding(.bottom, CGFloat(truncating: designSystem.dimen(token: .spacingSmall) as NSNumber))
+
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: CGFloat(truncating: widget.itemSpacing as NSNumber)) {
                     ForEach(widget.items, id: \.id) { item in
@@ -26,10 +28,9 @@ struct SubjectSliderView: View {
                     }
                 }
                 .padding(.horizontal, CGFloat(truncating: designSystem.dimen(token: .spacingMedium) as NSNumber))
-                .scrollTargetLayout()
             }
-            .scrollTargetBehavior(.viewAligned)
         }
+        .padding(.vertical, CGFloat(truncating: designSystem.dimen(token: .spacingSmall) as NSNumber))
     }
 }
 
@@ -40,7 +41,7 @@ struct SubjectStoryView: View {
     
     var body: some View {
         Button(action: { onAction(item.action) }) {
-            VStack(spacing: 4) {
+            VStack(spacing: CGFloat(truncating: designSystem.dimen(token: .spacingTiny) as NSNumber)) {
                 Text(item.emoji)
                     .font(.system(size: 40))
                 
@@ -54,9 +55,9 @@ struct SubjectStoryView: View {
             .frame(width: CGFloat(truncating: designSystem.dimen(token: .subjectStoryWidth) as NSNumber),
                    height: CGFloat(truncating: designSystem.dimen(token: .subjectStoryHeight) as NSNumber))
             .background(IosTheme.color(item.backgroundColor, from: designSystem).opacity(0.4))
-            .cornerRadius(12)
+            .cornerRadius(CGFloat(truncating: designSystem.dimen(token: .cornerRadius) as NSNumber))
             .overlay(
-                RoundedRectangle(cornerRadius: 12)
+                RoundedRectangle(cornerRadius: CGFloat(truncating: designSystem.dimen(token: .cornerRadius) as NSNumber))
                     .stroke(IosTheme.color(.glassBorder, from: designSystem).opacity(0.15), lineWidth: 1)
             )
         }

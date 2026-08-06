@@ -42,4 +42,7 @@
     <string name="investigation_screen_placeholder">Investigation Screen</string>
     <string name="section_templates">Templates</string>
     <string name="section_subjects">Investigations</string>
+
+    <string name="drawer_footer_title">Lie Detector System</string>
+    <string name="drawer_footer_subtitle">Operational v</string>
 </resources>

@@ -16,6 +16,7 @@ import application.liedetector.uicore.types.BackgroundMode
 import application.liedetector.uicore.types.ToastType
 import application.liedetector.uicore.widgets.AppBackground
 import application.liedetector.uicore.widgets.UiWidget
+import application.liedetector.engine.config.AppConfig
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -27,11 +28,13 @@ import kotlin.random.Random
 
 class MainViewModel(
     private val subjectRepository: SubjectRepository,
+    private val appConfig: AppConfig,
     private val navigation: AppNavigation
 ) : BaseViewModel()
 {
     private val defaultEmojis = listOf("🕵️", "👤", "👥", "❓", "👀", "🧠", "💼", "🔐")
     private val _state = MutableStateFlow(MainState(
+        appConfig = appConfig,
         background = AppBackground.AnimatedScales(
             baseColor = ColorToken.BACKGROUND,
             energyColor = ColorToken.ACCENT_ENERGY,
@@ -51,7 +54,7 @@ class MainViewModel(
             colorToken = ColorToken.TEXT_PRIMARY,
             typographyToken = TypographyToken.HEADER
         ),
-        widgets = listOf(MainWidgetFactory.createSubjectSlider(emptyList(), UiWidget.SubjectSlider.DisplayMode.FULL))
+        widgets = listOf(MainWidgetFactory.createSubjectSlider(UiWidget.SubjectSlider.DisplayMode.FULL))
     ))
     val state: StateFlow<MainState> = _state.asStateFlow()
 
@@ -119,7 +122,7 @@ class MainViewModel(
                     colorToken = ColorToken.TEXT_PRIMARY,
                     typographyToken = TypographyToken.HEADER
                 ),
-                widgets = listOf(MainWidgetFactory.createSubjectSlider(emptyList(), UiWidget.SubjectSlider.DisplayMode.FULL)),
+                widgets = listOf(MainWidgetFactory.createSubjectSlider(UiWidget.SubjectSlider.DisplayMode.FULL)),
                 errorRaw = null,
                 errorToken = null
             )
@@ -127,14 +130,13 @@ class MainViewModel(
             _state.value = _state.value.copy(
                 toolbar = UiWidget.AppToolbar(
                     id = "main_toolbar",
-                    titleToken = StringToken.APP_NAME,
-                    subtitleToken = StringToken.WELCOME_TEXT,
+                    titleToken = StringToken.WELCOME_TEXT,
                     backgroundColor = ColorToken.BACKGROUND,
                     contentColor = ColorToken.TEXT_PRIMARY
                 ),
                 welcomeWidget = null,
                 widgets = listOf(
-                    MainWidgetFactory.createSubjectSlider(emptyList(), UiWidget.SubjectSlider.DisplayMode.RECT_STORY),
+                    MainWidgetFactory.createSubjectSlider(UiWidget.SubjectSlider.DisplayMode.RECT_STORY),
                     MainWidgetFactory.createSubjectList(subjects)
                 ),
                 errorRaw = null,
@@ -201,26 +203,8 @@ class MainViewModel(
                 selectedIds = newSelected
             )
             
-            // Update toolbar for selection mode
-            val newToolbar = if (isSelectionMode) {
-                _state.value.toolbar?.copy(
-                    titleToken = null, // Or show count
-                    subtitleToken = null,
-                    menuAction = WidgetAction.ClearSelection,
-                    profileAction = WidgetAction.DeleteSelected
-                )
-            } else {
-                _state.value.toolbar?.copy(
-                    titleToken = StringToken.APP_NAME,
-                    subtitleToken = StringToken.WELCOME_TEXT,
-                    menuAction = NavigationAction.Settings,
-                    profileAction = NavigationAction.Profile
-                )
-            }
-            
             _state.value = _state.value.copy(
-                widgets = currentWidgets,
-                toolbar = newToolbar
+                widgets = currentWidgets
             )
         }
     }
@@ -235,13 +219,7 @@ class MainViewModel(
                 selectedIds = emptySet()
             )
             _state.value = _state.value.copy(
-                widgets = currentWidgets,
-                toolbar = _state.value.toolbar?.copy(
-                    titleToken = StringToken.APP_NAME,
-                    subtitleToken = StringToken.WELCOME_TEXT,
-                    menuAction = NavigationAction.Settings,
-                    profileAction = NavigationAction.Profile
-                )
+                widgets = currentWidgets
             )
         }
     }
@@ -250,15 +228,19 @@ class MainViewModel(
         val currentList = _state.value.widgets.filterIsInstance<UiWidget.SubjectList>().firstOrNull() ?: return
         val idsToDelete = currentList.selectedIds
         
+        if (idsToDelete.isEmpty()) return
+
         launchSafe(
             isBlocking = true,
             block = {
-                // In a real app, we would call a bulk delete API. 
-                // For now, we'll just refresh content after a simulated delay or assume it works.
                 Napier.d { "Deleting subjects: $idsToDelete" }
-                // userRepository.deleteSubjects(idsToDelete) // Not implemented in repository yet
-                clearSelection()
-                loadContent()
+                val result = subjectRepository.deleteSubjects(idsToDelete.toList())
+                if (result is KmpResult.Success) {
+                    clearSelection()
+                    loadContent()
+                } else if (result is KmpResult.Error) {
+                    setManualError(result.throwable.toErrorType())
+                }
             }
         )
     }

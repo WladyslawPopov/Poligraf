@@ -23,6 +23,7 @@ interface SubjectRepository {
     suspend fun getSubject(id: String): KmpResult<Subject>
     fun getSubjects(): Flow<List<Subject>>
     suspend fun syncSubjects(): KmpResult<Unit>
+    suspend fun deleteSubjects(ids: List<String>): KmpResult<Unit>
 }
 
 class SubjectRepositoryImpl(
@@ -73,6 +74,20 @@ class SubjectRepositoryImpl(
             val remoteSubjects = remote.getSubjects()
             cache.put("subjects_list", remoteSubjects, nowAsEpochSeconds() + 3600, ListSerializer(SubjectDto.serializer()))
             KmpResult.Success(Unit)
+        } catch (e: Throwable) {
+            KmpResult.Error(e.toAppException())
+        }
+    }
+
+    override suspend fun deleteSubjects(ids: List<String>): KmpResult<Unit> {
+        return try {
+            val success = remote.deleteSubjects(ids)
+            if (success) {
+                syncSubjects()
+                KmpResult.Success(Unit)
+            } else {
+                KmpResult.Error(Exception("Failed to delete").toAppException())
+            }
         } catch (e: Throwable) {
             KmpResult.Error(e.toAppException())
         }

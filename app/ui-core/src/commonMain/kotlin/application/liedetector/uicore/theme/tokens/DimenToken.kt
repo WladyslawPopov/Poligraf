@@ -6,6 +6,7 @@ enum class DimenToken {
     CORNER_RADIUS,   // "Material 3" or "iOS Rounded"
     ICON_SIZE_NAV,
     ICON_SIZE_SMALL,
+    ICON_SIZE_TINY,
     ICON_SIZE_LARGE,
     HEADER_HEIGHT,
     
@@ -40,5 +41,11 @@ enum class DimenToken {
     
     // Background Grid
     BACKGROUND_CELL_WIDTH,
-    BACKGROUND_CELL_HEIGHT
+    BACKGROUND_CELL_HEIGHT,
+
+    // Selection & Indicators
+    SELECTION_INDICATOR_WIDTH,
+    CHECKMARK_SIZE_SMALL,
+    DIVIDER_THICKNESS,
+    DRAWER_WIDTH
 }

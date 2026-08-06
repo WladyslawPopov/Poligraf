@@ -1,5 +1,11 @@
 package application.liedetector.ui.components.widgets
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
@@ -7,55 +13,156 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import application.liedetector.uicore.theme.tokens.ColorToken
-import application.liedetector.uicore.theme.tokens.DimenToken
 import application.liedetector.uicore.theme.LocalDesignSystem
-import application.liedetector.uicore.theme.tokens.StringToken
+import application.liedetector.uicore.theme.tokens.ColorToken
 import application.liedetector.uicore.theme.tokens.IconToken
+import application.liedetector.uicore.theme.tokens.StringToken
+import application.liedetector.uicore.theme.tokens.DimenToken
 import application.liedetector.uicore.widgets.UiWidget
 import application.liedetector.theme.utils.composeColor
-import application.liedetector.uicore.theme.DesignSystem
 import application.liedetector.uicore.actions.WidgetAction
+import application.liedetector.uicore.theme.DesignSystem
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SubjectListRenderer(
     widget: UiWidget.SubjectList,
     onAction: (WidgetAction) -> Unit
 ) {
     val designSystem = LocalDesignSystem.current
-    
-    Column(
+
+    Column(modifier = Modifier.fillMaxWidth().padding(vertical = designSystem.dimen(DimenToken.SPACING_SMALL).dp)) {
+        // Header moved OUTSIDE the container
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    horizontal = designSystem.dimen(DimenToken.SPACING_LARGE).dp, 
+                    vertical = designSystem.dimen(DimenToken.SPACING_SMALL).dp
+                ),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = designSystem.icon(IconToken.HISTORY),
+                contentDescription = null,
+                tint = designSystem.composeColor(ColorToken.TEXT_SECONDARY),
+                modifier = Modifier.size(designSystem.dimen(DimenToken.ICON_SIZE_TINY).dp)
+            )
+            Spacer(modifier = Modifier.width(designSystem.dimen(DimenToken.SPACING_SMALL).dp))
+            Text(
+                text = designSystem.string(StringToken.SECTION_SUBJECTS).uppercase(),
+                style = MaterialTheme.typography.labelMedium,
+                color = designSystem.composeColor(ColorToken.TEXT_SECONDARY),
+                fontWeight = FontWeight.Bold
+            )
+        }
+
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = designSystem.dimen(DimenToken.SPACING_MEDIUM).dp),
+            color = designSystem.composeColor(ColorToken.GLASS_BASE).copy(alpha = 0.3f),
+            shape = MaterialTheme.shapes.large,
+            border = BorderStroke(
+                designSystem.dimen(DimenToken.DIVIDER_THICKNESS).dp,
+                designSystem.composeColor(ColorToken.GLASS_BORDER).copy(alpha = 0.1f)
+            )
+        ) {
+            Column(modifier = Modifier.fillMaxWidth()) {
+                // Selection Panel
+                AnimatedVisibility(
+                    visible = widget.isSelectionMode,
+                    enter = expandVertically(),
+                    exit = shrinkVertically()
+                ) {
+                    SelectionPanel(widget.selectedIds.size, onAction, designSystem)
+                }
+
+                // List Items
+                Column(
+                    modifier = Modifier.padding(vertical = designSystem.dimen(DimenToken.SPACING_TINY).dp)
+                ) {
+                    widget.items.forEachIndexed { index, item ->
+                        val isSelected = widget.selectedIds.contains(item.id)
+                        SubjectRowRenderer(item, isSelected, designSystem, onAction)
+                        
+                        if (index < widget.items.size - 1) {
+                            // High-end Glassy Divider - ultra thin and subtle
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(designSystem.dimen(DimenToken.DIVIDER_THICKNESS).dp)
+                                    .padding(horizontal = designSystem.dimen(DimenToken.SPACING_LARGE).dp)
+                                    .background(
+                                        Brush.horizontalGradient(
+                                            colors = listOf(
+                                                Color.Transparent,
+                                                designSystem.composeColor(ColorToken.GLASS_BORDER).copy(alpha = 0.5f),
+                                                designSystem.composeColor(ColorToken.GLASS_BORDER).copy(alpha = 0.15f),
+                                                Color.Transparent
+                                            )
+                                        )
+                                    )
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun SelectionPanel(
+    selectedCount: Int,
+    onAction: (WidgetAction) -> Unit,
+    designSystem: DesignSystem
+) {
+    Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = designSystem.dimen(DimenToken.SPACING_MEDIUM).dp)
+            .height(designSystem.dimen(DimenToken.HEADER_HEIGHT).dp)
+            .background(designSystem.composeColor(ColorToken.ACCENT_PRIMARY).copy(alpha = 0.05f))
+            .padding(horizontal = designSystem.dimen(DimenToken.SPACING_MEDIUM).dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(
-            text = designSystem.string(StringToken.SECTION_SUBJECTS),
-            style = MaterialTheme.typography.labelMedium,
-            color = designSystem.composeColor(ColorToken.TEXT_SECONDARY),
-            modifier = Modifier.padding(horizontal = designSystem.dimen(DimenToken.SPACING_MEDIUM).dp)
-        )
-        
-        Spacer(modifier = Modifier.height(designSystem.dimen(DimenToken.SPACING_SMALL).dp))
-        
-        widget.items.forEachIndexed { index, item ->
-            val isSelected = widget.selectedIds.contains(item.id)
-            SubjectRowRenderer(item, isSelected, designSystem, onAction)
-            
-            if (index < widget.items.size - 1) {
-                HorizontalDivider(
-                    modifier = Modifier.padding(
-                        start = designSystem.dimen(DimenToken.AVATAR_SIZE_SMALL).dp + 32.dp,
-                        end = designSystem.dimen(DimenToken.SPACING_MEDIUM).dp
-                    ),
-                    thickness = 0.5.dp,
-                    color = designSystem.composeColor(ColorToken.GLASS_BORDER).copy(alpha = 0.1f)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            IconButton(onClick = { onAction(WidgetAction.ClearSelection) }) {
+                Icon(
+                    imageVector = designSystem.icon(IconToken.CLOSE),
+                    contentDescription = null,
+                    tint = designSystem.composeColor(ColorToken.TEXT_PRIMARY)
+                )
+            }
+            Text(
+                text = "$selectedCount selected",
+                style = MaterialTheme.typography.titleSmall,
+                color = designSystem.composeColor(ColorToken.TEXT_PRIMARY)
+            )
+        }
+
+        Row {
+            IconButton(onClick = { onAction(WidgetAction.DeleteSelected) }) {
+                Icon(
+                    imageVector = designSystem.icon(IconToken.DELETE),
+                    contentDescription = null,
+                    tint = designSystem.composeColor(ColorToken.ACCENT_PRIMARY)
+                )
+            }
+            IconButton(onClick = { /* Future menu */ }) {
+                Icon(
+                    imageVector = designSystem.icon(IconToken.MORE_VERT),
+                    contentDescription = null,
+                    tint = designSystem.composeColor(ColorToken.TEXT_PRIMARY)
                 )
             }
         }
@@ -70,13 +177,18 @@ private fun SubjectRowRenderer(
     designSystem: DesignSystem,
     onAction: (WidgetAction) -> Unit
 ) {
-    val backgroundColor = if (isSelected) {
-        designSystem.composeColor(ColorToken.ACCENT_PRIMARY).copy(alpha = 0.1f)
-    } else {
-        Color.Transparent
-    }
+    val backgroundColor by animateColorAsState(
+        if (isSelected) designSystem.composeColor(ColorToken.ACCENT_PRIMARY).copy(alpha = 0.12f)
+        else Color.Transparent,
+        label = "row_bg"
+    )
 
-    Row(
+    val indicatorWidth by animateDpAsState(
+        if (isSelected) designSystem.dimen(DimenToken.SELECTION_INDICATOR_WIDTH).dp else 0.dp,
+        label = "indicator_width"
+    )
+
+    Box(
         modifier = Modifier
             .fillMaxWidth()
             .height(designSystem.dimen(DimenToken.SUBJECT_ROW_HEIGHT).dp)
@@ -85,44 +197,87 @@ private fun SubjectRowRenderer(
                 onClick = { onAction(item.action) },
                 onLongClick = { onAction(WidgetAction.ToggleSelection(item.id)) }
             )
-            .padding(horizontal = designSystem.dimen(DimenToken.SPACING_MEDIUM).dp),
-        verticalAlignment = Alignment.CenterVertically
     ) {
+        // Left Selection Indicator (Neon bar)
         Box(
             modifier = Modifier
-                .size(designSystem.dimen(DimenToken.AVATAR_SIZE_SMALL).dp)
+                .fillMaxHeight()
+                .width(indicatorWidth)
                 .background(
-                    designSystem.composeColor(item.buttonColor).copy(alpha = 0.1f),
-                    CircleShape
-                ),
-            contentAlignment = Alignment.Center
+                    Brush.verticalGradient(
+                        colors = listOf(
+                            designSystem.composeColor(ColorToken.ACCENT_PRIMARY).copy(alpha = 0.5f),
+                            designSystem.composeColor(ColorToken.ACCENT_PRIMARY),
+                            designSystem.composeColor(ColorToken.ACCENT_PRIMARY).copy(alpha = 0.5f)
+                        )
+                    )
+                )
+        )
+
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = designSystem.dimen(DimenToken.SPACING_MEDIUM).dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = item.emoji, style = MaterialTheme.typography.titleLarge)
-        }
-        
-        Spacer(modifier = Modifier.width(designSystem.dimen(DimenToken.SPACING_MEDIUM).dp))
-        
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = item.title ?: designSystem.string(item.titleToken),
-                style = MaterialTheme.typography.titleMedium,
-                color = designSystem.composeColor(item.titleColor),
-                fontWeight = FontWeight.SemiBold
-            )
-        }
-        
-        if (isSelected) {
-            Icon(
-                imageVector = designSystem.icon(IconToken.CHECK),
-                contentDescription = null,
-                tint = designSystem.composeColor(ColorToken.ACCENT_PRIMARY)
-            )
-        } else {
-            Icon(
-                imageVector = designSystem.icon(IconToken.CHEVRON_RIGHT),
-                contentDescription = null,
-                tint = designSystem.composeColor(ColorToken.TEXT_SECONDARY).copy(alpha = 0.5f)
-            )
+            // Avatar with animated border
+            Box(
+                modifier = Modifier
+                    .size(designSystem.dimen(DimenToken.AVATAR_SIZE_SMALL).dp)
+                    .clip(CircleShape)
+                    .background(designSystem.composeColor(item.backgroundColor).copy(alpha = 0.2f))
+                    .then(
+                        if (isSelected) Modifier.background(
+                            designSystem.composeColor(ColorToken.ACCENT_PRIMARY).copy(alpha = 0.2f)
+                        ) else Modifier
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(text = item.emoji, style = MaterialTheme.typography.headlineSmall)
+                
+                // Ring indicator
+                if (isSelected) {
+                    Surface(
+                        modifier = Modifier.fillMaxSize(),
+                        color = Color.Transparent,
+                        shape = CircleShape,
+                        border = BorderStroke(
+                            designSystem.dimen(DimenToken.DIVIDER_THICKNESS).dp * 4, 
+                            designSystem.composeColor(ColorToken.ACCENT_PRIMARY)
+                        )
+                    ) {}
+                }
+            }
+
+            Spacer(modifier = Modifier.width(designSystem.dimen(DimenToken.SPACING_MEDIUM).dp))
+
+            // Info
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = item.title ?: "",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = designSystem.composeColor(ColorToken.TEXT_PRIMARY),
+                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.SemiBold
+                )
+            }
+
+            // Right Checkmark (clean and simple)
+            if (isSelected) {
+                Box(
+                    modifier = Modifier
+                        .size(22.dp)
+                        .clip(CircleShape)
+                        .background(designSystem.composeColor(ColorToken.ACCENT_PRIMARY)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = designSystem.icon(IconToken.CHECK),
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier.size(designSystem.dimen(DimenToken.CHECKMARK_SIZE_SMALL).dp)
+                    )
+                }
+            }
         }
     }
 }

@@ -20,7 +20,7 @@ struct SubjectCardView: View {
                     .font(.system(size: iconSize * 0.45))
             }
             
-            Text(designSystem.string(token: item.titleToken))
+            Text(item.title ?? designSystem.string(token: item.titleToken))
                 .font(IosTheme.font(item.titleTypography))
                 .foregroundColor(IosTheme.color(item.titleColor, from: designSystem))
                 .multilineTextAlignment(.center)
@@ -42,9 +42,9 @@ struct SubjectCardView: View {
         .padding(20)
         .frame(width: cardWidth, height: cardHeight)
         .background(IosTheme.color(item.backgroundColor, from: designSystem).opacity(0.5))
-        .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: CGFloat(truncating: designSystem.dimen(token: .widgetCorner) as NSNumber), style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 28, style: .continuous)
+            RoundedRectangle(cornerRadius: CGFloat(truncating: designSystem.dimen(token: .widgetCorner) as NSNumber), style: .continuous)
                 .stroke(IosTheme.color(.glassBorder, from: designSystem).opacity(0.5), lineWidth: 0.5)
         )
     }

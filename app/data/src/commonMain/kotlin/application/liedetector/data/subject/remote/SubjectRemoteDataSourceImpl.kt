@@ -24,4 +24,11 @@ class SubjectRemoteDataSourceImpl(client: HttpClient) : BaseRemoteDataSource(cli
     override suspend fun getSubjects(): List<SubjectDto> {
         return client.get(endPoint(ApiConstants.ENDPOINT_SUBJECTS)).body()
     }
+
+    override suspend fun deleteSubjects(ids: List<String>): Boolean {
+        return client.delete(endPoint(ApiConstants.ENDPOINT_SUBJECTS)) {
+            setBody(ids)
+            contentType(ContentType.Application.Json)
+        }.status.isSuccess()
+    }
 }

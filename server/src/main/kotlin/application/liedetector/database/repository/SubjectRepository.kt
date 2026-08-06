@@ -7,8 +7,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.encodeToJsonElement
 import kotlinx.serialization.json.jsonObject
-import org.jetbrains.exposed.v1.core.and
-import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.jdbc.*
 import org.jetbrains.exposed.v1.jdbc.insertAndGetId
 import java.util.*
@@ -17,6 +16,7 @@ interface SubjectRepository {
     suspend fun createSubject(userId: UUID, dto: SubjectDto): UUID
     suspend fun getSubject(id: UUID, userId: UUID): SubjectDto?
     suspend fun getSubjectsByUser(userId: UUID): List<SubjectDto>
+    suspend fun deleteSubjects(userId: UUID, ids: List<UUID>): Boolean
 }
 
 class SubjectRepositoryImpl : SubjectRepository {
@@ -89,5 +89,9 @@ class SubjectRepositoryImpl : SubjectRepository {
                     metadata = metadata
                 )
             }
+    }
+
+    override suspend fun deleteSubjects(userId: UUID, ids: List<UUID>): Boolean = dbQuery {
+        SubjectTable.deleteWhere { (SubjectTable.ownerId eq userId) and (SubjectTable.id inList ids) } > 0
     }
 }

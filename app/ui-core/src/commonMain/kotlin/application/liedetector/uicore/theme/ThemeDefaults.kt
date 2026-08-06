@@ -57,6 +57,7 @@ object ThemeDefaults {
             DimenToken.CORNER_RADIUS -> 12f
             DimenToken.ICON_SIZE_NAV -> 24f
             DimenToken.ICON_SIZE_SMALL -> 18f
+            DimenToken.ICON_SIZE_TINY -> 14f
             DimenToken.ICON_SIZE_LARGE -> 38f
             DimenToken.HEADER_HEIGHT -> 64f
             DimenToken.DRAWER_CORNER -> 24f
@@ -85,6 +86,11 @@ object ThemeDefaults {
             
             DimenToken.BACKGROUND_CELL_WIDTH -> 22f
             DimenToken.BACKGROUND_CELL_HEIGHT -> 22f
+
+            DimenToken.SELECTION_INDICATOR_WIDTH -> 4f
+            DimenToken.CHECKMARK_SIZE_SMALL -> 14f
+            DimenToken.DIVIDER_THICKNESS -> 0.5f
+            DimenToken.DRAWER_WIDTH -> 320f
         }
     }
 }

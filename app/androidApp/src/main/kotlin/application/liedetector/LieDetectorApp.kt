@@ -1,9 +1,11 @@
 package application.liedetector
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.os.StrictMode
 import application.liedetector.di.androidModule
 import application.liedetector.di.initKoin
+import application.liedetector.engine.config.AppConfig
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import io.github.aakira.napier.DebugAntilog
@@ -20,6 +22,7 @@ class LieDetectorApp : Application() {
     
     private val appScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
+    @SuppressLint("HardwareIds")
     override fun onCreate() {
         if (BuildConfig.DEBUG) {
             StrictMode.setThreadPolicy(
@@ -51,6 +54,17 @@ class LieDetectorApp : Application() {
                 modules(module { 
                     single { appScope }
                     single { FirebaseAuth.getInstance() }
+                    single { 
+                        AppConfig(
+                            appVersion = BuildConfig.VERSION_NAME,
+                            deviceId = android.provider.Settings.Secure.getString(
+                                contentResolver,
+                                android.provider.Settings.Secure.ANDROID_ID
+                            ) ?: "unknown_android",
+                            isDebug = BuildConfig.DEBUG,
+                            platform = "Android"
+                        )
+                    }
                 })
             }
         )

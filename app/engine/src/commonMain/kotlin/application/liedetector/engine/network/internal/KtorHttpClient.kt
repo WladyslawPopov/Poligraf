@@ -4,6 +4,7 @@ import application.liedetector.engine.auth.AuthService
 import application.liedetector.engine.error.ServerErrorException
 import application.liedetector.engine.network.config.NetworkConfigProvider
 import application.liedetector.models.ApiConstants
+import application.liedetector.engine.config.AppConfig
 import io.ktor.client.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -21,7 +22,8 @@ private val jsonSerializer = Json {
 
 internal fun HttpClientConfig<*>.installPlugins(
     networkConfig: NetworkConfigProvider,
-    authService: AuthService
+    authService: AuthService,
+    appConfig: AppConfig
 ) {
     install(ContentNegotiation) {
         json(jsonSerializer)
@@ -64,14 +66,17 @@ internal fun HttpClientConfig<*>.installPlugins(
         networkConfig.headers.forEach { (key, value) ->
             header(key, value)
         }
+        // Only Device ID is needed for server as per latest requirement
+        header("X-Device-ID", appConfig.deviceId)
     }
 }
 
 fun getKtorClient(
     networkConfig: NetworkConfigProvider,
-    authService: AuthService
+    authService: AuthService,
+    appConfig: AppConfig
 ) = HttpClient {
-    installPlugins(networkConfig, authService)
+    installPlugins(networkConfig, authService, appConfig)
 }.apply {
     sendPipeline.intercept(HttpSendPipeline.State) {
         authService.getIdToken()?.let { token ->

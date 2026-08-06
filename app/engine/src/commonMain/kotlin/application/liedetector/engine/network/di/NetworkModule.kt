@@ -9,5 +9,5 @@ import org.koin.dsl.module
 
 val networkModule = module {
     singleOf(::NetworkConfigProviderImpl) bind NetworkConfigProvider::class
-    single { getKtorClient(get(), get()) }
+    single { getKtorClient(get(), get(), get()) }
 }
