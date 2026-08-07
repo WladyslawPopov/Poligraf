@@ -18,20 +18,20 @@ struct AppToast: View {
                 
                 Text(getMessage())
                     .font(.subheadline)
-                    .foregroundColor(IosTheme.color(.textPrimary, from: designSystem))
+                    .foregroundColor(designSystem.color(.textPrimary))
                 
                 Spacer()
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
             .background(
-                IosTheme.color(.glassBase, from: designSystem)
+                designSystem.color(.glassBase)
                     .background(.ultraThinMaterial)
             )
-            .cornerRadius(CGFloat(designSystem.dimen(token: .cornerRadius)))
+            .cornerRadius(designSystem.dimen(.cornerRadius))
             .overlay(
-                RoundedRectangle(cornerRadius: CGFloat(designSystem.dimen(token: .cornerRadius)))
-                    .stroke(IosTheme.color(.glassBorder, from: designSystem), lineWidth: 0.5)
+                RoundedRectangle(cornerRadius: designSystem.dimen(.cornerRadius))
+                    .stroke(designSystem.color(.glassBorder), lineWidth: 0.5)
             )
             .padding(.horizontal, 16)
         }
@@ -53,9 +53,9 @@ struct AppToast: View {
 
     private func getAccentColor() -> Color {
         switch state.type {
-        case .success: return IosTheme.color(.truth, from: designSystem)
-        case .error: return IosTheme.color(.stress, from: designSystem)
-        case .warning: return IosTheme.color(.accentPrimary, from: designSystem)
+        case .success: return designSystem.color(.truth)
+        case .error: return designSystem.color(.stress)
+        case .warning: return designSystem.color(.accentPrimary)
         default: return .gray
         }
     }

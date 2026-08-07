@@ -10,24 +10,24 @@ struct SubjectListView: View {
         VStack(alignment: .leading, spacing: 0) {
             // Header moved OUTSIDE the container
             HStack(spacing: 6) {
-                Image(systemName: designSystem.icon(token: .history))
-                    .font(.system(size: CGFloat(truncating: designSystem.dimen(token: .iconSizeTiny) as NSNumber), weight: .bold))
-                    .foregroundColor(IosTheme.color(.textSecondary, from: designSystem))
+                Image(systemName: designSystem.icon(.history))
+                    .font(.system(size: designSystem.dimen(.iconSizeTiny), weight: .bold))
+                    .foregroundColor(designSystem.color(.textSecondary))
                 
-                Text(designSystem.string(token: .sectionSubjects).uppercased())
+                Text(designSystem.string(token: .sectionRecordings).uppercased())
                     .font(.system(size: 10, weight: .bold))
-                    .foregroundColor(IosTheme.color(.textSecondary, from: designSystem))
+                    .foregroundColor(designSystem.color(.textSecondary))
             }
-            .padding(.horizontal, CGFloat(truncating: designSystem.dimen(token: .spacingLarge) as NSNumber))
-            .padding(.bottom, CGFloat(truncating: designSystem.dimen(token: .spacingSmall) as NSNumber))
+            .padding(.horizontal, designSystem.dimen(.spacingLarge))
+            .padding(.bottom, designSystem.dimen(.spacingSmall))
 
             VStack(alignment: .leading, spacing: 0) {
                 // Selection Toolbar
                 if widget.isSelectionMode {
                     selectionToolbar
-                        .padding(.horizontal, CGFloat(truncating: designSystem.dimen(token: .spacingMedium) as NSNumber))
-                        .frame(height: CGFloat(truncating: designSystem.dimen(token: .headerHeight) as NSNumber))
-                        .background(IosTheme.color(.accentPrimary, from: designSystem).opacity(0.05))
+                        .padding(.horizontal, designSystem.dimen(.spacingMedium))
+                        .frame(height: designSystem.dimen(.headerHeight))
+                        .background(designSystem.color(.accentPrimary).opacity(0.05))
                         .transition(.move(edge: .top).combined(with: .opacity))
                 }
 
@@ -38,46 +38,46 @@ struct SubjectListView: View {
                         
                         if index < widget.items.count - 1 {
                             Divider()
-                                .background(IosTheme.color(.glassBorder, from: designSystem).opacity(0.1))
-                                .padding(.horizontal, CGFloat(truncating: designSystem.dimen(token: .spacingMedium) as NSNumber))
+                                .background(designSystem.color(.glassBorder).opacity(0.1))
+                                .padding(.horizontal, designSystem.dimen(.spacingMedium))
                         }
                     }
                 }
-                .padding(.vertical, CGFloat(truncating: designSystem.dimen(token: .spacingTiny) as NSNumber))
+                .padding(.vertical, designSystem.dimen(.spacingTiny))
             }
-            .background(IosTheme.color(.glassBase, from: designSystem).opacity(0.3))
-            .cornerRadius(CGFloat(truncating: designSystem.dimen(token: .widgetCorner) as NSNumber))
+            .background(designSystem.color(.glassBase).opacity(0.3))
+            .cornerRadius(designSystem.dimen(.widgetCorner))
             .overlay(
-                RoundedRectangle(cornerRadius: CGFloat(truncating: designSystem.dimen(token: .widgetCorner) as NSNumber))
-                    .stroke(IosTheme.color(.glassBorder, from: designSystem).opacity(0.1), lineWidth: 1)
+                RoundedRectangle(cornerRadius: designSystem.dimen(.widgetCorner))
+                    .stroke(designSystem.color(.glassBorder).opacity(0.1), lineWidth: 1)
             )
-            .padding(.horizontal, CGFloat(truncating: designSystem.dimen(token: .spacingMedium) as NSNumber))
+            .padding(.horizontal, designSystem.dimen(.spacingMedium))
         }
     }
 
     private var selectionToolbar: some View {
         HStack {
             Button(action: { onAction(WidgetAction.ClearSelection()) }) {
-                Image(systemName: designSystem.icon(token: .close))
-                    .foregroundColor(IosTheme.color(.textPrimary, from: designSystem))
+                Image(systemName: designSystem.icon(.close))
+                    .foregroundColor(designSystem.color(.textPrimary))
             }
             
             Text("\(widget.selectedIds.count) selected")
                 .font(.subheadline)
                 .fontWeight(.semibold)
-                .foregroundColor(IosTheme.color(.textPrimary, from: designSystem))
+                .foregroundColor(designSystem.color(.textPrimary))
             
             Spacer()
             
             Button(action: { onAction(WidgetAction.DeleteSelected()) }) {
-                Image(systemName: designSystem.icon(token: .delete))
-                    .foregroundColor(IosTheme.color(.accentPrimary, from: designSystem))
+                Image(systemName: designSystem.icon(.delete))
+                    .foregroundColor(designSystem.color(.accentPrimary))
             }
-            .padding(.trailing, CGFloat(truncating: designSystem.dimen(token: .spacingSmall) as NSNumber))
+            .padding(.trailing, designSystem.dimen(.spacingSmall))
             
             Button(action: { /* Future Menu */ }) {
-                Image(systemName: designSystem.icon(token: .moreVert))
-                    .foregroundColor(IosTheme.color(.textPrimary, from: designSystem))
+                Image(systemName: designSystem.icon(.moreVert))
+                    .foregroundColor(designSystem.color(.textPrimary))
             }
         }
     }
@@ -94,8 +94,8 @@ struct SubjectRowView: View {
             // Neon Indicator
             if isSelected {
                 Rectangle()
-                    .fill(IosTheme.color(.accentPrimary, from: designSystem))
-                    .frame(width: CGFloat(truncating: designSystem.dimen(token: .selectionIndicatorWidth) as NSNumber))
+                    .fill(designSystem.color(.accentPrimary))
+                    .frame(width: designSystem.dimen(.selectionIndicatorWidth))
                     .transition(.opacity)
             }
 
@@ -103,18 +103,18 @@ struct SubjectRowView: View {
                 // Avatar with ring
                 ZStack {
                     Circle()
-                        .fill(IosTheme.color(item.backgroundColor, from: designSystem).opacity(0.2))
-                        .frame(width: CGFloat(truncating: designSystem.dimen(token: .avatarSizeSmall) as NSNumber), 
-                               height: CGFloat(truncating: designSystem.dimen(token: .avatarSizeSmall) as NSNumber))
+                        .fill(designSystem.color(item.backgroundColor).opacity(0.2))
+                        .frame(width: designSystem.dimen(.avatarSizeSmall), 
+                               height: designSystem.dimen(.avatarSizeSmall))
                     
                     Text(item.emoji)
                         .font(.title2)
                     
                     if isSelected {
                         Circle()
-                            .stroke(IosTheme.color(.accentPrimary, from: designSystem), lineWidth: 2)
-                            .frame(width: CGFloat(truncating: designSystem.dimen(token: .avatarSizeSmall) as NSNumber), 
-                                   height: CGFloat(truncating: designSystem.dimen(token: .avatarSizeSmall) as NSNumber))
+                            .stroke(designSystem.color(.accentPrimary), lineWidth: 2)
+                            .frame(width: designSystem.dimen(.avatarSizeSmall), 
+                                   height: designSystem.dimen(.avatarSizeSmall))
                     }
                 }
                 
@@ -122,20 +122,20 @@ struct SubjectRowView: View {
                     Text(item.title ?? "")
                         .font(.headline)
                         .fontWeight(isSelected ? .bold : .semibold)
-                        .foregroundColor(IosTheme.color(.textPrimary, from: designSystem))
+                        .foregroundColor(designSystem.color(.textPrimary))
                 }
                 
                 Spacer()
                 
                 if isSelected {
-                    Image(systemName: designSystem.icon(token: .check))
-                        .foregroundColor(IosTheme.color(.accentPrimary, from: designSystem))
+                    Image(systemName: designSystem.icon(.check))
+                        .foregroundColor(designSystem.color(.accentPrimary))
                         .font(.system(size: 20))
                 }
             }
-            .padding(.horizontal, CGFloat(truncating: designSystem.dimen(token: .spacingMedium) as NSNumber))
-            .frame(height: CGFloat(truncating: designSystem.dimen(token: .subjectRowHeight) as NSNumber))
-            .background(isSelected ? IosTheme.color(.accentPrimary, from: designSystem).opacity(0.12) : Color.clear)
+            .padding(.horizontal, designSystem.dimen(.spacingMedium))
+            .frame(height: designSystem.dimen(.subjectRowHeight))
+            .background(isSelected ? designSystem.color(.accentPrimary).opacity(0.12) : Color.clear)
         }
         .contentShape(Rectangle())
         .onTapGesture {

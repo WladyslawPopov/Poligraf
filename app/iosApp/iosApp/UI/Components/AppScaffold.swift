@@ -58,7 +58,7 @@ struct AppScaffold<Content: View>: View {
                 let layout = state.layoutConfig
                 
                 content()
-                    .frame(maxWidth: layout.maxContentWidth != nil ? CGFloat(truncating: designSystem.dimen(token: layout.maxContentWidth!) as NSNumber) : .infinity)
+                    .frame(maxWidth: layout.maxContentWidth != nil ? designSystem.dimen(layout.maxContentWidth!) : .infinity)
                     .frame(maxWidth: .infinity, alignment: layout.isCentered ? .center : .leading)
             }
             
@@ -74,7 +74,7 @@ struct AppScaffold<Content: View>: View {
                 )
             }
         }
-        .containerBackground(IosTheme.color(.background, from: designSystem), for: .navigation)
+        .containerBackground(designSystem.color(.background), for: .navigation)
         .onAppear {
             updateMetrics()
         }
@@ -101,9 +101,9 @@ struct BackgroundView: View {
             if let scales = background as? AppBackground.AnimatedScales {
                 ScalesView(designSystem: designSystem, config: scales) 
             } else if let solid = background as? AppBackground.Solid {
-                IosTheme.color(solid.colorToken, from: designSystem)
+                designSystem.color(solid.colorToken)
             } else {
-                IosTheme.color(.background, from: designSystem)
+                designSystem.color(.background)
             }
         }
     }

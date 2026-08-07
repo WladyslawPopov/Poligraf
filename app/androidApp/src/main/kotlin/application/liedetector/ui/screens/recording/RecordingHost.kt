@@ -1,4 +1,4 @@
-package application.liedetector.ui.screens.investigation
+package application.liedetector.ui.screens.recording
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -13,7 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import application.liedetector.presentation.investigation.InvestigationComponent
+import application.liedetector.presentation.recording.RecordingComponent
 import application.liedetector.ui.components.AppScaffold
 import application.liedetector.ui.components.widgets.WidgetRenderer
 import application.liedetector.uicore.theme.LocalDesignSystem
@@ -21,10 +21,11 @@ import application.liedetector.uicore.theme.tokens.ColorToken
 import application.liedetector.uicore.theme.tokens.IconToken
 import application.liedetector.theme.utils.composeColor
 import application.liedetector.uicore.theme.DesignSystem
+import application.liedetector.uicore.theme.tokens.StringToken
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun InvestigationHost(component: InvestigationComponent) {
+fun RecordingHost(component: RecordingComponent) {
     val state by component.viewModel.state.collectAsState()
     val designSystem = LocalDesignSystem.current
     
@@ -127,9 +128,9 @@ fun InvestigationHost(component: InvestigationComponent) {
                         horizontalArrangement = Arrangement.spacedBy(24.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        InvestigationActionButton(IconToken.MIC, designSystem)
-                        InvestigationActionButton(IconToken.GALLERY, designSystem)
-                        InvestigationActionButton(IconToken.NOTE, designSystem)
+                        RecordingActionButton(IconToken.MIC, designSystem)
+                        RecordingActionButton(IconToken.GALLERY, designSystem)
+                        RecordingActionButton(IconToken.NOTE, designSystem)
                     }
                 }
             }
@@ -143,11 +144,11 @@ fun InvestigationHost(component: InvestigationComponent) {
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     ListItem(
-                        headlineContent = { Text("Delete Investigation", color = designSystem.composeColor(ColorToken.ERROR)) },
+                        headlineContent = { Text("Delete Recording", color = designSystem.composeColor(ColorToken.ERROR)) },
                         leadingContent = { Icon(designSystem.icon(IconToken.CLOSE), contentDescription = null, tint = designSystem.composeColor(ColorToken.ERROR)) },
                         modifier = Modifier.clickable { 
                             showMenu = false
-                            component.deleteSubject() 
+                            component.deleteRecording() 
                         }
                     )
                     Spacer(modifier = Modifier.height(32.dp))
@@ -158,7 +159,7 @@ fun InvestigationHost(component: InvestigationComponent) {
 }
 
 @Composable
-private fun InvestigationActionButton(
+private fun RecordingActionButton(
     icon: IconToken,
     designSystem: DesignSystem
 ) {

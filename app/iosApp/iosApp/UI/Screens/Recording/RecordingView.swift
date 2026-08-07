@@ -1,14 +1,14 @@
 import SwiftUI
 import SharedLogic
 
-struct InvestigationView: View {
+struct RecordingView: View {
     @ObservedObject var navigator: IosNavigator
-    let component: InvestigationComponent
+    let component: RecordingComponent
     let designSystem: DesignSystem
     
-    @ObservedObject var state: SKIEStateObserver<InvestigationState>
+    @ObservedObject var state: SKIEStateObserver<RecordingState>
 
-    init(navigator: IosNavigator, component: InvestigationComponent, designSystem: DesignSystem) {
+    init(navigator: IosNavigator, component: RecordingComponent, designSystem: DesignSystem) {
         self.navigator = navigator
         self.component = component
         self.designSystem = designSystem
@@ -38,9 +38,9 @@ struct InvestigationView: View {
                 
                 // 2. Control Panel Island
                 HStack(spacing: 24) {
-                    InvestigationActionButton(systemName: designSystem.icon(token: .mic), designSystem: designSystem)
-                    InvestigationActionButton(systemName: designSystem.icon(token: .gallery), designSystem: designSystem)
-                    InvestigationActionButton(systemName: designSystem.icon(token: .note), designSystem: designSystem)
+                    RecordingActionButton(systemName: designSystem.icon(.mic), designSystem: designSystem)
+                    RecordingActionButton(systemName: designSystem.icon(.gallery), designSystem: designSystem)
+                    RecordingActionButton(systemName: designSystem.icon(.note), designSystem: designSystem)
                 }
                 .padding(8)
                 .background(.ultraThinMaterial)
@@ -52,9 +52,9 @@ struct InvestigationView: View {
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 Button(action: { component.goBack() }) {
-                    Image(systemName: designSystem.icon(token: .arrowBack))
+                    Image(systemName: designSystem.icon(.arrowBack))
                         .font(.system(size: 16, weight: .bold))
-                        .foregroundColor(IosTheme.color(.textPrimary, from: designSystem))
+                        .foregroundColor(designSystem.color(.textPrimary))
                         .frame(width: 38, height: 38)
                         .clipShape(Circle())
                 }
@@ -66,7 +66,7 @@ struct InvestigationView: View {
                     Text(state.value.subject?.name ?? "Undefined-1")
                         .font(.subheadline)
                         .fontWeight(.semibold)
-                        .foregroundColor(IosTheme.color(.textPrimary, from: designSystem))
+                        .foregroundColor(designSystem.color(.textPrimary))
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
@@ -74,10 +74,14 @@ struct InvestigationView: View {
             }
             
             ToolbarItem(placement: .navigationBarTrailing) {
-                Button(action: { /* TODO: Open Subject Profile */ }) {
-                    Image(systemName: designSystem.icon(token: .settings))
+                Menu {
+                    Button(role: .destructive, action: { component.deleteRecording() }) {
+                        Label("Delete Recording", systemImage: designSystem.icon(.close))
+                    }
+                } label: {
+                    Image(systemName: designSystem.icon(.settings))
                         .font(.system(size: 16, weight: .bold))
-                        .foregroundColor(IosTheme.color(.textPrimary, from: designSystem))
+                        .foregroundColor(designSystem.color(.textPrimary))
                         .frame(width: 38, height: 38)
                         .clipShape(Circle())
                 }
@@ -86,7 +90,7 @@ struct InvestigationView: View {
     }
 }
 
-struct InvestigationActionButton: View {
+struct RecordingActionButton: View {
     let systemName: String
     let designSystem: DesignSystem
     
@@ -94,9 +98,9 @@ struct InvestigationActionButton: View {
         Button(action: { }) {
             Image(systemName: systemName)
                 .font(.title3)
-                .foregroundColor(IosTheme.color(.textInverted, from: designSystem))
+                .foregroundColor(designSystem.color(.textInverted))
                 .frame(width: 52, height: 52)
-                .background(IosTheme.color(.accentPrimary, from: designSystem))
+                .background(designSystem.color(.accentPrimary))
                 .clipShape(Circle())
         }
     }

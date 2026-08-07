@@ -6,46 +6,36 @@ struct SubjectCardView: View {
     let designSystem: DesignSystem
     let onAction: (WidgetAction) -> Void
     
-    private var cardWidth: CGFloat { CGFloat(truncating: designSystem.dimen(token: .subjectCardWidth) as NSNumber) }
-    private var cardHeight: CGFloat { CGFloat(truncating: designSystem.dimen(token: .subjectCardHeight) as NSNumber) }
-    private var iconSize: CGFloat { CGFloat(truncating: designSystem.dimen(token: .subjectCardIconSize) as NSNumber) }
+    private var cardWidth: CGFloat { designSystem.dimen(.subjectCardWidth) }
+    private var cardHeight: CGFloat { designSystem.dimen(.subjectCardHeight) }
+    private var iconSize: CGFloat { designSystem.dimen(.subjectCardIconSize) }
     
     var body: some View {
-        VStack(spacing: 20) {
-            ZStack {
-                Circle()
-                    .fill(IosTheme.color(item.buttonColor, from: designSystem).opacity(0.1))
-                    .frame(width: iconSize, height: iconSize)
-                Text(item.emoji)
-                    .font(.system(size: iconSize * 0.45))
+        Button(action: { onAction(item.action) }) {
+            VStack(spacing: 24) {
+                ZStack {
+                    Circle()
+                        .fill(designSystem.color(item.buttonColor).opacity(0.1))
+                        .frame(width: iconSize, height: iconSize)
+                    Text(item.emoji)
+                        .font(.system(size: iconSize * 0.45))
+                }
+                
+                Text(item.title ?? designSystem.string(token: item.titleToken))
+                    .font(designSystem.font(item.titleTypography))
+                    .foregroundColor(designSystem.color(item.titleColor))
+                    .multilineTextAlignment(.center)
+                    .lineLimit(2)
             }
-            
-            Text(item.title ?? designSystem.string(token: item.titleToken))
-                .font(IosTheme.font(item.titleTypography))
-                .foregroundColor(IosTheme.color(item.titleColor, from: designSystem))
-                .multilineTextAlignment(.center)
-            
-            Button(action: { onAction(item.action) }) {
-                Text(designSystem.string(token: .subjectNewButton))
-                    .font(.subheadline)
-                    .fontWeight(.bold)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.7)
-                    .padding(.vertical, 10)
-                    .padding(.horizontal, 4)
-                    .frame(maxWidth: .infinity)
-                    .background(IosTheme.color(item.buttonColor, from: designSystem))
-                    .foregroundColor(IosTheme.color(.textInverted, from: designSystem))
-                    .clipShape(Capsule())
-            }
+            .padding(20)
+            .frame(width: cardWidth, height: cardHeight)
+            .background(designSystem.color(item.backgroundColor).opacity(0.5))
+            .clipShape(RoundedRectangle(cornerRadius: designSystem.dimen(.widgetCorner), style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: designSystem.dimen(.widgetCorner), style: .continuous)
+                    .stroke(designSystem.color(.glassBorder).opacity(0.5), lineWidth: 0.5)
+            )
         }
-        .padding(20)
-        .frame(width: cardWidth, height: cardHeight)
-        .background(IosTheme.color(item.backgroundColor, from: designSystem).opacity(0.5))
-        .clipShape(RoundedRectangle(cornerRadius: CGFloat(truncating: designSystem.dimen(token: .widgetCorner) as NSNumber), style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: CGFloat(truncating: designSystem.dimen(token: .widgetCorner) as NSNumber), style: .continuous)
-                .stroke(IosTheme.color(.glassBorder, from: designSystem).opacity(0.5), lineWidth: 0.5)
-        )
+        .buttonStyle(.plain)
     }
 }

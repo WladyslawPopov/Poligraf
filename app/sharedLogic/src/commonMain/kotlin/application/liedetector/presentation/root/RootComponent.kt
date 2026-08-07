@@ -11,8 +11,8 @@ import application.liedetector.presentation.main.MainComponent
 import application.liedetector.presentation.main.MainViewModel
 import application.liedetector.presentation.debug.DebugComponent
 import application.liedetector.presentation.debug.DebugViewModel
-import application.liedetector.presentation.investigation.InvestigationComponent
-import application.liedetector.presentation.investigation.InvestigationViewModel
+import application.liedetector.presentation.recording.RecordingComponent
+import application.liedetector.presentation.recording.RecordingViewModel
 import application.liedetector.component.ComponentContext
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -38,10 +38,10 @@ class RootComponent(
         DebugComponent(context, DebugViewModel(navigation))
     }
 
-    fun createInvestigationComponent(subjectId: String): InvestigationComponent {
-        return InvestigationComponent(
+    fun createRecordingComponent(subjectId: String): RecordingComponent {
+        return RecordingComponent(
             context = context,
-            viewModel = InvestigationViewModel(subjectId, navigation, subjectRepository)
+            viewModel = RecordingViewModel(subjectId, navigation, subjectRepository)
         )
     }
 

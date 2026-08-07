@@ -16,8 +16,8 @@ class IosNavigator: ObservableObject, AppNavigation {
         path.append(AppRoute.Debug())
     }
     
-    func openInvestigation(subjectId: String) {
-        path.append(AppRoute.Investigation(subjectId: subjectId))
+    func openRecording(subjectId: String) {
+        path.append(AppRoute.Recording(subjectId: subjectId))
     }
     
     func back() {

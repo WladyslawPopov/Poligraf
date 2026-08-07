@@ -65,7 +65,7 @@ struct MainView: View {
     }
 
     private var widgetList: some View {
-        LazyVStack(spacing: CGFloat(designSystem.dimen(token: .widgetSpacing))) {
+        LazyVStack(spacing: designSystem.dimen(.widgetSpacing)) {
             if let welcome = state.value.welcomeWidget {
                 WidgetView(widget: welcome, designSystem: designSystem, onAction: { component.onAction(action: $0) })
             }
@@ -86,9 +86,9 @@ struct MainView: View {
         ToolbarItem(placement: .navigationBarLeading) {
             if let tb = tb {
                 Button(action: { component.onAction(action: tb.menuAction) }) {
-                    Image(systemName: designSystem.icon(token: .menu))
+                    Image(systemName: designSystem.icon(.menu))
                         .font(.system(size: 18, weight: .bold))
-                        .foregroundColor(IosTheme.color(tb.contentColor, from: designSystem))
+                        .foregroundColor(designSystem.color(tb.contentColor))
                 }
             }
         }
@@ -98,12 +98,12 @@ struct MainView: View {
                 if let titleToken = tb?.titleToken {
                     Text(designSystem.string(token: titleToken))
                         .font(.headline)
-                        .foregroundColor(IosTheme.color(tb?.contentColor ?? .textPrimary, from: designSystem))
+                        .foregroundColor(designSystem.color(tb?.contentColor ?? .textPrimary))
                 }
                 if let subtitleToken = tb?.subtitleToken {
                     Text(designSystem.string(token: subtitleToken))
                         .font(.caption2)
-                        .foregroundColor(IosTheme.color(.textSecondary, from: designSystem))
+                        .foregroundColor(designSystem.color(.textSecondary))
                 }
             }
             .id("toolbar_content_\(tb?.id ?? "none")_\(tb?.titleToken?.name ?? "none")")
@@ -112,9 +112,9 @@ struct MainView: View {
         ToolbarItem(placement: .navigationBarTrailing) {
             if let tb = tb {
                 Button(action: { component.onAction(action: tb.profileAction) }) {
-                    Image(systemName: designSystem.icon(token: .profile))
+                    Image(systemName: designSystem.icon(.profile))
                         .font(.system(size: 18, weight: .bold))
-                        .foregroundColor(IosTheme.color(tb.contentColor, from: designSystem))
+                        .foregroundColor(designSystem.color(tb.contentColor))
                 }
             }
         }
@@ -132,10 +132,6 @@ struct MainView: View {
         .environment(\.colorScheme, navigator.isDark ? .dark : .light)
         .presentationDetents([.medium, .large])
         .presentationDragIndicator(.visible)
-        .presentationBackground {
-            IosTheme.color(.surface, from: designSystem)
-                .opacity(0.8)
-                .background(.ultraThinMaterial)
-        }
+        .presentationBackground(designSystem.color(.surface).opacity(0.8))
     }
 }

@@ -18,8 +18,8 @@ struct GlassSegmentedTabRow<T: Hashable>: View {
             }
         }
         .pickerStyle(.segmented)
-        .padding(4)
-        .padding(.horizontal, 16)
-        .padding(.vertical, 8)
+        .padding(designSystem.dimen(.spacingSmall))
+        .padding(.horizontal, designSystem.dimen(.spacingLarge))
+        .padding(.vertical, designSystem.dimen(.spacingMedium))
     }
 }

@@ -8,5 +8,5 @@ sealed class AppRoute {
     @Serializable
     data object Debug : AppRoute()
     @Serializable
-    data class Investigation(val subjectId: String) : AppRoute()
+    data class Recording(val subjectId: String) : AppRoute()
 }

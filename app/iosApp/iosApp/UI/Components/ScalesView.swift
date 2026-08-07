@@ -33,11 +33,11 @@ struct ScalesView: View {
                 return 1.0
             }()
             
-            let cellWidth = CGFloat(designSystem.dimen(token: .backgroundCellWidth))
-            let cellHeight = CGFloat(designSystem.dimen(token: .backgroundCellHeight))
+            let cellWidth = designSystem.dimen(.backgroundCellWidth)
+            let cellHeight = designSystem.dimen(.backgroundCellHeight)
             
             ZStack {
-                IosTheme.color(config.baseColor, from: designSystem)
+                designSystem.color(config.baseColor)
                     .ignoresSafeArea()
                 
                 Canvas { context, size in
@@ -47,27 +47,28 @@ struct ScalesView: View {
                     let cellW = size.width / CGFloat(cols)
                     let cellH = size.height / CGFloat(rows)
                     
-                    let intensity = Double(designSystem.dimen(token: .parallaxIntensity)) * Double(config.parallaxIntensity)
+                    let intensity = Double(designSystem.dimen(.parallaxIntensity)) * Double(config.parallaxIntensity)
                     let px = CGFloat(tiltX * intensity)
                     let py = CGFloat(tiltY * intensity)
                     
-                    let cornerRadius = CGFloat(designSystem.dimen(token: .cornerRadius))
+                    let cornerRadius = designSystem.dimen(.cornerRadius)
                     
                     let energyColorToken: ColorToken = {
                         switch config.mode {
                         case .error: return .error
                         case .success: return .truth
-                        case .recording: return .stress
+                        case .recording: return .accentEnergy // Base is green
                         case .processing: return .warning
                         case .waiting: return .accentEnergy
                         default: return config.energyColor
                         }
                     }()
                     
-                    let truthColor = IosTheme.color(.truth, from: designSystem)
-                    let stressColor = IosTheme.color(.stress, from: designSystem)
-                    let energyColor = IosTheme.color(energyColorToken, from: designSystem)
-                    let variantColor = IosTheme.color(config.particleColor, from: designSystem)
+                    let truthColor = designSystem.color(.truth)
+                    let stressColor = designSystem.color(.stress)
+                    let recordingBaseColor = designSystem.color(.accentEnergy)
+                    let energyColor = designSystem.color(energyColorToken)
+                    let variantColor = designSystem.color(config.particleColor)
                     
                     // Expanded range (-2 to +2) to ensure no edge gaps during parallax
                     for r in -2...rows + 2 {
@@ -98,7 +99,15 @@ struct ScalesView: View {
                             let alpha = energyIntensity * 0.4 * (0.3 + max(0, wave) * 0.7)
                             
                             let finalEnergyColor: Color = {
-                                if config.mode == .waiting {
+                                if config.mode == .recording {
+                                    let pulse = pow(sin(distMask * 5.0 - time * 1.5) * 0.5 + 0.5, 10.0)
+                                    return Color(
+                                        red: Double(recordingBaseColor.components.red) * (1.0 - pulse) + Double(stressColor.components.red) * pulse,
+                                        green: Double(recordingBaseColor.components.green) * (1.0 - pulse) + Double(stressColor.components.green) * pulse,
+                                        blue: Double(recordingBaseColor.components.blue) * (1.0 - pulse) + Double(stressColor.components.blue) * pulse,
+                                        opacity: 1.0
+                                    )
+                                } else if config.mode == .waiting {
                                     let mix = (sin(Double(x) * 0.01 + time) * 0.5 + 0.5)
                                     return Color(
                                         red: Double(truthColor.components.red) * (1.0 - mix) + Double(stressColor.components.red) * mix,

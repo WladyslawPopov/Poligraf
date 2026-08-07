@@ -58,7 +58,7 @@ fun SubjectListRenderer(
             )
             Spacer(modifier = Modifier.width(designSystem.dimen(DimenToken.SPACING_SMALL).dp))
             Text(
-                text = designSystem.string(StringToken.SECTION_SUBJECTS).uppercase(),
+                text = designSystem.string(StringToken.SECTION_RECORDINGS).uppercase(),
                 style = MaterialTheme.typography.labelMedium,
                 color = designSystem.composeColor(ColorToken.TEXT_SECONDARY),
                 fontWeight = FontWeight.Bold

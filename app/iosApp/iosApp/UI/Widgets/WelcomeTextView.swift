@@ -9,19 +9,19 @@ struct WelcomeTextView: View {
     
     var body: some View {
         let minHeight = verticalSizeClass == .compact 
-            ? CGFloat(truncating: designSystem.dimen(token: .welcomeMinHeight) as NSNumber) / 2.5
-            : CGFloat(truncating: designSystem.dimen(token: .welcomeMinHeight) as NSNumber)
+            ? designSystem.dimen(.welcomeMinHeight) / 2.5
+            : designSystem.dimen(.welcomeMinHeight)
             
         VStack(alignment: .leading) {
             TypingTextView(
                 text: designSystem.string(token: widget.textToken) + (widget.emoji ?? ""),
-                color: IosTheme.color(widget.colorToken, from: designSystem),
-                font: IosTheme.font(widget.typographyToken),
+                color: designSystem.color(widget.colorToken),
+                font: designSystem.font(widget.typographyToken),
                 typingDelay: Double(truncating: widget.typingDelay as NSNumber) / 1000.0
             )
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(CGFloat(truncating: designSystem.dimen(token: .spacingLarge) as NSNumber))
+        .padding(designSystem.dimen(.spacingLarge))
         .frame(minHeight: minHeight, alignment: .center)
     }
 }

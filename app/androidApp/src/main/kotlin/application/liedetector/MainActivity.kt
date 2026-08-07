@@ -21,7 +21,7 @@ import application.liedetector.navigation.AppRoute
 import application.liedetector.theme.LieDetectorTheme
 import application.liedetector.ui.screens.main.MainHost
 import application.liedetector.ui.screens.debug.DebugHost
-import application.liedetector.ui.screens.investigation.InvestigationHost
+import application.liedetector.ui.screens.recording.RecordingHost
 import application.liedetector.uicore.theme.LocalDesignSystem
 
 class MainActivity : ComponentActivity() {
@@ -83,17 +83,15 @@ class MainActivity : ComponentActivity() {
                     composable<AppRoute.Debug> {
                         DebugHost(root.debugComponent)
                     }
-                    composable<AppRoute.Investigation> { backStackEntry ->
-                        val route: AppRoute.Investigation = backStackEntry.arguments?.let { 
+                    composable<AppRoute.Recording> { backStackEntry ->
+                        val route: AppRoute.Recording = backStackEntry.arguments?.let { 
                             // In Type-safe navigation 2.8.0+, we can use backStackEntry.toRoute()
                             // but let's stick to the root factory for now.
-                            AppRoute.Investigation(it.getString("subjectId") ?: "")
-                        } ?: AppRoute.Investigation("")
-                        
-                        val component = remember(route.subjectId) {
-                            root.createInvestigationComponent(route.subjectId)
-                        }
-                        InvestigationHost(component)
+                            AppRoute.Recording(it.getString("subjectId") ?: "")
+                        } ?: AppRoute.Recording("")
+
+                        val component = root.createRecordingComponent(route.subjectId)
+                        RecordingHost(component)
                     }
                 }
             }

@@ -1,18 +1,18 @@
-package application.liedetector.presentation.investigation
+package application.liedetector.presentation.recording
 
 import androidx.compose.runtime.Stable
 import application.liedetector.component.ComponentContext
 
 @Stable
-class InvestigationComponent(
+class RecordingComponent(
     val context: ComponentContext,
-    val viewModel: InvestigationViewModel
+    val viewModel: RecordingViewModel
 ) {
     fun goBack() {
         viewModel.goBack()
     }
 
-    fun deleteSubject() {
-        viewModel.deleteSubject()
+    fun deleteRecording() {
+        viewModel.deleteRecording()
     }
 }

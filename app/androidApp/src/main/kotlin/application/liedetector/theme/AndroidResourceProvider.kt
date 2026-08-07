@@ -48,9 +48,11 @@ class AndroidResourceProvider(private val context: Context) : ResourceProvider {
             StringToken.TAB_LABS -> application.liedetector.R.string.tab_labs
             StringToken.OPEN_DEBUG_SANDBOX -> application.liedetector.R.string.open_debug_sandbox
             StringToken.LABS_EMPTY_MESSAGE -> application.liedetector.R.string.labs_empty_message
-            StringToken.INVESTIGATION_SCREEN_PLACEHOLDER -> application.liedetector.R.string.investigation_screen_placeholder
+            StringToken.RECORDING_SCREEN_PLACEHOLDER -> application.liedetector.R.string.recording_screen_placeholder
+            StringToken.RECORDING_SCREEN_TITLE -> application.liedetector.R.string.recording_screen_title
+            StringToken.DELETE_RECORDING_CONFIRMATION -> application.liedetector.R.string.delete_recording_confirmation
             StringToken.SECTION_TEMPLATES -> application.liedetector.R.string.section_templates
-            StringToken.SECTION_SUBJECTS -> application.liedetector.R.string.section_subjects
+            StringToken.SECTION_RECORDINGS -> application.liedetector.R.string.section_recordings
             
             StringToken.DRAWER_FOOTER_TITLE -> application.liedetector.R.string.drawer_footer_title
             StringToken.DRAWER_FOOTER_SUBTITLE -> application.liedetector.R.string.drawer_footer_subtitle

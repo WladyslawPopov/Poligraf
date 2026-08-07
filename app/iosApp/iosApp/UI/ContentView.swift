@@ -21,8 +21,6 @@ struct ContentView: View {
         let root = IosComponentFactoryKt.createRootComponent(navigation: nav)
         self.component = root
         
-        // We use a temporary navigator for init, but it will be replaced by the @StateObject
-        // In SwiftUI, init() is called multiple times, so we need to be careful with @StateObject
         self._navigator = StateObject(wrappedValue: nav)
     }
 
@@ -34,9 +32,9 @@ struct ContentView: View {
                     screen(for: route)
                 }
         }
-        .background(IosTheme.color(.background, from: designSystem).ignoresSafeArea())
+        .background(designSystem.color(.background).ignoresSafeArea())
         .environment(\.colorScheme, navigator.isDark ? .dark : .light)
-        .tint(IosTheme.color(.accentEnergy, from: designSystem))
+        .tint(designSystem.color(.accentEnergy))
     }
     
     @ViewBuilder
@@ -46,10 +44,10 @@ struct ContentView: View {
             MainView(navigator: navigator, component: component.mainComponent, designSystem: designSystem)
         case is AppRoute.Debug:
             DebugView(navigator: navigator, component: component.debugComponent, designSystem: designSystem)
-        case let inv as AppRoute.Investigation:
-            InvestigationView(
+        case let rec as AppRoute.Recording:
+            RecordingView(
                 navigator: navigator,
-                component: component.createInvestigationComponent(subjectId: inv.subjectId),
+                component: component.createRecordingComponent(subjectId: rec.subjectId),
                 designSystem: designSystem
             )
         default:

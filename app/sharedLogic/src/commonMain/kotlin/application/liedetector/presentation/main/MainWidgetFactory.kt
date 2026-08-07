@@ -1,7 +1,7 @@
 package application.liedetector.presentation.main
 
 import application.liedetector.domain.model.Subject
-import application.liedetector.uicore.actions.InvestigationAction
+import application.liedetector.uicore.actions.RecordingAction
 import application.liedetector.uicore.theme.tokens.ColorToken
 import application.liedetector.uicore.theme.tokens.StringToken
 import application.liedetector.uicore.theme.tokens.TypographyToken
@@ -13,10 +13,10 @@ object MainWidgetFactory {
         displayMode: UiWidget.SubjectSlider.DisplayMode
     ): UiWidget.SubjectSlider {
         val defaultCard = UiWidget.SubjectCard(
-            id = "new_investigation",
-            titleToken = StringToken.SUBJECT_NEW_TITLE,
+            id = "new_recording",
+            titleToken = StringToken.SUBJECT_NEW_BUTTON,
             emoji = "🕵️",
-            action = InvestigationAction.StartNew,
+            action = RecordingAction.StartNew,
             backgroundColor = ColorToken.GLASS_BASE,
             titleColor = ColorToken.TEXT_PRIMARY,
             titleTypography = TypographyToken.SUBHEADER,
@@ -37,7 +37,7 @@ object MainWidgetFactory {
                 id = data.id ?: "",
                 title = data.name,
                 emoji = data.avatar ?: "",
-                action = InvestigationAction.Open(data.id ?: ""),
+                action = RecordingAction.Open(data.id ?: ""),
                 backgroundColor = ColorToken.GLASS_BASE
             )
         }

@@ -9,7 +9,7 @@ import application.liedetector.presentation.base.toErrorType
 import application.liedetector.uicore.theme.tokens.ColorToken
 import application.liedetector.uicore.theme.tokens.StringToken
 import application.liedetector.uicore.theme.tokens.TypographyToken
-import application.liedetector.uicore.actions.InvestigationAction
+import application.liedetector.uicore.actions.RecordingAction
 import application.liedetector.uicore.actions.NavigationAction
 import application.liedetector.uicore.actions.WidgetAction
 import application.liedetector.uicore.types.BackgroundMode
@@ -181,15 +181,15 @@ class MainViewModel(
             is NavigationAction.Profile -> {
                 Napier.d { "MAIN: Profile action triggered" }
             }
-            is InvestigationAction.StartNew -> {
-                startNewInvestigation()
+            is RecordingAction.StartNew -> {
+                startNewRecording()
             }
-            is InvestigationAction.Open -> {
+            is RecordingAction.Open -> {
                 val currentList = _state.value.widgets.filterIsInstance<UiWidget.SubjectList>().firstOrNull()
                 if (currentList?.isSelectionMode == true) {
                     toggleSelection(action.subjectId)
                 } else {
-                    navigation.openInvestigation(action.subjectId)
+                    navigation.openRecording(action.subjectId)
                 }
             }
             else -> {}
@@ -252,7 +252,7 @@ class MainViewModel(
         )
     }
 
-    private fun startNewInvestigation() {
+    private fun startNewRecording() {
         launchSafe(
             isBlocking = true,
             block = {
@@ -266,7 +266,7 @@ class MainViewModel(
                 
                 if (result is KmpResult.Success) {
                     val subject = result.data
-                    navigation.openInvestigation(subject.id ?: "")
+                    navigation.openRecording(subject.id ?: "")
                 }
             }
         )

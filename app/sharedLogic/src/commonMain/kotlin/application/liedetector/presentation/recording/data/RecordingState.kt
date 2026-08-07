@@ -1,4 +1,4 @@
-package application.liedetector.presentation.investigation.data
+package application.liedetector.presentation.recording.data
 
 import androidx.compose.runtime.Stable
 import application.liedetector.domain.model.Subject
@@ -8,7 +8,7 @@ import application.liedetector.uicore.widgets.AppBackground
 import application.liedetector.uicore.widgets.UiWidget
 
 @Stable
-data class InvestigationState(
+data class RecordingState(
     override val background: AppBackground = AppBackground.AnimatedScales(),
     override val toolbar: UiWidget.AppToolbar? = null,
     override val layoutConfig: LayoutConfig = LayoutConfig(isCentered = false),

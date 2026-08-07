@@ -2,12 +2,41 @@ import SwiftUI
 import SharedLogic
 
 /**
- * SwiftUI specific theme helper to resolve ColorTokens.
+ * Extensions to DesignSystem to provide SwiftUI-friendly access to theme tokens.
+ */
+extension DesignSystem {
+    func color(_ token: ColorToken) -> Color {
+        let hex = self.color(token: token)
+        return Color(hex: hex)
+    }
+    
+    func dimen(_ token: DimenToken) -> CGFloat {
+        let val = self.dimen(token: token)
+        return CGFloat(truncating: val as NSNumber)
+    }
+    
+    func font(_ token: TypographyToken) -> Font {
+        switch token {
+        case .header: return .system(size: 34, weight: .bold)
+        case .subheader: return .system(size: 24, weight: .semibold)
+        case .body: return .system(size: 17, weight: .regular)
+        case .caption: return .system(size: 12, weight: .regular)
+        case .dataNumeric: return .system(size: 20, weight: .bold, design: .monospaced)
+        default: return .body
+        }
+    }
+    
+    func icon(_ token: IconToken) -> String {
+        return self.icon(token: token)
+    }
+}
+
+/**
+ * Legacy wrapper, consider moving to DesignSystem extensions directly.
  */
 struct IosTheme {
     static func color(_ token: ColorToken, from designSystem: DesignSystem) -> Color {
-        let hex = designSystem.color(token: token)
-        return Color(hex: hex)
+        return designSystem.color(token)
     }
     
     static func font(_ token: TypographyToken) -> Font {

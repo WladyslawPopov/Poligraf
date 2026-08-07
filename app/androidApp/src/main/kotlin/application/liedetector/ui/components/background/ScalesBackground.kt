@@ -111,7 +111,7 @@ fun ScalesBackground(
     val energyColorToken = when (config.mode) {
         BackgroundMode.ERROR -> ColorToken.ERROR
         BackgroundMode.SUCCESS -> ColorToken.TRUTH
-        BackgroundMode.RECORDING -> ColorToken.STRESS
+        BackgroundMode.RECORDING -> ColorToken.ACCENT_ENERGY // Base is now green
         BackgroundMode.PROCESSING -> ColorToken.WARNING
         BackgroundMode.WAITING -> ColorToken.ACCENT_ENERGY // Mixed dynamically
         else -> config.energyColor
@@ -123,6 +123,7 @@ fun ScalesBackground(
 
     val truthColor = designSystem.composeColor(ColorToken.TRUTH)
     val stressColor = designSystem.composeColor(ColorToken.STRESS)
+    val recordingBaseColor = designSystem.composeColor(ColorToken.ACCENT_ENERGY)
 
     val blurRadius by animateFloatAsState(
         targetValue = if (config.mode == BackgroundMode.ERROR) config.blurRadius * 1.5f else config.blurRadius,
@@ -173,11 +174,17 @@ fun ScalesBackground(
                     val energyIntensity = (distMask * 1.2f).coerceIn(0.2f, 1f)
                     val rectTopLeft = Offset(x - halfRectW, y - halfRectH)
 
-                    val finalEnergyColor = if (config.mode == BackgroundMode.WAITING) {
-                        val mix = (sin(x * 0.01f + time) * 0.5f + 0.5f)
-                        lerp(truthColor, stressColor, mix)
-                    } else {
-                        energyColor
+                    val finalEnergyColor = when (config.mode) {
+                        BackgroundMode.RECORDING -> {
+                            // Red pulse every few seconds based on distance and time
+                            val pulse = (sin(distMask * 5f - time * 1.5f) * 0.5f + 0.5f).pow(10f)
+                            lerp(recordingBaseColor, stressColor, pulse.coerceIn(0f, 1f))
+                        }
+                        BackgroundMode.WAITING -> {
+                            val mix = (sin(x * 0.01f + time) * 0.5f + 0.5f)
+                            lerp(truthColor, stressColor, mix)
+                        }
+                        else -> energyColor
                     }
 
                     // Draw Scale

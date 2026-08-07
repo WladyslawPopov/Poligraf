@@ -99,7 +99,7 @@ private fun SubjectStoryRenderer(
         ) {
             Text(text = item.emoji, style = MaterialTheme.typography.headlineLarge)
             
-            Spacer(modifier = Modifier.height(designSystem.dimen(DimenToken.SPACING_TINY).dp))
+            Spacer(modifier = Modifier.height(designSystem.dimen(DimenToken.SPACING_MEDIUM).dp))
             
             Text(
                 text = item.title ?: designSystem.string(item.titleToken),
@@ -107,7 +107,8 @@ private fun SubjectStoryRenderer(
                 color = designSystem.composeColor(item.titleColor),
                 textAlign = TextAlign.Center,
                 fontWeight = FontWeight.Medium,
-                maxLines = 2
+                maxLines = 2,
+                softWrap = true
             )
         }
     }
@@ -139,7 +140,7 @@ private fun SubjectCardRenderer(
                 .fillMaxSize()
                 .padding(designSystem.dimen(DimenToken.SPACING_MEDIUM).dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceBetween
+            verticalArrangement = Arrangement.Center
         ) {
             Box(
                 modifier = Modifier
@@ -153,29 +154,17 @@ private fun SubjectCardRenderer(
                 Text(text = item.emoji, style = MaterialTheme.typography.displayMedium)
             }
             
+            Spacer(modifier = Modifier.height(designSystem.dimen(DimenToken.SPACING_LARGE).dp))
+            
             Text(
                 text = item.title ?: designSystem.string(item.titleToken),
                 style = MaterialTheme.typography.titleMedium,
                 color = designSystem.composeColor(item.titleColor),
                 textAlign = TextAlign.Center,
-                fontWeight = FontWeight.SemiBold
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 2,
+                softWrap = true
             )
-            
-            Button(
-                onClick = { onAction(item.action) },
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = designSystem.composeColor(item.buttonColor),
-                    contentColor = designSystem.composeColor(ColorToken.TEXT_INVERTED)
-                ),
-                shape = MaterialTheme.shapes.large
-            ) {
-                Text(
-                    text = designSystem.string(StringToken.SUBJECT_NEW_BUTTON),
-                    maxLines = 1,
-                    softWrap = false
-                )
-            }
         }
     }
 }

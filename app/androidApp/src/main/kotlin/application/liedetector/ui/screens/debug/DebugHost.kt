@@ -33,8 +33,8 @@ fun DebugHost(component: DebugComponent) {
     )
 
     // Sync Pager -> ViewModel
-    LaunchedEffect(pagerState.currentPage) {
-        component.setTab(DebugTab.entries[pagerState.currentPage])
+    LaunchedEffect(pagerState.settledPage) {
+        component.setTab(DebugTab.entries[pagerState.settledPage])
     }
 
     // Sync ViewModel -> Pager

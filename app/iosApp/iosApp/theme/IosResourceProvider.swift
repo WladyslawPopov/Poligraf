@@ -42,9 +42,13 @@ class IosResourceProvider: ResourceProvider {
         case .tabLabs: key = "tab_labs"
         case .openDebugSandbox: key = "open_debug_sandbox"
         case .labsEmptyMessage: key = "labs_empty_message"
-        case .investigationScreenPlaceholder: key = "investigation_screen_placeholder"
+        case .recordingScreenPlaceholder: key = "recording_screen_placeholder"
+        case .recordingScreenTitle: key = "recording_screen_title"
+        case .deleteRecordingConfirmation: key = "delete_recording_confirmation"
         case .sectionTemplates: key = "section_templates"
-        case .sectionSubjects: key = "section_subjects"
+        case .sectionRecordings: key = "section_recordings"
+        case .drawerFooterTitle: key = "drawer_footer_title"
+        case .drawerFooterSubtitle: key = "drawer_footer_subtitle"
         default: key = ""
         }
         return NSLocalizedString(key, comment: "")

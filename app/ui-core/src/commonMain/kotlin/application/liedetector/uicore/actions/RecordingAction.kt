@@ -1,6 +1,7 @@
 package application.liedetector.uicore.actions
 
 sealed class RecordingAction : WidgetAction() {
-    data object Start : RecordingAction()
-    data object Stop : RecordingAction()
+    data object StartNew : RecordingAction()
+    data class Open(val subjectId: String) : RecordingAction()
+    data object Retry : RecordingAction()
 }

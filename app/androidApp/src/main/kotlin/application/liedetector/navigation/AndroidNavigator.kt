@@ -31,8 +31,8 @@ class AndroidNavigator : AppNavigation {
         navController?.navigate(AppRoute.Debug)
     }
 
-    override fun openInvestigation(subjectId: String) {
-        navController?.navigate(AppRoute.Investigation(subjectId))
+    override fun openRecording(subjectId: String) {
+        navController?.navigate(AppRoute.Recording(subjectId))
     }
 
     override fun back() {

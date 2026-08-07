@@ -9,7 +9,7 @@ import androidx.compose.runtime.Stable
 interface AppNavigation {
     fun openMain()
     fun openDebug()
-    fun openInvestigation(subjectId: String)
+    fun openRecording(subjectId: String)
     fun back()
     
     fun toggleDrawer()

@@ -12,10 +12,10 @@ struct SubjectSliderView: View {
             HStack(spacing: 6) {
                 Text(designSystem.string(token: .sectionTemplates).uppercased())
                     .font(.system(size: 10, weight: .bold))
-                    .foregroundColor(IosTheme.color(.textSecondary, from: designSystem))
+                    .foregroundColor(designSystem.color(.textSecondary))
             }
-            .padding(.horizontal, CGFloat(truncating: designSystem.dimen(token: .spacingLarge) as NSNumber))
-            .padding(.bottom, CGFloat(truncating: designSystem.dimen(token: .spacingSmall) as NSNumber))
+            .padding(.horizontal, designSystem.dimen(.spacingLarge))
+            .padding(.bottom, designSystem.dimen(.spacingSmall))
 
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: CGFloat(truncating: widget.itemSpacing as NSNumber)) {
@@ -27,10 +27,10 @@ struct SubjectSliderView: View {
                         }
                     }
                 }
-                .padding(.horizontal, CGFloat(truncating: designSystem.dimen(token: .spacingMedium) as NSNumber))
+                .padding(.horizontal, designSystem.dimen(.spacingMedium))
             }
         }
-        .padding(.vertical, CGFloat(truncating: designSystem.dimen(token: .spacingSmall) as NSNumber))
+        .padding(.vertical, designSystem.dimen(.spacingSmall))
     }
 }
 
@@ -41,24 +41,24 @@ struct SubjectStoryView: View {
     
     var body: some View {
         Button(action: { onAction(item.action) }) {
-            VStack(spacing: CGFloat(truncating: designSystem.dimen(token: .spacingTiny) as NSNumber)) {
+            VStack(spacing: 12) {
                 Text(item.emoji)
                     .font(.system(size: 40))
                 
                 Text(item.title ?? designSystem.string(token: item.titleToken))
-                    .font(.caption2)
+                    .font(.system(size: 10))
                     .fontWeight(.medium)
                     .multilineTextAlignment(.center)
                     .lineLimit(2)
-                    .foregroundColor(IosTheme.color(item.titleColor, from: designSystem))
+                    .foregroundColor(designSystem.color(item.titleColor))
             }
-            .frame(width: CGFloat(truncating: designSystem.dimen(token: .subjectStoryWidth) as NSNumber),
-                   height: CGFloat(truncating: designSystem.dimen(token: .subjectStoryHeight) as NSNumber))
-            .background(IosTheme.color(item.backgroundColor, from: designSystem).opacity(0.4))
-            .cornerRadius(CGFloat(truncating: designSystem.dimen(token: .cornerRadius) as NSNumber))
+            .frame(width: designSystem.dimen(.subjectStoryWidth),
+                   height: designSystem.dimen(.subjectStoryHeight))
+            .background(designSystem.color(item.backgroundColor).opacity(0.4))
+            .cornerRadius(designSystem.dimen(.cornerRadius))
             .overlay(
-                RoundedRectangle(cornerRadius: CGFloat(truncating: designSystem.dimen(token: .cornerRadius) as NSNumber))
-                    .stroke(IosTheme.color(.glassBorder, from: designSystem).opacity(0.15), lineWidth: 1)
+                RoundedRectangle(cornerRadius: designSystem.dimen(.cornerRadius))
+                    .stroke(designSystem.color(.glassBorder).opacity(0.15), lineWidth: 1)
             )
         }
     }
