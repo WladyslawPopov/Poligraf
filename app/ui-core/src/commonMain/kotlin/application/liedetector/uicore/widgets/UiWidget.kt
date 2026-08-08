@@ -64,4 +64,15 @@ sealed class UiWidget {
         val isSelectionMode: Boolean = false,
         val selectedIds: Set<String> = emptySet()
     ) : UiWidget()
+
+    @Immutable
+    data class VoiceRecorder(
+        override val id: String,
+        val status: Status = Status.IDLE,
+        val durationMillis: Long = 0,
+        val amplitudes: List<Float> = emptyList(),
+        val filePath: String? = null
+    ) : UiWidget() {
+        enum class Status { IDLE, RECORDING, PAUSED, FINISHED }
+    }
 }

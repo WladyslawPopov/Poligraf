@@ -8,6 +8,7 @@ struct RecordingView: View {
     
     @ObservedObject var state: SKIEStateObserver<RecordingState>
     @State private var showSettings = false
+    @Namespace private var bottomPanelNamespace
 
     init(navigator: IosNavigator, component: RecordingComponent, designSystem: DesignSystem) {
         self.navigator = navigator
@@ -24,29 +25,68 @@ struct RecordingView: View {
             onRetry: { },
             onRefresh: { }
         ) {
-            VStack {
+            ZStack(alignment: .bottom) {
                 // 1. Evidence List
                 ScrollView {
                     LazyVStack(spacing: 12) {
                         ForEach(state.value.widgets, id: \.id) { widget in
-                            WidgetView(widget: widget, designSystem: designSystem, onAction: { _ in })
+                            WidgetView(
+                                widget: widget,
+                                designSystem: designSystem,
+                                onAction: { _ in },
+                                recordingComponent: component
+                            )
                         }
                     }
-                    .padding()
+                    .padding(.horizontal)
+                    .padding(.top, 16)
+                    .padding(.bottom, 140) // Space for bottom panel
                 }
-                
-                Spacer()
+                .ignoresSafeArea(.container, edges: .bottom)
                 
                 // 2. Control Panel Island
-                HStack(spacing: 24) {
-                    RecordingActionButton(systemName: designSystem.icon(.mic), designSystem: designSystem)
-                    RecordingActionButton(systemName: designSystem.icon(.gallery), designSystem: designSystem)
-                    RecordingActionButton(systemName: designSystem.icon(.note), designSystem: designSystem)
+                ZStack {
+                    if let activeRecorder = state.value.activeRecorder {
+                        VoiceRecorderView(
+                            widget: activeRecorder,
+                            designSystem: designSystem,
+                            onToggle: { 
+                                withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                                    component.toggleRecording() 
+                                }
+                            },
+                            onStop: { 
+                                withAnimation(.spring(response: 0.45, dampingFraction: 0.7)) {
+                                    component.stopRecording() 
+                                }
+                            }
+                        )
+                        .matchedGeometryEffect(id: "content", in: bottomPanelNamespace)
+                    } else {
+                        HStack(spacing: 24) {
+                            RecordingActionButton(systemName: designSystem.icon(.mic), designSystem: designSystem) {
+                                withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                                    component.onMicClicked()
+                                }
+                            }
+                            RecordingActionButton(systemName: designSystem.icon(.gallery), designSystem: designSystem) { }
+                            RecordingActionButton(systemName: designSystem.icon(.note), designSystem: designSystem) { }
+                        }
+                        .padding(8)
+                        .matchedGeometryEffect(id: "content", in: bottomPanelNamespace)
+                    }
                 }
-                .padding(8)
-                .background(.ultraThinMaterial)
-                .clipShape(Capsule())
-                .padding(.bottom, 20)
+                .background(
+                    RoundedRectangle(cornerRadius: state.value.activeRecorder != nil ? 32 : 40)
+                        .fill(.ultraThinMaterial)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: state.value.activeRecorder != nil ? 32 : 40)
+                                .stroke(designSystem.color(.glassBorder).opacity(0.15), lineWidth: 0.5)
+                        )
+                        .matchedGeometryEffect(id: "island", in: bottomPanelNamespace)
+                )
+                .padding(.horizontal, 16)
+                .padding(.bottom, 24)
             }
         }
         .navigationBarBackButtonHidden(true)
@@ -119,9 +159,10 @@ struct RecordingView: View {
 struct RecordingActionButton: View {
     let systemName: String
     let designSystem: DesignSystem
+    let action: () -> Void
     
     var body: some View {
-        Button(action: { }) {
+        Button(action: action) {
             Image(systemName: systemName)
                 .font(.title3)
                 .foregroundColor(designSystem.color(.textInverted))

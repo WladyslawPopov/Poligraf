@@ -55,14 +55,9 @@ kotlin {
             // Lifecycle
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
-
-            // UI Stability
-            implementation(libs.compose.runtime)
         }
 
         androidMain.dependencies {
-            implementation(libs.androidx.activity.compose)
-            implementation(libs.androidx.appcompat)
         }
 
         nativeMain.dependencies {

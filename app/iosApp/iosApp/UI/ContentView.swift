@@ -18,7 +18,9 @@ struct ContentView: View {
 
     init() {
         let nav = IosNavigator()
-        let root = IosComponentFactoryKt.createRootComponent(navigation: nav)
+
+        let context = IosComponentFactoryKt.componentContext()
+        let root = RootComponent(context : context, navigation : nav)
         self.component = root
         
         self._navigator = StateObject(wrappedValue: nav)

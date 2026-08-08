@@ -13,5 +13,6 @@ data class RecordingState(
     override val toolbar: UiWidget.AppToolbar? = null,
     override val layoutConfig: LayoutConfig = LayoutConfig(isCentered = false),
     val subject: Subject? = null,
-    val widgets: List<UiWidget> = emptyList()
+    val widgets: List<UiWidget> = emptyList(),
+    val activeRecorder: UiWidget.VoiceRecorder? = null
 ) : ScaffoldUiState

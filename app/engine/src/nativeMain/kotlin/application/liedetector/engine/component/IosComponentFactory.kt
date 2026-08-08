@@ -1,4 +1,4 @@
-package application.liedetector.component
+package application.liedetector.engine.component
 
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
@@ -7,13 +7,11 @@ import androidx.lifecycle.ViewModelStore
 import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
-import application.liedetector.navigation.AppNavigation
-import application.liedetector.presentation.root.RootComponent
 
 /**
  * Factory for Swift to create the RootComponent.
  */
-fun createRootComponent(navigation: AppNavigation): RootComponent {
+fun componentContext(): ComponentContext {
     // Correct way to initialize Lifecycle on Native
     val lifecycle = LifecycleRegistry(object : LifecycleOwner {
         override val lifecycle: Lifecycle get() = throw IllegalStateException("Do not access lifecycle directly")
@@ -33,5 +31,5 @@ fun createRootComponent(navigation: AppNavigation): RootComponent {
     
     lifecycle.currentState = Lifecycle.State.RESUMED
     
-    return RootComponent(context, navigation)
+    return context
 }

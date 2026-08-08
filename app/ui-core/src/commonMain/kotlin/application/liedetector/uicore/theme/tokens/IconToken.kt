@@ -15,5 +15,7 @@ enum class IconToken {
     DRAG_HANDLE,
     EDIT,
     CHECK,
-    MORE_VERT
+    MORE_VERT,
+    PLAY,
+    PAUSE
 }

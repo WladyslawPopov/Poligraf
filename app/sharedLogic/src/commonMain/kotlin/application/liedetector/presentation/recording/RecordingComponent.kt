@@ -1,7 +1,7 @@
 package application.liedetector.presentation.recording
 
 import androidx.compose.runtime.Stable
-import application.liedetector.component.ComponentContext
+import application.liedetector.engine.component.ComponentContext
 
 @Stable
 class RecordingComponent(
@@ -14,5 +14,17 @@ class RecordingComponent(
 
     fun deleteRecording() {
         viewModel.deleteRecording()
+    }
+
+    fun onMicClicked() {
+        viewModel.onMicClicked()
+    }
+
+    fun toggleRecording() {
+        viewModel.toggleRecording()
+    }
+
+    fun stopRecording() {
+        viewModel.stopRecording()
     }
 }

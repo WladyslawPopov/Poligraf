@@ -8,7 +8,12 @@ import application.liedetector.engine.database.common.DriverFactory
 import application.liedetector.uicore.theme.ResourceProvider
 import application.liedetector.uicore.theme.DesignSystem
 import application.liedetector.engine.config.AppConfig
+import application.liedetector.engine.io.audio.AudioRecorder
+import application.liedetector.engine.io.audio.IosAudioRecorder
 import com.russhwolf.settings.Settings
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import org.koin.dsl.module
 
 /**
@@ -43,6 +48,10 @@ fun doInitKoinIos(
                 platform = "iOS"
             )
         }
+        
+        val appScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+        single { appScope }
+        single<AudioRecorder> { IosAudioRecorder(get()) }
     }
     
     initKoin(

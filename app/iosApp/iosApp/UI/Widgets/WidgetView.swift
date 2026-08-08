@@ -5,6 +5,7 @@ struct WidgetView: View {
     let widget: UiWidget
     let designSystem: DesignSystem
     let onAction: (WidgetAction) -> Void
+    var recordingComponent: RecordingComponent? = nil
     
     var body: some View {
         Group {
@@ -14,6 +15,13 @@ struct WidgetView: View {
                 SubjectSliderView(widget: slider, designSystem: designSystem, onAction: onAction)
             } else if let list = widget as? UiWidget.SubjectList {
                 SubjectListView(widget: list, designSystem: designSystem, onAction: onAction)
+            } else if let recorder = widget as? UiWidget.VoiceRecorder {
+                VoiceRecorderView(
+                    widget: recorder,
+                    designSystem: designSystem,
+                    onToggle: { recordingComponent?.toggleRecording() },
+                    onStop: { recordingComponent?.stopRecording() }
+                )
             } else {
                 EmptyView()
             }

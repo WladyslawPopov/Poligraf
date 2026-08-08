@@ -79,6 +79,8 @@ class AndroidResourceProvider(private val context: Context) : ResourceProvider {
             IconToken.EDIT -> Icons.Rounded.Edit
             IconToken.CHECK -> Icons.Rounded.CheckCircle
             IconToken.MORE_VERT -> Icons.Rounded.MoreVert
+            IconToken.PLAY -> Icons.Rounded.PlayArrow
+            IconToken.PAUSE -> Icons.Rounded.Pause
         }
     }
 }

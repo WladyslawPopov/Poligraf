@@ -72,7 +72,9 @@ class IosResourceProvider: ResourceProvider {
         case .dragHandle: return "line.3.horizontal"
         case .edit: return "pencil"
         case .check: return "checkmark.circle.fill"
-        default: return "questionmark.circle"
+        case .moreVert: return "ellipsis.circle"
+        case .play: return "play.fill"
+        case .pause: return "pause.fill"
         }
     }
     

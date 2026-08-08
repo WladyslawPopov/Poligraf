@@ -14,7 +14,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
-import application.liedetector.component.componentContext
+import application.liedetector.engine.component.componentContext
 import application.liedetector.navigation.AndroidNavigator
 import application.liedetector.presentation.root.RootComponent
 import application.liedetector.navigation.AppRoute

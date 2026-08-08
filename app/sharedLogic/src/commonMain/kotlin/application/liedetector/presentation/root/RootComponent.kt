@@ -13,7 +13,8 @@ import application.liedetector.presentation.debug.DebugComponent
 import application.liedetector.presentation.debug.DebugViewModel
 import application.liedetector.presentation.recording.RecordingComponent
 import application.liedetector.presentation.recording.RecordingViewModel
-import application.liedetector.component.ComponentContext
+import application.liedetector.engine.component.ComponentContext
+import application.liedetector.engine.io.audio.AudioRecorder
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -26,6 +27,7 @@ class RootComponent(
     private val subjectRepository: SubjectRepository by inject()
     private val deviceProvider: DeviceInfoProvider by inject()
     private val appConfig: AppConfig by inject()
+    private val audioRecorder: AudioRecorder by inject()
 
     val viewModel = RootViewModel(userRepository, deviceProvider)
 
@@ -41,7 +43,7 @@ class RootComponent(
     fun createRecordingComponent(subjectId: String): RecordingComponent {
         return RecordingComponent(
             context = context,
-            viewModel = RecordingViewModel(subjectId, navigation, subjectRepository)
+            viewModel = RecordingViewModel(subjectId, navigation, subjectRepository, audioRecorder)
         )
     }
 

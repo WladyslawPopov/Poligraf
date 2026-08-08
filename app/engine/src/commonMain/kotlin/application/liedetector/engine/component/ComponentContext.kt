@@ -1,4 +1,4 @@
-package application.liedetector.component
+package application.liedetector.engine.component
 
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner

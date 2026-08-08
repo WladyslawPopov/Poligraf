@@ -10,9 +10,11 @@ import application.liedetector.engine.device.ReviewManager
 import application.liedetector.engine.database.common.DriverFactory
 import application.liedetector.uicore.theme.ResourceProvider
 import application.liedetector.BuildConfig
+import application.liedetector.engine.io.audio.AndroidAudioRecorder
 import com.russhwolf.settings.Settings
 import com.russhwolf.settings.SharedPreferencesSettings
 import application.liedetector.uicore.theme.DesignSystem
+import application.liedetector.engine.io.audio.AudioRecorder
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
@@ -48,4 +50,7 @@ val androidModule = module {
             override suspend fun requestReview(): Boolean = true 
         } 
     }
+
+    // 7. Audio Recorder
+    single<AudioRecorder> { AndroidAudioRecorder(androidContext(), get()) }
 }
