@@ -45,6 +45,8 @@ class IosResourceProvider: ResourceProvider {
         case .recordingScreenPlaceholder: key = "recording_screen_placeholder"
         case .recordingScreenTitle: key = "recording_screen_title"
         case .deleteRecordingConfirmation: key = "delete_recording_confirmation"
+        case .actionDeleteRecording: key = "action_delete_recording"
+        case .actionSelected: key = "action_selected"
         case .sectionTemplates: key = "section_templates"
         case .sectionRecordings: key = "section_recordings"
         case .drawerFooterTitle: key = "drawer_footer_title"

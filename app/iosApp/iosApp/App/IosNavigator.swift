@@ -9,15 +9,27 @@ class IosNavigator: ObservableObject, AppNavigation {
     // MARK: - AppNavigation implementation
     
     func openMain() {
-        path = []
+        if NavigationGlobalLock.shared.canNavigate() {
+            path = []
+        }
     }
     
     func openDebug() {
-        path.append(AppRoute.Debug())
+        if NavigationGlobalLock.shared.canNavigate() {
+            let route = AppRoute.Debug()
+            if path.last != route {
+                path.append(route)
+            }
+        }
     }
     
     func openRecording(subjectId: String) {
-        path.append(AppRoute.Recording(subjectId: subjectId))
+        if NavigationGlobalLock.shared.canNavigate() {
+            let route = AppRoute.Recording(subjectId: subjectId)
+            if path.last != route {
+                path.append(route)
+            }
+        }
     }
     
     func back() {

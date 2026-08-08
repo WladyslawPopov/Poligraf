@@ -20,6 +20,7 @@ import application.liedetector.uicore.theme.LocalDesignSystem
 import application.liedetector.uicore.theme.tokens.ColorToken
 import application.liedetector.uicore.theme.tokens.IconToken
 import application.liedetector.theme.utils.composeColor
+import application.liedetector.ui.components.state.AppBottomSheet
 import application.liedetector.uicore.theme.DesignSystem
 import application.liedetector.uicore.theme.tokens.StringToken
 
@@ -45,16 +46,20 @@ fun RecordingHost(component: RecordingComponent) {
                             .background(designSystem.composeColor(ColorToken.GLASS_BASE).copy(alpha = 0.3f))
                             .padding(horizontal = 16.dp, vertical = 6.dp)
                     ) {
-                        Text(
-                            text = state.subject?.avatar ?: "🕵️",
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = state.subject?.name ?: "Undefined-1",
-                            color = designSystem.composeColor(ColorToken.TEXT_PRIMARY),
-                            style = MaterialTheme.typography.titleMedium
-                        )
+                        state.subject?.avatar?.let { avatar ->
+                            Text(
+                                text = avatar,
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                        }
+                        state.subject?.name?.let { name ->
+                            Text(
+                                text = name,
+                                color = designSystem.composeColor(ColorToken.TEXT_PRIMARY),
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                        }
                     }
                 },
                 navigationIcon = {
@@ -121,7 +126,10 @@ fun RecordingHost(component: RecordingComponent) {
                     color = designSystem.composeColor(ColorToken.GLASS_BASE).copy(alpha = 0.4f),
                     modifier = Modifier.widthIn(max = 340.dp), // Not full width
                     shape = CircleShape,
-                    border = BorderStroke(1.dp, designSystem.composeColor(ColorToken.GLASS_BORDER).copy(alpha = 0.1f))
+                    border = BorderStroke(
+                        1.dp,
+                        designSystem.composeColor(ColorToken.GLASS_BORDER).copy(alpha = 0.1f)
+                    )
                 ) {
                     Row(
                         modifier = Modifier.padding(8.dp),
@@ -137,22 +145,31 @@ fun RecordingHost(component: RecordingComponent) {
         }
         
         if (showMenu) {
-            ModalBottomSheet(
+            AppBottomSheet(
                 onDismissRequest = { showMenu = false },
                 sheetState = sheetState,
-                containerColor = designSystem.composeColor(ColorToken.SURFACE)
+                designSystem = designSystem,
+                title = designSystem.string(StringToken.DRAWER_SETTINGS)
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    ListItem(
-                        headlineContent = { Text("Delete Recording", color = designSystem.composeColor(ColorToken.ERROR)) },
-                        leadingContent = { Icon(designSystem.icon(IconToken.CLOSE), contentDescription = null, tint = designSystem.composeColor(ColorToken.ERROR)) },
-                        modifier = Modifier.clickable { 
-                            showMenu = false
-                            component.deleteRecording() 
-                        }
-                    )
-                    Spacer(modifier = Modifier.height(32.dp))
-                }
+                ListItem(
+                    headlineContent = {
+                        Text(
+                            designSystem.string(StringToken.ACTION_DELETE_RECORDING),
+                            color = designSystem.composeColor(ColorToken.ERROR)
+                        )
+                    },
+                    leadingContent = {
+                        Icon(
+                            designSystem.icon(IconToken.CLOSE),
+                            contentDescription = null,
+                            tint = designSystem.composeColor(ColorToken.ERROR)
+                        )
+                    },
+                    modifier = Modifier.clickable { 
+                        showMenu = false
+                        component.deleteRecording() 
+                    }
+                )
             }
         }
     }

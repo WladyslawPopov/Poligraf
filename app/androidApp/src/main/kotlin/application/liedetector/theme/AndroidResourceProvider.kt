@@ -51,6 +51,8 @@ class AndroidResourceProvider(private val context: Context) : ResourceProvider {
             StringToken.RECORDING_SCREEN_PLACEHOLDER -> application.liedetector.R.string.recording_screen_placeholder
             StringToken.RECORDING_SCREEN_TITLE -> application.liedetector.R.string.recording_screen_title
             StringToken.DELETE_RECORDING_CONFIRMATION -> application.liedetector.R.string.delete_recording_confirmation
+            StringToken.ACTION_DELETE_RECORDING -> application.liedetector.R.string.action_delete_recording
+            StringToken.ACTION_SELECTED -> application.liedetector.R.string.action_selected
             StringToken.SECTION_TEMPLATES -> application.liedetector.R.string.section_templates
             StringToken.SECTION_RECORDINGS -> application.liedetector.R.string.section_recordings
             

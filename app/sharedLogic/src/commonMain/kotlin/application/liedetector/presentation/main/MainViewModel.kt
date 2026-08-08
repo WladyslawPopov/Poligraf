@@ -258,10 +258,9 @@ class MainViewModel(
             block = {
                 val emoji = defaultEmojis[Random.nextInt(defaultEmojis.size)]
                 val result = subjectRepository.createSubject(
-                    name = "Undefined-1",
+                    name = "",
                     avatar = emoji,
-                    isDefaultAvatar = true,
-                    description = "Initial automated subject"
+                    isDefaultAvatar = true
                 )
                 
                 if (result is KmpResult.Success) {

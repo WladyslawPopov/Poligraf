@@ -144,7 +144,7 @@ private fun SelectionPanel(
                 )
             }
             Text(
-                text = "$selectedCount selected",
+                text = "$selectedCount ${designSystem.string(StringToken.ACTION_SELECTED)}",
                 style = MaterialTheme.typography.titleSmall,
                 color = designSystem.composeColor(ColorToken.TEXT_PRIMARY)
             )
@@ -273,7 +273,7 @@ private fun SubjectRowRenderer(
                     Icon(
                         imageVector = designSystem.icon(IconToken.CHECK),
                         contentDescription = null,
-                        tint = Color.White,
+                        tint = designSystem.composeColor(ColorToken.PRIMARY),
                         modifier = Modifier.size(designSystem.dimen(DimenToken.CHECKMARK_SIZE_SMALL).dp)
                     )
                 }

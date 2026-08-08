@@ -49,6 +49,8 @@ kotlin {
             api(projects.app.data)
             api(projects.app.engine)
             api(projects.app.uiCore)
+            
+            implementation(libs.kotlinx.datetime)
 
             // Lifecycle
             implementation(libs.androidx.lifecycle.viewmodelCompose)

@@ -7,6 +7,7 @@ struct RecordingView: View {
     let designSystem: DesignSystem
     
     @ObservedObject var state: SKIEStateObserver<RecordingState>
+    @State private var showSettings = false
 
     init(navigator: IosNavigator, component: RecordingComponent, designSystem: DesignSystem) {
         self.navigator = navigator
@@ -62,23 +63,23 @@ struct RecordingView: View {
             
             ToolbarItem(placement: .principal) {
                 HStack(spacing: 8) {
-                    Text(state.value.subject?.avatar ?? "🕵️")
-                    Text(state.value.subject?.name ?? "Undefined-1")
+                    if let avatar = state.value.subject?.avatar {
+                        Text(avatar)
+                    }
+                    Text(state.value.subject?.name ?? "")
                         .font(.subheadline)
                         .fontWeight(.semibold)
                         .foregroundColor(designSystem.color(.textPrimary))
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
+                .background(designSystem.color(.glassBase))
                 .clipShape(Capsule())
+                .overlay(Capsule().stroke(designSystem.color(.glassBorder), lineWidth: 0.5))
             }
             
             ToolbarItem(placement: .navigationBarTrailing) {
-                Menu {
-                    Button(role: .destructive, action: { component.deleteRecording() }) {
-                        Label("Delete Recording", systemImage: designSystem.icon(.close))
-                    }
-                } label: {
+                Button(action: { showSettings = true }) {
                     Image(systemName: designSystem.icon(.settings))
                         .font(.system(size: 16, weight: .bold))
                         .foregroundColor(designSystem.color(.textPrimary))
@@ -86,6 +87,31 @@ struct RecordingView: View {
                         .clipShape(Circle())
                 }
             }
+        }
+        .sheet(isPresented: $showSettings) {
+            AppSheetContainer(
+                designSystem: designSystem,
+                titleToken: .drawerSettings,
+                onUserClose: { showSettings = false }
+            ) {
+                List {
+                    Button(role: .destructive, action: { 
+                        showSettings = false
+                        component.deleteRecording() 
+                    }) {
+                        HStack {
+                            Image(systemName: designSystem.icon(.close))
+                            Text(designSystem.string(token: .actionDeleteRecording))
+                        }
+                        .foregroundColor(designSystem.color(.error))
+                    }
+                    .listRowBackground(designSystem.color(.glassBase).opacity(0.1))
+                }
+                .scrollContentBackground(.hidden)
+            }
+            .presentationDetents([.medium])
+            .presentationDragIndicator(.visible)
+            .presentationBackground(designSystem.color(.surface).opacity(0.8))
         }
     }
 }

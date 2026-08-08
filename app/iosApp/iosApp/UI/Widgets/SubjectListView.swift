@@ -62,7 +62,7 @@ struct SubjectListView: View {
                     .foregroundColor(designSystem.color(.textPrimary))
             }
             
-            Text("\(widget.selectedIds.count) selected")
+            Text("\(widget.selectedIds.count) \(designSystem.string(token: .actionSelected))")
                 .font(.subheadline)
                 .fontWeight(.semibold)
                 .foregroundColor(designSystem.color(.textPrimary))

@@ -22,17 +22,28 @@ class AndroidNavigator : AppNavigation {
     }
 
     override fun openMain() {
-        navController?.navigate(AppRoute.Main) {
-            popUpTo(0) { inclusive = true }
+        if (NavigationGlobalLock.canNavigate()) {
+            navController?.navigate(AppRoute.Main) {
+                popUpTo(0) { inclusive = true }
+                launchSingleTop = true
+            }
         }
     }
 
     override fun openDebug() {
-        navController?.navigate(AppRoute.Debug)
+        if (NavigationGlobalLock.canNavigate()) {
+            navController?.navigate(AppRoute.Debug) {
+                launchSingleTop = true
+            }
+        }
     }
 
     override fun openRecording(subjectId: String) {
-        navController?.navigate(AppRoute.Recording(subjectId))
+        if (NavigationGlobalLock.canNavigate()) {
+            navController?.navigate(AppRoute.Recording(subjectId)) {
+                launchSingleTop = true
+            }
+        }
     }
 
     override fun back() {

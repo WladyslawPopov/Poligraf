@@ -40,6 +40,8 @@
 "recording_screen_placeholder" = "Make your first record";
 "recording_screen_title" = "Recording";
 "delete_recording_confirmation" = "Are you sure you want to delete this recording?";
+"action_delete_recording" = "Delete Recording";
+"action_selected" = "selected";
 "section_templates" = "Templates";
 "section_recordings" = "Recordings";
 

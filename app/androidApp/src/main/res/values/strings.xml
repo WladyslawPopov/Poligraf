@@ -42,6 +42,8 @@
     <string name="recording_screen_placeholder">Make your first record</string>
     <string name="recording_screen_title">Recording</string>
     <string name="delete_recording_confirmation">Are you sure you want to delete this recording?</string>
+    <string name="action_delete_recording">Delete Recording</string>
+    <string name="action_selected">selected</string>
     <string name="section_templates">Templates</string>
     <string name="section_recordings">Recordings</string>
 
