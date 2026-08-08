@@ -43,7 +43,7 @@ fun RecordingHost(component: RecordingComponent) {
     val context = LocalContext.current
     
     // Stable derived states to prevent unnecessary recompositions
-    val subject = remember(state.subject) { state.subject }
+
     val widgets = remember(state.widgets) { state.widgets }
     val activeRecorder = state.activeRecorder
 
@@ -62,8 +62,10 @@ fun RecordingHost(component: RecordingComponent) {
         viewModel = viewModel,
         state = state,
         topBar = {
+            val subject = remember(state.subject) { state.subject }
             RecordingTopBar(
-                subject = subject,
+                avatar = subject.avatar,
+                name = subject.name,
                 onBack = { component.goBack() },
                 onMenu = { showMenu = true }
             )
@@ -145,7 +147,8 @@ fun RecordingHost(component: RecordingComponent) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun RecordingTopBar(
-    subject: application.liedetector.domain.model.Subject?,
+    avatar: String,
+    name: String,
     onBack: () -> Unit,
     onMenu: () -> Unit
 ) {
@@ -159,20 +162,16 @@ private fun RecordingTopBar(
                     .background(designSystem.composeColor(ColorToken.GLASS_BASE).copy(alpha = 0.3f))
                     .padding(horizontal = 16.dp, vertical = 6.dp)
             ) {
-                subject?.avatar?.let { avatar ->
-                    Text(
-                        text = avatar,
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                }
-                subject?.name?.let { name ->
-                    Text(
-                        text = name,
-                        color = designSystem.composeColor(ColorToken.TEXT_PRIMARY),
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                }
+                Text(
+                    text = avatar,
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = name,
+                    color = designSystem.composeColor(ColorToken.TEXT_PRIMARY),
+                    style = MaterialTheme.typography.titleMedium
+                )
             }
         },
         navigationIcon = {

@@ -89,24 +89,14 @@ struct RecordingView: View {
                 .padding(.bottom, 24)
             }
         }
-        .navigationBarBackButtonHidden(true)
+        .navigationTitle("") // Keep back button clean (no text)
+        .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                Button(action: { component.goBack() }) {
-                    Image(systemName: designSystem.icon(.arrowBack))
-                        .font(.system(size: 16, weight: .bold))
-                        .foregroundColor(designSystem.color(.textPrimary))
-                        .frame(width: 38, height: 38)
-                        .clipShape(Circle())
-                }
-            }
-            
             ToolbarItem(placement: .principal) {
                 HStack(spacing: 8) {
-                    if let avatar = state.value.subject?.avatar {
-                        Text(avatar)
-                    }
-                    Text(state.value.subject?.name ?? "")
+                    Text(state.value.subject.avatar)
+                    
+                    Text(state.value.subject.name)
                         .font(.subheadline)
                         .fontWeight(.semibold)
                         .foregroundColor(designSystem.color(.textPrimary))

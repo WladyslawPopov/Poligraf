@@ -1,7 +1,5 @@
 package application.liedetector.presentation.root
 
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleRegistry
 import application.liedetector.data.user.UserRepository
 import application.liedetector.data.subject.SubjectRepository
 import application.liedetector.engine.device.DeviceInfoProvider
@@ -31,23 +29,35 @@ class RootComponent(
 
     val viewModel = RootViewModel(userRepository, deviceProvider)
 
-    // Child components owned by the Root (Tree structure)
-    val mainComponent: MainComponent by lazy {
-        MainComponent(context, MainViewModel(subjectRepository, appConfig, navigation))
-    }
+    /**
+     * Creates or retrieves a MainComponent.
+     */
+    fun mainComponent(screenContext: ComponentContext): MainComponent = 
+        screenContext.instanceKeeper.getOrCreate("main") {
+            MainComponent(screenContext, MainViewModel(subjectRepository, appConfig, navigation))
+        }
 
-    val debugComponent: DebugComponent by lazy {
-        DebugComponent(context, DebugViewModel(navigation))
-    }
+    /**
+     * Creates or retrieves a DebugComponent.
+     */
+    fun debugComponent(screenContext: ComponentContext): DebugComponent = 
+        screenContext.instanceKeeper.getOrCreate("debug") {
+            DebugComponent(screenContext, DebugViewModel(navigation))
+        }
 
-    fun createRecordingComponent(subjectId: String): RecordingComponent {
-        return RecordingComponent(
-            context = context,
-            viewModel = RecordingViewModel(subjectId, navigation, subjectRepository, audioRecorder)
-        )
-    }
+    /**
+     * Creates or retrieves a RecordingComponent for a specific subject.
+     * The instance is retained by the [screenContext.instanceKeeper] until the context is destroyed.
+     */
+    fun recordingComponent(screenContext: ComponentContext, subjectId: String): RecordingComponent = 
+        screenContext.instanceKeeper.getOrCreate("recording_$subjectId") {
+            RecordingComponent(
+                context = screenContext,
+                viewModel = RecordingViewModel(subjectId, navigation, subjectRepository, audioRecorder)
+            )
+        }
 
     fun onDestroy() {
-        (context.lifecycle as? LifecycleRegistry)?.currentState = Lifecycle.State.DESTROYED
+        // No manual children management needed, they are tied to their contexts
     }
 }

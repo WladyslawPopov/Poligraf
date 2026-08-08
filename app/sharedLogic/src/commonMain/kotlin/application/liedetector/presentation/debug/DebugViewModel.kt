@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.milliseconds
@@ -39,26 +40,34 @@ class DebugViewModel(private val navigation: AppNavigation) : BaseViewModel() {
     init {
         // Sync background mode with application states
         combine(isLoading, errorType, toastState) { loading, error, toast ->
-            val currentBg = _state.value.background
-            if (currentBg is AppBackground.AnimatedScales) {
-                val newMode = when {
-                    error != null -> BackgroundMode.ERROR
-                    toast != null -> {
-                        if (toast.type == ToastType.SUCCESS) BackgroundMode.SUCCESS else BackgroundMode.ERROR
+            _state.update { currentState ->
+                val currentBg = currentState.background
+                if (currentBg is AppBackground.AnimatedScales) {
+                    val newMode = when {
+                        error != null -> BackgroundMode.ERROR
+                        toast != null -> {
+                            if (toast.type == ToastType.SUCCESS) BackgroundMode.SUCCESS else BackgroundMode.ERROR
+                        }
+                        loading -> BackgroundMode.PROCESSING
+                        else -> BackgroundMode.IDLE
                     }
-                    loading -> BackgroundMode.PROCESSING
-                    else -> BackgroundMode.IDLE
+                    
+                    if (currentBg.mode != newMode) {
+                        currentState.copy(
+                            background = currentBg.copy(mode = newMode)
+                        )
+                    } else {
+                        currentState
+                    }
+                } else {
+                    currentState
                 }
-                
-                _state.value = _state.value.copy(
-                    background = currentBg.copy(mode = newMode)
-                )
             }
         }.launchIn(scope)
 
-        _state.value = _state.value.copy(
-            widgets = createMockWidgets()
-        )
+        _state.update { 
+            it.copy(widgets = createMockWidgets())
+        }
     }
 
     private fun createMockWidgets(): List<UiWidget> {
@@ -110,7 +119,7 @@ class DebugViewModel(private val navigation: AppNavigation) : BaseViewModel() {
     }
 
     fun setTab(tab: DebugTab) {
-        _state.value = _state.value.copy(selectedTab = tab)
+        _state.update { it.copy(selectedTab = tab) }
     }
 
     fun goBack() {

@@ -31,23 +31,29 @@ class RecordingViewModel(
     init {
         // Sync background mode with application states
         combine(isLoading, errorType, toastState, audioRecorder.isRecording) { loading, error, toast, recording ->
-            val currentBg = _state.value.background
-            if (currentBg is AppBackground.AnimatedScales) {
-                val newMode = when {
-                    error != null -> BackgroundMode.ERROR
-                    toast != null -> {
-                        if (toast.type == ToastType.SUCCESS) BackgroundMode.SUCCESS else BackgroundMode.ERROR
+            _state.update { currentState ->
+                val currentBg = currentState.background
+                if (currentBg is AppBackground.AnimatedScales) {
+                    val newMode = when {
+                        error != null -> BackgroundMode.ERROR
+                        toast != null -> {
+                            if (toast.type == ToastType.SUCCESS) BackgroundMode.SUCCESS else BackgroundMode.ERROR
+                        }
+                        recording -> BackgroundMode.RECORDING
+                        loading -> BackgroundMode.PROCESSING
+                        currentState.activeRecorder == null -> BackgroundMode.WAITING
+                        else -> BackgroundMode.IDLE
                     }
-                    recording -> BackgroundMode.RECORDING
-                    loading -> BackgroundMode.PROCESSING
-                    _state.value.activeRecorder == null -> BackgroundMode.WAITING
-                    else -> BackgroundMode.IDLE
-                }
-                
-                if (currentBg.mode != newMode) {
-                    _state.value = _state.value.copy(
-                        background = currentBg.copy(mode = newMode)
-                    )
+                    
+                    if (currentBg.mode != newMode) {
+                        currentState.copy(
+                            background = currentBg.copy(mode = newMode)
+                        )
+                    } else {
+                        currentState
+                    }
+                } else {
+                    currentState
                 }
             }
         }.launchIn(scope)
@@ -74,19 +80,21 @@ class RecordingViewModel(
             block = {
                 val result = subjectRepository.getSubject(subjectId)
                 if (result is KmpResult.Success) {
-                    _state.value = _state.value.copy(
-                        subject = result.data,
-                        widgets = _state.value.widgets.ifEmpty {
-                            listOf(
-                                UiWidget.WelcomeText(
-                                    id = "recording_greeting",
-                                    textToken = StringToken.RECORDING_SCREEN_PLACEHOLDER,
-                                    emoji = "🎙️",
-                                    typingDelay = 30L
+                    _state.update { 
+                        it.copy(
+                            subject = result.data,
+                            widgets = it.widgets.ifEmpty {
+                                listOf(
+                                    UiWidget.WelcomeText(
+                                        id = "recording_greeting",
+                                        textToken = StringToken.RECORDING_SCREEN_PLACEHOLDER,
+                                        emoji = "🎙️",
+                                        typingDelay = 30L
+                                    )
                                 )
-                            )
-                        }
-                    )
+                            }
+                        )
+                    }
                 }
             }
         )
@@ -110,21 +118,27 @@ class RecordingViewModel(
 
     fun stopRecording() {
         val path = audioRecorder.stop()
-        val active = _state.value.activeRecorder
-        if (active != null) {
-            _state.value = _state.value.copy(
-                activeRecorder = null,
-                widgets = _state.value.widgets.filter { it !is UiWidget.WelcomeText } + 
-                        active.copy(status = UiWidget.VoiceRecorder.Status.FINISHED, filePath = path)
-            )
+        _state.update { currentState ->
+            val active = currentState.activeRecorder
+            if (active != null) {
+                currentState.copy(
+                    activeRecorder = null,
+                    widgets = currentState.widgets.filter { it !is UiWidget.WelcomeText } + 
+                            active.copy(status = UiWidget.VoiceRecorder.Status.FINISHED, filePath = path)
+                )
+            } else {
+                currentState
+            }
         }
     }
 
     private fun startRecording() {
         audioRecorder.start()
-        _state.value = _state.value.copy(
-            activeRecorder = UiWidget.VoiceRecorder(id = "recorder_${nowAsEpochMilliseconds()}")
-        )
+        _state.update { 
+            it.copy(
+                activeRecorder = UiWidget.VoiceRecorder(id = "recorder_${nowAsEpochMilliseconds()}")
+            )
+        }
     }
 
     private fun updateRecorderWidget(recording: Boolean, paused: Boolean, duration: Long, amplitudes: List<Float>) {
@@ -134,13 +148,15 @@ class RecordingViewModel(
             else -> UiWidget.VoiceRecorder.Status.FINISHED
         }
 
-        _state.value = _state.value.copy(
-            activeRecorder = _state.value.activeRecorder?.copy(
-                status = status,
-                durationMillis = duration,
-                amplitudes = amplitudes
+        _state.update { currentState ->
+            currentState.copy(
+                activeRecorder = currentState.activeRecorder?.copy(
+                    status = status,
+                    durationMillis = duration,
+                    amplitudes = amplitudes
+                )
             )
-        )
+        }
     }
 
     fun deleteRecording() {

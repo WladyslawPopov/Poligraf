@@ -4,10 +4,10 @@ import application.liedetector.domain.model.Subject
 import application.liedetector.models.SubjectDto
 
 fun SubjectDto.toDomain(): Subject = Subject(
-    id = id,
+    id = id ?: "temp",
     name = name,
-    avatar = avatar,
-    description = description,
+    avatar = avatar ?: "🕵️",
+    description = description ?: "",
     isDefaultAvatar = isDefaultAvatar
 )
 

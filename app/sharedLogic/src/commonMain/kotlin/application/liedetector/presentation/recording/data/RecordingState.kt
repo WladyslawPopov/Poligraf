@@ -12,7 +12,7 @@ data class RecordingState(
     override val background: AppBackground = AppBackground.AnimatedScales(),
     override val toolbar: UiWidget.AppToolbar? = null,
     override val layoutConfig: LayoutConfig = LayoutConfig(isCentered = false),
-    val subject: Subject? = null,
+    val subject: Subject = Subject(),
     val widgets: List<UiWidget> = emptyList(),
     val activeRecorder: UiWidget.VoiceRecorder? = null
 ) : ScaffoldUiState
