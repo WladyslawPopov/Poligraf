@@ -1,53 +1,49 @@
 package application.liedetector.navigation
 
 import androidx.compose.runtime.Stable
-import androidx.navigation.NavController
+import application.liedetector.engine.navigation.AppNavigation
+import application.liedetector.engine.navigation.NavigationGlobalLock
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+
+sealed class NavEvent {
+    data object OpenMain : NavEvent()
+    data object OpenDebug : NavEvent()
+    data class OpenRecording(val subjectId: String) : NavEvent()
+    data object Back : NavEvent()
+}
 
 @Stable
 class AndroidNavigator : AppNavigation {
     
-    private var navController: NavController? = null
+    private val _navigationEvents = MutableSharedFlow<NavEvent>(extraBufferCapacity = 1)
+    val navigationEvents = _navigationEvents.asSharedFlow()
     
     private val _isDrawerOpen = MutableStateFlow(false)
     val isDrawerOpen = _isDrawerOpen.asStateFlow()
 
-    fun bind(navController: NavController) {
-        this.navController = navController
-    }
-
-    fun unbind() {
-        this.navController = null
-    }
-
     override fun openMain() {
         if (NavigationGlobalLock.canNavigate()) {
-            navController?.navigate(AppRoute.Main) {
-                popUpTo(0) { inclusive = true }
-                launchSingleTop = true
-            }
+            _navigationEvents.tryEmit(NavEvent.OpenMain)
         }
     }
 
     override fun openDebug() {
         if (NavigationGlobalLock.canNavigate()) {
-            navController?.navigate(AppRoute.Debug) {
-                launchSingleTop = true
-            }
+            _navigationEvents.tryEmit(NavEvent.OpenDebug)
         }
     }
 
     override fun openRecording(subjectId: String) {
         if (NavigationGlobalLock.canNavigate()) {
-            navController?.navigate(AppRoute.Recording(subjectId)) {
-                launchSingleTop = true
-            }
+            _navigationEvents.tryEmit(NavEvent.OpenRecording(subjectId))
         }
     }
 
     override fun back() {
-        navController?.popBackStack()
+        _navigationEvents.tryEmit(NavEvent.Back)
     }
 
     override fun toggleDrawer() {

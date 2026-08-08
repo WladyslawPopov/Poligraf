@@ -1,8 +1,8 @@
 package application.liedetector.engine.component
 
-import androidx.activity.ComponentActivity
+import androidx.navigation.NavBackStackEntry
 
-fun ComponentActivity.componentContext(): ComponentContext {
+fun NavBackStackEntry.componentContext(): ComponentContext {
     return DefaultComponentContext(
         lifecycle = this.lifecycle,
         viewModelStore = this.viewModelStore,

@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.dp
 import application.liedetector.theme.ThemeState
 import application.liedetector.theme.utils.composeColor
 import application.liedetector.uicore.theme.DesignSystem
-import application.liedetector.navigation.AppNavigation
+import application.liedetector.engine.navigation.AppNavigation
 import application.liedetector.uicore.theme.tokens.ColorToken
 import application.liedetector.uicore.theme.tokens.StringToken
 import application.liedetector.uicore.theme.tokens.DimenToken

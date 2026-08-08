@@ -12,7 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalConfiguration
 import android.content.res.Configuration
 import androidx.compose.ui.unit.dp
-import application.liedetector.presentation.base.IBaseViewModel
+import application.liedetector.data.base.IBaseViewModel
 import application.liedetector.theme.utils.composeColor
 import application.liedetector.ui.components.background.ScalesBackground
 import application.liedetector.ui.components.state.AppSnackBar

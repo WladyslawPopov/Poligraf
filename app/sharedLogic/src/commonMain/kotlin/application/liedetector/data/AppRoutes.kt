@@ -1,4 +1,4 @@
-package application.liedetector.navigation
+package application.liedetector.data
 
 import kotlinx.serialization.Serializable
 

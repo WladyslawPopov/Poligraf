@@ -1,11 +1,11 @@
 package application.liedetector.presentation.recording
 
+import application.liedetector.data.base.BaseViewModel
 import application.liedetector.data.subject.SubjectRepository
 import application.liedetector.engine.utils.nowAsEpochMilliseconds
 import application.liedetector.engine.io.audio.AudioRecorder
 import application.liedetector.models.KmpResult
-import application.liedetector.navigation.AppNavigation
-import application.liedetector.presentation.base.BaseViewModel
+import application.liedetector.engine.navigation.AppNavigation
 import application.liedetector.presentation.recording.data.RecordingState
 import application.liedetector.uicore.theme.tokens.StringToken
 import application.liedetector.uicore.types.BackgroundMode

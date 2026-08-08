@@ -60,8 +60,7 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.sqldelight.android.driver)
             implementation(libs.ktor.client.android)
-            implementation(libs.androidx.activity.compose)
-            implementation(libs.androidx.appcompat)
+            implementation(libs.androidx.navigation.compose)
         }
 
         nativeMain.dependencies {

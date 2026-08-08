@@ -11,7 +11,11 @@ struct iOSApp: App {
 
     var body: some Scene {
         WindowGroup {
-            RootView()
+            ZStack {
+                ContentView()
+                    .ignoresSafeArea(edges: .all)
+                    .ignoresSafeArea(.keyboard)
+            }
         }
     }
 }

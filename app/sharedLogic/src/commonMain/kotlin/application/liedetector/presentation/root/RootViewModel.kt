@@ -1,8 +1,8 @@
 package application.liedetector.presentation.root
 
+import application.liedetector.data.base.BaseViewModel
 import application.liedetector.data.user.UserRepository
 import application.liedetector.engine.device.DeviceInfoProvider
-import application.liedetector.presentation.base.BaseViewModel
 
 class RootViewModel(
     private val userRepository: UserRepository,

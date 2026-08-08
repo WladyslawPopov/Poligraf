@@ -1,10 +1,11 @@
 package application.liedetector.presentation.root
 
+import androidx.compose.runtime.Stable
 import application.liedetector.data.user.UserRepository
 import application.liedetector.data.subject.SubjectRepository
 import application.liedetector.engine.device.DeviceInfoProvider
 import application.liedetector.engine.config.AppConfig
-import application.liedetector.navigation.AppNavigation
+import application.liedetector.engine.navigation.AppNavigation
 import application.liedetector.presentation.main.MainComponent
 import application.liedetector.presentation.main.MainViewModel
 import application.liedetector.presentation.debug.DebugComponent
@@ -16,6 +17,7 @@ import application.liedetector.engine.io.audio.AudioRecorder
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
+@Stable
 class RootComponent(
     val context: ComponentContext,
     val navigation: AppNavigation

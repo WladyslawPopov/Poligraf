@@ -1,6 +1,5 @@
-package application.liedetector.navigation
+package application.liedetector.engine.navigation
 
-import androidx.compose.runtime.Stable
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.TimeSource
 
@@ -22,18 +21,4 @@ object NavigationGlobalLock {
             false
         }
     }
-}
-
-/**
- * High-level navigation commands to be implemented by native platforms.
- */
-@Stable
-interface AppNavigation {
-    fun openMain()
-    fun openDebug()
-    fun openRecording(subjectId: String)
-    fun back()
-    
-    fun toggleDrawer()
-    fun setDrawerOpen(isOpen: Boolean)
 }

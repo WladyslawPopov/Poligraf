@@ -1,11 +1,11 @@
 package application.liedetector.presentation.main
 
+import application.liedetector.data.base.BaseViewModel
+import application.liedetector.data.methods.toErrorType
 import application.liedetector.domain.model.Subject
 import application.liedetector.data.subject.SubjectRepository
 import application.liedetector.models.KmpResult
-import application.liedetector.navigation.AppNavigation
-import application.liedetector.presentation.base.BaseViewModel
-import application.liedetector.presentation.base.toErrorType
+import application.liedetector.engine.navigation.AppNavigation
 import application.liedetector.uicore.theme.tokens.ColorToken
 import application.liedetector.uicore.theme.tokens.StringToken
 import application.liedetector.uicore.theme.tokens.TypographyToken
@@ -284,7 +284,7 @@ class MainViewModel(
                 
                 if (result is KmpResult.Success) {
                     val subject = result.data
-                    navigation.openRecording(subject.id ?: "")
+                    navigation.openRecording(subject.id)
                 }
             }
         )
