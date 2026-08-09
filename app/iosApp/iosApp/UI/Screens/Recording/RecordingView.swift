@@ -29,6 +29,19 @@ struct RecordingView: View {
                 // 1. Evidence List
                 ScrollView {
                     LazyVStack(spacing: 12) {
+                        // Materials Tags Header
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 8) {
+                                ForEach(state.value.materials, id: \.id) { tag in
+                                    MaterialTagChip(tag: tag, designSystem: designSystem) {
+                                        component.onMaterialTagClicked(tagId: tag.id)
+                                    }
+                                }
+                            }
+                            .padding(.horizontal)
+                        }
+                        .padding(.vertical, 8)
+
                         ForEach(state.value.widgets, id: \.id) { widget in
                             WidgetView(
                                 widget: widget,
@@ -46,41 +59,23 @@ struct RecordingView: View {
                 
                 // 2. Control Panel Island
                 ZStack {
-                    if let activeRecorder = state.value.activeRecorder {
-                        VoiceRecorderView(
-                            widget: activeRecorder,
-                            designSystem: designSystem,
-                            onToggle: { 
-                                withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                                    component.toggleRecording() 
-                                }
-                            },
-                            onStop: { 
-                                withAnimation(.spring(response: 0.45, dampingFraction: 0.7)) {
-                                    component.stopRecording() 
-                                }
+                    HStack(spacing: 24) {
+                        RecordingActionButton(systemName: designSystem.icon(.mic), designSystem: designSystem) {
+                            withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                                component.onMicClicked()
                             }
-                        )
-                        .matchedGeometryEffect(id: "content", in: bottomPanelNamespace)
-                    } else {
-                        HStack(spacing: 24) {
-                            RecordingActionButton(systemName: designSystem.icon(.mic), designSystem: designSystem) {
-                                withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
-                                    component.onMicClicked()
-                                }
-                            }
-                            RecordingActionButton(systemName: designSystem.icon(.gallery), designSystem: designSystem) { }
-                            RecordingActionButton(systemName: designSystem.icon(.note), designSystem: designSystem) { }
                         }
-                        .padding(8)
-                        .matchedGeometryEffect(id: "content", in: bottomPanelNamespace)
+                        RecordingActionButton(systemName: designSystem.icon(.gallery), designSystem: designSystem) { }
+                        RecordingActionButton(systemName: designSystem.icon(.note), designSystem: designSystem) { }
                     }
+                    .padding(8)
+                    .matchedGeometryEffect(id: "content", in: bottomPanelNamespace)
                 }
                 .background(
-                    RoundedRectangle(cornerRadius: state.value.activeRecorder != nil ? 32 : 40)
+                    RoundedRectangle(cornerRadius: 40)
                         .fill(.ultraThinMaterial)
                         .overlay(
-                            RoundedRectangle(cornerRadius: state.value.activeRecorder != nil ? 32 : 40)
+                            RoundedRectangle(cornerRadius: 40)
                                 .stroke(designSystem.color(.glassBorder).opacity(0.15), lineWidth: 0.5)
                         )
                         .matchedGeometryEffect(id: "island", in: bottomPanelNamespace)
@@ -142,6 +137,31 @@ struct RecordingView: View {
             .presentationDetents([.medium])
             .presentationDragIndicator(.visible)
             .presentationBackground(designSystem.color(.surface).opacity(0.8))
+        }
+    }
+}
+
+struct MaterialTagChip: View {
+    let tag: MaterialTag
+    let designSystem: DesignSystem
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 4) {
+                if let icon = tag.icon {
+                    Text(icon)
+                }
+                Text(tag.title)
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(Color.white.opacity(0.05))
+            .foregroundColor(.white)
+            .clipShape(Capsule())
+            .overlay(Capsule().stroke(Color.white.opacity(0.1), lineWidth: 0.5))
         }
     }
 }

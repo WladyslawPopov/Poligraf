@@ -12,6 +12,7 @@ sealed class NavEvent {
     data object OpenMain : NavEvent()
     data object OpenDebug : NavEvent()
     data class OpenRecording(val subjectId: String) : NavEvent()
+    data class OpenRecordingsHistory(val subjectId: String, val startRecording: Boolean = false) : NavEvent()
     data object Back : NavEvent()
 }
 
@@ -39,6 +40,12 @@ class AndroidNavigator : AppNavigation {
     override fun openRecording(subjectId: String) {
         if (NavigationGlobalLock.canNavigate()) {
             _navigationEvents.tryEmit(NavEvent.OpenRecording(subjectId))
+        }
+    }
+
+    override fun openRecordingsHistory(subjectId: String, startRecording: Boolean) {
+        if (NavigationGlobalLock.canNavigate()) {
+            _navigationEvents.tryEmit(NavEvent.OpenRecordingsHistory(subjectId, startRecording))
         }
     }
 

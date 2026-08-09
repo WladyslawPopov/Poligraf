@@ -1,4 +1,4 @@
-package application.liedetector.presentation.recording
+package application.liedetector.presentation.recordingHistory
 
 import application.liedetector.data.base.BaseViewModel
 import application.liedetector.data.subject.SubjectRepository
@@ -6,7 +6,6 @@ import application.liedetector.engine.io.audio.AudioRecorder
 import application.liedetector.models.KmpResult
 import application.liedetector.engine.navigation.AppNavigation
 import application.liedetector.engine.utils.nowAsEpochMilliseconds
-import application.liedetector.presentation.recording.data.MaterialTag
 import application.liedetector.presentation.recording.data.RecordingState
 import application.liedetector.uicore.theme.tokens.StringToken
 import application.liedetector.uicore.types.BackgroundMode
@@ -19,11 +18,12 @@ import kotlinx.coroutines.flow.*
 import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(FlowPreview::class)
-class RecordingViewModel(
+class RecordingsHistoryViewModel(
     private val subjectId: String,
     private val navigation: AppNavigation,
     private val subjectRepository: SubjectRepository,
-    private val audioRecorder: AudioRecorder
+    private val audioRecorder: AudioRecorder,
+    private val startRecording: Boolean = false
 ) : BaseViewModel() {
 
     private val _state = MutableStateFlow(RecordingState())
@@ -84,6 +84,9 @@ class RecordingViewModel(
         .launchIn(scope)
 
         loadRecording()
+        if (startRecording) {
+            onMicClicked()
+        }
     }
 
     private fun loadRecording() {
@@ -94,11 +97,6 @@ class RecordingViewModel(
                     _state.update { 
                         it.copy(
                             subject = result.data,
-                            materials = listOf(
-                                MaterialTag("recordings", "Recordings", "🎙️"),
-                                MaterialTag("documents", "Docs", "📄"),
-                                MaterialTag("photos", "Gallery", "🖼️")
-                            ),
                             widgets = it.widgets.ifEmpty {
                                 listOf(
                                     UiWidget.WelcomeText(
@@ -117,7 +115,12 @@ class RecordingViewModel(
     }
 
     fun onMicClicked() {
-        navigation.openRecordingsHistory(subjectId, startRecording = !audioRecorder.isRecording.value)
+        val active = _state.value.activeRecorder
+        if (active != null && active.status == UiWidget.VoiceRecorder.Status.RECORDING) {
+            // Already recording, just let the Host expand the sheet
+            return
+        }
+        startRecording()
     }
 
     fun toggleRecording() {
@@ -130,7 +133,6 @@ class RecordingViewModel(
         } else {
             val active = _state.value.activeRecorder
             if (active != null && active.status == UiWidget.VoiceRecorder.Status.REVIEW) {
-                // Stopped, but active widget exists -> append from end
                 onResumeRecording()
             } else {
                 startRecording()
@@ -189,7 +191,6 @@ class RecordingViewModel(
     fun onResumeRecording() {
         val active = _state.value.activeRecorder
         if (active != null && active.status == UiWidget.VoiceRecorder.Status.REVIEW) {
-            // Append from end
             audioRecorder.replace(active.durationMillis)
         } else {
             audioRecorder.resume()
@@ -229,10 +230,61 @@ class RecordingViewModel(
         }
     }
 
+    fun onRecordingClicked(recorder: UiWidget.VoiceRecorder) {
+        val path = recorder.filePath
+        if (path != null) {
+            audioRecorder.loadFile(path)
+        }
+        _state.update { 
+            it.copy(
+                activeRecorder = recorder.copy(
+                    status = UiWidget.VoiceRecorder.Status.REVIEW,
+                    isExpanded = false
+                )
+            )
+        }
+    }
+
+    private fun updateRecorderWidget(
+        recording: Boolean,
+        paused: Boolean,
+        duration: Long,
+        amplitudes: List<Float>,
+        playbackPos: Long,
+        playing: Boolean
+    ) {
+        _state.update { currentState ->
+            val currentActive = currentState.activeRecorder 
+                ?: if (recording) UiWidget.VoiceRecorder(id = "recorder_sync_${nowAsEpochMilliseconds()}") else return@update currentState
+            
+            val newStatus = when {
+                currentActive.status == UiWidget.VoiceRecorder.Status.FINISHED -> UiWidget.VoiceRecorder.Status.FINISHED
+                currentActive.status == UiWidget.VoiceRecorder.Status.REVIEW -> UiWidget.VoiceRecorder.Status.REVIEW
+                recording && paused -> UiWidget.VoiceRecorder.Status.PAUSED
+                recording -> UiWidget.VoiceRecorder.Status.RECORDING
+                duration > 0 -> UiWidget.VoiceRecorder.Status.REVIEW
+                else -> currentActive.status
+            }
+
+            // Optimization: If we are paused, keep the current duration/amplitudes to avoid "jumping"
+            // unless we are in sync mode.
+            val shouldUpdateStats = recording || newStatus == UiWidget.VoiceRecorder.Status.REVIEW || newStatus == UiWidget.VoiceRecorder.Status.PAUSED
+
+            currentState.copy(
+                activeRecorder = currentActive.copy(
+                    status = newStatus,
+                    durationMillis = if (shouldUpdateStats) duration else currentActive.durationMillis,
+                    amplitudes = if (shouldUpdateStats && amplitudes.isNotEmpty()) amplitudes else currentActive.amplitudes,
+                    playbackPositionMillis = playbackPos,
+                    isPlaying = playing
+                )
+            )
+        }
+    }
+
     fun onPlayClicked() {
         val active = _state.value.activeRecorder
         if (active?.status == UiWidget.VoiceRecorder.Status.PAUSED) {
-            // Force stop and switch to review mode to start playback immediately
             stopRecording()
             audioRecorder.play()
         } else {
@@ -303,50 +355,6 @@ class RecordingViewModel(
         }
     }
 
-    private fun updateRecorderWidget(
-        recording: Boolean,
-        paused: Boolean,
-        duration: Long,
-        amplitudes: List<Float>,
-        playbackPos: Long,
-        playing: Boolean
-    ) {
-        _state.update { currentState ->
-            val currentActive = currentState.activeRecorder 
-                ?: if (recording) UiWidget.VoiceRecorder(id = "recorder_sync_${nowAsEpochMilliseconds()}") else return@update currentState
-            
-            val newStatus = when {
-                currentActive.status == UiWidget.VoiceRecorder.Status.FINISHED -> UiWidget.VoiceRecorder.Status.FINISHED
-                // If we were in REVIEW, stay in REVIEW unless explicitly started again
-                currentActive.status == UiWidget.VoiceRecorder.Status.REVIEW -> UiWidget.VoiceRecorder.Status.REVIEW
-                recording && paused -> UiWidget.VoiceRecorder.Status.PAUSED
-                recording -> UiWidget.VoiceRecorder.Status.RECORDING
-                duration > 0 -> UiWidget.VoiceRecorder.Status.REVIEW
-                else -> currentActive.status
-            }
-
-            val shouldUpdateStats = recording || newStatus == UiWidget.VoiceRecorder.Status.REVIEW || newStatus == UiWidget.VoiceRecorder.Status.PAUSED
-
-            currentState.copy(
-                activeRecorder = currentActive.copy(
-                    status = newStatus,
-                    durationMillis = if (shouldUpdateStats) duration else currentActive.durationMillis,
-                    amplitudes = if (shouldUpdateStats && amplitudes.isNotEmpty()) amplitudes else currentActive.amplitudes,
-                    playbackPositionMillis = playbackPos,
-                    isPlaying = playing
-                )
-            )
-        }
-    }
-    
-    fun onGalleryClicked() {
-        navigation.openRecordingsHistory(subjectId)
-    }
-
-    fun onNoteClicked() {
-        navigation.openRecordingsHistory(subjectId)
-    }
-
     fun deleteRecording() {
         launchSafe(
             isBlocking = true,
@@ -359,13 +367,6 @@ class RecordingViewModel(
                 }
             }
         )
-    }
-
-    fun onMaterialTagClicked(tagId: String) {
-        when (tagId) {
-            "recordings" -> navigation.openRecordingsHistory(subjectId, startRecording = true)
-            "documents", "photos" -> navigation.openRecordingsHistory(subjectId)
-        }
     }
 
     fun goBack() {

@@ -10,6 +10,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import application.liedetector.data.AppRoute
 import application.liedetector.navigation.AndroidNavigator
 import application.liedetector.navigation.NavEvent
@@ -19,6 +20,7 @@ import application.liedetector.theme.LieDetectorTheme
 import application.liedetector.ui.screens.debug.DebugHost
 import application.liedetector.ui.screens.main.MainHost
 import application.liedetector.ui.screens.recording.RecordingHost
+import application.liedetector.ui.screens.recordingHistory.RecordingsHistoryHost
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
@@ -80,9 +82,15 @@ fun App(
                 )
             }
             composable<AppRoute.Recording> { backStackEntry ->
-                val subjectId = backStackEntry.arguments?.getString("subjectId") ?: ""
+                val route = backStackEntry.toRoute<AppRoute.Recording>()
                 RecordingHost(
-                    component = root.recordingComponent(backStackEntry.componentContext(), subjectId)
+                    component = root.recordingComponent(backStackEntry.componentContext(), route.subjectId)
+                )
+            }
+            composable<AppRoute.RecordingsHistory> { backStackEntry ->
+                val route = backStackEntry.toRoute<AppRoute.RecordingsHistory>()
+                RecordingsHistoryHost(
+                    component = root.recordingsHistoryComponent(backStackEntry.componentContext(), route.subjectId, route.startRecording)
                 )
             }
         }
@@ -104,6 +112,11 @@ private fun handleNavigationEvent(navController: NavController, event: NavEvent)
         }
         is NavEvent.OpenRecording -> {
             navController.navigate(AppRoute.Recording(event.subjectId)) {
+                launchSingleTop = true
+            }
+        }
+        is NavEvent.OpenRecordingsHistory -> {
+            navController.navigate(AppRoute.RecordingsHistory(event.subjectId, event.startRecording)) {
                 launchSingleTop = true
             }
         }

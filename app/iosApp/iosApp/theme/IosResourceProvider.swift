@@ -51,6 +51,14 @@ class IosResourceProvider: ResourceProvider {
         case .sectionRecordings: key = "section_recordings"
         case .drawerFooterTitle: key = "drawer_footer_title"
         case .drawerFooterSubtitle: key = "drawer_footer_subtitle"
+        
+        case .recorderReplace: key = "recorder_replace"
+        case .recorderTrim: key = "recorder_trim"
+        case .recorderTrimCancel: key = "recorder_trim_cancel"
+        case .recorderTrimDone: key = "recorder_trim_done"
+        case .recorderDeletePart: key = "recorder_delete_part"
+        case .recorderSave: key = "recorder_save"
+        case .recorderEdit: key = "recorder_edit"
         default: key = ""
         }
         return NSLocalizedString(key, comment: "")

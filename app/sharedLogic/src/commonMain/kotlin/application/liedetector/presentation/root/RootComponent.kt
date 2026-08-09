@@ -12,6 +12,8 @@ import application.liedetector.presentation.debug.DebugComponent
 import application.liedetector.presentation.debug.DebugViewModel
 import application.liedetector.presentation.recording.RecordingComponent
 import application.liedetector.presentation.recording.RecordingViewModel
+import application.liedetector.presentation.recordingHistory.RecordingsHistoryComponent
+import application.liedetector.presentation.recordingHistory.RecordingsHistoryViewModel
 import application.liedetector.engine.component.ComponentContext
 import application.liedetector.engine.io.audio.AudioRecorder
 import org.koin.core.component.KoinComponent
@@ -56,6 +58,17 @@ class RootComponent(
             RecordingComponent(
                 context = screenContext,
                 viewModel = RecordingViewModel(subjectId, navigation, subjectRepository, audioRecorder)
+            )
+        }
+
+    /**
+     * Creates or retrieves a RecordingsHistoryComponent for a specific subject.
+     */
+    fun recordingsHistoryComponent(screenContext: ComponentContext, subjectId: String, startRecording: Boolean = false): RecordingsHistoryComponent = 
+        screenContext.instanceKeeper.getOrCreate("recordings_history_$subjectId") {
+            RecordingsHistoryComponent(
+                context = screenContext,
+                viewModel = RecordingsHistoryViewModel(subjectId, navigation, subjectRepository, audioRecorder, startRecording)
             )
         }
 

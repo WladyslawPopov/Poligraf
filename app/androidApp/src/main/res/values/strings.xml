@@ -49,4 +49,13 @@
 
     <string name="drawer_footer_title">Lie Detector System</string>
     <string name="drawer_footer_subtitle">Operational v</string>
+
+    <!-- Recorder -->
+    <string name="recorder_replace">Replace</string>
+    <string name="recorder_trim">Trim</string>
+    <string name="recorder_trim_cancel">Cancel</string>
+    <string name="recorder_trim_done">Done</string>
+    <string name="recorder_delete_part">Delete</string>
+    <string name="recorder_save">Save</string>
+    <string name="recorder_edit">Edit</string>
 </resources>

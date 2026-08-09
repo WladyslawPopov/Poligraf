@@ -7,6 +7,7 @@ interface AppNavigation {
     fun openMain()
     fun openDebug()
     fun openRecording(subjectId: String)
+    fun openRecordingsHistory(subjectId: String, startRecording: Boolean = false)
     fun back()
     
     fun toggleDrawer()

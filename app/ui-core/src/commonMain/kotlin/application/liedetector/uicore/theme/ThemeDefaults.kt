@@ -27,6 +27,13 @@ object ThemeDefaults {
                 ColorToken.TEXT_PRIMARY -> "#FFFFFF"
                 ColorToken.TEXT_SECONDARY -> "#A0A0A0"
                 ColorToken.TEXT_INVERTED -> "#000000"
+
+                ColorToken.RECORDER_WAVEFORM -> "#FF3B30"
+                ColorToken.RECORDER_WAVEFORM_BACKGROUND -> "#1C1C1E"
+                ColorToken.RECORDER_TRIM_ZONE -> "#4DFFD600"
+                ColorToken.RECORDER_TRIM_HANDLE -> "#FFD600"
+                ColorToken.RECORDER_PLAYHEAD -> "#007AFF"
+                ColorToken.RECORDER_CONTROL_REPLACE -> "#FF3B30"
             }
         } else {
             when (token) {
@@ -46,6 +53,13 @@ object ThemeDefaults {
                 ColorToken.TEXT_PRIMARY -> "#0F172A"
                 ColorToken.TEXT_SECONDARY -> "#64748B"
                 ColorToken.TEXT_INVERTED -> "#FFFFFF"
+
+                ColorToken.RECORDER_WAVEFORM -> "#D32F2F"
+                ColorToken.RECORDER_WAVEFORM_BACKGROUND -> "#F5F5F5"
+                ColorToken.RECORDER_TRIM_ZONE -> "#4DFFC107"
+                ColorToken.RECORDER_TRIM_HANDLE -> "#FFC107"
+                ColorToken.RECORDER_PLAYHEAD -> "#1976D2"
+                ColorToken.RECORDER_CONTROL_REPLACE -> "#D32F2F"
             }
         }
     }

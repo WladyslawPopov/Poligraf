@@ -35,7 +35,18 @@ fun WidgetRenderer(
                 widget = widget,
                 modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
                 onToggle = { component?.toggleRecording() },
-                onStop = { component?.stopRecording() }
+                onStop = { component?.stopRecording() },
+                onPlay = { component?.onPlayClicked() },
+                onPause = { component?.onPausePlaybackClicked() },
+                onSeek = { component?.onSeek(it) },
+                onTrimUpdate = { start, end -> component?.onTrimUpdate(start, end) },
+                onSave = { component?.onSaveClicked() },
+                onResume = { component?.onResumeRecording() },
+                onToggleTrim = { component?.toggleTrimMode() },
+                onSkip = { component?.onSkip(it) },
+                onToggleExpand = { component?.toggleExpand() },
+                onTrimCancel = { component?.onTrimCancel() },
+                onTrimApply = { start, end -> component?.onTrim(start, end) }
             )
         }
         

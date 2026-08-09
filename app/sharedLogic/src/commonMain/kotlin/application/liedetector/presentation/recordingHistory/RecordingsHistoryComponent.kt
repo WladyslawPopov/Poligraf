@@ -1,12 +1,13 @@
-package application.liedetector.presentation.recording
+package application.liedetector.presentation.recordingHistory
 
 import androidx.compose.runtime.Stable
 import application.liedetector.engine.component.ComponentContext
+import application.liedetector.uicore.widgets.UiWidget
 
 @Stable
-class RecordingComponent(
+class RecordingsHistoryComponent(
     val context: ComponentContext,
-    val viewModel: RecordingViewModel
+    val viewModel: RecordingsHistoryViewModel
 ) {
     fun goBack() {
         viewModel.goBack()
@@ -76,7 +77,7 @@ class RecordingComponent(
         viewModel.onTrimCancel()
     }
 
-    fun onMaterialTagClicked(tagId: String) {
-        viewModel.onMaterialTagClicked(tagId)
+    fun onRecordingClicked(recorder: UiWidget.VoiceRecorder) {
+        viewModel.onRecordingClicked(recorder)
     }
 }

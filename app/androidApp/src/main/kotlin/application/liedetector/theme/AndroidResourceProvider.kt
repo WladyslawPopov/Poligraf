@@ -58,6 +58,14 @@ class AndroidResourceProvider(private val context: Context) : ResourceProvider {
             
             StringToken.DRAWER_FOOTER_TITLE -> application.liedetector.R.string.drawer_footer_title
             StringToken.DRAWER_FOOTER_SUBTITLE -> application.liedetector.R.string.drawer_footer_subtitle
+
+            StringToken.RECORDER_REPLACE -> application.liedetector.R.string.recorder_replace
+            StringToken.RECORDER_TRIM -> application.liedetector.R.string.recorder_trim
+            StringToken.RECORDER_TRIM_CANCEL -> application.liedetector.R.string.recorder_trim_cancel
+            StringToken.RECORDER_TRIM_DONE -> application.liedetector.R.string.recorder_trim_done
+            StringToken.RECORDER_DELETE_PART -> application.liedetector.R.string.recorder_delete_part
+            StringToken.RECORDER_SAVE -> application.liedetector.R.string.recorder_save
+            StringToken.RECORDER_EDIT -> application.liedetector.R.string.recorder_edit
         }
         return context.getString(resId)
     }

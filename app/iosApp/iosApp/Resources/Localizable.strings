@@ -47,3 +47,12 @@
 
 "drawer_footer_title" = "Lie Detector System";
 "drawer_footer_subtitle" = "Operational v";
+
+/* Recorder */
+"recorder_replace" = "Replace";
+"recorder_trim" = "Trim";
+"recorder_trim_cancel" = "Cancel";
+"recorder_trim_done" = "Done";
+"recorder_delete_part" = "Delete";
+"recorder_save" = "Save";
+"recorder_edit" = "Edit";

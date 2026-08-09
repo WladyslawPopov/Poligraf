@@ -33,6 +33,12 @@ struct AdaptiveScreenHost: View {
                     component: root.recordingComponent(screenContext: contextHolder.context, subjectId: rec.subjectId),
                     designSystem: designSystem
                 )
+            case let history as AppRoute.RecordingsHistory:
+                RecordingsHistoryView(
+                    navigator: navigator,
+                    component: root.recordingsHistoryComponent(screenContext: contextHolder.context, subjectId: history.subjectId, startRecording: history.startRecording),
+                    designSystem: designSystem
+                )
             default:
                 EmptyView()
             }

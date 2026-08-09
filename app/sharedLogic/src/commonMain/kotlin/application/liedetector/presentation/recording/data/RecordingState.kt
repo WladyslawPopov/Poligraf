@@ -14,5 +14,13 @@ data class RecordingState(
     override val layoutConfig: LayoutConfig = LayoutConfig(isCentered = false),
     val subject: Subject = Subject(),
     val widgets: List<UiWidget> = emptyList(),
+    val materials: List<MaterialTag> = emptyList(),
     val activeRecorder: UiWidget.VoiceRecorder? = null
 ) : ScaffoldUiState
+
+@Stable
+data class MaterialTag(
+    val id: String,
+    val title: String,
+    val icon: String? = null
+)
