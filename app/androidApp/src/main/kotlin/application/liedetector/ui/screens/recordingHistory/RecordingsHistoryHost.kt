@@ -43,11 +43,7 @@ fun RecordingsHistoryHost(component: RecordingsHistoryComponent) {
             skipHiddenState = false,
             confirmValueChange = { newValue ->
                 val isRecording = state.activeRecorder?.status == UiWidget.VoiceRecorder.Status.RECORDING
-                if (isRecording && newValue == SheetValue.Hidden) {
-                    false // Prevent hiding while recording
-                } else {
-                    true
-                }
+                !(isRecording && newValue == SheetValue.Hidden) // Prevent hiding while recording
             }
         )
     )
@@ -127,7 +123,8 @@ fun RecordingsHistoryHost(component: RecordingsHistoryComponent) {
                             }
                         },
                         onTrimCancel = { component.onTrimCancel() },
-                        onTrimApply = { start, end -> component.onTrim(start, end) }
+                        onTrimApply = { start, end -> component.onTrim(start, end) },
+                        onUploadFromFile = { component.onUploadFromFileClicked() }
                     )
                 } ?: Box(Modifier.fillMaxWidth().height(1.dp))
             },

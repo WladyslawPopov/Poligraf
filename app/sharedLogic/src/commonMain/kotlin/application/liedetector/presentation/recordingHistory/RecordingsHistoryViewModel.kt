@@ -372,4 +372,8 @@ class RecordingsHistoryViewModel(
     fun goBack() {
         navigation.back()
     }
+
+    fun onUploadFromFileClicked() {
+        // TODO: Implement file upload logic
+    }
 }

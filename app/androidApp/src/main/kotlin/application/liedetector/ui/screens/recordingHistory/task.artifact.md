@@ -1,5 +1,0 @@
-- `[x]` Fix syntax errors and refactor `RecordingsHistoryHost.kt` for persistent bottom sheet
-- `[x]` Update `VoiceRecorderRenderer.kt`: Waveform time markers and dynamic playhead colors
-- `[x]` Update `VoiceRecorderRenderer.kt`: iOS-style Trim scrubber (yellow handles/overlay)
-- `[x]` Update `VoiceRecorderRenderer.kt`: Layout alignment (Rewind/Play/Forward and Replace/Trim/Notes)
-- `[x]` Verify recording and playback flows on device

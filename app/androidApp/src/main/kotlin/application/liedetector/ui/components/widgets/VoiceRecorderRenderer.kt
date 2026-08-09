@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -23,6 +25,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -34,6 +37,7 @@ import application.liedetector.uicore.theme.tokens.*
 import application.liedetector.uicore.widgets.UiWidget
 import kotlinx.coroutines.launch
 import java.util.Calendar
+import kotlin.math.absoluteValue
 
 private val AppleRed = Color(0xFFFF3B30)
 private val AppleBlue = Color(0xFF007AFF)
@@ -56,7 +60,8 @@ fun VoiceRecorderRenderer(
     onSkip: (Long) -> Unit,
     onToggleExpand: () -> Unit,
     onTrimCancel: () -> Unit,
-    onTrimApply: (Long, Long) -> Unit
+    onTrimApply: (Long, Long) -> Unit,
+    onUploadFromFile: () -> Unit
 ) {
     val designSystem = LocalDesignSystem.current
 
@@ -93,7 +98,8 @@ fun VoiceRecorderRenderer(
                 ExpandedContent(
                     widget, onToggle, onStop, onPlay, onPause,
                     onSeek, onSave, onToggleTrim, onSkip, designSystem,
-                    onTrimCancel, onTrimApply, onResume
+                    onTrimCancel, onTrimApply, onResume, onUploadFromFile,
+                    onTrimUpdate
                 )
             } else {
                 CollapsedContent(widget, onToggle, onResume, onPlay, onPause, onToggleExpand, designSystem)
@@ -230,8 +236,12 @@ private fun ExpandedContent(
     designSystem: DesignSystem,
     onTrimCancel: () -> Unit,
     onTrimApply: (Long, Long) -> Unit,
-    onResume: () -> Unit
+    onResume: () -> Unit,
+    onUploadFromFile: () -> Unit,
+    onTrimUpdate: (Long, Long) -> Unit
 ) {
+    var menuExpanded by remember { mutableStateOf(false) }
+
     Column(
         modifier = Modifier.fillMaxWidth().padding(bottom = 32.dp),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -243,7 +253,7 @@ private fun ExpandedContent(
             if (widget.isTrimming) {
                 Text(
                     "Cancel",
-                    color = AppleBlue,
+                    color = Color.White,
                     fontSize = 17.sp,
                     modifier = Modifier
                         .align(Alignment.CenterStart)
@@ -258,7 +268,7 @@ private fun ExpandedContent(
                 )
                 Text(
                     "Apply",
-                    color = AppleBlue,
+                    color = Color.White.copy(alpha = 0.3f),
                     fontSize = 17.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier
@@ -266,26 +276,71 @@ private fun ExpandedContent(
                         .clickable { onTrimApply(widget.trimStartMillis, widget.trimEndMillis) }
                 )
             } else {
-                IconButton(
-                    onClick = { /* More options */ },
-                    modifier = Modifier.align(Alignment.CenterStart)
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.CenterStart)
+                        .size(36.dp)
+                        .clip(CircleShape)
+                        .background(AppleBlue.copy(alpha = 0.15f))
+                        .clickable { menuExpanded = true },
+                    contentAlignment = Alignment.Center
                 ) {
-                    Icon(Icons.Default.MoreHoriz, contentDescription = null, tint = AppleBlue)
+                    Icon(Icons.Default.MoreHoriz, contentDescription = null, tint = AppleBlue, modifier = Modifier.size(24.dp))
+                    
+                    DropdownMenu(
+                        expanded = menuExpanded,
+                        onDismissRequest = { menuExpanded = false },
+                        modifier = Modifier.background(DarkGrayBg).border(0.5.dp, Color.White.copy(alpha = 0.1f), RoundedCornerShape(8.dp))
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("Загрузить аудио с файла", color = Color.White) },
+                            onClick = { 
+                                menuExpanded = false
+                                onUploadFromFile()
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Обрезать запись", color = Color.White) },
+                            onClick = { 
+                                menuExpanded = false
+                                onToggleTrim()
+                            }
+                        )
+                    }
                 }
+
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.align(Alignment.Center)
                 ) {
-                    Text(widget.title, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                    // Subtitle: "HH:MM duration"
-                    Text("${formatTimeShort()}   ${formatDurationSimple(widget.durationMillis)}",
-                        color = Color.White.copy(alpha = 0.6f), fontSize = 14.sp)
+                    Text(
+                        text = "${widget.title} ${formatTimeShort()}",
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp
+                    )
+                    Text(
+                        text = formatDurationSimple(widget.durationMillis),
+                        color = Color.White.copy(alpha = 0.5f),
+                        fontSize = 14.sp
+                    )
                 }
-                IconButton(
-                    onClick = onSave,
-                    modifier = Modifier.align(Alignment.CenterEnd)
+
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                        .size(36.dp)
+                        .clip(CircleShape)
+                        .background(AppleBlue.copy(alpha = 0.15f))
+                        .clickable { onSave() },
+                    contentAlignment = Alignment.Center
                 ) {
-                    Icon(designSystem.icon(IconToken.CHECK), contentDescription = null, tint = AppleBlue, modifier = Modifier.size(28.dp))
+                    Icon(
+                        designSystem.icon(IconToken.CHECK), 
+                        contentDescription = null, 
+                        tint = AppleBlue, 
+                        modifier = Modifier.size(22.dp)
+                    )
                 }
             }
         }
@@ -293,27 +348,27 @@ private fun ExpandedContent(
         Spacer(modifier = Modifier.height(24.dp))
 
         // Waveform area: Dark Gray (#1C1C1E) box with rounded corners (24.dp)
-        if (!widget.isTrimming) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(220.dp)
-                    .padding(horizontal = 16.dp)
-                    .clip(RoundedCornerShape(24.dp))
-                    .background(DarkGrayBg)
-            ) {
-                ProfessionalWaveform(
-                    widget = widget,
-                    waveformColor = Color.White.copy(alpha = 0.3f),
-                    onSeek = onSeek
-                )
-            }
+        // Waveform area: Integrated Ruler
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(240.dp)
+        ) {
+            ProfessionalWaveform(
+                widget = widget,
+                onSeek = onSeek
+            )
+        }
+
+        if (widget.isTrimming) {
+            Spacer(modifier = Modifier.height(32.dp))
+            MiniTrimOverview(widget, onTrimUpdate)
         }
 
         Spacer(modifier = Modifier.height(32.dp))
 
         // Timer: Monospaced font
-        val timerValue = if (widget.status == UiWidget.VoiceRecorder.Status.REVIEW || widget.isTrimming) 
+        val timerValue = if (widget.status == UiWidget.VoiceRecorder.Status.REVIEW || widget.isTrimming || widget.status == UiWidget.VoiceRecorder.Status.PAUSED) 
             widget.playbackPositionMillis 
         else 
             widget.durationMillis
@@ -322,40 +377,35 @@ private fun ExpandedContent(
             text = formatDurationPrecise(timerValue),
             style = LocalTextStyle.current.copy(
                 fontFamily = FontFamily.Monospace,
-                fontWeight = FontWeight.Medium,
-                fontSize = 72.sp
+                fontWeight = FontWeight.Normal,
+                fontSize = 42.sp,
+                letterSpacing = (-0.5).sp
             ),
             color = Color.White
         )
 
-        if (widget.isTrimming) {
-            Spacer(modifier = Modifier.height(48.dp))
-            MiniTrimOverview(widget)
-            Spacer(modifier = Modifier.height(48.dp))
-        } else if (widget.status == UiWidget.VoiceRecorder.Status.REVIEW || widget.status == UiWidget.VoiceRecorder.Status.PAUSED) {
-            Spacer(modifier = Modifier.height(32.dp))
-            // Playback Controls
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IconButton(onClick = { onSkip(-15000) }) {
-                    Icon(designSystem.icon(IconToken.HISTORY), contentDescription = null, tint = Color.White, modifier = Modifier.size(36.dp))
-                }
-                Spacer(modifier = Modifier.width(48.dp))
-                IconButton(onClick = if (widget.isPlaying) onPause else onPlay) {
-                    Icon(
-                        imageVector = if (widget.isPlaying) designSystem.icon(IconToken.PAUSE) else designSystem.icon(IconToken.PLAY),
-                        contentDescription = null,
-                        tint = Color.White,
-                        modifier = Modifier.size(56.dp)
-                    )
-                }
-                Spacer(modifier = Modifier.width(48.dp))
-                IconButton(onClick = { onSkip(15000) }) {
-                    Icon(designSystem.icon(IconToken.HISTORY), contentDescription = null, tint = Color.White, modifier = Modifier.size(36.dp).graphicsLayer(scaleX = -1f))
-                }
+        Spacer(modifier = Modifier.height(32.dp))
+        // Playback Controls
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = { onSkip(-15000) }) {
+                Icon(designSystem.icon(IconToken.HISTORY), contentDescription = null, tint = Color.White, modifier = Modifier.size(36.dp))
+            }
+            Spacer(modifier = Modifier.width(48.dp))
+            IconButton(onClick = if (widget.isPlaying) onPause else onPlay) {
+                Icon(
+                    imageVector = if (widget.isPlaying) designSystem.icon(IconToken.PAUSE) else designSystem.icon(IconToken.PLAY),
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.size(56.dp)
+                )
+            }
+            Spacer(modifier = Modifier.width(48.dp))
+            IconButton(onClick = { onSkip(15000) }) {
+                Icon(designSystem.icon(IconToken.HISTORY), contentDescription = null, tint = Color.White, modifier = Modifier.size(36.dp).graphicsLayer(scaleX = -1f))
             }
         }
 
@@ -375,21 +425,19 @@ private fun ExpandedContent(
                         .clip(CircleShape)
                         .background(Color.White.copy(alpha = 0.1f))
                         .padding(horizontal = 32.dp, vertical = 12.dp)
-                        .clickable { /* Trigger Trim Action */ }
+                        .clickable { onToggleTrim() }
                 ) {
-                    Text("Trim", color = Color.White, fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
+                    Text("Trim", color = Color.White.copy(alpha = 0.6f), fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
                 }
                 Text(
                     "Delete",
-                    color = AppleRed,
+                    color = Color.White.copy(alpha = 0.6f),
                     fontSize = 17.sp,
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.clickable { /* Trigger Delete */ }
                 )
             } else {
-                IconButton(onClick = { /* Notes */ }) {
-                    Icon(designSystem.icon(IconToken.NOTE), contentDescription = null, tint = AppleBlue, modifier = Modifier.size(28.dp))
-                }
+                Spacer(modifier = Modifier.width(48.dp))
 
                 // Central Button: Mic (Record/Resume/Append) or Pause
                 val isRecording = widget.status == UiWidget.VoiceRecorder.Status.RECORDING
@@ -412,9 +460,7 @@ private fun ExpandedContent(
                     )
                 }
 
-                IconButton(onClick = onToggleTrim) {
-                    Icon(designSystem.icon(IconToken.SETTINGS), contentDescription = null, tint = AppleBlue, modifier = Modifier.size(28.dp))
-                }
+                Spacer(modifier = Modifier.width(48.dp))
             }
         }
     }
@@ -422,66 +468,163 @@ private fun ExpandedContent(
 
 @Composable
 private fun MiniTrimOverview(
-    widget: UiWidget.VoiceRecorder
+    widget: UiWidget.VoiceRecorder,
+    onTrimUpdate: (Long, Long) -> Unit
 ) {
+    // Local state for smooth dragging
+    var localStart by remember(widget.isTrimming) { mutableLongStateOf(widget.trimStartMillis) }
+    var localEnd by remember(widget.isTrimming) { mutableLongStateOf(widget.trimEndMillis) }
+
+    val sidePadding = 32.dp // More space to let handles sit "outside" the track
+
     BoxWithConstraints(
         modifier = Modifier
-            .fillMaxWidth(0.9f)
-            .height(80.dp)
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp)
+            .height(56.dp)
     ) {
-        val width = maxWidth
-        
-        Canvas(Modifier.fillMaxSize()) {
-            val step = 3.dp.toPx()
-            val centerY = size.height / 2f
-            val count = (size.width / step).toInt()
-            
-            for (i in 0 until count) {
-                val x = i * step
-                val amp = widget.amplitudes.getOrNull((i.toFloat() / count * widget.amplitudes.size).toInt()) ?: 0.1f
-                val h = (amp * size.height * 0.6f).coerceAtLeast(2.dp.toPx())
-                drawRoundRect(
-                    color = Color.White.copy(alpha = 0.2f),
-                    topLeft = Offset(x, centerY - h / 2),
-                    size = Size(2.dp.toPx(), h),
-                    cornerRadius = CornerRadius(1.dp.toPx())
-                )
+        val widthPx = constraints.maxWidth.toFloat()
+        val sidePaddingPx = with(LocalDensity.current) { sidePadding.toPx() }
+        val trackWidthPx = widthPx - 2 * sidePaddingPx
+
+        // 1. Background Track
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = sidePadding)
+                .clip(RoundedCornerShape(4.dp))
+                .background(Color.Black.copy(alpha = 0.3f))
+                .pointerInput(widget.durationMillis) {
+                    detectTapGestures { offset ->
+                        val tappedTrackX = (offset.x - sidePaddingPx).coerceIn(0f, trackWidthPx)
+                        val tappedTime = (tappedTrackX / trackWidthPx * widget.durationMillis).toLong()
+                        
+                        val distStart = (tappedTime - localStart).absoluteValue
+                        val distEnd = (tappedTime - localEnd).absoluteValue
+                        
+                        if (distStart < distEnd) {
+                            localStart = tappedTime.coerceIn(0, localEnd - 100)
+                        } else {
+                            localEnd = tappedTime.coerceIn(localStart + 100, widget.durationMillis)
+                        }
+                        onTrimUpdate(localStart, localEnd)
+                    }
+                }
+        ) {
+            Canvas(Modifier.fillMaxSize()) {
+                val step = 2.dp.toPx()
+                val centerY = size.height / 2f
+                val count = (size.width / step).toInt()
+                
+                for (i in 0 until count) {
+                    val x = i * step
+                    val amp = widget.amplitudes.getOrNull((i.toFloat() / count * widget.amplitudes.size).toInt()) ?: 0.1f
+                    val h = (amp * size.height * 0.4f).coerceAtLeast(1.dp.toPx())
+                    drawRoundRect(
+                        color = Color.White.copy(alpha = 0.2f),
+                        topLeft = Offset(x, centerY - h / 2),
+                        size = Size(1.dp.toPx(), h),
+                        cornerRadius = CornerRadius(0.5.dp.toPx())
+                    )
+                }
             }
         }
 
-        val startRatio = widget.trimStartMillis.toFloat() / widget.durationMillis.coerceAtLeast(1)
-        val endRatio = widget.trimEndMillis.toFloat() / widget.durationMillis.coerceAtLeast(1)
+        val startRatio = localStart.toFloat() / widget.durationMillis.coerceAtLeast(1)
+        val endRatio = localEnd.toFloat() / widget.durationMillis.coerceAtLeast(1)
+        val playbackRatio = widget.playbackPositionMillis.toFloat() / widget.durationMillis.coerceAtLeast(1)
         
-        val left = width * startRatio
-        val right = width * endRatio
+        val leftX = sidePaddingPx + (trackWidthPx * startRatio)
+        val rightX = sidePaddingPx + (trackWidthPx * endRatio)
+        val playheadX = sidePaddingPx + (trackWidthPx * playbackRatio)
 
-        // Dark overlays for excluded parts
-        Box(modifier = Modifier.fillMaxHeight().width(left).background(Color.Black.copy(alpha = 0.6f)))
-        Box(modifier = Modifier.fillMaxHeight().width(width - right).offset(x = right).background(Color.Black.copy(alpha = 0.6f)))
-
-        // Yellow Trim Box (selection)
+        // 2. Yellow Selection Frame
         Box(
             modifier = Modifier
                 .fillMaxHeight()
-                .width(right - left)
-                .offset(x = left)
+                .width(with(LocalDensity.current) { (rightX - leftX).toDp() })
+                .offset(x = with(LocalDensity.current) { leftX.toDp() })
                 .border(2.dp, AppleYellow)
         )
 
-        // Yellow Handles (iOS style with thick bars)
+        // 3. Left Handle (Sitting OUTSIDE to the left of leftX)
+        // Handle Box is 48dp, yellow bar is 20dp. 
+        // We want the yellow bar's RIGHT edge to be at leftX.
+        // Yellow bar center is at 24dp. Right edge is at 24 + 10 = 34dp.
         Box(
             modifier = Modifier
                 .fillMaxHeight()
-                .width(16.dp)
-                .offset(x = left - 8.dp)
-                .background(AppleYellow, RoundedCornerShape(topStart = 4.dp, bottomStart = 4.dp))
-        )
+                .width(48.dp)
+                .offset(x = with(LocalDensity.current) { (leftX - 34.dp.toPx()).toDp() })
+                .pointerInput(widget.durationMillis) {
+                    var accumulatedDrag = 0f
+                    detectDragGestures(
+                        onDragStart = { accumulatedDrag = 0f },
+                        onDrag = { change, dragAmount ->
+                            change.consume()
+                            accumulatedDrag += dragAmount.x
+                            val deltaMillis = (accumulatedDrag / trackWidthPx * widget.durationMillis).toLong()
+                            val newStart = (localStart + deltaMillis).coerceIn(0, localEnd - 100)
+                            if (newStart != localStart) {
+                                localStart = newStart
+                                onTrimUpdate(localStart, localEnd)
+                                accumulatedDrag = 0f
+                            }
+                        }
+                    )
+                },
+            contentAlignment = Alignment.Center
+        ) {
+            Box(
+                modifier = Modifier.fillMaxHeight().width(20.dp).background(AppleYellow, RoundedCornerShape(topStart = 4.dp, bottomStart = 4.dp)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = null, tint = Color.Black, modifier = Modifier.size(16.dp))
+            }
+        }
+
+        // 4. Right Handle (Sitting OUTSIDE to the right of rightX)
+        // Yellow bar's LEFT edge should be at rightX.
+        // Yellow bar center is at 24dp. Left edge is at 24 - 10 = 14dp.
         Box(
             modifier = Modifier
                 .fillMaxHeight()
-                .width(16.dp)
-                .offset(x = right - 8.dp)
-                .background(AppleYellow, RoundedCornerShape(topEnd = 4.dp, bottomEnd = 4.dp))
+                .width(48.dp)
+                .offset(x = with(LocalDensity.current) { (rightX - 14.dp.toPx()).toDp() })
+                .pointerInput(widget.durationMillis) {
+                    var accumulatedDrag = 0f
+                    detectDragGestures(
+                        onDragStart = { accumulatedDrag = 0f },
+                        onDrag = { change, dragAmount ->
+                            change.consume()
+                            accumulatedDrag += dragAmount.x
+                            val deltaMillis = (accumulatedDrag / trackWidthPx * widget.durationMillis).toLong()
+                            val newEnd = (localEnd + deltaMillis).coerceIn(localStart + 100, widget.durationMillis)
+                            if (newEnd != localEnd) {
+                                localEnd = newEnd
+                                onTrimUpdate(localStart, localEnd)
+                                accumulatedDrag = 0f
+                            }
+                        }
+                    )
+                },
+            contentAlignment = Alignment.Center
+        ) {
+            Box(
+                modifier = Modifier.fillMaxHeight().width(20.dp).background(AppleYellow, RoundedCornerShape(topEnd = 4.dp, bottomEnd = 4.dp)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = Color.Black, modifier = Modifier.size(16.dp))
+            }
+        }
+
+        // 5. Playhead indicator
+        Box(
+            modifier = Modifier
+                .fillMaxHeight()
+                .width(2.dp)
+                .offset(x = with(LocalDensity.current) { (playheadX - 1.dp.toPx()).toDp() })
+                .background(AppleBlue)
         )
     }
 }
@@ -489,21 +632,26 @@ private fun MiniTrimOverview(
 @Composable
 private fun ProfessionalWaveform(
     widget: UiWidget.VoiceRecorder,
-    waveformColor: Color,
     onSeek: (Long) -> Unit
 ) {
     val density = LocalDensity.current
     val scope = rememberCoroutineScope()
-    val barWidthPx = with(density) { 3.dp.toPx() }
+    val barWidthPx = with(density) { 2.dp.toPx() }
     val stepPx = with(density) { 6.dp.toPx() }
+    
+    // Crucial: This must match the speed at which amplitudes are collected.
+    // If it's too fast, the waveform runs ahead. If too slow, it lags.
+    // Standard is ~33ms, but we'll use 100ms to reduce density as requested.
+    val millisPerBar = 100f 
 
     val scrollOffset = remember { Animatable(0f) }
     var isDragging by remember { mutableStateOf(false) }
 
+    // Position in index units
     val currentIdx = if (widget.status == UiWidget.VoiceRecorder.Status.RECORDING) {
-        widget.durationMillis.toFloat() / 33f
+        widget.durationMillis.toFloat() / millisPerBar
     } else {
-        widget.playbackPositionMillis.toFloat() / 33f
+        widget.playbackPositionMillis.toFloat() / millisPerBar
     }
 
     LaunchedEffect(currentIdx, isDragging) {
@@ -515,29 +663,46 @@ private fun ProfessionalWaveform(
     BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()
-            .background(DarkGrayBg)
             .draggable(
                 state = rememberDraggableState { delta ->
                     if (widget.status == UiWidget.VoiceRecorder.Status.REVIEW || widget.status == UiWidget.VoiceRecorder.Status.PAUSED) {
                         isDragging = true
+                        val maxIdx = widget.durationMillis.toFloat() / millisPerBar
                         scope.launch {
-                            val newOffset = scrollOffset.value - (delta / stepPx)
-                            scrollOffset.snapTo(newOffset.coerceAtLeast(0f))
-                            onSeek((scrollOffset.value * 33).toLong())
+                            val dragAmount = delta / stepPx
+                            val currentVal = scrollOffset.value
+                            val resistance = if (currentVal < 0 || currentVal > maxIdx) 0.3f else 1f
+                            val nextVal = currentVal - (dragAmount * resistance)
+                            
+                            scrollOffset.snapTo(nextVal)
+                            onSeek((nextVal.coerceIn(0f, maxIdx) * millisPerBar).toLong())
                         }
                     }
                 },
                 orientation = Orientation.Horizontal,
                 onDragStopped = { velocity ->
                     if (widget.status == UiWidget.VoiceRecorder.Status.REVIEW || widget.status == UiWidget.VoiceRecorder.Status.PAUSED) {
+                        val maxIdx = widget.durationMillis.toFloat() / millisPerBar
                         scope.launch {
-                            val decay = exponentialDecay<Float>(frictionMultiplier = 1.2f)
-                            scrollOffset.animateDecay(
-                                initialVelocity = -velocity / stepPx,
-                                animationSpec = decay
-                            )
                             isDragging = false
-                            onSeek((scrollOffset.value * 33).toLong())
+                            if (scrollOffset.value < 0) {
+                                scrollOffset.animateTo(0f, spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))
+                            } else if (scrollOffset.value > maxIdx) {
+                                scrollOffset.animateTo(maxIdx, spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))
+                            } else {
+                                val decay = exponentialDecay<Float>(frictionMultiplier = 1.5f)
+                                scrollOffset.animateDecay(
+                                    initialVelocity = -velocity / stepPx,
+                                    animationSpec = decay
+                                )
+                                // After decay, if we landed outside, bounce back
+                                if (scrollOffset.value < 0) {
+                                    scrollOffset.animateTo(0f, spring(dampingRatio = Spring.DampingRatioMediumBouncy))
+                                } else if (scrollOffset.value > maxIdx) {
+                                    scrollOffset.animateTo(maxIdx, spring(dampingRatio = Spring.DampingRatioMediumBouncy))
+                                }
+                            }
+                            onSeek((scrollOffset.value.coerceIn(0f, maxIdx) * millisPerBar).toLong())
                         }
                     }
                 }
@@ -550,63 +715,128 @@ private fun ProfessionalWaveform(
         Canvas(modifier = Modifier.fillMaxSize()) {
             val amplitudes = widget.amplitudes
             val activeIdx = scrollOffset.value
+            val timelineHeight = 48.dp.toPx()
+            val waveformHeight = heightPx - timelineHeight
+            val centerY = waveformHeight / 2f
+            
+            // startX is where the recording starts (time 0)
+            val startX = headX - (activeIdx * stepPx)
 
-            val firstVisibleIdx = (activeIdx - (headX / stepPx) - 10).toInt().coerceAtLeast(0)
-            val lastVisibleIdx = (activeIdx + (headX / stepPx) + 10).toInt().coerceAtMost(amplitudes.size - 1)
+            // LAYER 1: Backgrounds
+            // Future area background
+            drawRect(
+                color = Color.Black,
+                topLeft = Offset(0f, 0f),
+                size = Size(widthPx, waveformHeight)
+            )
 
-            for (i in firstVisibleIdx..lastVisibleIdx) {
-                val amp = amplitudes.getOrElse(i) { 0.1f }
-                val x = headX + (i - activeIdx) * stepPx
-                val barHeight = (amp * (heightPx * 0.7f)).coerceAtLeast(4.dp.toPx())
+            // Recorded part background (attached to the strip)
+            val recordedWidth = (widget.durationMillis.toFloat() / millisPerBar) * stepPx
+            
+            drawRect(
+                color = Color(0xFF2C2C2E),
+                topLeft = Offset(startX, 0f),
+                size = Size(recordedWidth, waveformHeight)
+            )
+
+            // LAYER 2: Yellow Highlight for Trim
+            if (widget.isTrimming) {
+                val trimStartIdx = widget.trimStartMillis.toFloat() / millisPerBar
+                val trimEndIdx = widget.trimEndMillis.toFloat() / millisPerBar
                 
-                drawRoundRect(
-                    color = waveformColor,
-                    topLeft = Offset(x, (heightPx - barHeight) / 2),
-                    size = Size(barWidthPx, barHeight),
-                    cornerRadius = CornerRadius(barWidthPx / 2)
+                val trimStartX = startX + trimStartIdx * stepPx
+                val trimEndX = startX + trimEndIdx * stepPx
+                
+                drawRect(
+                    color = AppleYellow.copy(alpha = 0.25f),
+                    topLeft = Offset(trimStartX, 0f),
+                    size = Size((trimEndX - trimStartX).coerceAtLeast(1f), waveformHeight)
                 )
             }
 
-            // Time Markers
-            val paint = android.graphics.Paint().apply {
-                color = android.graphics.Color.WHITE
-                alpha = 80
-                textSize = 11.dp.toPx()
-                textAlign = android.graphics.Paint.Align.CENTER
-                typeface = android.graphics.Typeface.create(android.graphics.Typeface.DEFAULT, android.graphics.Typeface.NORMAL)
+            // LAYER 3: Waveform Bars
+            // Calculate indices of bars that fall within the visible widthPx
+            val firstVisibleBarIdx = ((-startX) / stepPx).toInt().coerceAtLeast(0)
+            val lastVisibleBarIdx = ((widthPx - startX) / stepPx).toInt().coerceAtMost((widget.durationMillis / millisPerBar).toInt())
+
+            for (i in firstVisibleBarIdx..lastVisibleBarIdx) {
+                val x = startX + (i.toFloat() * stepPx)
+                
+                // Map drawing slot i to the nearest sample in amplitudes (sampled at 33ms)
+                val ampIdx = (i * millisPerBar / 33.33f).toInt()
+                val amp = amplitudes.getOrElse(ampIdx) { 0.05f }
+                
+                val barHeight = (amp * (waveformHeight * 0.55f)).coerceAtLeast(2.dp.toPx())
+                
+                drawLine(
+                    color = Color.White,
+                    start = Offset(x, centerY - barHeight / 2),
+                    end = Offset(x, centerY + barHeight / 2),
+                    strokeWidth = barWidthPx,
+                    cap = StrokeCap.Round
+                )
             }
 
-            val millisPerBar = 33f
-            val barsPerSecond = 1000f / millisPerBar
-            val startSec = ((activeIdx - headX / stepPx) / barsPerSecond).toInt().coerceAtLeast(0)
-            val endSec = ((activeIdx + headX / stepPx) / barsPerSecond).toInt()
+            // LAYER 4: Ruler (Directly on the panel background)
+            val rulerY = waveformHeight
+            val textPaint = android.graphics.Paint().apply {
+                color = android.graphics.Color.WHITE
+                alpha = 90
+                textSize = 10.dp.toPx()
+                textAlign = android.graphics.Paint.Align.CENTER
+                typeface = android.graphics.Typeface.create("sans-serif-light", android.graphics.Typeface.NORMAL)
+            }
 
-            for (sec in startSec..endSec) {
-                val x = headX + (sec * barsPerSecond - activeIdx) * stepPx
-                val timeLabel = "%d:%02d".format(sec / 60, sec % 60)
-                drawIntoCanvas { canvas ->
-                    canvas.nativeCanvas.drawText(timeLabel, x, heightPx - 10.dp.toPx(), paint)
-                }
-                // Small tick
+            // Separator
+            drawLine(
+                color = Color.White.copy(alpha = 0.15f),
+                start = Offset(0f, rulerY),
+                end = Offset(widthPx, rulerY),
+                strokeWidth = 1.dp.toPx()
+            )
+
+            // Tick logic: Draw every 200ms
+            val ticksPerSecond = 5
+            val tickIntervalMillis = 1000f / ticksPerSecond
+            
+            // Range of ticks to draw based on visible time
+            val firstTick = ((activeIdx * millisPerBar - headX / stepPx * millisPerBar) / tickIntervalMillis).toInt().coerceAtLeast(0)
+            val lastTick = ((activeIdx * millisPerBar + headX / stepPx * millisPerBar) / tickIntervalMillis).toInt()
+
+            for (t in firstTick..lastTick) {
+                val timeMillis = t * tickIntervalMillis
+                val x = startX + (timeMillis / millisPerBar) * stepPx
+                
+                val isSecond = t % ticksPerSecond == 0
+                val tickHeight = if (isSecond) 6.dp.toPx() else 3.dp.toPx()
+                
                 drawLine(
-                    color = Color.White.copy(alpha = 0.2f),
-                    start = Offset(x, heightPx - 28.dp.toPx()),
-                    end = Offset(x, heightPx - 32.dp.toPx()),
+                    color = Color.White.copy(alpha = if (isSecond) 0.3f else 0.1f),
+                    start = Offset(x, rulerY),
+                    end = Offset(x, rulerY + tickHeight),
                     strokeWidth = 1.dp.toPx()
                 )
+
+                if (isSecond) {
+                    val sec = t / ticksPerSecond
+                    val timeLabel = "%d:%02d".format(sec / 60, sec % 60)
+                    drawIntoCanvas { canvas ->
+                        canvas.nativeCanvas.drawText(timeLabel, x, rulerY + 24.dp.toPx(), textPaint)
+                    }
+                }
             }
 
-            // Playhead color logic: Red for recording, Blue for review/trim
+            // LAYER 5: Playhead
             val playheadColor = if (widget.status == UiWidget.VoiceRecorder.Status.RECORDING) AppleRed else AppleBlue
-
+            
             drawLine(
                 color = playheadColor,
                 start = Offset(headX, 0f),
-                end = Offset(headX, heightPx - 32.dp.toPx()), // Stop above time markers
+                end = Offset(headX, waveformHeight),
                 strokeWidth = 2.dp.toPx()
             )
-            drawCircle(playheadColor, radius = 4.dp.toPx(), center = Offset(headX, 0f))
-            drawCircle(playheadColor, radius = 4.dp.toPx(), center = Offset(headX, heightPx - 32.dp.toPx()))
+            drawCircle(playheadColor, radius = 3.5.dp.toPx(), center = Offset(headX, 0f))
+            drawCircle(playheadColor, radius = 3.5.dp.toPx(), center = Offset(headX, waveformHeight))
         }
     }
 }

@@ -77,6 +77,10 @@ class RecordingsHistoryComponent(
         viewModel.onTrimCancel()
     }
 
+    fun onUploadFromFileClicked() {
+        viewModel.onUploadFromFileClicked()
+    }
+
     fun onRecordingClicked(recorder: UiWidget.VoiceRecorder) {
         viewModel.onRecordingClicked(recorder)
     }

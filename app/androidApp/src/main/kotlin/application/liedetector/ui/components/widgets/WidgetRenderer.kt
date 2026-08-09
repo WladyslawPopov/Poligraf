@@ -46,7 +46,8 @@ fun WidgetRenderer(
                 onSkip = { component?.onSkip(it) },
                 onToggleExpand = { component?.toggleExpand() },
                 onTrimCancel = { component?.onTrimCancel() },
-                onTrimApply = { start, end -> component?.onTrim(start, end) }
+                onTrimApply = { start, end -> component?.onTrim(start, end) },
+                onUploadFromFile = {  }
             )
         }
         
