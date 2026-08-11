@@ -10,8 +10,7 @@ import android.media.MediaRecorder
 import android.os.Build
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.*
 import java.io.File
 import java.util.*
 import kotlin.time.Duration.Companion.milliseconds
@@ -47,7 +46,6 @@ class AndroidAudioRecorder(
     override val isPlaying = _isPlaying.asStateFlow()
 
     private var startTime = 0L
-    private var pausedTime = 0L
 
     private var replacePosition = 0L
     private var isReplacingMode = false
@@ -56,37 +54,62 @@ class AndroidAudioRecorder(
         if (_isRecording.value) return
         isReplacingMode = false
         replacePosition = 0L
+        
+        // If we are starting from scratch (no loaded file), reset everything.
+        // Otherwise, keep audioFile to allow appending.
+        if (audioFile == null) {
+            _durationMillis.value = 0L
+            _amplitudes.value = emptyList()
+            _playbackPositionMillis.value = 0L
+        }
+        
+        tempPartFile = null
         startRecordingSession()
     }
 
     private fun startRecordingSession() {
-        try {
-            stopPlayback()
-            val file = File(context.cacheDir, "part_${UUID.randomUUID()}.m4a")
-            tempPartFile = file
+        scope.launch {
+            try {
+                releaseRecorder() // Fully release before starting new session
+                stopPlayback()
+                
+                // Crucial: Small delay for hardware to breathe, especially on emulators
+                delay(150.milliseconds)
+                
+                val file = File(context.cacheDir, "part_${UUID.randomUUID()}.m4a")
+                tempPartFile = file
 
-            recorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                MediaRecorder(context)
-            } else {
-                @Suppress("DEPRECATION")
-                MediaRecorder()
-            }.apply {
-                setAudioSource(MediaRecorder.AudioSource.MIC)
-                setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
-                setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-                setOutputFile(file.absolutePath)
-                prepare()
-                start()
+                val newRecorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    MediaRecorder(context)
+                } else {
+                    @Suppress("DEPRECATION")
+                    MediaRecorder()
+                }
+                
+                recorder = newRecorder.apply {
+                    // VOICE_RECOGNITION is cleaner on many devices/emulators
+                    setAudioSource(MediaRecorder.AudioSource.VOICE_RECOGNITION)
+                    setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
+                    setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+                    setAudioSamplingRate(44100)
+                    setAudioEncodingBitRate(128000)
+                    setOutputFile(file.absolutePath)
+                    prepare()
+                }
+
+                recorder?.start()
+
+                _isRecording.value = true
+                _isPaused.value = false
+                
+                startTime = System.currentTimeMillis() - _durationMillis.value
+                startTimer()
+                Napier.d { "Recording session started: ${file.name}" }
+            } catch (e: Exception) {
+                Napier.e(e) { "Failed to start recording session" }
+                _isRecording.value = false
+                releaseRecorder()
             }
-
-            _isRecording.value = true
-            _isPaused.value = false
-            
-            // startTime should account for already recorded duration
-            startTime = System.currentTimeMillis() - _durationMillis.value
-            startTimer()
-        } catch (e: Exception) {
-            Napier.e(e) { "Failed to start recording session" }
         }
     }
 
@@ -95,7 +118,6 @@ class AndroidAudioRecorder(
         try {
             recorder?.pause()
             _isPaused.value = true
-            pausedTime = System.currentTimeMillis()
             timerJob?.cancel()
         } catch (e: Exception) {
             Napier.e(e) { "Failed to pause recording" }
@@ -107,111 +129,153 @@ class AndroidAudioRecorder(
         try {
             recorder?.resume()
             _isPaused.value = false
-            startTime += (System.currentTimeMillis() - pausedTime)
+            // Reset startTime to account for the pause duration
+            startTime = System.currentTimeMillis() - _durationMillis.value
             startTimer()
         } catch (e: Exception) {
             Napier.e(e) { "Failed to resume recording" }
         }
     }
 
-    override fun stop(): String? {
-        if (!_isRecording.value) return audioFile?.absolutePath
-        return try {
+    private fun releaseRecorder() {
+        try {
             timerJob?.cancel()
-            
-            // Capture one last amplitude sample
-            val maxAmp = try { recorder?.maxAmplitude ?: 0 } catch (_: Exception) { 0 }
-            val normalized = kotlin.math.sqrt(maxAmp.toFloat() / 32767f).coerceIn(0f, 1f)
-            val finalAmplitudes = _amplitudes.value.toMutableList()
-            finalAmplitudes.add(normalized)
-            _amplitudes.value = finalAmplitudes
-
-            recorder?.stop()
-            recorder?.release()
+            recorder?.apply {
+                if (_isRecording.value) {
+                    try { stop() } catch (_: Exception) {}
+                }
+                release()
+            }
             recorder = null
+        } catch (e: Exception) {
+            Napier.e(e) { "Error releasing recorder" }
+        }
+    }
 
-            val currentPart = tempPartFile
-            val baseFile = audioFile
+    override suspend fun stop(): String? {
+        if (!_isRecording.value) return audioFile?.absolutePath
+        return withContext(Dispatchers.IO) {
+            try {
+                timerJob?.cancel()
+                
+                // Capture last sample
+                val maxAmp = try { recorder?.maxAmplitude ?: 0 } catch (_: Exception) { 0 }
+                val normalized = kotlin.math.sqrt(maxAmp.toFloat() / 32767f).coerceIn(0f, 1f)
+                _amplitudes.update { it + normalized }
 
-            if (currentPart != null && currentPart.exists()) {
-                if (baseFile == null || !baseFile.exists()) {
-                    // First part
-                    audioFile = currentPart
-                } else {
-                    // Append part to base
-                    val merged = mergeAudioFiles(baseFile, currentPart)
-                    if (merged != null) {
-                        baseFile.delete()
-                        currentPart.delete()
-                        audioFile = merged
-                    } else {
-                        // Fallback if merge fails (keep part at least?)
+                recorder?.stop()
+                recorder?.release()
+                recorder = null
+
+                val currentPart = tempPartFile
+                val baseFile = audioFile
+
+                if (currentPart != null && currentPart.exists()) {
+                    if (baseFile == null || !baseFile.exists()) {
                         audioFile = currentPart
+                        Napier.d { "Recording stopped, using single part: ${currentPart.name}" }
+                    } else {
+                        Napier.d { "Recording stopped, merging ${baseFile.name} and ${currentPart.name}" }
+                        val merged = mergeAudioFiles(baseFile, currentPart)
+                        if (merged != null) {
+                            // Cleanup temporary parts but DON'T delete history files if they were base
+                            if (baseFile.absolutePath.contains("cache")) baseFile.delete()
+                            currentPart.delete()
+                            audioFile = merged
+                        } else {
+                            Napier.e { "Merge failed, falling back to new part only" }
+                            audioFile = currentPart
+                        }
                     }
                 }
-            }
-            tempPartFile = null
+                tempPartFile = null
 
-            // Finalize duration
-            val finalFile = audioFile
-            if (finalFile != null && finalFile.exists()) {
-                val mp = MediaPlayer()
-                mp.setDataSource(finalFile.absolutePath)
-                mp.prepare()
-                val duration = mp.duration.toLong()
-                _durationMillis.value = duration
-                _playbackPositionMillis.value = duration 
-                mp.release()
-            }
+                // Refresh total duration from the final file
+                audioFile?.let { file ->
+                    val mp = MediaPlayer()
+                    try {
+                        mp.setDataSource(file.absolutePath)
+                        mp.prepare()
+                        _durationMillis.value = mp.duration.toLong()
+                    } finally {
+                        mp.release()
+                    }
+                }
 
-            _isRecording.value = false
-            _isPaused.value = false
-            
-            audioFile?.absolutePath
-        } catch (e: Exception) {
-            Napier.e(e) { "Failed to stop recording" }
-            null
+                _isRecording.value = false
+                _isPaused.value = false
+                _playbackPositionMillis.value = _durationMillis.value
+                
+                audioFile?.absolutePath
+            } catch (e: Exception) {
+                Napier.e(e) { "Failed to stop recording" }
+                _isRecording.value = false
+                null
+            }
         }
     }
 
     override fun cancel() {
-        stop()
-        audioFile?.delete()
-        audioFile = null
+        scope.launch {
+            stop()
+            // Safety: Only delete if it's a temporary segment in cache, never a loaded history file
+            audioFile?.let { 
+                if (it.absolutePath.contains("cache")) {
+                    it.delete()
+                }
+            }
+            audioFile = null
+            tempPartFile?.delete()
+            tempPartFile = null
+        }
     }
 
     override fun play() {
-        if (_isRecording.value) return
-        val path = audioFile?.absolutePath ?: return
+        if (_isRecording.value) {
+            Napier.w { "AudioRecorder: Play ignored. Currently recording" }
+            return
+        }
         
+        val currentFile = audioFile
+        if (currentFile == null || !currentFile.exists()) {
+            Napier.e { "AudioRecorder: Play failed. audioFile is ${if (currentFile == null) "NULL" else "MISSING"} at ${currentFile?.absolutePath}" }
+            return
+        }
+        
+        val path = currentFile.absolutePath
         try {
-            if (player == null) {
-                player = MediaPlayer().apply {
-                    setDataSource(path)
-                    prepare()
-                    setOnCompletionListener {
-                        _isPlaying.value = false
-                        playbackJob?.cancel()
-                        _playbackPositionMillis.value = duration.toLong()
-                    }
-                }
+            stopPlayback() 
+            
+            val newPlayer = MediaPlayer().apply {
+                setDataSource(path)
+                prepare()
             }
             
-            val currentPlayer = player ?: return
-            
-            // If we are at the end, seek to start before playing
-            if (!currentPlayer.isPlaying && currentPlayer.currentPosition >= currentPlayer.duration - 200) {
-                currentPlayer.seekTo(0)
+            player = newPlayer
+            val duration = newPlayer.duration.toLong()
+            val startPos = _playbackPositionMillis.value
+
+            if (startPos > 0 && startPos < duration - 200) {
+                newPlayer.seekTo(startPos.toInt())
+            } else if (newPlayer.currentPosition >= duration - 200) {
+                newPlayer.seekTo(0)
                 _playbackPositionMillis.value = 0
-                Napier.d { "Auto-restarting playback from 0" }
             }
             
-            currentPlayer.start()
+            newPlayer.setOnCompletionListener {
+                _isPlaying.value = false
+                playbackJob?.cancel()
+                _playbackPositionMillis.value = duration
+                Napier.i { "AudioRecorder: Playback finished" }
+            }
+            
+            newPlayer.start()
             _isPlaying.value = true
             startPlaybackTimer()
-            Napier.d { "Playback started: $path" }
+            Napier.i { "AudioRecorder: Playback started from ${startPos}ms" }
         } catch (e: Exception) {
-            Napier.e(e) { "Failed to play recording" }
+            Napier.e(e) { "AudioRecorder: Playback failed for $path" }
+            _isPlaying.value = false
         }
     }
 
@@ -226,119 +290,214 @@ class AndroidAudioRecorder(
         _playbackPositionMillis.value = positionMillis
     }
 
-    override fun trim(startMillis: Long, endMillis: Long): String? {
+    override suspend fun trim(startMillis: Long, endMillis: Long): String? {
         val sourcePath = audioFile?.absolutePath ?: return null
         val outPath = File(context.cacheDir, "trimmed_${UUID.randomUUID()}.m4a").absolutePath
         
-        return try {
-            val extractor = MediaExtractor()
-            extractor.setDataSource(sourcePath)
-            
-            val muxer = MediaMuxer(outPath, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
-            
-            val trackIndex = (0 until extractor.trackCount).firstOrNull { 
-                extractor.getTrackFormat(it).getString(MediaFormat.KEY_MIME)?.startsWith("audio/") == true 
-            } ?: return null
-            
-            extractor.selectTrack(trackIndex)
-            val format = extractor.getTrackFormat(trackIndex)
-            val newTrackIndex = muxer.addTrack(format)
-            
-            muxer.start()
-            
-            val bufferSize = 1024 * 1024
-            val buffer = java.nio.ByteBuffer.allocate(bufferSize)
-            val bufferInfo = MediaCodec.BufferInfo()
-            
-            extractor.seekTo(startMillis * 1000, MediaExtractor.SEEK_TO_CLOSEST_SYNC)
-            
-            while (true) {
-                val sampleSize = extractor.readSampleData(buffer, 0)
-                if (sampleSize < 0) break
+        Napier.d { "Trimming: $sourcePath from $startMillis to $endMillis" }
+        
+        return withContext(Dispatchers.IO) {
+            try {
+                val extractor = MediaExtractor()
+                extractor.setDataSource(sourcePath)
                 
-                val presentationTimeUs = extractor.sampleTime
-                if (presentationTimeUs > endMillis * 1000) break
+                var audioTrackIndex = -1
+                var format: MediaFormat? = null
                 
-                bufferInfo.offset = 0
-                bufferInfo.size = sampleSize
-                bufferInfo.presentationTimeUs = presentationTimeUs - startMillis * 1000
-                @Suppress("WrongConstant")
-                bufferInfo.flags = extractor.sampleFlags
+                for (i in 0 until extractor.trackCount) {
+                    val f = extractor.getTrackFormat(i)
+                    if (f.getString(MediaFormat.KEY_MIME)?.startsWith("audio/") == true) {
+                        audioTrackIndex = i
+                        format = f
+                        break
+                    }
+                }
                 
-                muxer.writeSampleData(newTrackIndex, buffer, bufferInfo)
-                extractor.advance()
+                if (audioTrackIndex == -1 || format == null) {
+                    extractor.release()
+                    return@withContext null
+                }
+                
+                extractor.selectTrack(audioTrackIndex)
+                
+                // IMPORTANT: Use closest sync to ensure the muxer can start cleanly
+                extractor.seekTo(startMillis * 1000, MediaExtractor.SEEK_TO_CLOSEST_SYNC)
+                // Real start time after seek might be slightly different from startMillis
+                val actualStartUs = extractor.sampleTime
+
+                val muxer = MediaMuxer(outPath, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
+                val newTrackIndex = muxer.addTrack(format)
+                muxer.start()
+                
+                val bufferSize = 1024 * 1024
+                val buffer = java.nio.ByteBuffer.allocate(bufferSize)
+                val bufferInfo = MediaCodec.BufferInfo()
+                
+                var totalWritten = 0
+                while (true) {
+                    val sampleSize = extractor.readSampleData(buffer, 0)
+                    if (sampleSize < 0) break
+                    
+                    val presentationTimeUs = extractor.sampleTime
+                    if (presentationTimeUs > endMillis * 1000) break
+
+                    bufferInfo.offset = 0
+                    bufferInfo.size = sampleSize
+                    // Ensure monotonic and starting from 0
+                    bufferInfo.presentationTimeUs = (presentationTimeUs - actualStartUs).coerceAtLeast(0)
+                    @Suppress("WrongConstant")
+                    bufferInfo.flags = extractor.sampleFlags
+                    
+                    muxer.writeSampleData(newTrackIndex, buffer, bufferInfo)
+                    extractor.advance()
+                    totalWritten++
+                }
+                
+                muxer.stop()
+                muxer.release()
+                extractor.release()
+                
+                if (totalWritten == 0) {
+                    Napier.e { "Trim failed: No samples written" }
+                    return@withContext null
+                }
+
+                // Sync UI amplitudes - create a fresh list to avoid subList side effects
+                val startIdx = (startMillis / 33).toInt().coerceIn(0, _amplitudes.value.size)
+                val endIdx = (endMillis / 33).toInt().coerceIn(startIdx, _amplitudes.value.size)
+                val newAmplitudes = _amplitudes.value.subList(startIdx, endIdx).toList()
+                _amplitudes.value = newAmplitudes
+
+                // Update internal state
+                audioFile = File(outPath)
+                _durationMillis.value = endMillis - startMillis
+                _playbackPositionMillis.value = 0
+                
+                stopPlayback()
+                
+                Napier.d { "Trim successful: $outPath, duration: ${_durationMillis.value}ms" }
+                outPath
+            } catch (e: Exception) {
+                Napier.e(e) { "Failed to trim audio: ${e.message}" }
+                null
             }
-            
-            muxer.stop()
-            muxer.release()
-            extractor.release()
-            
-            // Update audioFile to the trimmed version
-            audioFile = File(outPath)
-            _durationMillis.value = endMillis - startMillis
-            
-            // Reset player
-            player?.release()
-            player = null
-            
-            outPath
-        } catch (e: Exception) {
-            Napier.e(e) { "Failed to trim audio" }
-            null
         }
     }
 
     override fun replace(positionMillis: Long) {
         if (_isRecording.value) return
         
-        // "Recording from end always" means we don't actually replace middle parts for now
-        // But we prepare for an append session. 
-        // We set durationMillis to positionMillis so the timer continues correctly.
-        _durationMillis.value = positionMillis
-        
-        startRecordingSession()
+        scope.launch {
+            val currentDuration = _durationMillis.value
+            
+            if (positionMillis <= 0L) {
+                Napier.d { "Replacing: Resetting and starting from scratch" }
+                _durationMillis.value = 0
+                _amplitudes.value = emptyList()
+                audioFile = null
+            } else if (positionMillis < currentDuration) {
+                Napier.d { "Replacing: Truncating file to $positionMillis ms" }
+                trim(0, positionMillis)
+            } else {
+                Napier.d { "Replacing: Appending to the end ($positionMillis >= $currentDuration)" }
+                _playbackPositionMillis.value = currentDuration
+            }
+            
+            // 2. Sync UI state amplitudes (truncate list to match position)
+            val keepIdx = (positionMillis / 33).toInt().coerceIn(0, _amplitudes.value.size)
+            _amplitudes.value = _amplitudes.value.take(keepIdx)
+            _durationMillis.value = positionMillis.coerceAtLeast(0)
+            
+            startRecordingSession()
+        }
     }
 
-    override fun loadFile(path: String) {
-        audioFile = File(path)
-        stopPlayback()
-        if (audioFile?.exists() == true) {
+    override suspend fun loadFile(path: String, amplitudes: List<Float>?) {
+        Napier.i { "AudioRecorder: Loading file from $path" }
+        withContext(Dispatchers.Main) {
+            stopPlayback()
+            releaseRecorder()
+        }
+        
+        withContext(Dispatchers.IO) {
+            val file = File(path)
+            if (!file.exists() || file.length() <= 0L) {
+                Napier.e { "AudioRecorder: Load failed. File missing or empty. Path: $path" }
+                audioFile = null
+                _durationMillis.value = 0
+                _amplitudes.value = emptyList()
+                return@withContext
+            }
+
+            audioFile = file
+            _playbackPositionMillis.value = 0
+            
             try {
                 val mp = MediaPlayer()
-                mp.setDataSource(path)
+                mp.setDataSource(file.absolutePath)
                 mp.prepare()
-                _durationMillis.value = mp.duration.toLong()
-                _playbackPositionMillis.value = 0
-                // For simplicity, reset amplitudes as we don't have a full waveform generator
-                _amplitudes.value = List((_durationMillis.value / 33).toInt()) { 0.1f }
+                val totalDuration = mp.duration.toLong()
                 mp.release()
+                
+                _durationMillis.value = totalDuration
+
+                if (amplitudes != null && amplitudes.isNotEmpty()) {
+                    _amplitudes.value = amplitudes
+                } else {
+                    val sampleCount = (totalDuration / 33).toInt().coerceAtLeast(1)
+                    _amplitudes.value = List(sampleCount) { index ->
+                        val base = 0.15f
+                        val vari = kotlin.math.sin(index.toDouble() / 10.0).toFloat() * 0.1f
+                        (base + vari + (java.util.Random().nextFloat() * 0.05f)).coerceIn(0.05f, 0.8f)
+                    }
+                }
+                Napier.i { "AudioRecorder: Load SUCCESS. Duration: $totalDuration ms" }
             } catch (e: Exception) {
-                Napier.e(e) { "Failed to load file for playback" }
+                Napier.e(e) { "AudioRecorder: MediaPlayer failed to prepare for $path" }
+                _durationMillis.value = 0
+                _amplitudes.value = emptyList()
+                audioFile = null
             }
         }
     }
 
     private fun mergeAudioFiles(file1: File, file2: File): File? {
         val outPath = File(context.cacheDir, "merged_${UUID.randomUUID()}.m4a")
+        Napier.d { "Merging files: ${file1.absolutePath} and ${file2.absolutePath}" }
+        
         return try {
-            val muxer = MediaMuxer(outPath.absolutePath, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
-            
             val extractor1 = MediaExtractor()
             extractor1.setDataSource(file1.absolutePath)
             val trackIndex1 = (0 until extractor1.trackCount).firstOrNull { 
                 extractor1.getTrackFormat(it).getString(MediaFormat.KEY_MIME)?.startsWith("audio/") == true 
-            } ?: return null
+            } ?: run {
+                extractor1.release()
+                return null
+            }
             extractor1.selectTrack(trackIndex1)
             val format1 = extractor1.getTrackFormat(trackIndex1)
-            
+
+            val extractor2 = MediaExtractor()
+            extractor2.setDataSource(file2.absolutePath)
+            val trackIndex2 = (0 until extractor2.trackCount).firstOrNull { 
+                extractor2.getTrackFormat(it).getString(MediaFormat.KEY_MIME)?.startsWith("audio/") == true 
+            } ?: run {
+                extractor1.release()
+                extractor2.release()
+                return null
+            }
+            extractor2.selectTrack(trackIndex2)
+
+            val muxer = MediaMuxer(outPath.absolutePath, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
             val newTrackIndex = muxer.addTrack(format1)
             muxer.start()
             
             val buffer = java.nio.ByteBuffer.allocate(1024 * 1024)
             val bufferInfo = MediaCodec.BufferInfo()
             
-            // Write first file
             var lastPresentationTimeUs = 0L
+            
+            // Write first file
             while (true) {
                 val sampleSize = extractor1.readSampleData(buffer, 0)
                 if (sampleSize < 0) break
@@ -351,19 +510,15 @@ class AndroidAudioRecorder(
                 lastPresentationTimeUs = bufferInfo.presentationTimeUs
                 extractor1.advance()
             }
-            extractor1.release()
+            
+            // Calculate real duration of file 1. 
+            // We use the format duration if available, but ensure it's at least lastPresentationTimeUs + small buffer
+            val formatDurationUs = if (format1.containsKey(MediaFormat.KEY_DURATION)) format1.getLong(MediaFormat.KEY_DURATION) else 0L
+            val startTimeOffsetUs = maxOf(lastPresentationTimeUs + 20000L, formatDurationUs + 1000L)
+
+            Napier.d { "File 1 written. lastSampleTime: $lastPresentationTimeUs. Using offset: $startTimeOffsetUs" }
 
             // Write second file
-            val extractor2 = MediaExtractor()
-            extractor2.setDataSource(file2.absolutePath)
-            val trackIndex2 = (0 until extractor2.trackCount).firstOrNull { 
-                extractor2.getTrackFormat(it).getString(MediaFormat.KEY_MIME)?.startsWith("audio/") == true 
-            } ?: return null
-            extractor2.selectTrack(trackIndex2)
-            
-            // Small gap to prevent overlapping? Or just start immediately after
-            val startTimeOffsetUs = lastPresentationTimeUs + 1000L // 1ms gap
-
             while (true) {
                 val sampleSize = extractor2.readSampleData(buffer, 0)
                 if (sampleSize < 0) break
@@ -375,13 +530,16 @@ class AndroidAudioRecorder(
                 muxer.writeSampleData(newTrackIndex, buffer, bufferInfo)
                 extractor2.advance()
             }
-            extractor2.release()
             
+            extractor1.release()
+            extractor2.release()
             muxer.stop()
             muxer.release()
+            
+            Napier.d { "Merge complete: ${outPath.absolutePath}, size: ${outPath.length()} bytes" }
             outPath
         } catch (e: Exception) {
-            Napier.e(e) { "Failed to merge audio files" }
+            Napier.e(e) { "Failed to merge audio files: ${e.message}" }
             null
         }
     }
@@ -411,15 +569,13 @@ class AndroidAudioRecorder(
                     val maxAmp = try { recorder?.maxAmplitude ?: 0 } catch (_: Exception) { 0 }
                     val normalized = kotlin.math.sqrt(maxAmp.toFloat() / 32767f).coerceIn(0f, 1f)
                     
-                    val currentList = _amplitudes.value.toMutableList()
-                    repeat(samplesToAdd) {
-                        currentList.add(normalized)
+                    _amplitudes.update { current ->
+                        current + List(samplesToAdd) { normalized }
                     }
-                    _amplitudes.value = currentList
                     lastSampleCount = expectedSamples
                 }
                 
-                delay(16.milliseconds) // Higher frequency check for better sync
+                delay(33.milliseconds) 
             }
         }
     }
@@ -431,7 +587,7 @@ class AndroidAudioRecorder(
                 player?.let {
                     _playbackPositionMillis.value = it.currentPosition.toLong()
                 }
-                delay(16.milliseconds) // ~60fps for smooth seek bar
+                delay(33.milliseconds) 
             }
         }
     }

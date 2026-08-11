@@ -78,8 +78,8 @@ struct AppScaffold<Content: View>: View {
         .onAppear {
             updateMetrics()
         }
-        .onChange(of: verticalSizeClass) { _ in updateMetrics() }
-        .onChange(of: horizontalSizeClass) { _ in updateMetrics() }
+        .onChange(of: verticalSizeClass) { _, _ in updateMetrics() }
+        .onChange(of: horizontalSizeClass) { _, _ in updateMetrics() }
     }
     
     private func updateMetrics() {

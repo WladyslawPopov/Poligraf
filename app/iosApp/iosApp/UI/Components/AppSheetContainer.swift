@@ -38,7 +38,7 @@ struct AppSheetContainer<Content: View>: View {
                 VStack(alignment: .leading, spacing: 0) {
                     HStack {
                         if let token = titleToken {
-                            Text(designSystem.string(token: token))
+                            Text(designSystem.string(token))
                                 .font(.system(size: 26, weight: .heavy))
                                 .foregroundColor(designSystem.color(.accentPrimary))
                         }

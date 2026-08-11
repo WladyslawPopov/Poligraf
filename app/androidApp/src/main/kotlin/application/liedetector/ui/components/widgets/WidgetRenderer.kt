@@ -7,15 +7,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import application.liedetector.presentation.recording.RecordingComponent
 import application.liedetector.uicore.actions.WidgetAction
 import application.liedetector.uicore.widgets.UiWidget
 
 @Composable
 fun WidgetRenderer(
     widget: UiWidget,
-    onAction: (WidgetAction) -> Unit,
-    component: RecordingComponent? = null
+    onAction: (WidgetAction) -> Unit
 ) {
     when (widget) {
         is UiWidget.WelcomeText -> {
@@ -28,27 +26,6 @@ fun WidgetRenderer(
         
         is UiWidget.SubjectList -> {
             SubjectListRenderer(widget, onAction)
-        }
-
-        is UiWidget.VoiceRecorder -> {
-            VoiceRecorderRenderer(
-                widget = widget,
-                modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
-                onToggle = { component?.toggleRecording() },
-                onStop = { component?.stopRecording() },
-                onPlay = { component?.onPlayClicked() },
-                onPause = { component?.onPausePlaybackClicked() },
-                onSeek = { component?.onSeek(it) },
-                onTrimUpdate = { start, end -> component?.onTrimUpdate(start, end) },
-                onSave = { component?.onSaveClicked() },
-                onResume = { component?.onResumeRecording() },
-                onToggleTrim = { component?.toggleTrimMode() },
-                onSkip = { component?.onSkip(it) },
-                onToggleExpand = { component?.toggleExpand() },
-                onTrimCancel = { component?.onTrimCancel() },
-                onTrimApply = { start, end -> component?.onTrim(start, end) },
-                onUploadFromFile = {  }
-            )
         }
         
         else -> {

@@ -27,7 +27,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
         let deviceId = UIDevice.current.identifierForVendor?.uuidString ?? "unknown_ios"
 
-        InitKoinIosKt.doInitKoinIos(
+        let bridge = InitKoinIosKt.doInitKoinIos(
             authService: IosAuthService(),
             analytics: IosAnalytics(),
             integrity: IosIntegrityImpl(),
@@ -39,6 +39,8 @@ class AppDelegate: NSObject, UIApplicationDelegate {
             deviceId: deviceId,
             isDebug: isDebug
         )
+        
+        AppCoordinator.shared.voiceRecorderEngine = NativeVoiceRecorderEngine(bridge: bridge)
         
         return true
     }

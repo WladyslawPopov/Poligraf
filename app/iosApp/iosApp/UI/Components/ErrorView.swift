@@ -20,12 +20,12 @@ struct ErrorView: View {
                     Text(designSystem.string(token: titleToken))
                         .font(.title2)
                         .bold()
-                        .foregroundColor(designSystem.color(.textPrimary))
+                        .foregroundColor(designSystem.color(token: .textPrimary))
 
                     Text(designSystem.string(token: msgToken))
                         .font(.body)
                         .multilineTextAlignment(.center)
-                        .foregroundColor(designSystem.color(.textSecondary))
+                        .foregroundColor(designSystem.color(token: .textSecondary))
                         .padding(.horizontal, 32)
                 }
 
@@ -34,14 +34,14 @@ struct ErrorView: View {
                         .fontWeight(.bold)
                         .padding(.horizontal, 32)
                         .padding(.vertical, 12)
-                        .background(designSystem.color(.accentEnergy))
-                        .foregroundColor(designSystem.color(.textInverted))
+                        .background(designSystem.color(token: .accentEnergy))
+                        .foregroundColor(designSystem.color(token: .textInverted))
                         .cornerRadius(12)
                 }
             }
             .padding(.vertical, 40)
             .frame(maxWidth: .infinity)
-            .background(designSystem.color(.glassBase).opacity(0.3))
+            .background(designSystem.color(token: .glassBase).opacity(0.3))
             .background(.ultraThinMaterial)
             .cornerRadius(28)
             .padding(24)

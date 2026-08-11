@@ -46,8 +46,7 @@ struct RecordingView: View {
                             WidgetView(
                                 widget: widget,
                                 designSystem: designSystem,
-                                onAction: { _ in },
-                                recordingComponent: component
+                                onAction: { _ in }
                             )
                         }
                     }
@@ -60,13 +59,13 @@ struct RecordingView: View {
                 // 2. Control Panel Island
                 ZStack {
                     HStack(spacing: 24) {
-                        RecordingActionButton(systemName: designSystem.icon(.mic), designSystem: designSystem) {
+                        RecordingActionButton(systemName: designSystem.icon(token: .mic), designSystem: designSystem) {
                             withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
-                                component.onMicClicked()
+                                component.handleVoiceAction(action: VoiceRecorderAction.ToggleRecord())
                             }
                         }
-                        RecordingActionButton(systemName: designSystem.icon(.gallery), designSystem: designSystem) { }
-                        RecordingActionButton(systemName: designSystem.icon(.note), designSystem: designSystem) { }
+                        RecordingActionButton(systemName: designSystem.icon(token: .gallery), designSystem: designSystem) { }
+                        RecordingActionButton(systemName: designSystem.icon(token: .note), designSystem: designSystem) { }
                     }
                     .padding(8)
                     .matchedGeometryEffect(id: "content", in: bottomPanelNamespace)
@@ -76,7 +75,7 @@ struct RecordingView: View {
                         .fill(.ultraThinMaterial)
                         .overlay(
                             RoundedRectangle(cornerRadius: 40)
-                                .stroke(designSystem.color(.glassBorder).opacity(0.15), lineWidth: 0.5)
+                                .stroke(designSystem.color(token: .glassBorder).opacity(0.15), lineWidth: 0.5)
                         )
                         .matchedGeometryEffect(id: "island", in: bottomPanelNamespace)
                 )
@@ -84,7 +83,7 @@ struct RecordingView: View {
                 .padding(.bottom, 24)
             }
         }
-        .navigationTitle("") // Keep back button clean (no text)
+        .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .principal) {
@@ -94,20 +93,20 @@ struct RecordingView: View {
                     Text(state.value.subject.name)
                         .font(.subheadline)
                         .fontWeight(.semibold)
-                        .foregroundColor(designSystem.color(.textPrimary))
+                        .foregroundColor(designSystem.color(token: .textPrimary))
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
-                .background(designSystem.color(.glassBase))
+                .background(designSystem.color(token: .glassBase))
                 .clipShape(Capsule())
-                .overlay(Capsule().stroke(designSystem.color(.glassBorder), lineWidth: 0.5))
+                .overlay(Capsule().stroke(designSystem.color(token: .glassBorder), lineWidth: 0.5))
             }
             
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button(action: { showSettings = true }) {
-                    Image(systemName: designSystem.icon(.settings))
+                    Image(systemName: designSystem.icon(token: .settings))
                         .font(.system(size: 16, weight: .bold))
-                        .foregroundColor(designSystem.color(.textPrimary))
+                        .foregroundColor(designSystem.color(token: .textPrimary))
                         .frame(width: 38, height: 38)
                         .clipShape(Circle())
                 }
@@ -122,21 +121,21 @@ struct RecordingView: View {
                 List {
                     Button(role: .destructive, action: { 
                         showSettings = false
-                        component.deleteRecording() 
+                        component.handleVoiceAction(action: VoiceRecorderAction.DeleteRecording(id: state.value.subject.id))
                     }) {
                         HStack {
-                            Image(systemName: designSystem.icon(.close))
+                            Image(systemName: designSystem.icon(token: .close))
                             Text(designSystem.string(token: .actionDeleteRecording))
                         }
-                        .foregroundColor(designSystem.color(.error))
+                        .foregroundColor(designSystem.color(token: .error))
                     }
-                    .listRowBackground(designSystem.color(.glassBase).opacity(0.1))
+                    .listRowBackground(designSystem.color(token: .glassBase).opacity(0.1))
                 }
                 .scrollContentBackground(.hidden)
             }
             .presentationDetents([.medium])
             .presentationDragIndicator(.visible)
-            .presentationBackground(designSystem.color(.surface).opacity(0.8))
+            .presentationBackground(designSystem.color(token: .surface).opacity(0.8))
         }
     }
 }
@@ -158,10 +157,10 @@ struct MaterialTagChip: View {
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
-            .background(Color.white.opacity(0.05))
-            .foregroundColor(.white)
+            .background(designSystem.color(token: .textPrimary).opacity(0.05))
+            .foregroundColor(designSystem.color(token: .textPrimary))
             .clipShape(Capsule())
-            .overlay(Capsule().stroke(Color.white.opacity(0.1), lineWidth: 0.5))
+            .overlay(Capsule().stroke(designSystem.color(token: .textPrimary).opacity(0.1), lineWidth: 0.5))
         }
     }
 }
@@ -175,9 +174,9 @@ struct RecordingActionButton: View {
         Button(action: action) {
             Image(systemName: systemName)
                 .font(.title3)
-                .foregroundColor(designSystem.color(.textInverted))
+                .foregroundColor(designSystem.color(token: .textInverted))
                 .frame(width: 52, height: 52)
-                .background(designSystem.color(.accentPrimary))
+                .background(designSystem.color(token: .accentPrimary))
                 .clipShape(Circle())
         }
     }

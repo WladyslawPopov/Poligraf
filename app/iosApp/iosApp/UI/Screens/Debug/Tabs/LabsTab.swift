@@ -6,7 +6,7 @@ struct LabsTab: View {
     
     var body: some View {
         VStack {
-            Text(designSystem.string(token: .labsEmptyMessage))
+            Text(designSystem.string(.labsEmptyMessage))
                 .foregroundColor(designSystem.color(.textSecondary))
         }
         .frame(maxHeight: .infinity)

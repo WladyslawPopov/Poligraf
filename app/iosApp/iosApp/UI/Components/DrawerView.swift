@@ -13,12 +13,12 @@ struct DrawerView: View {
             titleToken: .drawerSettings,
             onUserClose: onUserClose
         ) {
-            VStack(alignment: .leading, spacing: designSystem.dimen(.spacingLarge)) {
+            VStack(alignment: .leading, spacing: designSystem.dimen(token: .spacingLarge)) {
                 // Dark Mode Toggle
                 HStack {
                     Text(designSystem.string(token: .drawerDarkMode))
                         .font(.headline)
-                        .foregroundColor(designSystem.color(.textPrimary))
+                        .foregroundColor(designSystem.color(token: .textPrimary))
                     
                     Spacer()
                     
@@ -26,17 +26,17 @@ struct DrawerView: View {
                         get: { navigator.isDark },
                         set: { _ in navigator.toggleTheme() }
                     ))
-                    .tint(designSystem.color(.accentPrimary))
+                    .tint(designSystem.color(token: .accentPrimary))
                     .labelsHidden()
                 }
                 .padding()
-                .background(designSystem.color(.glassBase).opacity(0.1))
+                .background(designSystem.color(token: .glassBase).opacity(0.1))
                 .clipShape(RoundedRectangle(cornerRadius: 16))
                 
                 if designSystem.isDebug {
                     // Glass Divider
                     Rectangle()
-                        .fill(designSystem.color(.glassBorder).opacity(0.2))
+                        .fill(designSystem.color(token: .glassBorder).opacity(0.2))
                         .frame(height: 1)
                     
                     Button(action: {
@@ -46,14 +46,14 @@ struct DrawerView: View {
                         HStack {
                             Text(designSystem.string(token: .openDebugSandbox))
                                 .font(.headline)
-                                .foregroundColor(designSystem.color(.accentEnergy))
+                                .foregroundColor(designSystem.color(token: .accentEnergy))
                             Spacer()
                             Image(systemName: "chevron.right")
                                 .font(.caption)
-                                .foregroundColor(designSystem.color(.accentEnergy))
+                                .foregroundColor(designSystem.color(token: .accentEnergy))
                         }
                         .padding()
-                        .background(designSystem.color(.glassBase).opacity(0.1))
+                        .background(designSystem.color(token: .glassBase).opacity(0.1))
                         .clipShape(RoundedRectangle(cornerRadius: 16))
                     }
                 }
@@ -64,18 +64,18 @@ struct DrawerView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(designSystem.string(token: .drawerFooterTitle).uppercased())
                         .font(.system(size: 12, weight: .black))
-                        .foregroundColor(designSystem.color(.textPrimary))
+                        .foregroundColor(designSystem.color(token: .textPrimary))
                     
                     HStack(spacing: 4) {
                         Text(designSystem.string(token: .drawerFooterSubtitle).uppercased())
                         Text("\(appConfig?.appVersion ?? "1.0.0") (BUILD 1)")
                     }
                     .font(.system(size: 10, weight: .bold))
-                    .foregroundColor(designSystem.color(.accentPrimary).opacity(0.8))
+                    .foregroundColor(designSystem.color(token: .accentPrimary).opacity(0.8))
                 }
                 .padding(.bottom, 40)
             }
-            .padding(designSystem.dimen(.mainPadding))
+            .padding(designSystem.dimen(token: .mainPadding))
         }
     }
 }

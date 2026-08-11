@@ -14,7 +14,7 @@ struct WelcomeTextView: View {
             
         VStack(alignment: .leading) {
             TypingTextView(
-                text: designSystem.string(token: widget.textToken) + (widget.emoji ?? ""),
+                text: designSystem.string(widget.textToken) + (widget.emoji ?? ""),
                 color: designSystem.color(widget.colorToken),
                 font: designSystem.font(widget.typographyToken),
                 typingDelay: Double(truncating: widget.typingDelay as NSNumber) / 1000.0

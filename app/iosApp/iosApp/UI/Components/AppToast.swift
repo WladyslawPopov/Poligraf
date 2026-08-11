@@ -46,7 +46,7 @@ struct AppToast: View {
 
     private func getMessage() -> String {
         if let token = state.messageToken {
-            return designSystem.string(token: token)
+            return designSystem.string(token)
         }
         return state.messageRaw ?? ""
     }
@@ -56,7 +56,6 @@ struct AppToast: View {
         case .success: return designSystem.color(.truth)
         case .error: return designSystem.color(.stress)
         case .warning: return designSystem.color(.accentPrimary)
-        default: return .gray
         }
     }
 }

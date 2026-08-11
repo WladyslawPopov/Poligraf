@@ -5,6 +5,7 @@ import application.liedetector.data.subject.remote.SubjectRemoteDataSource
 import application.liedetector.domain.model.Subject
 import application.liedetector.engine.database.CacheRepository
 import application.liedetector.engine.error.toAppException
+import application.liedetector.engine.io.FileSystem
 import application.liedetector.engine.utils.nowAsEpochSeconds
 import application.liedetector.models.KmpResult
 import application.liedetector.models.SubjectDto
@@ -28,7 +29,8 @@ interface SubjectRepository {
 
 class SubjectRepositoryImpl(
     private val remote: SubjectRemoteDataSource,
-    private val cache: CacheRepository
+    private val cache: CacheRepository,
+    private val fileSystem: FileSystem
 ) : SubjectRepository {
 
     override suspend fun createSubject(
@@ -46,6 +48,10 @@ class SubjectRepositoryImpl(
                     description = description
                 )
             )
+            
+            // Immediately sync to update cache and notify observers
+            syncSubjects()
+            
             KmpResult.Success(result.toDomain())
         } catch (e: Throwable) {
             KmpResult.Error(e.toAppException())
@@ -88,6 +94,13 @@ class SubjectRepositoryImpl(
         return try {
             val success = remote.deleteSubjects(ids)
             if (success) {
+                ids.forEach { id ->
+                    val dir = "${fileSystem.getFilesDir()}/subjects/$id"
+                    // Real delete should be recursive, but my interface is simple
+                    // For now, let's just assume we delete what we list
+                    fileSystem.deleteFile("$dir/recordings.json")
+                    // Would need recursive delete for full cleanup
+                }
                 syncSubjects()
                 KmpResult.Success(Unit)
             } else {

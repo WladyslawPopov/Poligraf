@@ -31,5 +31,12 @@ enum class ColorToken {
     RECORDER_TRIM_ZONE,
     RECORDER_TRIM_HANDLE,
     RECORDER_PLAYHEAD,
-    RECORDER_CONTROL_REPLACE
+    RECORDER_CONTROL_REPLACE,
+
+    // Professional Recorder Palette
+    RECORDER_PRIMARY,      // Professional Red (Record/Stop)
+    RECORDER_SECONDARY,    // Professional Blue (Play/Actions)
+    RECORDER_ACCENT,       // Professional Yellow (Trim/Warning)
+    RECORDER_SURFACE,      // Deep Gray Background
+    RECORDER_RULER_TEXT    // Semi-transparent white
 }

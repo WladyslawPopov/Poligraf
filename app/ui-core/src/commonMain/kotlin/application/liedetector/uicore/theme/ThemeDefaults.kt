@@ -34,6 +34,12 @@ object ThemeDefaults {
                 ColorToken.RECORDER_TRIM_HANDLE -> "#FFD600"
                 ColorToken.RECORDER_PLAYHEAD -> "#007AFF"
                 ColorToken.RECORDER_CONTROL_REPLACE -> "#FF3B30"
+
+                ColorToken.RECORDER_PRIMARY -> "#FF3B30"
+                ColorToken.RECORDER_SECONDARY -> "#007AFF"
+                ColorToken.RECORDER_ACCENT -> "#FFD600"
+                ColorToken.RECORDER_SURFACE -> "#1C1C1E"
+                ColorToken.RECORDER_RULER_TEXT -> "#99FFFFFF"
             }
         } else {
             when (token) {
@@ -60,6 +66,12 @@ object ThemeDefaults {
                 ColorToken.RECORDER_TRIM_HANDLE -> "#FFC107"
                 ColorToken.RECORDER_PLAYHEAD -> "#1976D2"
                 ColorToken.RECORDER_CONTROL_REPLACE -> "#D32F2F"
+
+                ColorToken.RECORDER_PRIMARY -> "#D32F2F"
+                ColorToken.RECORDER_SECONDARY -> "#1976D2"
+                ColorToken.RECORDER_ACCENT -> "#FFC107"
+                ColorToken.RECORDER_SURFACE -> "#F5F5F5"
+                ColorToken.RECORDER_RULER_TEXT -> "#99000000"
             }
         }
     }
@@ -81,6 +93,7 @@ object ThemeDefaults {
             DimenToken.SPACING_SMALL -> 8f
             DimenToken.SPACING_MEDIUM -> 16f
             DimenToken.SPACING_LARGE -> 24f
+            DimenToken.SPACING_XL -> 32f
             DimenToken.PADDING_ERROR -> 32f
             DimenToken.PADDING_LOADING -> 8f
             DimenToken.PARALLAX_INTENSITY -> 40f
@@ -105,6 +118,23 @@ object ThemeDefaults {
             DimenToken.CHECKMARK_SIZE_SMALL -> 14f
             DimenToken.DIVIDER_THICKNESS -> 0.5f
             DimenToken.DRAWER_WIDTH -> 320f
+            DimenToken.RECORDER_SHEET_PEEK -> 120f
+            DimenToken.RECORDER_DRAG_HANDLE_WIDTH -> 36f
+            DimenToken.RECORDER_DRAG_HANDLE_HEIGHT -> 5f
+            DimenToken.RECORDER_WAVEFORM_STEP -> 4f
+            DimenToken.RECORDER_WAVEFORM_BAR_WIDTH -> 2f
+            DimenToken.RECORDER_WAVEFORM_MIN_HEIGHT -> 2f
+            DimenToken.RECORDER_WAVEFORM_HEIGHT -> 240f
+            DimenToken.RECORDER_CONTROL_SPACING -> 48f
+            DimenToken.RECORDER_RULER_TICK_LARGE -> 6f
+            DimenToken.RECORDER_RULER_TICK_SMALL -> 3f
+            DimenToken.RECORDER_RULER_TEXT_SIZE -> 10f
+
+            DimenToken.TEXT_SIZE_TITLE_LARGE -> 42f
+            DimenToken.TEXT_SIZE_TITLE_MEDIUM -> 18f
+            DimenToken.TEXT_SIZE_TITLE_SMALL -> 17f
+            DimenToken.TEXT_SIZE_BODY -> 14f
+            DimenToken.TEXT_SIZE_CAPTION -> 13f
         }
     }
 }

@@ -8,6 +8,7 @@ class AppCoordinator: ObservableObject {
     private var appDelegate: AppDelegate?
     
     let navigator: IosNavigator
+    var voiceRecorderEngine: NativeVoiceRecorderEngine?
     
     // Lazy initialization ensures Koin is started before RootComponent is created
     lazy var root: RootComponent = {

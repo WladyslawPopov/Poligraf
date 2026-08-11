@@ -13,13 +13,13 @@ interface AudioRecorder {
     fun start()
     fun pause()
     fun resume()
-    fun stop(): String? // Returns file path
+    suspend fun stop(): String? // Returns file path
     fun cancel()
 
     fun play()
     fun pausePlayback()
     fun seekTo(positionMillis: Long)
-    fun trim(startMillis: Long, endMillis: Long): String?
+    suspend fun trim(startMillis: Long, endMillis: Long): String?
     fun replace(positionMillis: Long)
-    fun loadFile(path: String)
+    suspend fun loadFile(path: String, amplitudes: List<Float>? = null)
 }

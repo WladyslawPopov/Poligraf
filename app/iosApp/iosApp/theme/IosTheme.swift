@@ -3,17 +3,55 @@ import SharedLogic
 
 /**
  * Extensions to DesignSystem to provide SwiftUI-friendly access to theme tokens.
+ * We provide both unlabeled and labeled overloads to support various call styles
+ * while ensuring they return native SwiftUI types (Color, CGFloat).
+ * We call resources directly to avoid ambiguity with DesignSystem methods.
  */
 extension DesignSystem {
+    
+    // MARK: - Color
+    
     func color(_ token: ColorToken) -> Color {
-        let hex = self.color(token: token)
+        let hex = self.resources.getColorHex(token: token, isDark: self.isDark)
         return Color(hex: hex)
     }
     
-    func dimen(_ token: DimenToken) -> CGFloat {
-        let val = self.dimen(token: token)
-        return CGFloat(truncating: val as NSNumber)
+    func color(token: ColorToken) -> Color {
+        return self.color(token)
     }
+    
+    // MARK: - Dimensions
+    
+    func dimen(_ token: DimenToken) -> CGFloat {
+        let val = self.resources.getDimension(token: token)
+        return CGFloat(val)
+    }
+    
+    func dimen(token: DimenToken) -> CGFloat {
+        return self.dimen(token)
+    }
+    
+    // MARK: - Strings
+    
+    func string(_ token: StringToken) -> String {
+        return self.resources.getString(token: token)
+    }
+    
+    func string(token: StringToken) -> String {
+        return self.string(token)
+    }
+    
+    // MARK: - Icons
+    
+    func icon(_ token: IconToken) -> String {
+        return self.resources.getIcon(token: token)
+    }
+    
+    func icon(token: IconToken) -> String {
+        return self.icon(token)
+    }
+
+    // MARK: - Typography
     
     func font(_ token: TypographyToken) -> Font {
         switch token {
@@ -22,31 +60,6 @@ extension DesignSystem {
         case .body: return .system(size: 17, weight: .regular)
         case .caption: return .system(size: 12, weight: .regular)
         case .dataNumeric: return .system(size: 20, weight: .bold, design: .monospaced)
-        default: return .body
-        }
-    }
-    
-    func icon(_ token: IconToken) -> String {
-        return self.icon(token: token)
-    }
-}
-
-/**
- * Legacy wrapper, consider moving to DesignSystem extensions directly.
- */
-struct IosTheme {
-    static func color(_ token: ColorToken, from designSystem: DesignSystem) -> Color {
-        return designSystem.color(token)
-    }
-    
-    static func font(_ token: TypographyToken) -> Font {
-        switch token {
-        case .header: return .system(size: 34, weight: .bold)
-        case .subheader: return .system(size: 24, weight: .semibold)
-        case .body: return .system(size: 17, weight: .regular)
-        case .caption: return .system(size: 12, weight: .regular)
-        case .dataNumeric: return .system(size: 20, weight: .bold, design: .monospaced)
-        default: return .body
         }
     }
 }

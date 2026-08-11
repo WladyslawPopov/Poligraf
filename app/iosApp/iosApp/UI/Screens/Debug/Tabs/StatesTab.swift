@@ -42,7 +42,7 @@ struct StatesTab: View {
                     )
                 }
             }
-            .padding(designSystem.dimen(.spacingMedium))
+            .padding(designSystem.dimen(token: .spacingMedium))
         }
     }
 }
@@ -63,14 +63,14 @@ struct DebugSection<Content: View>: View {
             Text(title.uppercased())
                 .font(.caption)
                 .fontWeight(.bold)
-                .foregroundColor(designSystem.color(.textSecondary))
+                .foregroundColor(designSystem.color(token: .textSecondary))
             
             VStack(spacing: 10) {
                 content
             }
         }
         .padding(16)
-        .background(designSystem.color(.surfaceVariant).opacity(0.4))
+        .background(designSystem.color(token: .surfaceVariant).opacity(0.4))
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 }
@@ -86,10 +86,10 @@ struct DebugActionButton: View {
             Text(text)
                 .font(.subheadline)
                 .fontWeight(.semibold)
-                .foregroundColor(designSystem.color(.textInverted))
+                .foregroundColor(designSystem.color(token: .textInverted))
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 12)
-                .background(designSystem.color(color).opacity(0.8))
+                .background(designSystem.color(token: color).opacity(0.8))
                 .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         }
     }

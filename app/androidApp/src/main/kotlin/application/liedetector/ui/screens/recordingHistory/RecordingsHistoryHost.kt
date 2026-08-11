@@ -1,5 +1,6 @@
 package application.liedetector.ui.screens.recordingHistory
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -7,6 +8,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -25,66 +27,98 @@ import application.liedetector.uicore.theme.LocalDesignSystem
 import application.liedetector.uicore.theme.tokens.ColorToken
 import application.liedetector.uicore.theme.tokens.IconToken
 import application.liedetector.theme.utils.composeColor
-import application.liedetector.ui.components.widgets.VoiceRecorderRenderer
-import application.liedetector.uicore.widgets.UiWidget
-import kotlinx.coroutines.launch
+import application.liedetector.ui.components.widgets.recorder.VoiceRecorderRenderer
+import application.liedetector.presentation.recordingHistory.VoiceRecorderAction
+import application.liedetector.uicore.theme.tokens.DimenToken
+import application.liedetector.uicore.theme.tokens.StringToken
+import application.liedetector.uicore.widgets.VoiceRecorder
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecordingsHistoryHost(component: RecordingsHistoryComponent) {
     val viewModel = component.viewModel
+    val activeRecorder by viewModel.activeRecorder.collectAsState()
+    val recorderUiState by viewModel.recorderUiState.collectAsState()
+    val historicalRecordings by viewModel.historicalRecordings.collectAsState()
+    val isSelectionMode by viewModel.isSelectionMode.collectAsState()
+    val selectedIds by viewModel.selectedIds.collectAsState()
     val state by viewModel.state.collectAsState()
+    
     val designSystem = LocalDesignSystem.current
     val scope = rememberCoroutineScope()
     
     val scaffoldState = rememberBottomSheetScaffoldState(
         bottomSheetState = rememberStandardBottomSheetState(
-            initialValue = if (state.activeRecorder != null) SheetValue.PartiallyExpanded else SheetValue.Hidden,
+            initialValue = if (activeRecorder != null) SheetValue.Expanded else SheetValue.Hidden,
             skipHiddenState = false,
-            confirmValueChange = { newValue ->
-                val isRecording = state.activeRecorder?.status == UiWidget.VoiceRecorder.Status.RECORDING
-                !(isRecording && newValue == SheetValue.Hidden) // Prevent hiding while recording
+            confirmValueChange = { targetValue ->
+                if (targetValue == SheetValue.Hidden) {
+                    // Only discard if we are NOT recording
+                    if (!recorderUiState.waveform.isRecording) {
+                        viewModel.handleAction(VoiceRecorderAction.DiscardActive)
+                        true
+                    } else {
+                        false
+                    }
+                } else {
+                    true
+                }
             }
         )
     )
 
     // Sync sheet state with activeRecorder
-    LaunchedEffect(state.activeRecorder) {
-        if (state.activeRecorder != null) {
-            // If we just got a new recorder (e.g. started recording), expand it
-            if (scaffoldState.bottomSheetState.currentValue == SheetValue.Hidden) {
-                scaffoldState.bottomSheetState.partialExpand()
-            }
+    LaunchedEffect(activeRecorder?.id) {
+        if (activeRecorder != null) {
+            // Force expand whenever a new recorder is activated
+            scaffoldState.bottomSheetState.expand()
         } else {
-            // Only hide if we explicitly cleared the recorder
             if (scaffoldState.bottomSheetState.currentValue != SheetValue.Hidden) {
                 scaffoldState.bottomSheetState.hide()
             }
         }
     }
 
-    // Sync expanded state
-    LaunchedEffect(scaffoldState.bottomSheetState.currentValue) {
-        val isExpanded = scaffoldState.bottomSheetState.currentValue == SheetValue.Expanded
-        if (state.activeRecorder?.isExpanded != isExpanded) {
-            viewModel.toggleExpand()
-        }
-    }
+    // Removed the manual Hidden -> Discard logic from here to avoid race conditions
 
     AppScaffold(
         viewModel = viewModel,
         state = state,
         topBar = {
             TopAppBar(
-                title = { Text("All Recordings", color = Color.White, fontWeight = FontWeight.Bold) },
+                title = { 
+                    Text(
+                        text = designSystem.string(StringToken.RECORDER_HISTORY_TITLE), 
+                        color = designSystem.composeColor(ColorToken.TEXT_PRIMARY), 
+                        fontWeight = FontWeight.Bold
+                    ) 
+                },
                 navigationIcon = {
                     IconButton(onClick = { component.goBack() }) {
-                        Icon(designSystem.icon(IconToken.ARROW_BACK), contentDescription = null, tint = Color.White)
+                        Icon(
+                            imageVector = designSystem.icon(IconToken.ARROW_BACK), 
+                            contentDescription = null, 
+                            tint = designSystem.composeColor(ColorToken.TEXT_PRIMARY)
+                        )
                     }
                 },
                 actions = {
-                    TextButton(onClick = { }) {
-                        Text("Select", color = designSystem.composeColor(ColorToken.ACCENT_PRIMARY))
+                    Box(
+                        modifier = Modifier
+                            .padding(end = 8.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(designSystem.composeColor(ColorToken.GLASS_BASE).copy(alpha = 0.25f))
+                            .clickable { viewModel.handleAction(VoiceRecorderAction.ToggleSelectionMode) }
+                            .padding(horizontal = 12.dp, vertical = 6.dp)
+                    ) {
+                        Text(
+                            text = designSystem.string(
+                                if (isSelectionMode) StringToken.RECORDER_CANCEL else StringToken.RECORDER_HISTORY_SELECT
+                            ),
+                            color = designSystem.composeColor(ColorToken.ACCENT_PRIMARY),
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
@@ -92,59 +126,96 @@ fun RecordingsHistoryHost(component: RecordingsHistoryComponent) {
         }
     ) { innerPadding ->
         BottomSheetScaffold(
-            modifier = Modifier.padding(top = innerPadding.calculateTopPadding()),
+            modifier = Modifier.fillMaxSize(),
             scaffoldState = scaffoldState,
-            sheetPeekHeight = 120.dp,
+            sheetPeekHeight = 0.dp,
             sheetContainerColor = Color.Transparent,
-            sheetContentColor = Color.White,
+            sheetContentColor = designSystem.composeColor(ColorToken.TEXT_PRIMARY),
             sheetDragHandle = null,
-            sheetSwipeEnabled = state.activeRecorder != null,
+            sheetSwipeEnabled = activeRecorder != null && !recorderUiState.waveform.isRecording,
             sheetContent = {
-                state.activeRecorder?.let { recorder ->
-                    VoiceRecorderRenderer(
-                        widget = recorder,
-                        onToggle = { component.toggleRecording() },
-                        onStop = { component.stopRecording() },
-                        onPlay = { component.onPlayClicked() },
-                        onPause = { component.onPausePlaybackClicked() },
-                        onSeek = { component.onSeek(it) },
-                        onTrimUpdate = { start, end -> component.onTrimUpdate(start, end) },
-                        onSave = { component.onSaveClicked() },
-                        onResume = { component.onResumeRecording() },
-                        onToggleTrim = { component.toggleTrimMode() },
-                        onSkip = { component.onSkip(it) },
-                        onToggleExpand = {
-                            scope.launch {
-                                if (scaffoldState.bottomSheetState.currentValue == SheetValue.Expanded) {
-                                    scaffoldState.bottomSheetState.partialExpand()
-                                } else {
-                                    scaffoldState.bottomSheetState.expand()
+                // Limit sheet height so it doesn't cover toolbar when expanded
+                Box(modifier = Modifier.padding(top = innerPadding.calculateTopPadding())) {
+                    key(activeRecorder?.id) {
+                        activeRecorder?.let { 
+                            VoiceRecorderRenderer(
+                                state = recorderUiState,
+                                onAction = { action ->
+                                    viewModel.handleAction(action)
                                 }
-                            }
-                        },
-                        onTrimCancel = { component.onTrimCancel() },
-                        onTrimApply = { start, end -> component.onTrim(start, end) },
-                        onUploadFromFile = { component.onUploadFromFileClicked() }
-                    )
-                } ?: Box(Modifier.fillMaxWidth().height(1.dp))
+                            )
+                        } ?: Box(Modifier.fillMaxWidth().height(1.dp))
+                    }
+                }
             },
             containerColor = Color.Transparent
         ) {
             Box(
                 modifier = Modifier.fillMaxSize()
             ) {
-                val recorderWidgets = state.widgets.filterIsInstance<UiWidget.VoiceRecorder>()
-
-                if (recorderWidgets.isEmpty() && state.activeRecorder == null) {
+                if (historicalRecordings.isEmpty() && activeRecorder == null) {
                     EmptyHistoryView()
                 } else {
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(top = 16.dp, bottom = 200.dp)
+                        contentPadding = PaddingValues(
+                            top = innerPadding.calculateTopPadding() + 16.dp, 
+                            bottom = 200.dp
+                        )
                     ) {
-                        items(recorderWidgets) { recorder ->
-                            RecordingListItem(recorder) {
-                                component.onRecordingClicked(recorder)
+                        items(historicalRecordings) { recorder ->
+                            RecordingListItem(
+                                recorder = recorder,
+                                isSelected = selectedIds.contains(recorder.id),
+                                isSelectionMode = isSelectionMode,
+                                onClick = { 
+                                    if (isSelectionMode) {
+                                        viewModel.handleAction(VoiceRecorderAction.ToggleItemSelection(recorder.id))
+                                    } else {
+                                        component.onRecordingClicked(recorder)
+                                    }
+                                }
+                            )
+                        }
+                    }
+                }
+
+                // Selection Actions Bar
+                if (isSelectionMode && selectedIds.isNotEmpty()) {
+                    Surface(
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .padding(bottom = 32.dp)
+                            .padding(horizontal = 24.dp)
+                            .fillMaxWidth(),
+                        color = designSystem.composeColor(ColorToken.RECORDER_SURFACE).copy(alpha = 0.9f),
+                        shape = RoundedCornerShape(24.dp),
+                        tonalElevation = 8.dp,
+                        border = BorderStroke(1.dp, designSystem.composeColor(ColorToken.TEXT_PRIMARY).copy(alpha = 0.1f))
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .padding(horizontal = 20.dp, vertical = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                text = "Selected: ${selectedIds.size}",
+                                color = designSystem.composeColor(ColorToken.TEXT_PRIMARY),
+                                fontWeight = FontWeight.Bold
+                            )
+                            
+                            IconButton(
+                                onClick = { viewModel.handleAction(VoiceRecorderAction.DeleteSelected) },
+                                modifier = Modifier
+                                    .clip(CircleShape)
+                                    .background(designSystem.composeColor(ColorToken.RECORDER_PRIMARY).copy(alpha = 0.1f))
+                            ) {
+                                Icon(
+                                    imageVector = designSystem.icon(IconToken.DELETE),
+                                    contentDescription = null,
+                                    tint = designSystem.composeColor(ColorToken.RECORDER_PRIMARY)
+                                )
                             }
                         }
                     }
@@ -152,7 +223,7 @@ fun RecordingsHistoryHost(component: RecordingsHistoryComponent) {
 
                 // Professional BIG RED BUTTON for recording
                 val isSheetHidden = scaffoldState.bottomSheetState.currentValue == SheetValue.Hidden
-                if (state.activeRecorder == null || isSheetHidden) {
+                if (!isSelectionMode && (activeRecorder == null || isSheetHidden)) {
                     val infiniteTransition = rememberInfiniteTransition(label = "Pulse")
                     val scale by infiniteTransition.animateFloat(
                         initialValue = 1f,
@@ -167,27 +238,27 @@ fun RecordingsHistoryHost(component: RecordingsHistoryComponent) {
                     Box(
                         modifier = Modifier
                             .align(Alignment.BottomCenter)
-                            .padding(bottom = 64.dp)
+                            .padding(bottom = designSystem.dimen(DimenToken.SPACING_XL).dp * 2)
                             .graphicsLayer(scaleX = scale, scaleY = scale)
-                            .size(80.dp)
-                            .border(4.dp, Color.White.copy(alpha = 0.1f), CircleShape)
-                            .padding(6.dp)
+                            .size(designSystem.dimen(DimenToken.SUBJECT_CARD_ICON_SIZE).dp - 10.dp)
+                            .border(
+                                width = 4.dp, 
+                                color = designSystem.composeColor(ColorToken.TEXT_PRIMARY).copy(alpha = 0.1f), 
+                                shape = CircleShape
+                            )
+                            .padding(designSystem.dimen(DimenToken.SPACING_SMALL).dp - 2.dp)
                             .clip(CircleShape)
                             .background(designSystem.composeColor(ColorToken.RECORDER_WAVEFORM))
                             .clickable { 
                                 component.onMicClicked()
-                                if (isSheetHidden) {
-                                    scope.launch { scaffoldState.bottomSheetState.partialExpand() }
-                                }
                             },
                         contentAlignment = Alignment.Center
-                    )
-{
+                    ) {
                         Icon(
-                            designSystem.icon(IconToken.MIC),
+                            imageVector = designSystem.icon(IconToken.MIC),
                             contentDescription = null,
-                            tint = Color.White,
-                            modifier = Modifier.size(32.dp)
+                            tint = designSystem.composeColor(ColorToken.TEXT_INVERTED),
+                            modifier = Modifier.size(designSystem.dimen(DimenToken.SPACING_XL).dp)
                         )
                     }
                 }
@@ -198,15 +269,16 @@ fun RecordingsHistoryHost(component: RecordingsHistoryComponent) {
 
 @Composable
 private fun EmptyHistoryView() {
+    val designSystem = LocalDesignSystem.current
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            "Make your first\nrecord 🎙️",
+            text = designSystem.string(StringToken.RECORDER_HISTORY_EMPTY),
             style = MaterialTheme.typography.headlineLarge,
-            color = Color.White.copy(alpha = 0.9f),
+            color = designSystem.composeColor(ColorToken.TEXT_PRIMARY).copy(alpha = 0.9f),
             textAlign = TextAlign.Center,
             fontWeight = FontWeight.Bold
         )
@@ -215,25 +287,98 @@ private fun EmptyHistoryView() {
 
 @Composable
 private fun RecordingListItem(
-    recorder: UiWidget.VoiceRecorder,
+    recorder: VoiceRecorder,
+    isSelected: Boolean,
+    isSelectionMode: Boolean,
     onClick: () -> Unit
 ) {
-    Column(
+    val designSystem = LocalDesignSystem.current
+    val scale by animateFloatAsState(if (isSelected) 0.98f else 1f, label = "Scale")
+    
+    Box(
         modifier = Modifier
+            .padding(horizontal = designSystem.dimen(DimenToken.SPACING_MEDIUM).dp, vertical = 4.dp)
+            .graphicsLayer(scaleX = scale, scaleY = scale)
             .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .background(
+                if (isSelected) 
+                    designSystem.composeColor(ColorToken.RECORDER_PRIMARY).copy(alpha = 0.1f)
+                else 
+                    designSystem.composeColor(ColorToken.GLASS_BASE).copy(alpha = 0.15f)
+            )
+            .border(
+                width = 2.dp,
+                color = if (isSelected) 
+                    designSystem.composeColor(ColorToken.RECORDER_PRIMARY).copy(alpha = 0.5f)
+                else 
+                    Color.Transparent,
+                shape = RoundedCornerShape(12.dp)
+            )
             .clickable { onClick() }
-            .padding(horizontal = 24.dp, vertical = 14.dp)
     ) {
-        Text(recorder.title, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
         Row(
-            modifier = Modifier.fillMaxWidth().padding(top = 2.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    horizontal = designSystem.dimen(DimenToken.SPACING_LARGE).dp,
+                    vertical = designSystem.dimen(DimenToken.SPACING_MEDIUM).dp
+                ),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text("Today", color = Color.White.copy(alpha = 0.5f), fontSize = 14.sp)
-            Text(formatDurationCompact(recorder.durationMillis), color = Color.White.copy(alpha = 0.5f), fontSize = 14.sp)
+            if (isSelectionMode) {
+                Box(
+                    modifier = Modifier
+                        .padding(end = 16.dp)
+                        .size(20.dp)
+                        .clip(CircleShape)
+                        .background(
+                            if (isSelected) 
+                                designSystem.composeColor(ColorToken.RECORDER_PRIMARY)
+                            else 
+                                designSystem.composeColor(ColorToken.TEXT_PRIMARY).copy(alpha = 0.1f)
+                        )
+                        .border(
+                            1.dp, 
+                            designSystem.composeColor(ColorToken.TEXT_PRIMARY).copy(alpha = 0.2f), 
+                            CircleShape
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (isSelected) {
+                        Icon(
+                            imageVector = designSystem.icon(IconToken.CHECK),
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.size(14.dp)
+                        )
+                    }
+                }
+            }
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = recorder.title,
+                    color = designSystem.composeColor(ColorToken.TEXT_PRIMARY),
+                    fontWeight = FontWeight.ExtraBold,
+                    fontSize = 16.sp
+                )
+                Text(
+                    text = designSystem.string(StringToken.RECORDER_TODAY),
+                    color = designSystem.composeColor(ColorToken.TEXT_PRIMARY).copy(alpha = 0.4f),
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Medium,
+                    modifier = Modifier.padding(top = 1.dp)
+                )
+            }
+            
+            Text(
+                text = formatDurationCompact(recorder.durationMillis),
+                color = designSystem.composeColor(ColorToken.TEXT_PRIMARY).copy(alpha = 0.4f),
+                fontSize = 13.sp,
+                fontWeight = FontWeight.Bold
+            )
         }
-        Spacer(modifier = Modifier.height(14.dp))
-        HorizontalDivider(color = Color.White.copy(alpha = 0.1f), thickness = 0.5.dp)
     }
 }
 

@@ -3,6 +3,7 @@ package application.liedetector.presentation.recordingHistory
 import androidx.compose.runtime.Stable
 import application.liedetector.engine.component.ComponentContext
 import application.liedetector.uicore.widgets.UiWidget
+import application.liedetector.uicore.widgets.VoiceRecorder
 
 @Stable
 class RecordingsHistoryComponent(
@@ -13,12 +14,20 @@ class RecordingsHistoryComponent(
         viewModel.goBack()
     }
 
+    fun handleVoiceAction(action: VoiceRecorderAction) {
+        viewModel.handleAction(action)
+    }
+
     fun deleteRecording() {
         viewModel.deleteRecording()
     }
 
     fun onMicClicked() {
         viewModel.onMicClicked()
+    }
+
+    fun loadContent() {
+        // ViewModel already observes data, but we can trigger a manual sync if needed
     }
 
     fun toggleRecording() {
@@ -81,7 +90,7 @@ class RecordingsHistoryComponent(
         viewModel.onUploadFromFileClicked()
     }
 
-    fun onRecordingClicked(recorder: UiWidget.VoiceRecorder) {
+    fun onRecordingClicked(recorder: VoiceRecorder) {
         viewModel.onRecordingClicked(recorder)
     }
 }

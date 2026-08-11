@@ -8,6 +8,8 @@ import application.liedetector.engine.database.common.DriverFactory
 import application.liedetector.uicore.theme.ResourceProvider
 import application.liedetector.uicore.theme.DesignSystem
 import application.liedetector.engine.config.AppConfig
+import application.liedetector.engine.io.FileSystem
+import application.liedetector.engine.io.IosFileSystem
 import application.liedetector.engine.io.audio.AudioRecorder
 import application.liedetector.engine.io.audio.IosAudioRecorder
 import com.russhwolf.settings.Settings
@@ -30,7 +32,9 @@ fun doInitKoinIos(
     appVersion: String,
     deviceId: String,
     isDebug: Boolean
-) {
+): IosAudioRecorder {
+    var recorderResult: IosAudioRecorder? = null
+    
     val iosModule = module {
         single { authService }
         single { analytics }
@@ -51,10 +55,18 @@ fun doInitKoinIos(
         
         val appScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
         single { appScope }
-        single<AudioRecorder> { IosAudioRecorder(get()) }
+        
+        val recorder = IosAudioRecorder(appScope)
+        recorderResult = recorder
+        
+        single<IosAudioRecorder> { recorder }
+        single<AudioRecorder> { recorder }
+        single<FileSystem> { IosFileSystem() }
     }
     
     initKoin(
         platformModules = listOf(iosModule)
     )
+    
+    return recorderResult!!
 }

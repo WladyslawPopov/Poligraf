@@ -32,7 +32,7 @@ struct DebugView: View {
                 
                 contentView
             }
-            .navigationTitle(designSystem.string(token: .debugDashboard))
+            .navigationTitle(designSystem.string(.debugDashboard))
             .navigationBarTitleDisplayMode(.inline)
         }
     }
@@ -47,9 +47,9 @@ struct DebugView: View {
             designSystem: designSystem,
             labelProvider: { tab in
                 switch tab {
-                case .states: return designSystem.string(token: .tabStates)
-                case .widgets: return designSystem.string(token: .tabWidgets)
-                case .labs: return designSystem.string(token: .tabLabs)
+                case .states: return designSystem.string(.tabStates)
+                case .widgets: return designSystem.string(.tabWidgets)
+                case .labs: return designSystem.string(.tabLabs)
                 }
             }
         )

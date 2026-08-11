@@ -6,6 +6,9 @@ import application.liedetector.uicore.models.LayoutConfig
 import application.liedetector.uicore.state.ScaffoldUiState
 import application.liedetector.uicore.widgets.AppBackground
 import application.liedetector.uicore.widgets.UiWidget
+import application.liedetector.uicore.widgets.VoiceRecorder
+
+import application.liedetector.presentation.recordingHistory.VoiceRecorderUiState
 
 @Stable
 data class RecordingState(
@@ -14,8 +17,7 @@ data class RecordingState(
     override val layoutConfig: LayoutConfig = LayoutConfig(isCentered = false),
     val subject: Subject = Subject(),
     val widgets: List<UiWidget> = emptyList(),
-    val materials: List<MaterialTag> = emptyList(),
-    val activeRecorder: UiWidget.VoiceRecorder? = null
+    val materials: List<MaterialTag> = emptyList()
 ) : ScaffoldUiState
 
 @Stable

@@ -101,20 +101,17 @@ struct ScalesView: View {
                             let finalEnergyColor: Color = {
                                 if config.mode == .recording {
                                     let pulse = pow(sin(distMask * 5.0 - time * 1.5) * 0.5 + 0.5, 10.0)
-                                    return Color(
-                                        red: Double(recordingBaseColor.components.red) * (1.0 - pulse) + Double(stressColor.components.red) * pulse,
-                                        green: Double(recordingBaseColor.components.green) * (1.0 - pulse) + Double(stressColor.components.green) * pulse,
-                                        blue: Double(recordingBaseColor.components.blue) * (1.0 - pulse) + Double(stressColor.components.blue) * pulse,
-                                        opacity: 1.0
-                                    )
+                                    let r = Double(recordingBaseColor.components.red) * (1.0 - pulse) + Double(stressColor.components.red) * pulse
+                                    let g = Double(recordingBaseColor.components.green) * (1.0 - pulse) + Double(stressColor.components.green) * pulse
+                                    let b = Double(recordingBaseColor.components.blue) * (1.0 - pulse) + Double(stressColor.components.blue) * pulse
+                                    return Color(red: r, green: g, blue: b, opacity: 1.0)
                                 } else if config.mode == .waiting {
                                     let mix = (sin(Double(x) * 0.01 + time) * 0.5 + 0.5)
-                                    return Color(
-                                        red: Double(truthColor.components.red) * (1.0 - mix) + Double(stressColor.components.red) * mix,
-                                        green: Double(truthColor.components.green) * (1.0 - mix) + Double(stressColor.components.green) * mix,
-                                        blue: Double(truthColor.components.blue) * (1.0 - mix) + Double(stressColor.components.blue) * mix,
-                                        opacity: Double(truthColor.components.opacity) * (1.0 - mix) + Double(stressColor.components.opacity) * mix
-                                    )
+                                    let r = Double(truthColor.components.red) * (1.0 - mix) + Double(stressColor.components.red) * mix
+                                    let g = Double(truthColor.components.green) * (1.0 - mix) + Double(stressColor.components.green) * mix
+                                    let b = Double(truthColor.components.blue) * (1.0 - mix) + Double(stressColor.components.blue) * mix
+                                    let a = Double(truthColor.components.opacity) * (1.0 - mix) + Double(stressColor.components.opacity) * mix
+                                    return Color(red: r, green: g, blue: b, opacity: a)
                                 }
                                 return energyColor
                             }()

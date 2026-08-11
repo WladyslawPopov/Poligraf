@@ -31,6 +31,9 @@ import application.liedetector.ui.components.state.AppBottomSheet
 import application.liedetector.uicore.theme.tokens.StringToken
 import application.liedetector.uicore.widgets.UiWidget
 import application.liedetector.presentation.recording.data.MaterialTag
+import application.liedetector.uicore.theme.DesignSystem
+
+import application.liedetector.uicore.theme.tokens.DimenToken
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -49,7 +52,7 @@ fun RecordingHost(component: RecordingComponent) {
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         if (isGranted) {
-            component.onMicClicked()
+            viewModel.onMicClicked()
         }
     }
 
@@ -72,12 +75,12 @@ fun RecordingHost(component: RecordingComponent) {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(
-                    top = padding.calculateTopPadding() + 16.dp,
+                    top = padding.calculateTopPadding() + designSystem.dimen(DimenToken.SPACING_MEDIUM).dp,
                     bottom = padding.calculateBottomPadding() + 160.dp,
-                    start = 16.dp,
-                    end = 16.dp
+                    start = designSystem.dimen(DimenToken.MAIN_PADDING).dp,
+                    end = designSystem.dimen(DimenToken.MAIN_PADDING).dp
                 ),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                verticalArrangement = Arrangement.spacedBy(designSystem.dimen(DimenToken.WIDGET_SPACING).dp)
             ) {
                 item {
                     MaterialsHeader(state.materials) { component.onMaterialTagClicked(it) }
@@ -89,8 +92,7 @@ fun RecordingHost(component: RecordingComponent) {
                 ) { index ->
                     WidgetRenderer(
                         widget = widgets[index],
-                        onAction = { },
-                        component = component
+                        onAction = { }
                     )
                 }
             }
@@ -99,7 +101,7 @@ fun RecordingHost(component: RecordingComponent) {
                 onMicClick = {
                     val permission = Manifest.permission.RECORD_AUDIO
                     if (ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED) {
-                        component.onMicClicked()
+                        viewModel.onMicClicked()
                     } else {
                         permissionLauncher.launch(permission)
                     }
@@ -132,7 +134,7 @@ fun RecordingHost(component: RecordingComponent) {
                     },
                     modifier = Modifier.clickable { 
                         showMenu = false
-                        component.deleteRecording() 
+                        viewModel.deleteRecording() 
                     }
                 )
             }
@@ -222,16 +224,16 @@ private fun BoxScope.BottomControlPanel(
     ) {
         Surface(
             color = designSystem.composeColor(ColorToken.GLASS_BASE).copy(alpha = 0.4f),
-            modifier = Modifier.widthIn(max = 340.dp),
+            modifier = Modifier.widthIn(max = designSystem.dimen(DimenToken.DRAWER_WIDTH).dp + 20.dp),
             shape = CircleShape,
             border = BorderStroke(
-                1.dp,
-                designSystem.composeColor(ColorToken.GLASS_BORDER).copy(alpha = 0.1f)
+                width = designSystem.dimen(DimenToken.DIVIDER_THICKNESS).dp,
+                color = designSystem.composeColor(ColorToken.GLASS_BORDER).copy(alpha = 0.1f)
             )
         ) {
             Row(
-                modifier = Modifier.padding(8.dp),
-                horizontalArrangement = Arrangement.spacedBy(24.dp),
+                modifier = Modifier.padding(designSystem.dimen(DimenToken.SPACING_SMALL).dp),
+                horizontalArrangement = Arrangement.spacedBy(designSystem.dimen(DimenToken.SPACING_LARGE).dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 RecordingActionButton(IconToken.MIC, designSystem, onMicClick)
@@ -247,21 +249,28 @@ private fun MaterialsHeader(
     materials: List<MaterialTag>,
     onTagClick: (String) -> Unit
 ) {
+    val designSystem = LocalDesignSystem.current
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 12.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+            .padding(
+                horizontal = designSystem.dimen(DimenToken.MAIN_PADDING).dp, 
+                vertical = designSystem.dimen(DimenToken.SPACING_SMALL).dp + 4.dp
+            ),
+        horizontalArrangement = Arrangement.spacedBy(designSystem.dimen(DimenToken.SPACING_SMALL).dp)
     ) {
         materials.forEach { tag ->
             AssistChip(
                 onClick = { onTagClick(tag.id) },
-                label = { Text(tag.title, color = Color.White) },
+                label = { Text(text = tag.title, color = designSystem.composeColor(ColorToken.TEXT_PRIMARY)) },
                 leadingIcon = { tag.icon?.let { Text(it) } },
                 colors = AssistChipDefaults.assistChipColors(
-                    containerColor = Color.White.copy(alpha = 0.05f)
+                    containerColor = designSystem.composeColor(ColorToken.TEXT_PRIMARY).copy(alpha = 0.05f)
                 ),
-                border = BorderStroke(1.dp, Color.White.copy(alpha = 0.1f))
+                border = BorderStroke(
+                    width = designSystem.dimen(DimenToken.DIVIDER_THICKNESS).dp, 
+                    color = designSystem.composeColor(ColorToken.TEXT_PRIMARY).copy(alpha = 0.1f)
+                )
             )
         }
     }
@@ -270,7 +279,7 @@ private fun MaterialsHeader(
 @Composable
 private fun RecordingActionButton(
     icon: IconToken,
-    designSystem: application.liedetector.uicore.theme.DesignSystem,
+    designSystem: DesignSystem,
     onClick: () -> Unit
 ) {
     FilledIconButton(

@@ -14,6 +14,11 @@ import application.liedetector.presentation.recording.RecordingComponent
 import application.liedetector.presentation.recording.RecordingViewModel
 import application.liedetector.presentation.recordingHistory.RecordingsHistoryComponent
 import application.liedetector.presentation.recordingHistory.RecordingsHistoryViewModel
+import application.liedetector.data.recording.RecordingsRepository
+import application.liedetector.domain.usecase.recording.DeleteRecordingUseCase
+import application.liedetector.domain.usecase.recording.GetRecordingsUseCase
+import application.liedetector.domain.usecase.recording.LoadRecordingsUseCase
+import application.liedetector.domain.usecase.recording.SaveRecordingUseCase
 import application.liedetector.engine.component.ComponentContext
 import application.liedetector.engine.io.audio.AudioRecorder
 import org.koin.core.component.KoinComponent
@@ -30,6 +35,11 @@ class RootComponent(
     private val deviceProvider: DeviceInfoProvider by inject()
     private val appConfig: AppConfig by inject()
     private val audioRecorder: AudioRecorder by inject()
+    
+    private val getRecordingsUseCase: GetRecordingsUseCase by inject()
+    private val saveRecordingUseCase: SaveRecordingUseCase by inject()
+    private val deleteRecordingUseCase: DeleteRecordingUseCase by inject()
+    private val loadRecordingsUseCase: LoadRecordingsUseCase by inject()
 
     val viewModel = RootViewModel(userRepository, deviceProvider)
 
@@ -57,7 +67,7 @@ class RootComponent(
         screenContext.instanceKeeper.getOrCreate("recording_$subjectId") {
             RecordingComponent(
                 context = screenContext,
-                viewModel = RecordingViewModel(subjectId, navigation, subjectRepository, audioRecorder)
+                viewModel = RecordingViewModel(subjectId, navigation, subjectRepository)
             )
         }
 
@@ -68,7 +78,17 @@ class RootComponent(
         screenContext.instanceKeeper.getOrCreate("recordings_history_$subjectId") {
             RecordingsHistoryComponent(
                 context = screenContext,
-                viewModel = RecordingsHistoryViewModel(subjectId, navigation, subjectRepository, audioRecorder, startRecording)
+                viewModel = RecordingsHistoryViewModel(
+                    subjectId = subjectId,
+                    navigation = navigation,
+                    subjectRepository = subjectRepository,
+                    audioRecorder = audioRecorder,
+                    getRecordingsUseCase = getRecordingsUseCase,
+                    saveRecordingUseCase = saveRecordingUseCase,
+                    deleteRecordingUseCase = deleteRecordingUseCase,
+                    loadRecordingsUseCase = loadRecordingsUseCase,
+                    startRecording = startRecording
+                )
             )
         }
 

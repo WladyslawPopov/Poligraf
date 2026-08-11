@@ -13,7 +13,7 @@ import org.jetbrains.exposed.v1.jdbc.insertAndGetId
 import java.util.*
 
 interface SubjectRepository {
-    suspend fun createSubject(userId: UUID, dto: SubjectDto): UUID
+    suspend fun createSubject(userId: UUID, dto: SubjectDto): SubjectDto
     suspend fun getSubject(id: UUID, userId: UUID): SubjectDto?
     suspend fun getSubjectsByUser(userId: UUID): List<SubjectDto>
     suspend fun deleteSubjects(userId: UUID, ids: List<UUID>): Boolean
@@ -22,14 +22,20 @@ interface SubjectRepository {
 class SubjectRepositoryImpl : SubjectRepository {
     private val emptyJson = Json.parseToJsonElement("{}").jsonObject
 
-    override suspend fun createSubject(userId: UUID, dto: SubjectDto): UUID = dbQuery {
+    override suspend fun createSubject(userId: UUID, dto: SubjectDto): SubjectDto = dbQuery {
         val count = SubjectTable.selectAll()
             .where { SubjectTable.ownerId eq userId }
             .count()
         
-        val name = if (dto.name == "Undefined-1") "Undefined-${count + 1}" else dto.name
+        val name = if (dto.name.trim().isBlank() || 
+            dto.name.startsWith("Undefined") || 
+            dto.name.startsWith("undefined")) {
+            "Subject ${count + 1}"
+        } else {
+            dto.name.trim()
+        }
 
-        SubjectTable.insertAndGetId {
+        val id = SubjectTable.insertAndGetId {
             it[ownerId] = userId
             it[this.name] = name
             it[avatar] = dto.avatar
@@ -44,6 +50,8 @@ class SubjectRepositoryImpl : SubjectRepository {
                 it[additionalData] = emptyJson
             }
         }.value
+
+        dto.copy(id = id.toString(), name = name)
     }
 
     override suspend fun getSubject(id: UUID, userId: UUID): SubjectDto? = dbQuery {

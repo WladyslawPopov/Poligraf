@@ -45,8 +45,8 @@ fun Route.subjectApi(
             val dto = call.receive<SubjectDto>()
             val internalUserId = userRepository.getOrCreateUser(principal.uid, principal.email)
             
-            val subjectId = subjectRepository.createSubject(internalUserId, dto)
-            call.respond(dto.copy(id = subjectId.toString()))
+            val createdSubject = subjectRepository.createSubject(internalUserId, dto)
+            call.respond(createdSubject)
         }
 
         // GET /api/v1/subjects/{id}

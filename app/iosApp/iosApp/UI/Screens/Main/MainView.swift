@@ -96,12 +96,12 @@ struct MainView: View {
         ToolbarItem(placement: .principal) {
             VStack(spacing: 2) {
                 if let titleToken = tb?.titleToken {
-                    Text(designSystem.string(token: titleToken))
+                    Text(designSystem.string(titleToken))
                         .font(.headline)
                         .foregroundColor(designSystem.color(tb?.contentColor ?? .textPrimary))
                 }
                 if let subtitleToken = tb?.subtitleToken {
-                    Text(designSystem.string(token: subtitleToken))
+                    Text(designSystem.string(subtitleToken))
                         .font(.caption2)
                         .foregroundColor(designSystem.color(.textSecondary))
                 }

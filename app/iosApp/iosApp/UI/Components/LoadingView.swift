@@ -9,7 +9,7 @@ struct LoadingView: View {
         if isVisible {
             VStack {
                 ProgressView()
-                    .progressViewStyle(CircularProgressViewStyle(tint: IosTheme.color(.accentEnergy, from: designSystem)))
+                    .progressViewStyle(CircularProgressViewStyle(tint: designSystem.color(.accentEnergy)))
                     .padding(10)
                     .background(.ultraThinMaterial)
                     .clipShape(Circle())

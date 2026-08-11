@@ -59,6 +59,15 @@ class IosResourceProvider: ResourceProvider {
         case .recorderDeletePart: key = "recorder_delete_part"
         case .recorderSave: key = "recorder_save"
         case .recorderEdit: key = "recorder_edit"
+        case .recorderUploadFile: key = "recorder_upload_file"
+        case .recorderTrimMode: key = "recorder_trim_mode"
+        case .recorderHistoryTitle: key = "recorder_history_title"
+        case .recorderHistorySelect: key = "recorder_history_select"
+        case .recorderHistoryEmpty: key = "recorder_history_empty"
+        case .recorderToday: key = "recorder_today"
+        case .recorderCancel: key = "recorder_cancel"
+        case .recorderTrimApply: key = "recorder_trim_apply"
+        case .recorderDelete: key = "recorder_delete"
         default: key = ""
         }
         return NSLocalizedString(key, comment: "")
@@ -83,6 +92,10 @@ class IosResourceProvider: ResourceProvider {
         case .moreVert: return "ellipsis.circle"
         case .play: return "play.fill"
         case .pause: return "pause.fill"
+        case .skipBack15: return "gobackward.15"
+        case .skipForward15: return "goforward.15"
+        case .trimHandleLeft: return "chevron.left.circle.fill"
+        case .trimHandleRight: return "chevron.right.circle.fill"
         }
     }
     

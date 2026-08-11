@@ -56,3 +56,12 @@
 "recorder_delete_part" = "Delete";
 "recorder_save" = "Save";
 "recorder_edit" = "Edit";
+"recorder_upload_file" = "Upload audio from file";
+"recorder_trim_mode" = "Trim recording";
+"recorder_history_title" = "All Recordings";
+"recorder_history_select" = "Select";
+"recorder_history_empty" = "Make your first\nrecord 🎙️";
+"recorder_today" = "Today";
+"recorder_cancel" = "Cancel";
+"recorder_trim_apply" = "Apply";
+"recorder_delete" = "Delete";

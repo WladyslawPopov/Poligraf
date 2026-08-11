@@ -10,7 +10,7 @@ struct SubjectSliderView: View {
         VStack(alignment: .leading, spacing: 0) {
             // Header for Slider (Templates)
             HStack(spacing: 6) {
-                Text(designSystem.string(token: .sectionTemplates).uppercased())
+                Text(designSystem.string(.sectionTemplates).uppercased())
                     .font(.system(size: 10, weight: .bold))
                     .foregroundColor(designSystem.color(.textSecondary))
             }
@@ -45,7 +45,7 @@ struct SubjectStoryView: View {
                 Text(item.emoji)
                     .font(.system(size: 40))
                 
-                Text(item.title ?? designSystem.string(token: item.titleToken))
+                Text(item.title ?? designSystem.string(item.titleToken))
                     .font(.system(size: 10))
                     .fontWeight(.medium)
                     .multilineTextAlignment(.center)

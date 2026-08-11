@@ -17,5 +17,11 @@ enum class IconToken {
     CHECK,
     MORE_VERT,
     PLAY,
-    PAUSE
+    PAUSE,
+    SKIP_BACK_15,
+    SKIP_FORWARD_15,
+
+    // Trim handles
+    TRIM_HANDLE_LEFT,
+    TRIM_HANDLE_RIGHT
 }
