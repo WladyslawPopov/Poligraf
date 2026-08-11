@@ -46,7 +46,6 @@ struct RecordingsHistoryView: View {
         .toolbar {
             navigationToolbar
         }
-        .navigationBarBackButtonHidden(true)
     }
 
     private var mainContent: some View {
@@ -210,14 +209,6 @@ struct RecordingsHistoryView: View {
 
     @ToolbarContentBuilder
     private var navigationToolbar: some ToolbarContent {
-        ToolbarItem(placement: .navigationBarLeading) {
-            Button(action: { component.goBack() }) {
-                Image(systemName: designSystem.icon(.arrowBack))
-                    .font(.system(size: 18, weight: .bold))
-                    .foregroundColor(designSystem.color(.textPrimary))
-            }
-        }
-
         ToolbarItem(placement: .principal) {
             Text(designSystem.string(token: .recorderHistoryTitle))
                 .font(.headline)

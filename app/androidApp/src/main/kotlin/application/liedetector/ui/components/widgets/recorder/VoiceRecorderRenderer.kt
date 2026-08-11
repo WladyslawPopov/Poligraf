@@ -93,9 +93,9 @@ fun VoiceRecorderRenderer(
                 text = state.header.timerLabelPrecise,
                 style = LocalTextStyle.current.copy(
                     fontFamily = FontFamily.Monospace,
-                    fontWeight = FontWeight.Normal,
+                    fontWeight = FontWeight.Medium,
                     fontSize = designSystem.dimen(DimenToken.TEXT_SIZE_TITLE_LARGE).sp,
-                    letterSpacing = (-0.5).sp
+                    letterSpacing = (-1).sp
                 ),
                 color = designSystem.composeColor(ColorToken.TEXT_PRIMARY)
             )

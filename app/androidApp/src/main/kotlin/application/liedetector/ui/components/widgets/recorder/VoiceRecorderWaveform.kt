@@ -1,5 +1,6 @@
 package application.liedetector.ui.components.widgets.recorder
 
+import application.liedetector.engine.io.audio.AudioConstants
 import android.graphics.Paint
 import android.graphics.Typeface
 import androidx.compose.animation.core.*
@@ -36,7 +37,7 @@ fun VoiceRecorderWaveform(
     val density = LocalDensity.current
     val scope = rememberCoroutineScope()
     val stepPx = with(density) { 6.dp.toPx() }
-    val millisPerBar = 100f
+    val millisPerBar = AudioConstants.WAVEFORM_STEP_MS
 
     val scrollOffset = remember { Animatable(0f) }
     var isDragging by remember { mutableStateOf(false) }
@@ -64,7 +65,7 @@ fun VoiceRecorderWaveform(
                         scope.launch {
                             val dragAmount = delta / stepPx
                             val currentVal = scrollOffset.value
-                            val resistance = if (currentVal < 0f || currentVal > maxIdx) 0.3f else 1f
+                            val resistance = if ((currentVal < 0f) || (currentVal > maxIdx)) 0.3f else 1f
                             val nextVal = currentVal - (dragAmount * resistance)
 
                             scrollOffset.snapTo(nextVal)

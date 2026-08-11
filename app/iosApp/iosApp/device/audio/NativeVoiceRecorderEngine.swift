@@ -420,9 +420,9 @@ class NativeVoiceRecorderEngine: NSObject, ObservableObject, AVAudioPlayerDelega
     }
 
     // SwiftUI Helper (Non-async wrapper)
-    func loadFile(path: String, amplitudes: [KotlinFloat]?) {
+    func loadAudio(path: String, amplitudes: [KotlinFloat]?) {
         Task {
-            try? await __loadFile(path: path, amplitudes: amplitudes)
+            try? await self.__loadFile(path: path, amplitudes: amplitudes)
         }
     }
 }

@@ -287,7 +287,6 @@ class RecordingsHistoryViewModel(
     }
 
     fun onRecordingClicked(recorder: VoiceRecorder) {
-        Napier.i { "ViewModel: Item clicked! ID=${recorder.id}, Title=${recorder.title}, Path='${recorder.filePath}'" }
         launchSafe(
             block = {
                 if (audioRecorder.isRecording.value) {
@@ -325,10 +324,10 @@ class RecordingsHistoryViewModel(
         launchSafe(
             block = {
                 val active = _activeRecorder.value
-                val finalPath = if (path.isEmpty()) {
+                val finalPath = path.ifEmpty {
                     val stoppedPath = if (audioRecorder.isRecording.value) audioRecorder.stop() else null
                     stoppedPath ?: active?.filePath
-                } else path
+                } ?: ""
 
                 val recorder = VoiceRecorder(
                     id = id,

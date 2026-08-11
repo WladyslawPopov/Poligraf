@@ -113,17 +113,17 @@ struct VoiceRecorderView: View {
             }
             .animation(.easeInOut, value: engine.isRecording)
             .onAppear { initializeEngine() }
-            .onChange(of: engine.duration) { _, newDuration in
-                if !isTrimMode { trimEnd = newDuration }
+            .onChange(of: engine.duration) {
+                if !isTrimMode { trimEnd = engine.duration }
             }
-            .onChange(of: state.trim.startMillis) { _, newVal in
+            .onChange(of: state.trim.startMillis) {
                 if isDraggingMiniTrim { return }
-                let time = Double(newVal) / 1000.0
+                let time = Double(state.trim.startMillis) / 1000.0
                 if abs(trimStart - time) > 0.01 { trimStart = time }
             }
-            .onChange(of: state.trim.endMillis) { _, newVal in
+            .onChange(of: state.trim.endMillis) {
                 if isDraggingMiniTrim { return }
-                let time = Double(newVal) / 1000.0
+                let time = Double(state.trim.endMillis) / 1000.0
                 if abs(trimEnd - time) > 0.01 { trimEnd = time }
             }
         }
@@ -226,7 +226,7 @@ struct VoiceRecorderView: View {
 
     private func initializeEngine() {
         if let path = state.filePath {
-            engine.loadFile(path: path, amplitudes: state.waveform.amplitudes)
+            engine.loadAudio(path: path, amplitudes: state.waveform.amplitudes)
             trimEnd = engine.duration
         }
     }

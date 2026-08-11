@@ -30,7 +30,7 @@ class RecordingsRepositoryImpl(
         return _recordings.map { map -> 
             val list = map[subjectId] ?: emptyList()
             list.map { recording ->
-                if (recording.filePath.isEmpty() || !fileSystem.exists(recording.filePath)) {
+                if ((recording.filePath.isEmpty()) || (!fileSystem.exists(recording.filePath))) {
                     val recordingsDir = "${fileSystem.getFilesDir()}/subjects/$subjectId/recordings"
                     val fileName = "rec_${recording.id}.m4a"
                     val healedPath = "$recordingsDir/$fileName"
@@ -75,7 +75,7 @@ class RecordingsRepositoryImpl(
             val fileName = "rec_${recording.id}.m4a"
             val destPath = "$recordingsDir/$fileName"
             
-            val finalRecording = if (sourcePath.isNotEmpty() && sourcePath != destPath && fileSystem.exists(sourcePath)) {
+            val finalRecording = if ((sourcePath.isNotEmpty() && sourcePath != destPath) && fileSystem.exists(sourcePath)) {
                 if (fileSystem.moveFile(sourcePath, destPath)) {
                     Napier.i { "Repository: Moved file to $destPath" }
                     recording.copy(filePath = destPath)
@@ -106,23 +106,27 @@ class RecordingsRepositoryImpl(
     }
 
     override suspend fun deleteRecording(subjectId: String, recordingId: String): KmpResult<Unit> {
-        val list = _recordings.value[subjectId] ?: return KmpResult.Success(Unit)
-        val recording = list.find { it.id == recordingId }
-        
-        if (recording != null) {
-            fileSystem.deleteFile(recording.filePath)
-            _recordings.update { current ->
-                current + (subjectId to list.filter { it.id != recordingId })
+        return withContext(Dispatchers.IO) {
+            val list = _recordings.value[subjectId] ?: return@withContext KmpResult.Success(Unit)
+            val recording = list.find { it.id == recordingId }
+
+            if (recording != null) {
+                fileSystem.deleteFile(recording.filePath)
+                _recordings.update { current ->
+                    current + (subjectId to list.filter { it.id != recordingId })
+                }
+                saveMetadata(subjectId)
             }
-            saveMetadata(subjectId)
+            KmpResult.Success(Unit)
         }
-        return KmpResult.Success(Unit)
     }
 
-    private fun saveMetadata(subjectId: String) {
-        val list = _recordings.value[subjectId] ?: return
-        val content = json.encodeToString(ListSerializer(Recording.serializer()), list)
-        fileSystem.writeFile(getMetadataPath(subjectId), content)
+    private suspend fun saveMetadata(subjectId: String) {
+        withContext(Dispatchers.IO) {
+            val list = _recordings.value[subjectId] ?: return@withContext
+            val content = json.encodeToString(ListSerializer(Recording.serializer()), list)
+            fileSystem.writeFile(getMetadataPath(subjectId), content)
+        }
     }
 
     private fun getMetadataPath(subjectId: String) = "${fileSystem.getFilesDir()}/subjects/$subjectId/recordings.json"
