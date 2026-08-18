@@ -1,0 +1,72 @@
+package application.poligraf.api
+
+import application.poligraf.database.repository.SubjectRepository
+import application.poligraf.database.repository.UserRepository
+import application.poligraf.models.ApiConstants
+import application.poligraf.models.SubjectDto
+import io.ktor.http.*
+import io.ktor.server.auth.*
+import io.ktor.server.request.*
+import io.ktor.server.resources.post
+import io.ktor.server.resources.get
+import io.ktor.server.resources.delete
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
+import io.ktor.resources.*
+import kotlinx.serialization.Serializable
+import java.util.*
+
+object SubjectResources {
+    @Serializable
+    @Resource(ApiConstants.ENDPOINT_SUBJECTS)
+    class Subjects(val parent: ApiV1 = ApiV1()) {
+        @Serializable
+        @Resource("{id}")
+        class Id(val parent: Subjects, val id: String)
+    }
+}
+
+fun Route.subjectApi(
+    userRepository: UserRepository,
+    subjectRepository: SubjectRepository
+) {
+    authenticate(ApiConstants.AUTH_CONFIG_NAME) {
+        // GET /api/v1/subjects
+        get<SubjectResources.Subjects> {
+            val principal = call.requirePrincipal()
+            val internalUserId = userRepository.getOrCreateUser(principal.uid, principal.email)
+            val subjects = subjectRepository.getSubjectsByUser(internalUserId)
+            call.respond(subjects)
+        }
+
+        // POST /api/v1/subjects
+        post<SubjectResources.Subjects> {
+            val principal = call.requirePrincipal()
+            val dto = call.receive<SubjectDto>()
+            val internalUserId = userRepository.getOrCreateUser(principal.uid, principal.email)
+            
+            val createdSubject = subjectRepository.createSubject(internalUserId, dto)
+            call.respond(createdSubject)
+        }
+
+        // GET /api/v1/subjects/{id}
+        get<SubjectResources.Subjects.Id> { resource ->
+            val principal = call.requirePrincipal()
+            val internalUserId = userRepository.getOrCreateUser(principal.uid, principal.email)
+            val subject = subjectRepository.getSubject(UUID.fromString(resource.id), internalUserId)
+                ?: return@get call.respond(HttpStatusCode.NotFound)
+            
+            call.respond(subject)
+        }
+
+        // DELETE /api/v1/subjects
+        delete<SubjectResources.Subjects> {
+            val principal = call.requirePrincipal()
+            val ids = call.receive<List<String>>()
+            val internalUserId = userRepository.getOrCreateUser(principal.uid, principal.email)
+            
+            val success = subjectRepository.deleteSubjects(internalUserId, ids.map { UUID.fromString(it) })
+            if (success) call.respond(HttpStatusCode.OK) else call.respond(HttpStatusCode.NotFound)
+        }
+    }
+}

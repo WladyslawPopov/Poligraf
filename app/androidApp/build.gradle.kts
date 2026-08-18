@@ -7,11 +7,11 @@ plugins {
 }
 
 android {
-    namespace = "application.liedetector"
+    namespace = "application.poligraf"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {
-        applicationId = "application.liedetector"
+        applicationId = "application.poligraf"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1

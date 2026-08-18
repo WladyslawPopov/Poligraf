@@ -90,6 +90,7 @@ class IosResourceProvider: ResourceProvider {
         case .edit: return "pencil"
         case .check: return "checkmark.circle.fill"
         case .moreVert: return "ellipsis.circle"
+        case .moreHoriz: return "ellipsis"
         case .play: return "play.fill"
         case .pause: return "pause.fill"
         case .skipBack15: return "gobackward.15"

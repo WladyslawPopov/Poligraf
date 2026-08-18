@@ -13,7 +13,7 @@ kotlin {
     )
     
     android {
-       namespace = "application.liedetector.data"
+       namespace = "application.poligraf.data"
        compileSdk = libs.versions.android.compileSdk.get().toInt()
        minSdk = libs.versions.android.minSdk.get().toInt()
     

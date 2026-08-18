@@ -3,6 +3,8 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidMultiplatformLibrary)
+    alias(libs.plugins.composeMultiplatform)
+    alias(libs.plugins.composeCompiler)
     alias(libs.plugins.skie)
     alias(libs.plugins.kotlinSerialization)
 }
@@ -29,7 +31,7 @@ kotlin {
     }
     
     android {
-       namespace = "application.liedetector.sharedLogic"
+       namespace = "application.poligraf.sharedLogic"
        compileSdk = libs.versions.android.compileSdk.get().toInt()
        minSdk = libs.versions.android.minSdk.get().toInt()
     
@@ -49,9 +51,24 @@ kotlin {
             api(projects.app.data)
             api(projects.app.engine)
             api(projects.app.uiCore)
+            api(projects.app.uiWidgets)
             
             implementation(libs.kotlinx.datetime)
 
+            // Compose Multiplatform
+            implementation(compose.runtime)
+            implementation(compose.foundation)
+            implementation(compose.material3)
+            implementation(compose.ui)
+            implementation(compose.components.resources)
+            
+            // DI: Koin
+            api(libs.koin.core)
+            implementation(libs.koin.compose)
+            
+            // Network: Ktor (for engine compatibility if needed)
+            implementation(libs.ktor.client.core)
+            
             // Lifecycle
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)

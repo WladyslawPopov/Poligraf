@@ -9,7 +9,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:121099224752:android:ab1539cf07e51df1cf5d75",
         "android_client_info": {
-          "package_name": "application.liedetector"
+          "package_name": "application.poligraf"
         }
       },
       "oauth_client": [
@@ -17,7 +17,7 @@
           "client_id": "121099224752-cusgmrq5pjk4kblqqbi2n2ijald336ul.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "application.liedetector",
+            "package_name": "application.poligraf",
             "certificate_hash": "1eb8d12c25cb5bb9fcac316f398e6488c78309e8"
           }
         },

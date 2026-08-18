@@ -2,24 +2,23 @@ import SwiftUI
 import SharedLogic
 
 struct ContentView: View {
-    @ObservedObject var navigator: IosNavigator = AppCoordinator.shared.navigator
-    
-    private var root: RootComponent { AppCoordinator.shared.root }
-
-    private var designSystem: DesignSystem {
-        #if DEBUG
-        let isDebug = true
-        #else
-        let isDebug = false
-        #endif
-        return DesignSystem(resources: IosResourceProvider(), isDark: navigator.isDark, isDebug: isDebug)
-    }
-
     var body: some View {
-        AppHost(
-            root: root,
-            navigator: navigator,
-            designSystem: designSystem
+        ComposeView(
+            root: AppCoordinator.shared.root,
+            navigator: AppCoordinator.shared.navigator
         )
+        .ignoresSafeArea(.all)
+        .ignoresSafeArea(.keyboard)
     }
+}
+
+struct ComposeView: UIViewControllerRepresentable {
+    let root: RootComponent
+    let navigator: SharedNavigator
+
+    func makeUIViewController(context: Context) -> UIViewController {
+        MainViewControllerKt.MainViewController(root: root, navigator: navigator)
+    }
+
+    func updateUIViewController(_ uiViewController: UIViewController, context: Context) {}
 }

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Lie Detector</string>
-    <string name="welcome_text">Welcome to Lie Detector 🤖</string>
+    <string name="app_name">Poligraf</string>
+    <string name="welcome_text">Welcome to Poligraf 🎙️</string>
     <string name="subject_new_title">New Recording</string>
     <string name="subject_new_button">Start\nRecording ⏺️</string>
     <string name="drawer_settings">Settings</string>
@@ -47,7 +47,7 @@
     <string name="section_templates">Templates</string>
     <string name="section_recordings">Recordings</string>
 
-    <string name="drawer_footer_title">Lie Detector System</string>
+    <string name="drawer_footer_title">Poligraf System</string>
     <string name="drawer_footer_subtitle">Operational v</string>
 
     <!-- Recorder -->

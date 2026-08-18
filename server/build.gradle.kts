@@ -4,11 +4,11 @@ plugins {
     alias(libs.plugins.kotlinSerialization)
 }
 
-group = "application.liedetector"
+group = "application.poligraf"
 version = "1.0.0"
 
 application {
-    mainClass.set("application.liedetector.ApplicationKt")
+    mainClass.set("application.poligraf.ApplicationKt")
 }
 
 tasks.withType<JavaExec> {
@@ -17,12 +17,12 @@ tasks.withType<JavaExec> {
     val gcpKeyFile = rootProject.file("gcp-key.json")
     
     environment("APP_ENV", "dev") //prod or dev
-    environment("DB_URL", "jdbc:postgresql://localhost:5432/liedetector")
-    environment("DB_URL_TEST", "jdbc:postgresql://localhost:5432/liedetector_test")
+    environment("DB_URL", "jdbc:postgresql://localhost:5432/poligraf")
+    environment("DB_URL_TEST", "jdbc:postgresql://localhost:5432/poligraf_test")
     environment("DB_USER", "krampus")
     environment("DB_PASSWORD", "password123")
     environment("GOOGLE_APPLICATION_CREDENTIALS", gcpKeyFile.absolutePath)
-    environment("GCP_PROJECT_ID", "lie-detector-72fc9")
+    environment("GCP_PROJECT_ID", "poligraf-72fc9")
 }
 
 dependencies {

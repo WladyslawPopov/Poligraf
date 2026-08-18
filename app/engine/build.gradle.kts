@@ -14,7 +14,7 @@ kotlin {
     )
     
     android {
-       namespace = "application.liedetector.engine"
+       namespace = "application.poligraf.engine"
        compileSdk = libs.versions.android.compileSdk.get().toInt()
        minSdk = libs.versions.android.minSdk.get().toInt()
     
@@ -71,8 +71,8 @@ kotlin {
 
     sqldelight {
         databases {
-            create("LieDetectorDatabase") {
-                packageName.set("application.liedetector.database")
+            create("PoligrafDatabase") {
+                packageName.set("application.poligraf.database")
             }
         }
     }

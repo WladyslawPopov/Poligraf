@@ -1,5 +1,5 @@
-"app_name" = "Lie Detector";
-"welcome_text" = "Welcome to Lie Detector 🤖";
+"app_name" = "Poligraf";
+"welcome_text" = "Welcome to Poligraf 🎙️";
 "subject_new_title" = "New Recording";
 "subject_new_button" = "Start\nRecording ⏺️";
 "drawer_settings" = "Settings";
@@ -45,7 +45,7 @@
 "section_templates" = "Templates";
 "section_recordings" = "Recordings";
 
-"drawer_footer_title" = "Lie Detector System";
+"drawer_footer_title" = "Poligraf System";
 "drawer_footer_subtitle" = "Operational v";
 
 /* Recorder */

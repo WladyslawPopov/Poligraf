@@ -13,7 +13,7 @@ kotlin {
     jvm()
     
     android {
-       namespace = "application.liedetector.core"
+       namespace = "application.poligraf.core"
        compileSdk = libs.versions.android.compileSdk.get().toInt()
        minSdk = libs.versions.android.minSdk.get().toInt()
     

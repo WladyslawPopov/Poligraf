@@ -14,7 +14,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		B880CB47AE959957ADA54A6D /* LieDetector.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LieDetector.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B880CB47AE959957ADA54A6D /* Poligraf.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Poligraf.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -61,7 +61,7 @@
 		1CC016C6E72500AE541D193D /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				B880CB47AE959957ADA54A6D /* LieDetector.app */,
+				B880CB47AE959957ADA54A6D /* Poligraf.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -110,7 +110,7 @@
 				72546647300442A4003083EC /* FirebaseAuth */,
 			);
 			productName = iosApp;
-			productReference = B880CB47AE959957ADA54A6D /* LieDetector.app */;
+			productReference = B880CB47AE959957ADA54A6D /* Poligraf.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -204,7 +204,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = iosApp/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Lie Detector";
+				INFOPLIST_KEY_CFBundleDisplayName = "Poligraf";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -232,7 +232,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = iosApp/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Lie Detector";
+				INFOPLIST_KEY_CFBundleDisplayName = "Poligraf";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
