@@ -20,7 +20,6 @@ import application.poligraf.uicore.theme.DesignSystem
 import application.poligraf.uicore.theme.LocalDesignSystem
 import application.poligraf.uicore.theme.tokens.ColorToken
 import application.poligraf.uicore.theme.tokens.DimenToken
-import application.poligraf.uicore.theme.tokens.StringToken
 import application.poligraf.uicore.widgets.UiWidget
 import application.poligraf.widgets.utils.composeColor
 
@@ -44,7 +43,7 @@ fun SubjectSliderRenderer(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = designSystem.string(StringToken.SECTION_TEMPLATES).uppercase(),
+                text = designSystem.strings.subjects.sectionTemplates.uppercase(),
                 style = MaterialTheme.typography.labelMedium,
                 color = designSystem.composeColor(ColorToken.TEXT_SECONDARY),
                 fontWeight = FontWeight.Bold
@@ -101,7 +100,7 @@ private fun SubjectStoryRenderer(
             Spacer(modifier = Modifier.height(designSystem.dimen(DimenToken.SPACING_MEDIUM).dp))
             
             Text(
-                text = item.title ?: designSystem.string(item.titleToken),
+                text = item.title ?: item.titleProvider(designSystem.strings),
                 style = MaterialTheme.typography.labelSmall,
                 color = designSystem.composeColor(item.titleColor),
                 textAlign = TextAlign.Center,
@@ -154,7 +153,7 @@ private fun SubjectCardRenderer(
             Spacer(modifier = Modifier.height(designSystem.dimen(DimenToken.SPACING_LARGE).dp))
             
             Text(
-                text = item.title ?: designSystem.string(item.titleToken),
+                text = item.title ?: item.titleProvider(designSystem.strings),
                 style = MaterialTheme.typography.titleMedium,
                 color = designSystem.composeColor(item.titleColor),
                 textAlign = TextAlign.Center,

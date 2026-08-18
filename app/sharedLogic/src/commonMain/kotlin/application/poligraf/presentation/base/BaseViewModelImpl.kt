@@ -4,7 +4,7 @@ import application.poligraf.engine.error.ErrorType
 import application.poligraf.uicore.base.IBaseViewModel
 import application.poligraf.uicore.models.DisplayMetrics
 import application.poligraf.uicore.state.ToastState
-import application.poligraf.uicore.theme.tokens.StringToken
+import application.poligraf.uicore.theme.AppStrings
 import application.poligraf.uicore.types.ToastType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -36,8 +36,8 @@ class BaseViewModelImpl(parentScope: CoroutineScope) : IBaseViewModel {
         _errorType.value = type
     }
 
-    override fun showToast(token: StringToken, type: ToastType) {
-        _toastState.value = ToastState(messageToken = token, type = type)
+    override fun showToast(provider: (AppStrings) -> String, type: ToastType) {
+        _toastState.value = ToastState(provider = provider, type = type)
     }
 
     override fun showRawToast(message: String, type: ToastType) {

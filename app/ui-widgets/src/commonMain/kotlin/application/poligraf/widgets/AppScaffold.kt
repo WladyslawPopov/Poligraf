@@ -62,7 +62,7 @@ fun AppScaffold(
 
         LaunchedEffect(toastState) {
             toastState?.let { s ->
-                val message = s.messageToken?.let { designSystem.string(it) } ?: s.messageRaw ?: ""
+                val message = s.provider?.let { it(designSystem.strings) } ?: s.messageRaw ?: ""
                 snackbarHostState.showSnackbar(
                     message = message,
                     duration = SnackbarDuration.Short,

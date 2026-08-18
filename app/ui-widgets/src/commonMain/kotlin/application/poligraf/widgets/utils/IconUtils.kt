@@ -1,14 +1,22 @@
 package application.poligraf.widgets.utils
 
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import application.poligraf.uicore.theme.IconResource
+import androidx.compose.ui.graphics.vector.ImageVector
 
 @Composable
-expect fun AppIcon(
-    icon: IconResource,
+fun AppIcon(
+    icon: ImageVector,
     contentDescription: String?,
     modifier: Modifier = Modifier,
     tint: Color = Color.Unspecified
-)
+) {
+    Icon(
+        imageVector = icon,
+        contentDescription = contentDescription,
+        modifier = modifier,
+        tint = tint
+    )
+}

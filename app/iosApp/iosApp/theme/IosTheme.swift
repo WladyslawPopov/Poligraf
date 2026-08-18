@@ -31,26 +31,6 @@ extension DesignSystem {
         return self.dimen(token)
     }
     
-    // MARK: - Strings
-    
-    func string(_ token: StringToken) -> String {
-        return self.resources.getString(token: token)
-    }
-    
-    func string(token: StringToken) -> String {
-        return self.string(token)
-    }
-    
-    // MARK: - Icons
-    
-    func icon(_ token: IconToken) -> String {
-        return self.resources.getIcon(token: token)
-    }
-    
-    func icon(token: IconToken) -> String {
-        return self.icon(token)
-    }
-
     // MARK: - Typography
     
     func font(_ token: TypographyToken) -> Font {

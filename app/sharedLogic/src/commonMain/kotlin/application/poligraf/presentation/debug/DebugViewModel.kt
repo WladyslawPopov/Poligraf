@@ -6,7 +6,6 @@ import application.poligraf.engine.error.ErrorType
 import application.poligraf.presentation.debug.data.DebugState
 import application.poligraf.presentation.debug.data.DebugTab
 import application.poligraf.uicore.theme.tokens.ColorToken
-import application.poligraf.uicore.theme.tokens.StringToken
 import application.poligraf.uicore.theme.tokens.TypographyToken
 import application.poligraf.uicore.actions.DebugAction
 import application.poligraf.uicore.actions.NavigationAction
@@ -78,7 +77,7 @@ class DebugViewModel(
         return listOf(
             UiWidget.WelcomeText(
                 id = "debug_welcome",
-                textToken = StringToken.WELCOME_TEXT,
+                textProvider = { it.common.welcomeText },
                 emoji = " 🛠️",
                 colorToken = ColorToken.ACCENT_PRIMARY,
                 typographyToken = TypographyToken.HEADER
@@ -88,7 +87,7 @@ class DebugViewModel(
                 items = listOf(
                     UiWidget.SubjectCard(
                         id = "mock_1",
-                        titleToken = StringToken.SUBJECT_NEW_TITLE,
+                        titleProvider = { it.subjects.newTitle },
                         emoji = "🧪",
                         action = DebugAction.TriggerSuccessToast,
                         backgroundColor = ColorToken.GLASS_BASE,
@@ -96,7 +95,7 @@ class DebugViewModel(
                     ),
                     UiWidget.SubjectCard(
                         id = "mock_2",
-                        titleToken = StringToken.SUBJECT_NEW_TITLE,
+                        titleProvider = { it.subjects.newTitle },
                         emoji = "💥",
                         action = DebugAction.TriggerErrorNonBlocking,
                         backgroundColor = ColorToken.GLASS_BASE,
@@ -104,7 +103,7 @@ class DebugViewModel(
                     ),
                     UiWidget.SubjectCard(
                         id = "mock_3",
-                        titleToken = StringToken.SUBJECT_NEW_TITLE,
+                        titleProvider = { it.subjects.newTitle },
                         emoji = "⏳",
                         action = DebugAction.TriggerLoading,
                         backgroundColor = ColorToken.GLASS_BASE,
@@ -114,7 +113,7 @@ class DebugViewModel(
             ),
             UiWidget.WelcomeText(
                 id = "debug_info",
-                textToken = StringToken.DEBUG_TITLE,
+                textProvider = { it.debug.title },
                 colorToken = ColorToken.TEXT_SECONDARY,
                 typographyToken = TypographyToken.SUBHEADER,
                 typingDelay = 10L
@@ -146,10 +145,10 @@ class DebugViewModel(
                 setManualError(ErrorType.SERVER_UNAVAILABLE)
             }
             DebugAction.TriggerErrorNonBlocking -> {
-                showToast(StringToken.ERROR_UNKNOWN_TITLE, ToastType.ERROR)
+                showToast({ it.errors.unknownTitle }, ToastType.ERROR)
             }
             DebugAction.TriggerSuccessToast -> {
-                showToast(StringToken.TOAST_AUTH_SUCCESS, ToastType.SUCCESS)
+                showToast({ it.toast.authSuccess }, ToastType.SUCCESS)
             }
             else -> {}
         }

@@ -21,7 +21,7 @@ fun WelcomeTextRenderer(
     widget: UiWidget.WelcomeText
 ) {
     val designSystem = LocalDesignSystem.current
-    val fullText = designSystem.string(widget.textToken) + (widget.emoji ?: "")
+    val fullText = widget.textProvider(designSystem.strings) + (widget.emoji ?: "")
     
     BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
         val isLandscape = maxWidth > maxHeight

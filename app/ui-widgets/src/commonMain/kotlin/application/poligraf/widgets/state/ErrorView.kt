@@ -12,7 +12,6 @@ import application.poligraf.engine.error.ErrorType
 import application.poligraf.uicore.theme.LocalDesignSystem
 import application.poligraf.uicore.theme.tokens.ColorToken
 import application.poligraf.uicore.theme.tokens.DimenToken
-import application.poligraf.uicore.theme.tokens.StringToken
 import application.poligraf.widgets.utils.composeColor
 import androidx.compose.ui.graphics.Color as ComposeColor
 
@@ -27,16 +26,16 @@ fun ErrorView(
 ) {
     val designSystem = LocalDesignSystem.current
 
-    val titleToken = when (type) {
-        ErrorType.NO_INTERNET -> StringToken.ERROR_NO_INTERNET_TITLE
-        ErrorType.SERVER_UNAVAILABLE -> StringToken.ERROR_SERVER_TITLE
-        else -> StringToken.ERROR_UNKNOWN_TITLE
+    val title = when (type) {
+        ErrorType.NO_INTERNET -> designSystem.strings.errors.noInternetTitle
+        ErrorType.SERVER_UNAVAILABLE -> designSystem.strings.errors.serverTitle
+        else -> designSystem.strings.errors.unknownTitle
     }
 
-    val msgToken = when (type) {
-        ErrorType.NO_INTERNET -> StringToken.ERROR_NO_INTERNET_MSG
-        ErrorType.SERVER_UNAVAILABLE -> StringToken.ERROR_SERVER_MSG
-        else -> StringToken.ERROR_UNKNOWN_MSG
+    val msg = when (type) {
+        ErrorType.NO_INTERNET -> designSystem.strings.errors.noInternetMsg
+        ErrorType.SERVER_UNAVAILABLE -> designSystem.strings.errors.serverMsg
+        else -> designSystem.strings.errors.unknownMsg
     }
 
     val emoji = when (type) {
@@ -68,14 +67,14 @@ fun ErrorView(
             )
             
             Text(
-                text = designSystem.string(titleToken),
+                text = title,
                 style = MaterialTheme.typography.headlineMedium,
                 color = designSystem.composeColor(ColorToken.TEXT_PRIMARY),
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(designSystem.dimen(DimenToken.SPACING_SMALL).dp))
             Text(
-                text = designSystem.string(msgToken),
+                text = msg,
                 style = MaterialTheme.typography.bodyLarge,
                 color = designSystem.composeColor(ColorToken.TEXT_SECONDARY),
                 textAlign = TextAlign.Center
@@ -89,7 +88,7 @@ fun ErrorView(
                 ),
                 shape = MaterialTheme.shapes.large
             ) {
-                Text(designSystem.string(StringToken.ERROR_RETRY))
+                Text(designSystem.strings.errors.retry)
             }
         }
     }

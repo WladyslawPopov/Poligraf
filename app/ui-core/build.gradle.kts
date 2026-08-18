@@ -7,6 +7,12 @@ plugins {
     alias(libs.plugins.composeCompiler)
 }
 
+compose.resources {
+    publicResClass = true
+    packageOfResClass = "application.poligraf.uicore.generated.resources"
+    generateResClass = always
+}
+
 kotlin {
     listOf(
         iosArm64(),
@@ -26,6 +32,10 @@ kotlin {
         compilerOptions {
             jvmTarget = JvmTarget.JVM_11
         }
+        
+        androidResources {
+            enable = true
+        }
     }
 
     sourceSets {
@@ -42,9 +52,9 @@ kotlin {
             implementation(compose.material3)
             implementation(compose.ui)
             implementation(compose.components.resources)
+            implementation(compose.materialIconsExtended)
         }
         androidMain.dependencies {
-            implementation(libs.compose.material.icons)
         }
     }
 }

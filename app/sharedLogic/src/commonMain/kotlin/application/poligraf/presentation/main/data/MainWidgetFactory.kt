@@ -3,7 +3,6 @@ package application.poligraf.presentation.main.data
 import application.poligraf.domain.model.Subject
 import application.poligraf.uicore.actions.RecordingAction
 import application.poligraf.uicore.theme.tokens.ColorToken
-import application.poligraf.uicore.theme.tokens.StringToken
 import application.poligraf.uicore.theme.tokens.TypographyToken
 import application.poligraf.uicore.widgets.UiWidget
 
@@ -14,7 +13,7 @@ object MainWidgetFactory {
     ): UiWidget.SubjectSlider {
         val defaultCard = UiWidget.SubjectCard(
             id = "new_recording",
-            titleToken = StringToken.SUBJECT_NEW_BUTTON,
+            titleProvider = { it.subjects.newButton },
             emoji = "🕵️",
             action = RecordingAction.StartNew,
             backgroundColor = ColorToken.GLASS_BASE,

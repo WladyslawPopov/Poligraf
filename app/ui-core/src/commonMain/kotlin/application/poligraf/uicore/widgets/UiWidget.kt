@@ -2,8 +2,8 @@ package application.poligraf.uicore.widgets
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
+import application.poligraf.uicore.theme.AppStrings
 import application.poligraf.uicore.theme.tokens.ColorToken
-import application.poligraf.uicore.theme.tokens.StringToken
 import application.poligraf.uicore.theme.tokens.TypographyToken
 import application.poligraf.uicore.actions.NavigationAction
 import application.poligraf.uicore.actions.WidgetAction
@@ -15,9 +15,9 @@ sealed class UiWidget {
     @Immutable
     data class AppToolbar(
         override val id: String,
-        val titleToken: StringToken? = null,
-        val subtitleToken: StringToken? = null,
-        val menuAction: WidgetAction = NavigationAction.Settings,
+        val titleProvider: ((AppStrings) -> String)? = null,
+        val subtitleProvider: ((AppStrings) -> String)? = null,
+        val menuAction: WidgetAction = NavigationAction.Menu,
         val profileAction: WidgetAction = NavigationAction.Profile,
         val backgroundColor: ColorToken = ColorToken.BACKGROUND,
         val contentColor: ColorToken = ColorToken.TEXT_PRIMARY,
@@ -27,7 +27,7 @@ sealed class UiWidget {
     @Immutable
     data class WelcomeText(
         override val id: String,
-        val textToken: StringToken,
+        val textProvider: (AppStrings) -> String,
         val emoji: String? = null,
         val colorToken: ColorToken = ColorToken.TEXT_PRIMARY,
         val typographyToken: TypographyToken = TypographyToken.HEADER,
@@ -37,7 +37,7 @@ sealed class UiWidget {
     @Immutable
     data class SubjectCard(
         val id: String,
-        val titleToken: StringToken = StringToken.SUBJECT_NEW_TITLE,
+        val titleProvider: (AppStrings) -> String = { it.subjects.newTitle },
         val title: String? = null,
         val emoji: String,
         val action: WidgetAction,

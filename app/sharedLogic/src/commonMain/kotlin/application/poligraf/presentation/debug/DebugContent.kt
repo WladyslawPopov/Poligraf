@@ -19,7 +19,6 @@ import application.poligraf.presentation.debug.data.DebugTab
 import application.poligraf.uicore.theme.LocalDesignSystem
 import application.poligraf.uicore.theme.tokens.ColorToken
 import application.poligraf.uicore.theme.tokens.IconToken
-import application.poligraf.uicore.theme.tokens.StringToken
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -54,7 +53,7 @@ fun DebugContent(component: DebugComponent) {
         topBar = {
             Column(modifier = Modifier.statusBarsPadding()) {
                 CenterAlignedTopAppBar(
-                    title = { Text(designSystem.string(StringToken.DEBUG_TITLE)) },
+                    title = { Text(designSystem.strings.debug.title) },
                     navigationIcon = {
                         IconButton(onClick = { viewModel.goBack() }) {
                             AppIcon(
@@ -72,12 +71,11 @@ fun DebugContent(component: DebugComponent) {
                     selectedIndex = state.selectedTab.ordinal,
                     onTabSelected = { viewModel.setTab(it) },
                     labelProvider = { tab ->
-                        val token = when (tab) {
-                            DebugTab.STATES -> StringToken.TAB_STATES
-                            DebugTab.WIDGETS -> StringToken.TAB_WIDGETS
-                            DebugTab.LABS -> StringToken.TAB_LABS
+                        when (tab) {
+                            DebugTab.STATES -> designSystem.strings.debug.tabStates
+                            DebugTab.WIDGETS -> designSystem.strings.debug.tabWidgets
+                            DebugTab.LABS -> designSystem.strings.debug.tabLabs
                         }
-                        designSystem.string(token)
                     }
                 )
             }

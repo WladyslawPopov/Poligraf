@@ -2,11 +2,11 @@ package application.poligraf.uicore.state
 
 import androidx.compose.runtime.Stable
 import application.poligraf.uicore.models.MenuItem
-import application.poligraf.uicore.theme.tokens.StringToken
+import application.poligraf.uicore.theme.AppStrings
 
 @Stable
 data class TopBarUiState(
-    val titleToken: StringToken? = null,
+    val titleProvider: ((AppStrings) -> String)? = null,
     val titleRaw: String? = null,
     val leadingIcon: String? = "menu",
     val menuItems: List<MenuItem> = emptyList(),

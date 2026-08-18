@@ -18,12 +18,13 @@ import application.poligraf.uicore.theme.LocalDesignSystem
 import application.poligraf.uicore.theme.tokens.ColorToken
 import application.poligraf.uicore.theme.tokens.DimenToken
 import application.poligraf.uicore.theme.tokens.IconToken
-import application.poligraf.uicore.theme.tokens.StringToken
 import application.poligraf.widgets.AppScaffold
 import application.poligraf.widgets.WidgetRenderer
 import application.poligraf.widgets.utils.AppIcon
 import application.poligraf.widgets.utils.composeColor
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
+import kotlinx.coroutines.delay
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -83,16 +84,16 @@ fun MainContent(
                     CenterAlignedTopAppBar(
                         title = {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                toolbar.titleToken?.let { token ->
+                                toolbar.titleProvider?.let { provider ->
                                     Text(
-                                        text = designSystem.string(token),
+                                        text = provider(designSystem.strings),
                                         color = designSystem.composeColor(ColorToken.TEXT_PRIMARY),
                                         style = MaterialTheme.typography.titleMedium
                                     )
                                 }
-                                toolbar.subtitleToken?.let { token ->
+                                toolbar.subtitleProvider?.let { provider ->
                                     Text(
-                                        text = designSystem.string(token),
+                                        text = provider(designSystem.strings),
                                         color = designSystem.composeColor(ColorToken.TEXT_SECONDARY),
                                         style = MaterialTheme.typography.labelSmall
                                     )
@@ -109,7 +110,7 @@ fun MainContent(
                             ) {
                                 AppIcon(
                                     icon = designSystem.icon(IconToken.MENU),
-                                    contentDescription = designSystem.string(StringToken.MENU),
+                                    contentDescription = designSystem.strings.common.menu,
                                     tint = designSystem.composeColor(ColorToken.TEXT_PRIMARY)
                                 )
                             }

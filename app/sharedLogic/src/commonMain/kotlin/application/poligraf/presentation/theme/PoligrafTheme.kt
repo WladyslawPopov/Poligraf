@@ -8,6 +8,8 @@ import application.poligraf.widgets.utils.composeColor
 import application.poligraf.uicore.theme.DesignSystem
 import application.poligraf.uicore.theme.LocalDesignSystem
 import application.poligraf.uicore.theme.ResourceProvider
+import application.poligraf.uicore.theme.IAppStrings
+import application.poligraf.uicore.theme.rememberAppUIStrings
 import application.poligraf.uicore.theme.tokens.ColorToken
 import org.koin.compose.koinInject
 
@@ -17,10 +19,12 @@ fun PoligrafTheme(
 ) {
     val darkTheme by ThemeState.isDark.collectAsState()
     val resources: ResourceProvider = koinInject()
-    val injectedDS: DesignSystem = koinInject()
+    val appConfig: application.poligraf.engine.config.AppConfig = koinInject()
     
-    val designSystem = remember(darkTheme) { 
-        DesignSystem(resources, darkTheme, isDebug = injectedDS.isDebug) 
+    val stringProvider: IAppStrings = koinInject()
+    val strings = rememberAppUIStrings(stringProvider)
+    val designSystem = remember(darkTheme, strings) { 
+        DesignSystem(resources, strings, darkTheme, isDebug = appConfig.isDebug) 
     }
     
     val colorScheme = if (darkTheme) {

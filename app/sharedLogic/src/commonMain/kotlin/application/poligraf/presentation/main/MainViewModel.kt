@@ -3,7 +3,6 @@ package application.poligraf.presentation.main
 import application.poligraf.presentation.base.BaseViewModel
 import application.poligraf.domain.model.Subject
 import application.poligraf.uicore.theme.tokens.ColorToken
-import application.poligraf.uicore.theme.tokens.StringToken
 import application.poligraf.uicore.theme.tokens.TypographyToken
 import application.poligraf.uicore.actions.RecordingAction
 import application.poligraf.uicore.actions.NavigationAction
@@ -42,13 +41,14 @@ class MainViewModel(
             ),
             toolbar = UiWidget.AppToolbar(
                 id = "main_toolbar",
-                titleToken = StringToken.APP_NAME,
+                titleProvider = { it.common.appName },
+                menuAction = NavigationAction.Menu,
                 backgroundColor = ColorToken.BACKGROUND,
                 contentColor = ColorToken.TEXT_PRIMARY
             ),
             welcomeWidget = UiWidget.WelcomeText(
                 id = "main_welcome",
-                textToken = StringToken.WELCOME_TEXT,
+                textProvider = { it.common.welcomeText },
                 colorToken = ColorToken.TEXT_PRIMARY,
                 typographyToken = TypographyToken.HEADER
             ),
@@ -115,13 +115,14 @@ class MainViewModel(
                 currentState.copy(
                     toolbar = UiWidget.AppToolbar(
                         id = "main_toolbar",
-                        titleToken = StringToken.APP_NAME,
+                        titleProvider = { it.common.appName },
+                        menuAction = NavigationAction.Menu,
                         backgroundColor = ColorToken.BACKGROUND,
                         contentColor = ColorToken.TEXT_PRIMARY
                     ),
                     welcomeWidget = UiWidget.WelcomeText(
                         id = "main_welcome",
-                        textToken = StringToken.WELCOME_TEXT,
+                        textProvider = { it.common.welcomeText },
                         colorToken = ColorToken.TEXT_PRIMARY,
                         typographyToken = TypographyToken.HEADER
                     ),
@@ -131,13 +132,14 @@ class MainViewModel(
                         )
                     ),
                     errorRaw = null,
-                    errorToken = null
+                    errorProvider = null
                 )
             } else {
                 currentState.copy(
                     toolbar = UiWidget.AppToolbar(
                         id = "main_toolbar",
-                        titleToken = StringToken.WELCOME_TEXT,
+                        titleProvider = { it.common.welcomeText },
+                        menuAction = NavigationAction.Menu,
                         backgroundColor = ColorToken.BACKGROUND,
                         contentColor = ColorToken.TEXT_PRIMARY
                     ),
@@ -149,14 +151,14 @@ class MainViewModel(
                         MainWidgetFactory.createSubjectList(subjects)
                     ),
                     errorRaw = null,
-                    errorToken = null
+                    errorProvider = null
                 )
             }
         }
     }
 
     fun loadContent() {
-        _state.update { it.copy(errorRaw = null, errorToken = null) }
+        _state.update { it.copy(errorRaw = null, errorProvider = null) }
 
     }
 
@@ -170,6 +172,9 @@ class MainViewModel(
             is WidgetAction.ToggleSelection -> toggleSelection(action.id)
             is WidgetAction.DeleteSelected -> deleteSelected()
             is WidgetAction.ClearSelection -> clearSelection()
+            is NavigationAction.Menu -> {
+                setDrawerOpen(true)
+            }
             is NavigationAction.History -> {
 
             }

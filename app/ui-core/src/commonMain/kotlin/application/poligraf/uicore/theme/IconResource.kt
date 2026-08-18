@@ -1,6 +1,8 @@
 package application.poligraf.uicore.theme
 
+import androidx.compose.ui.graphics.vector.ImageVector
+
 /**
- * Platform-specific icon representation.
+ * Platform-agnostic icon representation using ImageVector.
  */
-expect class IconResource
+typealias IconResource = ImageVector

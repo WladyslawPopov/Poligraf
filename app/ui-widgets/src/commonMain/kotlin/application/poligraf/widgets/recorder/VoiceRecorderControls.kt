@@ -19,7 +19,6 @@ import application.poligraf.uicore.state.VoiceRecorderUiState
 import application.poligraf.uicore.theme.DesignSystem
 import application.poligraf.uicore.theme.tokens.ColorToken
 import application.poligraf.uicore.theme.tokens.DimenToken
-import application.poligraf.uicore.theme.tokens.StringToken
 import application.poligraf.widgets.utils.composeColor
 import application.poligraf.widgets.utils.AppIcon
 
@@ -85,7 +84,7 @@ fun VoiceRecorderControls(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = designSystem.string(StringToken.RECORDER_TRIM),
+                    text = designSystem.strings.recorder.trim,
                     color = designSystem.composeColor(ColorToken.TEXT_PRIMARY),
                     fontSize = 17.sp,
                     fontWeight = FontWeight.Bold

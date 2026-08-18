@@ -20,7 +20,6 @@ import application.poligraf.uicore.theme.DesignSystem
 import application.poligraf.uicore.theme.tokens.ColorToken
 import application.poligraf.uicore.theme.tokens.DimenToken
 import application.poligraf.uicore.theme.tokens.IconToken
-import application.poligraf.uicore.theme.tokens.StringToken
 import application.poligraf.widgets.utils.composeColor
 import application.poligraf.widgets.utils.AppIcon
 
@@ -39,7 +38,7 @@ fun VoiceRecorderHeader(
     ) {
         if (state.header.isTrimming) {
             Text(
-                text = designSystem.string(StringToken.RECORDER_CANCEL),
+                text = designSystem.strings.recorder.trimCancel,
                 color = designSystem.composeColor(ColorToken.TEXT_PRIMARY),
                 fontSize = designSystem.dimen(DimenToken.TEXT_SIZE_TITLE_SMALL).sp,
                 modifier = Modifier
@@ -109,7 +108,7 @@ fun VoiceRecorderHeader(
                         DropdownMenuItem(
                             text = {
                                 Text(
-                                    text = designSystem.string(StringToken.RECORDER_UPLOAD_FILE),
+                                    text = designSystem.strings.recorder.uploadFile,
                                     color = designSystem.composeColor(ColorToken.TEXT_PRIMARY)
                                 )
                             },
@@ -121,7 +120,7 @@ fun VoiceRecorderHeader(
                         DropdownMenuItem(
                             text = {
                                 Text(
-                                    text = designSystem.string(StringToken.RECORDER_TRIM_MODE),
+                                    text = designSystem.strings.recorder.trimMode,
                                     color = designSystem.composeColor(ColorToken.TEXT_PRIMARY)
                                 )
                             },

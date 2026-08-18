@@ -26,7 +26,6 @@ import application.poligraf.uicore.theme.DesignSystem
 import application.poligraf.uicore.theme.LocalDesignSystem
 import application.poligraf.uicore.theme.tokens.ColorToken
 import application.poligraf.uicore.theme.tokens.IconToken
-import application.poligraf.uicore.theme.tokens.StringToken
 import application.poligraf.uicore.theme.tokens.DimenToken
 import application.poligraf.uicore.widgets.UiWidget
 import application.poligraf.widgets.utils.composeColor
@@ -59,7 +58,7 @@ fun SubjectListRenderer(
             )
             Spacer(modifier = Modifier.width(designSystem.dimen(DimenToken.SPACING_SMALL).dp))
             Text(
-                text = designSystem.string(StringToken.SECTION_RECORDINGS).uppercase(),
+                text = designSystem.strings.subjects.sectionRecordings.uppercase(),
                 style = MaterialTheme.typography.labelMedium,
                 color = designSystem.composeColor(ColorToken.TEXT_SECONDARY),
                 fontWeight = FontWeight.Bold
@@ -145,7 +144,7 @@ private fun SelectionPanel(
                 )
             }
             Text(
-                text = "$selectedCount ${designSystem.string(StringToken.ACTION_SELECTED)}",
+                text = "$selectedCount ${designSystem.strings.subjects.actionSelected}",
                 style = MaterialTheme.typography.titleSmall,
                 color = designSystem.composeColor(ColorToken.TEXT_PRIMARY)
             )

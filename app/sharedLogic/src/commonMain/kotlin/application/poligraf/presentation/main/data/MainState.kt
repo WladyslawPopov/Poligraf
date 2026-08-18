@@ -4,7 +4,7 @@ import androidx.compose.runtime.Stable
 import application.poligraf.engine.config.AppConfig
 import application.poligraf.uicore.models.LayoutConfig
 import application.poligraf.uicore.state.ScaffoldUiState
-import application.poligraf.uicore.theme.tokens.StringToken
+import application.poligraf.uicore.theme.AppStrings
 import application.poligraf.uicore.widgets.AppBackground
 import application.poligraf.uicore.widgets.UiWidget
 
@@ -17,6 +17,6 @@ data class MainState(
     val welcomeWidget: UiWidget.WelcomeText? = null,
     val widgets: List<UiWidget> = emptyList(),
     val errorRaw: String? = null,
-    val errorToken: StringToken? = null,
+    val errorProvider: ((AppStrings) -> String)? = null,
     val isDrawerOpen: Boolean = false
 ) : ScaffoldUiState

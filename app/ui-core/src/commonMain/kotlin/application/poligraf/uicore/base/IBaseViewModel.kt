@@ -4,7 +4,7 @@ import androidx.compose.runtime.Stable
 import application.poligraf.engine.error.ErrorType
 import application.poligraf.uicore.models.DisplayMetrics
 import application.poligraf.uicore.state.ToastState
-import application.poligraf.uicore.theme.tokens.StringToken
+import application.poligraf.uicore.theme.AppStrings
 import application.poligraf.uicore.types.ToastType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.StateFlow
@@ -22,7 +22,7 @@ interface IBaseViewModel {
     
     fun setLoading(value: Boolean)
     fun setManualError(type: ErrorType?)
-    fun showToast(token: StringToken, type: ToastType)
+    fun showToast(provider: (AppStrings) -> String, type: ToastType)
     fun showRawToast(message: String, type: ToastType)
     fun setDisplayMetrics(metrics: DisplayMetrics)
     fun clearError()

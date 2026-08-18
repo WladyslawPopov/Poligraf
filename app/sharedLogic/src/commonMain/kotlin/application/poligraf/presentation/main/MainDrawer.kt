@@ -22,7 +22,6 @@ import application.poligraf.presentation.main.data.MainState
 import application.poligraf.presentation.theme.ThemeState
 import application.poligraf.uicore.theme.tokens.ColorToken
 import application.poligraf.uicore.theme.tokens.DimenToken
-import application.poligraf.uicore.theme.tokens.StringToken
 
 @Composable
 fun MainDrawer(
@@ -72,7 +71,7 @@ fun MainDrawer(
                         )
                 ) {
                     Text(
-                        text = designSystem.string(StringToken.DRAWER_SETTINGS),
+                        text = designSystem.strings.drawer.settings,
                         style = MaterialTheme.typography.headlineMedium,
                         color = designSystem.composeColor(ColorToken.ACCENT_PRIMARY),
                         fontWeight = FontWeight.ExtraBold
@@ -87,7 +86,7 @@ fun MainDrawer(
                 val isDark by ThemeState.isDark.collectAsState()
 
                 DrawerItem(
-                    label = designSystem.string(StringToken.DRAWER_DARK_MODE),
+                    label = designSystem.strings.drawer.darkMode,
                     designSystem = designSystem,
                     trailing = {
                         Switch(
@@ -108,7 +107,7 @@ fun MainDrawer(
                     Spacer(modifier = Modifier.height(designSystem.dimen(DimenToken.SPACING_SMALL).dp))
                     
                     DrawerItem(
-                        label = designSystem.string(StringToken.OPEN_DEBUG_SANDBOX),
+                        label = designSystem.strings.drawer.openDebug,
                         designSystem = designSystem,
                         color = designSystem.composeColor(ColorToken.ACCENT_ENERGY),
                         onClick = {
@@ -128,14 +127,14 @@ fun MainDrawer(
                         .padding(designSystem.dimen(DimenToken.SPACING_LARGE).dp)
                 ) {
                     Text(
-                        text = designSystem.string(StringToken.DRAWER_FOOTER_TITLE).uppercase(),
+                        text = designSystem.strings.drawer.footerTitle.uppercase(),
                         style = MaterialTheme.typography.labelMedium,
                         color = designSystem.composeColor(ColorToken.TEXT_PRIMARY),
                         fontWeight = FontWeight.Bold,
                         letterSpacing = TextUnit.Unspecified
                     )
                     Text(
-                        text = (designSystem.string(StringToken.DRAWER_FOOTER_SUBTITLE) + (state.appConfig?.appVersion ?: "1.0.0")).uppercase(),
+                        text = (designSystem.strings.drawer.footerSubtitle + (state.appConfig?.appVersion ?: "1.0.0")).uppercase(),
                         style = MaterialTheme.typography.labelSmall,
                         color = designSystem.composeColor(ColorToken.ACCENT_PRIMARY).copy(alpha = 0.6f)
                     )

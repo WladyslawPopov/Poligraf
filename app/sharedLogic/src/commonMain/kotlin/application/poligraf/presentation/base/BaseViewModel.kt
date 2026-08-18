@@ -8,7 +8,7 @@ import application.poligraf.engine.error.AppException
 import application.poligraf.engine.error.ErrorType
 import application.poligraf.uicore.base.IBaseViewModel
 import application.poligraf.uicore.models.DisplayMetrics
-import application.poligraf.uicore.theme.tokens.StringToken
+import application.poligraf.uicore.theme.AppStrings
 import application.poligraf.uicore.types.ToastType
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineScope
@@ -30,7 +30,7 @@ abstract class BaseViewModel : ViewModel(), IBaseViewModel {
 
     override fun setLoading(value: Boolean) = delegate.setLoading(value)
     override fun setManualError(type: ErrorType?) = delegate.setManualError(type)
-    override fun showToast(token: StringToken, type: ToastType) = delegate.showToast(token, type)
+    override fun showToast(provider: (AppStrings) -> String, type: ToastType) = delegate.showToast(provider, type)
     override fun showRawToast(message: String, type: ToastType) = delegate.showRawToast(message, type)
     override fun setDisplayMetrics(metrics: DisplayMetrics) = delegate.setDisplayMetrics(metrics)
     override fun clearError() = delegate.clearError()
@@ -65,12 +65,12 @@ abstract class BaseViewModel : ViewModel(), IBaseViewModel {
         } else {
             // Non-blocking errors go to Toasts
             val toastType = if (type == ErrorType.NO_INTERNET) ToastType.WARNING else ToastType.ERROR
-            val token = when(type) {
-                ErrorType.NO_INTERNET -> StringToken.ERROR_NO_INTERNET_TITLE
-                ErrorType.SERVER_UNAVAILABLE -> StringToken.ERROR_SERVER_TITLE
-                else -> StringToken.ERROR_UNKNOWN_TITLE
+            val provider: (AppStrings) -> String = when(type) {
+                ErrorType.NO_INTERNET -> { strings -> strings.errors.noInternetTitle }
+                ErrorType.SERVER_UNAVAILABLE -> { strings -> strings.errors.serverTitle }
+                else -> { strings -> strings.errors.unknownTitle }
             }
-            showToast(token, toastType)
+            showToast(provider, toastType)
         }
     }
 }

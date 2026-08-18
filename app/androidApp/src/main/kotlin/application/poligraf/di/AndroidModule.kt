@@ -1,6 +1,5 @@
 package application.poligraf.di
 
-import application.poligraf.BuildConfig
 import com.russhwolf.settings.Settings
 import com.russhwolf.settings.SharedPreferencesSettings
 import application.poligraf.analytics.AndroidAnalytics
@@ -13,7 +12,6 @@ import application.poligraf.engine.device.ReviewManager
 import application.poligraf.engine.io.audio.AndroidAudioRecorder
 import application.poligraf.engine.io.audio.AudioRecorder
 import application.poligraf.theme.AndroidResourceProvider
-import application.poligraf.uicore.theme.DesignSystem
 import application.poligraf.uicore.theme.ResourceProvider
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
@@ -26,8 +24,7 @@ val androidModule = module {
     single<Analytics> { AndroidAnalytics(androidContext()) }
     
     // 3. Design System
-    single<ResourceProvider> { AndroidResourceProvider(androidContext()) }
-    single { DesignSystem(get(), isDebug = BuildConfig.DEBUG) }
+    single<ResourceProvider> { AndroidResourceProvider() }
     
     // 4. Native Database Driver Factory
     single { DriverFactory(androidContext()) }

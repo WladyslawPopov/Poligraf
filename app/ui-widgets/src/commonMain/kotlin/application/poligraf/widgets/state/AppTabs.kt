@@ -20,7 +20,7 @@ fun <T : Enum<T>> GlassSegmentedTabRow(
     selectedIndex: Int,
     onTabSelected: (T) -> Unit,
     modifier: Modifier = Modifier,
-    labelProvider: (T) -> String
+    labelProvider: @Composable (T) -> String
 ) {
     val designSystem = LocalDesignSystem.current
 
