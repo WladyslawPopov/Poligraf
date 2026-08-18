@@ -1,8 +1,8 @@
 package application.poligraf.presentation.debug
 
-import application.poligraf.data.base.BaseViewModel
+import androidx.compose.runtime.Stable
+import application.poligraf.presentation.base.BaseViewModel
 import application.poligraf.engine.error.ErrorType
-import application.poligraf.engine.navigation.AppNavigation
 import application.poligraf.presentation.debug.data.DebugState
 import application.poligraf.presentation.debug.data.DebugTab
 import application.poligraf.uicore.theme.tokens.ColorToken
@@ -25,7 +25,11 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.milliseconds
 
-class DebugViewModel(private val navigation: AppNavigation) : BaseViewModel() {
+@Stable
+class DebugViewModel(
+    private val navigateBack: () -> Unit,
+    private val navigateToMain: () -> Unit
+) : BaseViewModel() {
     private val _state = MutableStateFlow(DebugState(
         background = AppBackground.AnimatedScales(
             baseColor = ColorToken.BACKGROUND,
@@ -123,13 +127,13 @@ class DebugViewModel(private val navigation: AppNavigation) : BaseViewModel() {
     }
 
     fun goBack() {
-        navigation.back()
+        navigateBack()
     }
 
     fun onWidgetAction(action: WidgetAction) {
         when (action) {
             NavigationAction.History -> {
-                navigation.openMain()
+                navigateToMain()
             }
             DebugAction.TriggerLoading -> {
                 scope.launch {

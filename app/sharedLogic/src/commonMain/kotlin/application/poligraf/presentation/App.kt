@@ -1,54 +1,55 @@
 package application.poligraf.presentation
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import application.poligraf.data.AppRoute
-import application.poligraf.navigation.SharedNavigator
 import application.poligraf.presentation.root.RootComponent
 import application.poligraf.presentation.theme.PoligrafTheme
-import application.poligraf.presentation.screens.MainHost
-import application.poligraf.presentation.screens.DebugHost
-import application.poligraf.presentation.screens.RecordingsHistoryHost
+import application.poligraf.presentation.main.MainContent
+import application.poligraf.presentation.debug.DebugContent
+import application.poligraf.uicore.common.backAnimation
+import com.arkivanov.decompose.extensions.compose.stack.Children
+import com.arkivanov.decompose.extensions.compose.subscribeAsState
 
 @Composable
-fun App(
-    root: RootComponent,
-    navigator: SharedNavigator
-) {
+fun App(root: RootComponent) {
     PoligrafTheme {
-        val currentRoute by navigator.currentRoute.collectAsState()
-        
-        AnimatedContent(
-            targetState = currentRoute,
+        Surface(
             modifier = Modifier.fillMaxSize(),
-            transitionSpec = {
-                fadeIn(animationSpec = tween(300)) togetherWith fadeOut(animationSpec = tween(300))
-            }
-        ) { route ->
-            when (route) {
-                is AppRoute.Main -> {
-                    MainHost(
-                        component = root.mainComponent(root.context.childContext("main_screen")),
-                        navigator = navigator
-                    )
-                }
-                is AppRoute.Debug -> {
-                    DebugHost(
-                        component = root.debugComponent(root.context.childContext("debug_screen"))
-                    )
-                }
-                is AppRoute.RecordingsHistory -> {
-                    RecordingsHistoryHost(
-                        component = root.recordingsHistoryComponent(root.context.childContext("history_${route.subjectId}"), route.subjectId, route.startRecording)
-                    )
+            color = MaterialTheme.colorScheme.background
+        ) {
+            val childStack by root.childStack.subscribeAsState()
+
+            Children(
+                stack = childStack,
+                modifier = Modifier.fillMaxSize(),
+                animation = backAnimation(
+                    backHandler = when (val screen = childStack.active.instance) {
+                        is RootComponent.Child.MainChild ->
+                            screen.component.model.subscribeAsState().value.backHandler
+                        is RootComponent.Child.DebugChild ->
+                            screen.component.model.subscribeAsState().value.backHandler
+                    },
+                    onBack = {
+                        when (val screen = childStack.active.instance) {
+                            is RootComponent.Child.MainChild -> {}
+                            is RootComponent.Child.DebugChild -> {
+                                root.goBack()
+                            }
+                        }
+                    }
+                )
+            ) { child ->
+                when (val screen = child.instance) {
+                    is RootComponent.Child.MainChild -> {
+                        MainContent(screen.component)
+                    }
+                    is RootComponent.Child.DebugChild -> {
+                        DebugContent(screen.component)
+                    }
                 }
             }
         }

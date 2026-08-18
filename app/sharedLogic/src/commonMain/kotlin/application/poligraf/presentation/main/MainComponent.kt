@@ -1,19 +1,47 @@
 package application.poligraf.presentation.main
 
 import androidx.compose.runtime.Stable
-import application.poligraf.engine.component.ComponentContext
-import application.poligraf.uicore.actions.WidgetAction
+import application.poligraf.engine.component.AppComponentContext
+import application.poligraf.engine.config.AppConfig
+import com.arkivanov.decompose.ExperimentalDecomposeApi
+import com.arkivanov.decompose.jetpackcomponentcontext.viewModel
+import com.arkivanov.decompose.value.MutableValue
+import com.arkivanov.decompose.value.Value
+import com.arkivanov.essenty.backhandler.BackHandler
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.get
 
 @Stable
-class MainComponent(
-    val context: ComponentContext,
-    val viewModel: MainViewModel
-) {
-    fun onAction(action: WidgetAction) {
-        viewModel.onWidgetAction(action)
+interface MainComponent {
+    val model: Value<Model>
+
+    data class Model(
+        val viewModel: MainViewModel,
+        val backHandler: BackHandler
+    )
+}
+
+@OptIn(ExperimentalDecomposeApi::class)
+class DefaultMainComponent(
+    componentContext: AppComponentContext,
+    val navigateToDebug: () -> Unit,
+) : MainComponent, AppComponentContext by componentContext, KoinComponent {
+
+    private val appConfig: AppConfig = get()
+
+    private val mainViewModel = viewModel("mainViewModel") {
+        MainViewModel(
+            appConfig = appConfig,
+            navigateToDebug = navigateToDebug
+        )
     }
-    
-    fun retry() {
-        viewModel.loadContent()
-    }
+
+    private val _model = MutableValue(
+        MainComponent.Model(
+            viewModel = mainViewModel,
+            backHandler = backHandler
+        )
+    )
+
+    override val model: Value<MainComponent.Model> = _model
 }

@@ -1,79 +1,75 @@
 package application.poligraf.presentation.root
 
 import androidx.compose.runtime.Stable
-import application.poligraf.engine.device.DeviceInfoProvider
-import application.poligraf.engine.config.AppConfig
-import application.poligraf.engine.navigation.AppNavigation
-import application.poligraf.presentation.main.MainComponent
-import application.poligraf.presentation.main.MainViewModel
+import application.poligraf.engine.component.AppComponentContext
+import application.poligraf.engine.component.asAppComponentContext
 import application.poligraf.presentation.debug.DebugComponent
-import application.poligraf.presentation.debug.DebugViewModel
-import application.poligraf.presentation.recordingHistory.RecordingsHistoryComponent
-import application.poligraf.presentation.recordingHistory.RecordingsHistoryViewModel
-import application.poligraf.domain.usecase.recording.DeleteRecordingUseCase
-import application.poligraf.domain.usecase.recording.GetRecordingsUseCase
-import application.poligraf.domain.usecase.recording.LoadRecordingsUseCase
-import application.poligraf.domain.usecase.recording.SaveRecordingUseCase
-import application.poligraf.engine.component.ComponentContext
-import application.poligraf.engine.io.audio.AudioRecorder
+import application.poligraf.presentation.debug.DefaultDebugComponent
+import application.poligraf.presentation.main.DefaultMainComponent
+import application.poligraf.presentation.main.MainComponent
+import com.arkivanov.decompose.ExperimentalDecomposeApi
+import com.arkivanov.decompose.jetpackcomponentcontext.JetpackComponentContext
+import com.arkivanov.decompose.router.stack.ChildStack
+import com.arkivanov.decompose.router.stack.StackNavigation
+import com.arkivanov.decompose.router.stack.childStack
+import com.arkivanov.decompose.router.stack.pop
+import com.arkivanov.decompose.router.stack.pushNew
+import com.arkivanov.decompose.value.Value
+import com.arkivanov.essenty.backhandler.BackHandler
 import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 
 @Stable
-class RootComponent(
-    val context: ComponentContext,
-    val navigation: AppNavigation
-) : KoinComponent {
+interface RootComponent {
+    val childStack: Value<ChildStack<*, Child>>
+    val backHandler: BackHandler
 
-    private val deviceProvider: DeviceInfoProvider by inject()
-    private val appConfig: AppConfig by inject()
-    private val audioRecorder: AudioRecorder by inject()
-    
-    private val getRecordingsUseCase: GetRecordingsUseCase by inject()
-    private val saveRecordingUseCase: SaveRecordingUseCase by inject()
-    private val deleteRecordingUseCase: DeleteRecordingUseCase by inject()
-    private val loadRecordingsUseCase: LoadRecordingsUseCase by inject()
+    sealed class Child {
+        class MainChild(val component: MainComponent) : Child()
+        class DebugChild(val component: DebugComponent) : Child()
+    }
 
-    val viewModel = RootViewModel(deviceProvider)
+    fun goBack()
+}
 
-    /**
-     * Creates or retrieves a MainComponent.
-     */
-    fun mainComponent(screenContext: ComponentContext): MainComponent = 
-        screenContext.instanceKeeper.getOrCreate("main") {
-            MainComponent(screenContext, MainViewModel(appConfig, navigation))
-        }
+class DefaultRootComponent(
+    componentContext: AppComponentContext
+) : RootComponent, AppComponentContext by componentContext, KoinComponent
+{
+    private val navigation = StackNavigation<RootConfig>()
 
-    /**
-     * Creates or retrieves a DebugComponent.
-     */
-    fun debugComponent(screenContext: ComponentContext): DebugComponent = 
-        screenContext.instanceKeeper.getOrCreate("debug") {
-            DebugComponent(screenContext, DebugViewModel(navigation))
-        }
+    @OptIn(ExperimentalDecomposeApi::class)
+    override val childStack: Value<ChildStack<RootConfig, RootComponent.Child>> = childStack(
+        source = navigation,
+        serializer = RootConfig.serializer(),
+        initialConfiguration = RootConfig.Main,
+        handleBackButton = true,
+        childFactory = ::createChild
+    )
 
+    @OptIn(ExperimentalDecomposeApi::class)
+    private fun createChild(config: RootConfig, context: JetpackComponentContext): RootComponent.Child {
+        // Upgrade standard ComponentContext to our App Engine Context
+        val appContext = context.asAppComponentContext()
 
-    /**
-     * Creates or retrieves a RecordingsHistoryComponent for a specific subject.
-     */
-    fun recordingsHistoryComponent(screenContext: ComponentContext, subjectId: String, startRecording: Boolean = false): RecordingsHistoryComponent = 
-        screenContext.instanceKeeper.getOrCreate("recordings_history_$subjectId") {
-            RecordingsHistoryComponent(
-                context = screenContext,
-                viewModel = RecordingsHistoryViewModel(
-                    subjectId = subjectId,
-                    navigation = navigation,
-                    audioRecorder = audioRecorder,
-                    getRecordingsUseCase = getRecordingsUseCase,
-                    saveRecordingUseCase = saveRecordingUseCase,
-                    deleteRecordingUseCase = deleteRecordingUseCase,
-                    loadRecordingsUseCase = loadRecordingsUseCase,
-                    startRecording = startRecording
+        return when (config) {
+            is RootConfig.Main -> RootComponent.Child.MainChild(
+                DefaultMainComponent(
+                    componentContext = appContext,
+                    navigateToDebug = { navigation.pushNew(RootConfig.Debug) }
+                )
+            )
+            is RootConfig.Debug -> RootComponent.Child.DebugChild(
+                DefaultDebugComponent(
+                    componentContext = appContext,
+                    navigateToMain = { navigation.pop() },
+                    navigateBack = { navigation.pop() }
                 )
             )
         }
+    }
 
-    fun onDestroy() {
-        // No manual children management needed, they are tied to their contexts
+    override fun goBack() {
+        navigation.pop()
     }
 }
+

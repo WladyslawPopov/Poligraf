@@ -12,17 +12,17 @@ kotlin {
         iosArm64(),
         iosSimulatorArm64()
     )
-    
+
     android {
-       namespace = "application.poligraf.engine"
-       compileSdk = libs.versions.android.compileSdk.get().toInt()
-       minSdk = libs.versions.android.minSdk.get().toInt()
-    
-       compilerOptions {
-           jvmTarget = JvmTarget.JVM_11
-       }
+        namespace = "application.poligraf.engine"
+        compileSdk = libs.versions.android.compileSdk.get().toInt()
+        minSdk = libs.versions.android.minSdk.get().toInt()
+
+        compilerOptions {
+            jvmTarget = JvmTarget.JVM_11
+        }
     }
-    
+
     sourceSets {
         commonMain.dependencies {
             // Network: Ktor
@@ -35,24 +35,30 @@ kotlin {
             // Lifecycle
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
-            
+
             // Serialization
             api(libs.kotlinx.serialization.json)
-            
+
             // Settings
             api(libs.multiplatform.settings)
 
             // DateTime
             api(libs.kotlinx.datetime)
-            
+
             // SQLDelight
             implementation(libs.sqldelight.coroutines)
-            
+
             // DI: Koin
             api(libs.koin.core)
 
             // Logging
             api(libs.napier)
+
+            // Decompose
+            implementation(libs.decompose.core)
+            implementation(libs.decompose.jetpack)
+            implementation(libs.essenty.lifecycle)
+            implementation(libs.essenty.backhandler)
         }
 
         androidMain.dependencies {

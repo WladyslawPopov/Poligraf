@@ -8,8 +8,6 @@ import application.poligraf.engine.database.common.DriverFactory
 import application.poligraf.uicore.theme.ResourceProvider
 import application.poligraf.uicore.theme.DesignSystem
 import application.poligraf.engine.config.AppConfig
-import application.poligraf.engine.io.FileSystem
-import application.poligraf.engine.io.IosFileSystem
 import application.poligraf.engine.io.audio.AudioRecorder
 import application.poligraf.engine.io.audio.IosAudioRecorder
 import com.russhwolf.settings.Settings
@@ -61,7 +59,6 @@ fun doInitKoinIos(
         
         single<IosAudioRecorder> { recorder }
         single<AudioRecorder> { recorder }
-        single<FileSystem> { IosFileSystem() }
     }
     
     initKoin(

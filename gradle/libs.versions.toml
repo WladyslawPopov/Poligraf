@@ -39,6 +39,9 @@ firebase-admin = "9.5.0"
 firebase-messaging = "24.1.2"
 firebase-config = "22.1.2"
 
+# === Decompose & Essenty ===
+decompose = "3.5.0"
+essenty = "2.5.0"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -125,6 +128,15 @@ firebase-messaging = { module = "com.google.firebase:firebase-messaging-ktx", ve
 firebase-config = { module = "com.google.firebase:firebase-config-ktx", version.ref = "firebase-config" }
 
 compose-material-icons = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIcon" }
+
+# === Decompose & Essenty ===
+decompose-core = { module = "com.arkivanov.decompose:decompose", version.ref = "decompose" }
+decompose-compose = { module = "com.arkivanov.decompose:extensions-compose", version.ref = "decompose" }
+decompose-jetpack = { module = "com.arkivanov.decompose:jetpack-component-context", version.ref = "decompose" }
+essenty-lifecycle = { module = "com.arkivanov.essenty:lifecycle", version.ref = "essenty" }
+essenty-backhandler = { module = "com.arkivanov.essenty:back-handler", version.ref = "essenty" }
+essenty-statekeeper = { module = "com.arkivanov.essenty:state-keeper", version.ref = "essenty" }
+essenty-instancekeeper = { module = "com.arkivanov.essenty:instance-keeper", version.ref = "essenty" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

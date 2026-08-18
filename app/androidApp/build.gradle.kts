@@ -55,10 +55,13 @@ dependencies {
     implementation(libs.compose.material.icons)
     implementation(libs.compose.uiToolingPreview)
     debugImplementation(libs.compose.uiTooling)
-    
+
     // Ktor Client
     implementation(libs.ktor.client.android)
-    
+
+    implementation(libs.decompose.core)
+    implementation(libs.decompose.jetpack)
+
     // Firebase
     implementation(platform("com.google.firebase:firebase-bom:33.5.1"))
     implementation("com.google.firebase:firebase-auth")

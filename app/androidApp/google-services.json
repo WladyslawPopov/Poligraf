@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "587991059710",
+    "project_id": "poligraf-61359",
+    "storage_bucket": "poligraf-61359.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:587991059710:android:c8ce17830dc0e6dd58e9af",
+        "android_client_info": {
+          "package_name": "application.poligraf"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB5wPzphW1Eu4PGz_WlK37PG7M0prJy9zo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

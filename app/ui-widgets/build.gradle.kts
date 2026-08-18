@@ -25,9 +25,9 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            api(projects.app.uiCore)
-            api(projects.app.engine)
-            api(projects.app.data)
+            implementation(projects.app.uiCore)
+            implementation(projects.app.engine)
+            implementation(projects.app.data)
             
             implementation(compose.runtime)
             implementation(compose.foundation)

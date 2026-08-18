@@ -3,6 +3,8 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidMultiplatformLibrary)
+    alias(libs.plugins.composeMultiplatform)
+    alias(libs.plugins.composeCompiler)
 }
 
 kotlin {
@@ -15,25 +17,33 @@ kotlin {
             isStatic = true
         }
     }
-    
+
     android {
-       namespace = "application.poligraf.uicore"
-       compileSdk = libs.versions.android.compileSdk.get().toInt()
-       minSdk = libs.versions.android.minSdk.get().toInt()
-    
-       compilerOptions {
-           jvmTarget = JvmTarget.JVM_11
-       }
+        namespace = "application.poligraf.uicore"
+        compileSdk = libs.versions.android.compileSdk.get().toInt()
+        minSdk = libs.versions.android.minSdk.get().toInt()
+
+        compilerOptions {
+            jvmTarget = JvmTarget.JVM_11
+        }
     }
-    
+
     sourceSets {
         commonMain.dependencies {
-            api(projects.app.engine)
-            api(libs.kotlinx.coroutines.core)
-            implementation(libs.compose.runtime)
+            implementation(projects.app.engine)
+            implementation(libs.kotlinx.coroutines.core)
+
+            implementation(libs.decompose.core)
+            implementation(libs.decompose.compose)
+            implementation(libs.essenty.lifecycle)
+
+            implementation(compose.runtime)
+            implementation(compose.foundation)
+            implementation(compose.material3)
+            implementation(compose.ui)
+            implementation(compose.components.resources)
         }
         androidMain.dependencies {
-            implementation(libs.compose.ui)
             implementation(libs.compose.material.icons)
         }
     }

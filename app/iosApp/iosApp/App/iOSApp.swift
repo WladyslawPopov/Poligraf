@@ -5,16 +5,17 @@ import SharedLogic
 struct iOSApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
-    init() {
-        AppCoordinator.shared.setAppDelegate(appDelegate)
-    }
 
     var body: some Scene {
         WindowGroup {
             ZStack {
-                ContentView()
-                    .ignoresSafeArea(edges: .all)
-                    .ignoresSafeArea(.keyboard)
+                if let rootController = appDelegate.rootController {
+                    ContentView(rootController: rootController)
+                        .ignoresSafeArea(edges: .all)
+                        .ignoresSafeArea(.keyboard)
+                } else {
+                    Color.black.ignoresSafeArea()
+                }
             }
         }
     }

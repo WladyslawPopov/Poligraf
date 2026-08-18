@@ -10,8 +10,6 @@ import application.poligraf.engine.auth.AuthService
 import application.poligraf.engine.database.common.DriverFactory
 import application.poligraf.engine.device.DeviceIntegrity
 import application.poligraf.engine.device.ReviewManager
-import application.poligraf.engine.io.AndroidFileSystem
-import application.poligraf.engine.io.FileSystem
 import application.poligraf.engine.io.audio.AndroidAudioRecorder
 import application.poligraf.engine.io.audio.AudioRecorder
 import application.poligraf.theme.AndroidResourceProvider
@@ -55,7 +53,4 @@ val androidModule = module {
 
     // 7. Audio Recorder
     single<AudioRecorder> { AndroidAudioRecorder(androidContext(), get()) }
-    
-    // 8. File System
-    single<FileSystem> { AndroidFileSystem(androidContext()) }
 }

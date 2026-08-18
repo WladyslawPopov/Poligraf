@@ -1,8 +1,7 @@
 package application.poligraf.presentation.main
 
-import application.poligraf.data.base.BaseViewModel
+import application.poligraf.presentation.base.BaseViewModel
 import application.poligraf.domain.model.Subject
-import application.poligraf.engine.navigation.AppNavigation
 import application.poligraf.uicore.theme.tokens.ColorToken
 import application.poligraf.uicore.theme.tokens.StringToken
 import application.poligraf.uicore.theme.tokens.TypographyToken
@@ -14,6 +13,8 @@ import application.poligraf.uicore.types.ToastType
 import application.poligraf.uicore.widgets.AppBackground
 import application.poligraf.uicore.widgets.UiWidget
 import application.poligraf.engine.config.AppConfig
+import application.poligraf.presentation.main.data.MainState
+import application.poligraf.presentation.main.data.MainWidgetFactory
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -22,37 +23,38 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlin.random.Random
 
 class MainViewModel(
     private val appConfig: AppConfig,
-    private val navigation: AppNavigation
+    private val navigateToDebug: () -> Unit
 ) : BaseViewModel()
 {
     private val defaultEmojis = listOf("🕵️", "👤", "👥", "❓", "👀", "🧠", "💼", "🔐")
-    private val _state = MutableStateFlow(MainState(
-        appConfig = appConfig,
-        background = AppBackground.AnimatedScales(
-            baseColor = ColorToken.BACKGROUND,
-            energyColor = ColorToken.ACCENT_ENERGY,
-            particleColor = ColorToken.SURFACE_VARIANT,
-            parallaxIntensity = 1.2f,
-            blurRadius = 4.0f
-        ),
-        toolbar = UiWidget.AppToolbar(
-            id = "main_toolbar",
-            titleToken = StringToken.APP_NAME,
-            backgroundColor = ColorToken.BACKGROUND,
-            contentColor = ColorToken.TEXT_PRIMARY
-        ),
-        welcomeWidget = UiWidget.WelcomeText(
-            id = "main_welcome",
-            textToken = StringToken.WELCOME_TEXT,
-            colorToken = ColorToken.TEXT_PRIMARY,
-            typographyToken = TypographyToken.HEADER
-        ),
-        widgets = listOf(MainWidgetFactory.createSubjectSlider(UiWidget.SubjectSlider.DisplayMode.FULL))
-    ))
+    private val _state = MutableStateFlow(
+        MainState(
+            appConfig = appConfig,
+            background = AppBackground.AnimatedScales(
+                baseColor = ColorToken.BACKGROUND,
+                energyColor = ColorToken.ACCENT_ENERGY,
+                particleColor = ColorToken.SURFACE_VARIANT,
+                parallaxIntensity = 1.2f,
+                blurRadius = 4.0f
+            ),
+            toolbar = UiWidget.AppToolbar(
+                id = "main_toolbar",
+                titleToken = StringToken.APP_NAME,
+                backgroundColor = ColorToken.BACKGROUND,
+                contentColor = ColorToken.TEXT_PRIMARY
+            ),
+            welcomeWidget = UiWidget.WelcomeText(
+                id = "main_welcome",
+                textToken = StringToken.WELCOME_TEXT,
+                colorToken = ColorToken.TEXT_PRIMARY,
+                typographyToken = TypographyToken.HEADER
+            ),
+            widgets = listOf(MainWidgetFactory.createSubjectSlider(UiWidget.SubjectSlider.DisplayMode.FULL))
+        )
+    )
     val state: StateFlow<MainState> = _state.asStateFlow()
 
     init {
@@ -77,7 +79,7 @@ class MainViewModel(
                         // No PROCESSING mode for Main screen to avoid quick flickering
                         else -> BackgroundMode.IDLE
                     }
-                    
+
                     if (currentBg.mode != newMode) {
                         currentState.copy(
                             background = currentBg.copy(mode = newMode)
@@ -100,12 +102,12 @@ class MainViewModel(
             // Example of adjusting typing delay or other properties based on orientation
             currentState.copy(
                 welcomeWidget = welcome.copy(
-                    typingDelay = if (isLandscape) 20L else 40L 
+                    typingDelay = if (isLandscape) 20L else 40L
                 )
             )
         }
     }
-    
+
     private fun updateStateWithSubjects(subjects: List<Subject>) {
         Napier.d { "MAIN: Received ${subjects.size} subjects from stream" }
         _state.update { currentState ->
@@ -158,6 +160,10 @@ class MainViewModel(
 
     }
 
+    fun setDrawerOpen(isOpen: Boolean) {
+        _state.update { it.copy(isDrawerOpen = isOpen) }
+    }
+
     fun onWidgetAction(action: WidgetAction) {
         Napier.d { "Action triggered: $action" }
         when (action) {
@@ -165,10 +171,10 @@ class MainViewModel(
             is WidgetAction.DeleteSelected -> deleteSelected()
             is WidgetAction.ClearSelection -> clearSelection()
             is NavigationAction.History -> {
-                navigation.openMain()
+
             }
             is NavigationAction.Settings -> {
-                navigation.toggleDrawer()
+                navigateToDebug()
             }
             is NavigationAction.Profile -> {
                 Napier.d { "MAIN: Profile action triggered" }
@@ -183,6 +189,10 @@ class MainViewModel(
         }
     }
 
+    fun onDebugClicked() {
+        navigateToDebug()
+    }
+
     private fun toggleSelection(id: String) {
         _state.update { currentState ->
             val currentWidgets = currentState.widgets.toMutableList()
@@ -191,13 +201,13 @@ class MainViewModel(
                 val list = currentWidgets[listIndex] as UiWidget.SubjectList
                 val newSelected = list.selectedIds.toMutableSet()
                 if (newSelected.contains(id)) newSelected.remove(id) else newSelected.add(id)
-                
+
                 val isSelectionMode = newSelected.isNotEmpty()
                 currentWidgets[listIndex] = list.copy(
                     isSelectionMode = isSelectionMode,
                     selectedIds = newSelected
                 )
-                
+
                 currentState.copy(
                     widgets = currentWidgets
                 )
@@ -229,7 +239,7 @@ class MainViewModel(
     private fun deleteSelected() {
         val currentList = _state.value.widgets.filterIsInstance<UiWidget.SubjectList>().firstOrNull() ?: return
         val idsToDelete = currentList.selectedIds
-        
+
         if (idsToDelete.isEmpty()) return
 
     }

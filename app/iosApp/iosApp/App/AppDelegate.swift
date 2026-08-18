@@ -4,6 +4,9 @@ import SharedLogic
 
 class AppDelegate: NSObject, UIApplicationDelegate {
     
+    var rootController: RootAppController?
+    var audioEngine: NativeVoiceRecorderEngine?
+    
     func application(_ application: UIApplication,
                      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         
@@ -40,8 +43,12 @@ class AppDelegate: NSObject, UIApplicationDelegate {
             isDebug: isDebug
         )
         
-        AppCoordinator.shared.voiceRecorderEngine = NativeVoiceRecorderEngine(bridge: bridge)
+        // 3. Setup Audio Engine and link with Bridge
+        self.audioEngine = NativeVoiceRecorderEngine(bridge: bridge)
         
+        // 4. Setup Root Controller
+        self.rootController = RootAppController()
+      
         return true
     }
 }
