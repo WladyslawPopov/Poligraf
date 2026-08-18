@@ -1,4 +1,4 @@
-package application.liedetector.widgets
+package application.poligraf.widgets
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -8,19 +8,20 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import application.liedetector.uicore.base.IBaseViewModel
-import application.liedetector.uicore.models.DisplayMetrics
-import application.liedetector.uicore.state.ScaffoldUiState
-import application.liedetector.uicore.theme.LocalDesignSystem
-import application.liedetector.uicore.types.ContentPaddingType
-import application.liedetector.uicore.types.ToastType
-import application.liedetector.uicore.widgets.AppBackground
-import application.liedetector.widgets.utils.composeColor
-import application.liedetector.widgets.background.ScalesBackground
-import application.liedetector.widgets.state.AppSnackBar
-import application.liedetector.widgets.state.ErrorView
-import application.liedetector.widgets.state.LoadingView
+import application.poligraf.widgets.background.ScalesBackground
+import application.poligraf.widgets.state.AppSnackBar
+import application.poligraf.widgets.state.ErrorView
+import application.poligraf.uicore.base.IBaseViewModel
+import application.poligraf.uicore.models.DisplayMetrics
+import application.poligraf.uicore.state.ScaffoldUiState
+import application.poligraf.uicore.theme.LocalDesignSystem
+import application.poligraf.uicore.types.ContentPaddingType
+import application.poligraf.uicore.types.ToastType
+import application.poligraf.uicore.widgets.AppBackground
+import application.poligraf.widgets.utils.composeColor
+import application.poligraf.widgets.state.LoadingView
 
 /**
  * Universal Scaffold for Poligraf.
@@ -105,8 +106,8 @@ fun AppScaffold(
                     ContentPaddingType.NONE -> PaddingValues(0.dp)
                     ContentPaddingType.NORMAL -> padding
                     ContentPaddingType.LARGE -> PaddingValues(
-                        start = padding.calculateStartPadding(androidx.compose.ui.unit.LayoutDirection.Ltr) + 16.dp,
-                        end = padding.calculateEndPadding(androidx.compose.ui.unit.LayoutDirection.Ltr) + 16.dp,
+                        start = padding.calculateStartPadding(LayoutDirection.Ltr) + 16.dp,
+                        end = padding.calculateEndPadding(LayoutDirection.Ltr) + 16.dp,
                         top = padding.calculateTopPadding() + 16.dp,
                         bottom = padding.calculateBottomPadding() + 16.dp
                     )

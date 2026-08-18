@@ -1,4 +1,4 @@
-package application.liedetector.widgets.state
+package application.poligraf.widgets.state
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -7,9 +7,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import application.liedetector.uicore.theme.DesignSystem
-import application.liedetector.uicore.theme.tokens.ColorToken
-import application.liedetector.widgets.utils.composeColor
+import application.poligraf.uicore.theme.DesignSystem
+import application.poligraf.uicore.theme.tokens.ColorToken
+import application.poligraf.widgets.utils.composeColor
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

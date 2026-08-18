@@ -1,4 +1,4 @@
-package application.liedetector.widgets.recorder
+package application.poligraf.widgets.recorder
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -14,13 +14,13 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import application.liedetector.uicore.state.VoiceRecorderAction
-import application.liedetector.uicore.state.VoiceRecorderUiState
-import application.liedetector.uicore.theme.LocalDesignSystem
-import application.liedetector.uicore.theme.tokens.ColorToken
-import application.liedetector.uicore.theme.tokens.DimenToken
-import application.liedetector.widgets.utils.composeColor
-import application.liedetector.widgets.VoiceRecorderWaveform
+import application.poligraf.widgets.utils.composeColor
+import application.poligraf.widgets.VoiceRecorderWaveform
+import application.poligraf.uicore.state.VoiceRecorderAction
+import application.poligraf.uicore.state.VoiceRecorderUiState
+import application.poligraf.uicore.theme.LocalDesignSystem
+import application.poligraf.uicore.theme.tokens.ColorToken
+import application.poligraf.uicore.theme.tokens.DimenToken
 
 @Composable
 fun VoiceRecorderRenderer(

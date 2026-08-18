@@ -1,21 +1,19 @@
 package application.poligraf.presentation.recordingHistory
 
 import application.poligraf.data.base.BaseViewModel
-import application.poligraf.data.subject.SubjectRepository
 import application.poligraf.engine.io.audio.AudioRecorder
-import application.poligraf.models.KmpResult
 import application.poligraf.engine.navigation.AppNavigation
 import application.poligraf.engine.utils.nowAsEpochMilliseconds
-import application.poligraf.presentation.recording.data.RecordingState
 import application.poligraf.domain.usecase.recording.DeleteRecordingUseCase
 import application.poligraf.domain.usecase.recording.GetRecordingsUseCase
 import application.poligraf.domain.usecase.recording.LoadRecordingsUseCase
 import application.poligraf.domain.usecase.recording.SaveRecordingUseCase
+import application.poligraf.engine.utils.convertHoursAndMinutes
+import application.poligraf.engine.utils.nowAsEpochSeconds
 import application.poligraf.uicore.theme.tokens.StringToken
 import application.poligraf.uicore.types.BackgroundMode
 import application.poligraf.uicore.types.ToastType
 import application.poligraf.uicore.widgets.AppBackground
-import application.poligraf.uicore.widgets.UiWidget
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.delay
@@ -29,14 +27,11 @@ import application.poligraf.uicore.state.VoiceRecorderHeaderState
 import application.poligraf.uicore.state.VoiceRecorderWaveformState
 import application.poligraf.uicore.state.VoiceRecorderControlsState
 import application.poligraf.uicore.state.VoiceRecorderTrimState
-import application.liedetector.engine.utils.convertHoursAndMinutes
-import application.liedetector.engine.utils.nowAsEpochSeconds
 
 @OptIn(FlowPreview::class)
 class RecordingsHistoryViewModel(
     private val subjectId: String,
     private val navigation: AppNavigation,
-    private val subjectRepository: SubjectRepository,
     private val audioRecorder: AudioRecorder,
     private val getRecordingsUseCase: GetRecordingsUseCase,
     private val saveRecordingUseCase: SaveRecordingUseCase,
@@ -78,7 +73,7 @@ class RecordingsHistoryViewModel(
                     _activeRecorder.value == null -> BackgroundMode.WAITING
                     else -> BackgroundMode.IDLE
                 }
-                
+
                 if (currentBg.mode != newMode) {
                     _state.update { it.copy(background = currentBg.copy(mode = newMode)) }
                 }
@@ -137,28 +132,7 @@ class RecordingsHistoryViewModel(
     }
 
     private fun loadRecording() {
-        launchSafe(
-            block = {
-                val result = subjectRepository.getSubject(subjectId)
-                if (result is KmpResult.Success) {
-                    _state.update { 
-                        it.copy(
-                            subject = result.data,
-                            widgets = it.widgets.ifEmpty {
-                                listOf(
-                                    UiWidget.WelcomeText(
-                                        id = "recording_greeting",
-                                        textToken = StringToken.RECORDING_SCREEN_PLACEHOLDER,
-                                        emoji = "🎙️",
-                                        typingDelay = 30L
-                                    )
-                                )
-                            }
-                        )
-                    }
-                }
-            }
-        )
+
     }
 
     fun onMicClicked() {
@@ -455,17 +429,7 @@ class RecordingsHistoryViewModel(
     }
 
     fun deleteRecording() {
-        launchSafe(
-            isBlocking = true,
-            block = {
-                val result = subjectRepository.deleteSubjects(listOf(subjectId))
-                if (result is KmpResult.Success) {
-                    showToast(StringToken.DELETE_RECORDING_CONFIRMATION, ToastType.SUCCESS)
-                    delay(500.milliseconds)
-                    navigation.back()
-                }
-            }
-        )
+
     }
 
     fun goBack() {

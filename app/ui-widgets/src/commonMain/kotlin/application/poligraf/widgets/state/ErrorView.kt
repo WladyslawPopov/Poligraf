@@ -1,4 +1,4 @@
-package application.liedetector.widgets.state
+package application.poligraf.widgets.state
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -8,12 +8,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import application.liedetector.engine.error.ErrorType
-import application.liedetector.uicore.theme.LocalDesignSystem
-import application.liedetector.uicore.theme.tokens.ColorToken
-import application.liedetector.uicore.theme.tokens.DimenToken
-import application.liedetector.uicore.theme.tokens.StringToken
-import application.liedetector.widgets.utils.composeColor
+import application.poligraf.engine.error.ErrorType
+import application.poligraf.uicore.theme.LocalDesignSystem
+import application.poligraf.uicore.theme.tokens.ColorToken
+import application.poligraf.uicore.theme.tokens.DimenToken
+import application.poligraf.uicore.theme.tokens.StringToken
+import application.poligraf.widgets.utils.composeColor
 import androidx.compose.ui.graphics.Color as ComposeColor
 
 /**

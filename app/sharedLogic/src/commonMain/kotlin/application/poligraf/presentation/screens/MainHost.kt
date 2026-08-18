@@ -11,21 +11,21 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.unit.dp
 import application.poligraf.presentation.main.MainComponent
-import application.poligraf.widgets.AppScaffold
 import application.poligraf.widgets.WidgetRenderer
 import application.poligraf.uicore.theme.tokens.ColorToken
 import application.poligraf.uicore.theme.tokens.DimenToken
 import application.poligraf.uicore.theme.tokens.IconToken
 import application.poligraf.uicore.theme.tokens.StringToken
 import application.poligraf.uicore.theme.LocalDesignSystem
-import application.poligraf.widgets.utils.composeColor
-import application.poligraf.widgets.utils.AppIcon
 import androidx.compose.ui.graphics.Color
 import application.poligraf.engine.navigation.AppNavigation
-import application.poligraf.utils.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInVertically
+import application.poligraf.utils.BackHandler
+import application.poligraf.widgets.AppScaffold
+import application.poligraf.widgets.utils.AppIcon
+import application.poligraf.widgets.utils.composeColor
 import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.milliseconds
 

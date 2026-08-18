@@ -1,4 +1,4 @@
-package application.liedetector.widgets.recorder
+package application.poligraf.widgets.recorder
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -14,15 +14,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import application.liedetector.uicore.state.VoiceRecorderAction
-import application.liedetector.uicore.state.VoiceRecorderUiState
-import application.liedetector.uicore.theme.DesignSystem
-import application.liedetector.uicore.theme.tokens.ColorToken
-import application.liedetector.uicore.theme.tokens.DimenToken
-import application.liedetector.uicore.theme.tokens.IconToken
-import application.liedetector.uicore.theme.tokens.StringToken
-import application.liedetector.widgets.utils.composeColor
-import application.liedetector.widgets.utils.AppIcon
+import application.poligraf.uicore.state.VoiceRecorderAction
+import application.poligraf.uicore.state.VoiceRecorderUiState
+import application.poligraf.uicore.theme.DesignSystem
+import application.poligraf.uicore.theme.tokens.ColorToken
+import application.poligraf.uicore.theme.tokens.DimenToken
+import application.poligraf.uicore.theme.tokens.IconToken
+import application.poligraf.uicore.theme.tokens.StringToken
+import application.poligraf.widgets.utils.composeColor
+import application.poligraf.widgets.utils.AppIcon
 
 @Composable
 fun VoiceRecorderHeader(
@@ -66,8 +66,7 @@ fun VoiceRecorderHeader(
             ) {
                 // DISCARD (Close) Button
                 Box(
-                    modifier = Modifier
-                        .size(designSystem.dimen(DimenToken.RECORDER_DRAG_HANDLE_WIDTH).dp)
+                    modifier = Modifier.size(designSystem.dimen(DimenToken.RECORDER_DRAG_HANDLE_WIDTH).dp)
                         .clip(CircleShape)
                         .background(designSystem.composeColor(ColorToken.TEXT_PRIMARY).copy(alpha = 0.1f))
                         .clickable { onAction(VoiceRecorderAction.DiscardActive) },
@@ -83,8 +82,7 @@ fun VoiceRecorderHeader(
 
                 // MENU Button
                 Box(
-                    modifier = Modifier
-                        .size(designSystem.dimen(DimenToken.RECORDER_DRAG_HANDLE_WIDTH).dp)
+                    modifier = Modifier.size(designSystem.dimen(DimenToken.RECORDER_DRAG_HANDLE_WIDTH).dp)
                         .clip(CircleShape)
                         .background(designSystem.composeColor(state.header.accentColor).copy(alpha = 0.15f))
                         .clickable { menuExpanded = true },

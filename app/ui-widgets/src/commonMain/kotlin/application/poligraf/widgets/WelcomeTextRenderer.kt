@@ -1,4 +1,4 @@
-package application.liedetector.widgets
+package application.poligraf.widgets
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.MaterialTheme
@@ -6,12 +6,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
-import application.liedetector.uicore.theme.tokens.DimenToken
-import application.liedetector.uicore.theme.LocalDesignSystem
-import application.liedetector.uicore.widgets.UiWidget
-import application.liedetector.widgets.utils.composeColor
-import application.liedetector.widgets.utils.typography
+import application.poligraf.uicore.theme.LocalDesignSystem
+import application.poligraf.uicore.theme.tokens.DimenToken
+import application.poligraf.uicore.widgets.UiWidget
+import application.poligraf.widgets.utils.composeColor
+import application.poligraf.widgets.utils.typography
 import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -52,7 +53,7 @@ fun WelcomeTextRenderer(
 fun TypingText(
     text: String,
     modifier: Modifier = Modifier,
-    style: androidx.compose.ui.text.TextStyle = MaterialTheme.typography.headlineLarge,
+    style: TextStyle = MaterialTheme.typography.headlineLarge,
     color: Color = Color.Unspecified,
     typingDelay: Long = 40L
 ) {

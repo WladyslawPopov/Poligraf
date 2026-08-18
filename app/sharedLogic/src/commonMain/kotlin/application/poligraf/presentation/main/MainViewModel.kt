@@ -1,10 +1,7 @@
 package application.poligraf.presentation.main
 
 import application.poligraf.data.base.BaseViewModel
-import application.poligraf.data.methods.toErrorType
 import application.poligraf.domain.model.Subject
-import application.poligraf.data.subject.SubjectRepository
-import application.poligraf.models.KmpResult
 import application.poligraf.engine.navigation.AppNavigation
 import application.poligraf.uicore.theme.tokens.ColorToken
 import application.poligraf.uicore.theme.tokens.StringToken
@@ -28,7 +25,6 @@ import kotlinx.coroutines.flow.onEach
 import kotlin.random.Random
 
 class MainViewModel(
-    private val subjectRepository: SubjectRepository,
     private val appConfig: AppConfig,
     private val navigation: AppNavigation
 ) : BaseViewModel()
@@ -67,12 +63,6 @@ class MainViewModel(
             }
             .launchIn(scope)
 
-        // Observe subjects from cache/DB
-        subjectRepository.getSubjects()
-            .onEach { subjects ->
-                updateStateWithSubjects(subjects)
-            }
-            .launchIn(scope)
 
         // Sync background mode with application states
         combine(isLoading, errorType, toastState) { _, error, toast ->
@@ -165,16 +155,7 @@ class MainViewModel(
 
     fun loadContent() {
         _state.update { it.copy(errorRaw = null, errorToken = null) }
-        
-        launchSafe(
-            isBlocking = false,
-            block = {
-                val result = subjectRepository.syncSubjects()
-                if (result is KmpResult.Error) {
-                    setManualError(result.throwable.toErrorType())
-                }
-            }
-        )
+
     }
 
     fun onWidgetAction(action: WidgetAction) {
@@ -196,12 +177,7 @@ class MainViewModel(
                 startNewRecording()
             }
             is RecordingAction.Open -> {
-                val currentList = _state.value.widgets.filterIsInstance<UiWidget.SubjectList>().firstOrNull()
-                if (currentList?.isSelectionMode == true) {
-                    toggleSelection(action.subjectId)
-                } else {
-                    navigation.openRecording(action.subjectId)
-                }
+
             }
             else -> {}
         }
@@ -256,37 +232,9 @@ class MainViewModel(
         
         if (idsToDelete.isEmpty()) return
 
-        launchSafe(
-            isBlocking = true,
-            block = {
-                Napier.d { "Deleting subjects: $idsToDelete" }
-                val result = subjectRepository.deleteSubjects(idsToDelete.toList())
-                if (result is KmpResult.Success) {
-                    clearSelection()
-                    loadContent()
-                } else if (result is KmpResult.Error) {
-                    setManualError(result.throwable.toErrorType())
-                }
-            }
-        )
     }
 
     private fun startNewRecording() {
-        launchSafe(
-            isBlocking = true,
-            block = {
-                val emoji = defaultEmojis[Random.nextInt(defaultEmojis.size)]
-                val result = subjectRepository.createSubject(
-                    name = "",
-                    avatar = emoji,
-                    isDefaultAvatar = true
-                )
-                
-                if (result is KmpResult.Success) {
-                    val subject = result.data
-                    navigation.openRecording(subject.id)
-                }
-            }
-        )
+
     }
 }

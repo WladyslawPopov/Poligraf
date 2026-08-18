@@ -25,8 +25,6 @@ kotlin {
     
     sourceSets {
         commonMain.dependencies {
-            api(projects.core)
-            
             // Network: Ktor
             api(libs.ktor.client.core)
             implementation(libs.ktor.client.logging)

@@ -1,4 +1,4 @@
-package application.liedetector.utils
+package application.poligraf.utils
 
 import androidx.compose.runtime.Composable
 

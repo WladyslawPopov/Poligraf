@@ -1,9 +1,9 @@
 package application.poligraf.domain.usecase.recording.di
 
-import application.liedetector.domain.usecase.recording.DeleteRecordingUseCase
-import application.liedetector.domain.usecase.recording.GetRecordingsUseCase
-import application.liedetector.domain.usecase.recording.LoadRecordingsUseCase
-import application.liedetector.domain.usecase.recording.SaveRecordingUseCase
+import application.poligraf.domain.usecase.recording.DeleteRecordingUseCase
+import application.poligraf.domain.usecase.recording.GetRecordingsUseCase
+import application.poligraf.domain.usecase.recording.LoadRecordingsUseCase
+import application.poligraf.domain.usecase.recording.SaveRecordingUseCase
 import org.koin.core.module.dsl.factoryOf
 import org.koin.dsl.module
 

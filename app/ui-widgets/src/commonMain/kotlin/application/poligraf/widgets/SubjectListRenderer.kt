@@ -1,4 +1,4 @@
-package application.liedetector.widgets
+package application.poligraf.widgets
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
@@ -21,16 +21,16 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import application.liedetector.uicore.theme.LocalDesignSystem
-import application.liedetector.uicore.theme.tokens.ColorToken
-import application.liedetector.uicore.theme.tokens.IconToken
-import application.liedetector.uicore.theme.tokens.StringToken
-import application.liedetector.uicore.theme.tokens.DimenToken
-import application.liedetector.uicore.widgets.UiWidget
-import application.liedetector.widgets.utils.composeColor
-import application.liedetector.uicore.actions.WidgetAction
-import application.liedetector.uicore.theme.DesignSystem
-import application.liedetector.widgets.utils.AppIcon
+import application.poligraf.uicore.actions.WidgetAction
+import application.poligraf.uicore.theme.DesignSystem
+import application.poligraf.uicore.theme.LocalDesignSystem
+import application.poligraf.uicore.theme.tokens.ColorToken
+import application.poligraf.uicore.theme.tokens.IconToken
+import application.poligraf.uicore.theme.tokens.StringToken
+import application.poligraf.uicore.theme.tokens.DimenToken
+import application.poligraf.uicore.widgets.UiWidget
+import application.poligraf.widgets.utils.composeColor
+import application.poligraf.widgets.utils.AppIcon
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -70,11 +70,11 @@ fun SubjectListRenderer(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = designSystem.dimen(DimenToken.SPACING_MEDIUM).dp),
-            color = (designSystem.composeColor(ColorToken.GLASS_BASE) as Color).copy(alpha = 0.3f),
+            color = designSystem.composeColor(ColorToken.GLASS_BASE).copy(alpha = 0.3f),
             shape = MaterialTheme.shapes.large,
             border = BorderStroke(
                 designSystem.dimen(DimenToken.DIVIDER_THICKNESS).dp,
-                (designSystem.composeColor(ColorToken.GLASS_BORDER) as Color).copy(alpha = 0.1f)
+                designSystem.composeColor(ColorToken.GLASS_BORDER).copy(alpha = 0.1f)
             )
         ) {
             Column(modifier = Modifier.fillMaxWidth()) {
@@ -106,8 +106,8 @@ fun SubjectListRenderer(
                                         Brush.horizontalGradient(
                                             colors = listOf(
                                                 Color.Transparent,
-                                                (designSystem.composeColor(ColorToken.GLASS_BORDER) as Color).copy(alpha = 0.5f),
-                                                (designSystem.composeColor(ColorToken.GLASS_BORDER) as Color).copy(alpha = 0.15f),
+                                                designSystem.composeColor(ColorToken.GLASS_BORDER).copy(alpha = 0.5f),
+                                                designSystem.composeColor(ColorToken.GLASS_BORDER).copy(alpha = 0.15f),
                                                 Color.Transparent
                                             )
                                         )
@@ -131,7 +131,7 @@ private fun SelectionPanel(
         modifier = Modifier
             .fillMaxWidth()
             .height(designSystem.dimen(DimenToken.HEADER_HEIGHT).dp)
-            .background((designSystem.composeColor(ColorToken.ACCENT_PRIMARY) as Color).copy(alpha = 0.05f))
+            .background(designSystem.composeColor(ColorToken.ACCENT_PRIMARY).copy(alpha = 0.05f))
             .padding(horizontal = designSystem.dimen(DimenToken.SPACING_MEDIUM).dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
@@ -179,7 +179,7 @@ private fun SubjectRowRenderer(
     onAction: (WidgetAction) -> Unit
 ) {
     val backgroundColor by animateColorAsState(
-        if (isSelected) (designSystem.composeColor(ColorToken.ACCENT_PRIMARY) as Color).copy(alpha = 0.12f)
+        if (isSelected) designSystem.composeColor(ColorToken.ACCENT_PRIMARY).copy(alpha = 0.12f)
         else Color.Transparent,
         label = "row_bg"
     )
@@ -207,9 +207,9 @@ private fun SubjectRowRenderer(
                 .background(
                     Brush.verticalGradient(
                         colors = listOf(
-                            (designSystem.composeColor(ColorToken.ACCENT_PRIMARY) as Color).copy(alpha = 0.5f),
+                            designSystem.composeColor(ColorToken.ACCENT_PRIMARY).copy(alpha = 0.5f),
                             designSystem.composeColor(ColorToken.ACCENT_PRIMARY),
-                            (designSystem.composeColor(ColorToken.ACCENT_PRIMARY) as Color).copy(alpha = 0.5f)
+                            designSystem.composeColor(ColorToken.ACCENT_PRIMARY).copy(alpha = 0.5f)
                         )
                     )
                 )
@@ -226,8 +226,7 @@ private fun SubjectRowRenderer(
             val accentColor: Color = designSystem.composeColor(ColorToken.ACCENT_PRIMARY)
             
             Box(
-                modifier = Modifier
-                    .size(designSystem.dimen(DimenToken.AVATAR_SIZE_SMALL).dp)
+                modifier = Modifier.size(designSystem.dimen(DimenToken.AVATAR_SIZE_SMALL).dp)
                     .clip(CircleShape)
                     .background(avatarBg.copy(alpha = 0.2f))
                     .then(

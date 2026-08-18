@@ -1,9 +1,6 @@
 package application.poligraf.data.recording
 
 import application.poligraf.engine.io.FileSystem
-import application.poligraf.engine.utils.nowAsEpochSeconds
-import application.poligraf.models.KmpResult
-import application.poligraf.engine.error.toAppException
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
@@ -14,8 +11,8 @@ import kotlinx.serialization.json.Json
 
 interface RecordingsRepository {
     fun getRecordings(subjectId: String): Flow<List<Recording>>
-    suspend fun saveRecording(subjectId: String, recording: Recording): KmpResult<Recording>
-    suspend fun deleteRecording(subjectId: String, recordingId: String): KmpResult<Unit>
+    suspend fun saveRecording(subjectId: String, recording: Recording): Recording
+    suspend fun deleteRecording(subjectId: String, recordingId: String)
     suspend fun loadRecordings(subjectId: String)
 }
 
@@ -65,7 +62,7 @@ class RecordingsRepositoryImpl(
         }
     }
 
-    override suspend fun saveRecording(subjectId: String, recording: Recording): KmpResult<Recording> {
+    override suspend fun saveRecording(subjectId: String, recording: Recording): Recording {
         return withContext(Dispatchers.IO) {
             val sourcePath = recording.filePath
             
@@ -101,13 +98,13 @@ class RecordingsRepositoryImpl(
             }
             
             saveMetadata(subjectId)
-            KmpResult.Success(finalRecording)
+            finalRecording
         }
     }
 
-    override suspend fun deleteRecording(subjectId: String, recordingId: String): KmpResult<Unit> {
-        return withContext(Dispatchers.IO) {
-            val list = _recordings.value[subjectId] ?: return@withContext KmpResult.Success(Unit)
+    override suspend fun deleteRecording(subjectId: String, recordingId: String) {
+        withContext(Dispatchers.IO) {
+            val list = _recordings.value[subjectId] ?: return@withContext
             val recording = list.find { it.id == recordingId }
 
             if (recording != null) {
@@ -117,7 +114,6 @@ class RecordingsRepositoryImpl(
                 }
                 saveMetadata(subjectId)
             }
-            KmpResult.Success(Unit)
         }
     }
 

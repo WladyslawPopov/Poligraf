@@ -1,4 +1,4 @@
-package application.liedetector.widgets.state
+package application.poligraf.widgets.state
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -6,9 +6,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import application.liedetector.widgets.utils.composeColor
-import application.liedetector.uicore.theme.LocalDesignSystem
-import application.liedetector.uicore.theme.tokens.ColorToken
+import application.poligraf.widgets.utils.composeColor
+import application.poligraf.uicore.theme.LocalDesignSystem
+import application.poligraf.uicore.theme.tokens.ColorToken
 
 /**
  * A universal segmented tab row with a "glass" style.

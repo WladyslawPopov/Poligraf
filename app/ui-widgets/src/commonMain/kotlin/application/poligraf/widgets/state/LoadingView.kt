@@ -1,4 +1,4 @@
-package application.liedetector.widgets.state
+package application.poligraf.widgets.state
 
 import androidx.compose.animation.*
 import androidx.compose.foundation.background
@@ -10,10 +10,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import application.liedetector.uicore.theme.LocalDesignSystem
-import application.liedetector.uicore.theme.tokens.ColorToken
-import application.liedetector.uicore.theme.tokens.DimenToken
-import application.liedetector.widgets.utils.composeColor
+import application.poligraf.uicore.theme.LocalDesignSystem
+import application.poligraf.uicore.theme.tokens.ColorToken
+import application.poligraf.uicore.theme.tokens.DimenToken
+import application.poligraf.widgets.utils.composeColor
 
 /**
  * A non-blocking loading indicator overlay.
@@ -37,8 +37,7 @@ fun LoadingView(
                 DimenToken.SPACING_MEDIUM).dp)
         ) {
             Box(
-                modifier = Modifier
-                    .size(designSystem.dimen(DimenToken.LOADING_INDICATOR_SIZE).dp)
+                modifier = Modifier.size(designSystem.dimen(DimenToken.LOADING_INDICATOR_SIZE).dp)
                     .clip(CircleShape)
                     .background(designSystem.composeColor(ColorToken.SURFACE).copy(alpha = 0.8f))
                     .padding(designSystem.dimen(DimenToken.PADDING_LOADING).dp),

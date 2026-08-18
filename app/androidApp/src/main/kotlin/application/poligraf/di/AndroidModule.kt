@@ -1,22 +1,22 @@
 package application.poligraf.di
 
-import application.liedetector.auth.AndroidAuthService
-import application.liedetector.analytics.AndroidAnalytics
-import application.liedetector.theme.AndroidResourceProvider
-import application.liedetector.engine.auth.AuthService
-import application.liedetector.engine.analytics.Analytics
-import application.liedetector.engine.device.DeviceIntegrity
-import application.liedetector.engine.device.ReviewManager
-import application.liedetector.engine.database.common.DriverFactory
-import application.liedetector.uicore.theme.ResourceProvider
-import application.liedetector.BuildConfig
-import application.liedetector.engine.io.AndroidFileSystem
-import application.liedetector.engine.io.FileSystem
-import application.liedetector.engine.io.audio.AndroidAudioRecorder
+import application.poligraf.BuildConfig
 import com.russhwolf.settings.Settings
 import com.russhwolf.settings.SharedPreferencesSettings
-import application.liedetector.uicore.theme.DesignSystem
-import application.liedetector.engine.io.audio.AudioRecorder
+import application.poligraf.analytics.AndroidAnalytics
+import application.poligraf.auth.AndroidAuthService
+import application.poligraf.engine.analytics.Analytics
+import application.poligraf.engine.auth.AuthService
+import application.poligraf.engine.database.common.DriverFactory
+import application.poligraf.engine.device.DeviceIntegrity
+import application.poligraf.engine.device.ReviewManager
+import application.poligraf.engine.io.AndroidFileSystem
+import application.poligraf.engine.io.FileSystem
+import application.poligraf.engine.io.audio.AndroidAudioRecorder
+import application.poligraf.engine.io.audio.AudioRecorder
+import application.poligraf.theme.AndroidResourceProvider
+import application.poligraf.uicore.theme.DesignSystem
+import application.poligraf.uicore.theme.ResourceProvider
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
@@ -43,11 +43,11 @@ val androidModule = module {
     
     // 6. Native Device Services (Placeholders)
     single<DeviceIntegrity> { 
-        object : DeviceIntegrity { 
+        object : DeviceIntegrity {
             override suspend fun checkIntegrity(): Boolean = true 
         } 
     }
-    single<ReviewManager> { 
+    single<ReviewManager> {
         object : ReviewManager { 
             override suspend fun requestReview(): Boolean = true 
         } 

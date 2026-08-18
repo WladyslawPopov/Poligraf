@@ -8,7 +8,5 @@ sealed class AppRoute {
     @Serializable
     data object Debug : AppRoute()
     @Serializable
-    data class Recording(val subjectId: String) : AppRoute()
-    @Serializable
     data class RecordingsHistory(val subjectId: String, val startRecording: Boolean = false) : AppRoute()
 }

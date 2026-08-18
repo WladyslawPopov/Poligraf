@@ -1,4 +1,4 @@
-package application.liedetector.presentation.screens.debug.tabs
+package application.poligraf.presentation.screens.debug.tabs
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize

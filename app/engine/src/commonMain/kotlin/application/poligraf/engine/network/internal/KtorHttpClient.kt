@@ -3,7 +3,6 @@ package application.poligraf.engine.network.internal
 import application.poligraf.engine.auth.AuthService
 import application.poligraf.engine.error.ServerErrorException
 import application.poligraf.engine.network.config.NetworkConfigProvider
-import application.poligraf.models.ApiConstants
 import application.poligraf.engine.config.AppConfig
 import io.ktor.client.*
 import io.ktor.client.plugins.*
@@ -77,10 +76,11 @@ fun getKtorClient(
     appConfig: AppConfig
 ) = HttpClient {
     installPlugins(networkConfig, authService, appConfig)
-}.apply {
-    sendPipeline.intercept(HttpSendPipeline.State) {
-        authService.getIdToken()?.let { token ->
-            context.header(ApiConstants.HEADER_AUTHORIZATION, ApiConstants.BEARER_PREFIX + token)
-        }
-    }
 }
+//    .apply {
+//    sendPipeline.intercept(HttpSendPipeline.State) {
+//        authService.getIdToken()?.let { token ->
+//            context.header(ApiConstants.HEADER_AUTHORIZATION, ApiConstants.BEARER_PREFIX + token)
+//        }
+//    }
+//}

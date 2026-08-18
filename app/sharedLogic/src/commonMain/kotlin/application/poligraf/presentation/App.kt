@@ -16,7 +16,6 @@ import application.poligraf.presentation.root.RootComponent
 import application.poligraf.presentation.theme.PoligrafTheme
 import application.poligraf.presentation.screens.MainHost
 import application.poligraf.presentation.screens.DebugHost
-import application.poligraf.presentation.screens.RecordingHost
 import application.poligraf.presentation.screens.RecordingsHistoryHost
 
 @Composable
@@ -44,11 +43,6 @@ fun App(
                 is AppRoute.Debug -> {
                     DebugHost(
                         component = root.debugComponent(root.context.childContext("debug_screen"))
-                    )
-                }
-                is AppRoute.Recording -> {
-                    RecordingHost(
-                        component = root.recordingComponent(root.context.childContext("recording_${route.subjectId}"), route.subjectId)
                     )
                 }
                 is AppRoute.RecordingsHistory -> {

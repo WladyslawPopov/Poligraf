@@ -16,14 +16,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
-import application.liedetector.presentation.theme.ThemeState
-import application.liedetector.widgets.utils.composeColor
+import application.poligraf.widgets.utils.composeColor
 import application.poligraf.uicore.theme.DesignSystem
 import application.poligraf.engine.navigation.AppNavigation
-import application.liedetector.uicore.theme.tokens.ColorToken
-import application.liedetector.uicore.theme.tokens.StringToken
-import application.liedetector.uicore.theme.tokens.DimenToken
 import application.poligraf.presentation.main.MainState
+import application.poligraf.presentation.theme.ThemeState
+import application.poligraf.uicore.theme.tokens.ColorToken
+import application.poligraf.uicore.theme.tokens.DimenToken
+import application.poligraf.uicore.theme.tokens.StringToken
 
 @Composable
 fun MainDrawer(

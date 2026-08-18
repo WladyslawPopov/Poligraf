@@ -26,10 +26,6 @@ class SharedNavigator : AppNavigation {
         navigate(AppRoute.Debug)
     }
 
-    override fun openRecording(subjectId: String) {
-        navigate(AppRoute.Recording(subjectId))
-    }
-
     override fun openRecordingsHistory(subjectId: String, startRecording: Boolean) {
         navigate(AppRoute.RecordingsHistory(subjectId, startRecording))
     }

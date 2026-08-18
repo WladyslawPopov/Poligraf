@@ -1,4 +1,4 @@
-package application.liedetector.widgets.background
+package application.poligraf.widgets.background
 
 import android.content.Context
 import android.hardware.Sensor

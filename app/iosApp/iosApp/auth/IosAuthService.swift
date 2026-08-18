@@ -4,13 +4,10 @@ import SharedLogic
 
 class IosAuthService: AuthService {
     
-    func __signInAnonymously() async throws -> KmpResult<KotlinUnit> {
+    func __signInAnonymously() async {
         do {
             _ = try await Auth.auth().signInAnonymously()
-            return KmpResultSuccess(data: KotlinUnit())
-        } catch {
-            return KmpResultError(throwable: KotlinThrowable(message: error.localizedDescription))
-        }
+        } catch {}
     }
     
     func __getIdToken() async throws -> String? {

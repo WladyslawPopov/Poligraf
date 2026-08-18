@@ -17,9 +17,7 @@ kotlin {
         iosTarget.binaries.framework {
             baseName = "SharedLogic"
             isStatic = true
-            
-            // Export dependencies to make them visible in iOS
-            export(projects.core)
+
             export(projects.app.data)
             export(projects.app.engine)
             export(projects.app.uiCore)

@@ -1,8 +1,8 @@
-package application.liedetector.widgets.utils
+package application.poligraf.widgets.utils
 
 import androidx.compose.ui.graphics.Color
-import application.liedetector.uicore.theme.DesignSystem
-import application.liedetector.uicore.theme.tokens.ColorToken
+import application.poligraf.uicore.theme.DesignSystem
+import application.poligraf.uicore.theme.tokens.ColorToken
 
 /**
  * Converts Hex string to Compose Color.

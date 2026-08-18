@@ -8,19 +8,19 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import application.liedetector.presentation.debug.DebugComponent
-import application.liedetector.presentation.debug.data.DebugTab
-import application.liedetector.widgets.AppScaffold
-import application.liedetector.widgets.state.GlassSegmentedTabRow
-import application.liedetector.presentation.screens.debug.tabs.LabsTab
-import application.liedetector.presentation.screens.debug.tabs.StatesTab
-import application.liedetector.presentation.screens.debug.tabs.WidgetsTab
-import application.liedetector.uicore.theme.*
-import application.liedetector.widgets.utils.composeColor
-import application.liedetector.widgets.utils.AppIcon
-import application.liedetector.uicore.theme.tokens.ColorToken
-import application.liedetector.uicore.theme.tokens.IconToken
-import application.liedetector.uicore.theme.tokens.StringToken
+import application.poligraf.widgets.AppScaffold
+import application.poligraf.widgets.state.GlassSegmentedTabRow
+import application.poligraf.presentation.screens.debug.tabs.LabsTab
+import application.poligraf.presentation.screens.debug.tabs.StatesTab
+import application.poligraf.presentation.screens.debug.tabs.WidgetsTab
+import application.poligraf.widgets.utils.composeColor
+import application.poligraf.widgets.utils.AppIcon
+import application.poligraf.presentation.debug.DebugComponent
+import application.poligraf.presentation.debug.data.DebugTab
+import application.poligraf.uicore.theme.LocalDesignSystem
+import application.poligraf.uicore.theme.tokens.ColorToken
+import application.poligraf.uicore.theme.tokens.IconToken
+import application.poligraf.uicore.theme.tokens.StringToken
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

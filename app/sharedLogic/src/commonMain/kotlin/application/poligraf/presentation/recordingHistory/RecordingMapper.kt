@@ -1,7 +1,7 @@
-package application.liedetector.presentation.recordingHistory
+package application.poligraf.presentation.recordingHistory
 
-import application.liedetector.data.recording.Recording
-import application.liedetector.uicore.widgets.VoiceRecorder
+import application.poligraf.data.recording.Recording
+import application.poligraf.uicore.widgets.VoiceRecorder
 
 fun Recording.toVoiceRecorder(): VoiceRecorder {
     return VoiceRecorder(

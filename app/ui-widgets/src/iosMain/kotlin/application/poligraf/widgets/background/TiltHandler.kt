@@ -1,4 +1,4 @@
-package application.liedetector.widgets.background
+package application.poligraf.widgets.background
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember

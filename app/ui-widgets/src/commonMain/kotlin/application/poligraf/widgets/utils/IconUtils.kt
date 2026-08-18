@@ -1,9 +1,9 @@
-package application.liedetector.widgets.utils
+package application.poligraf.widgets.utils
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import application.liedetector.uicore.theme.IconResource
+import application.poligraf.uicore.theme.IconResource
 
 @Composable
 expect fun AppIcon(

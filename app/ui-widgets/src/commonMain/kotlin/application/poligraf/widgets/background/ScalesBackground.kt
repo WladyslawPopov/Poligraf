@@ -1,4 +1,4 @@
-package application.liedetector.widgets.background
+package application.poligraf.widgets.background
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.*
@@ -16,12 +16,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
-import application.liedetector.uicore.theme.tokens.DimenToken
-import application.liedetector.uicore.theme.LocalDesignSystem
-import application.liedetector.uicore.widgets.AppBackground
-import application.liedetector.uicore.theme.tokens.ColorToken
-import application.liedetector.uicore.types.BackgroundMode
-import application.liedetector.widgets.utils.composeColor
+import application.poligraf.uicore.theme.tokens.DimenToken
+import application.poligraf.uicore.theme.LocalDesignSystem
+import application.poligraf.uicore.widgets.AppBackground
+import application.poligraf.uicore.theme.tokens.ColorToken
+import application.poligraf.uicore.types.BackgroundMode
+import application.poligraf.widgets.utils.composeColor
 import kotlin.math.abs
 import kotlin.math.pow
 import kotlin.math.sin

@@ -1,10 +1,10 @@
-package application.liedetector.widgets.utils
+package application.poligraf.widgets.utils
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.TextStyle
-import application.liedetector.uicore.theme.DesignSystem
-import application.liedetector.uicore.theme.tokens.TypographyToken
+import application.poligraf.uicore.theme.DesignSystem
+import application.poligraf.uicore.theme.tokens.TypographyToken
 
 /**
  * Maps TypographyToken to MaterialTheme typography.

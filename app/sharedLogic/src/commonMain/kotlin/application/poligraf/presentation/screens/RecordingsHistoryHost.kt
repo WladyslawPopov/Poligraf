@@ -21,19 +21,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.animation.core.*
-import application.liedetector.presentation.recordingHistory.RecordingsHistoryComponent
-import application.liedetector.widgets.AppScaffold
-import application.liedetector.uicore.theme.LocalDesignSystem
-import application.liedetector.uicore.theme.tokens.ColorToken
-import application.liedetector.uicore.theme.tokens.IconToken
-import application.liedetector.widgets.utils.composeColor
-import application.liedetector.widgets.utils.AppIcon
-import application.liedetector.widgets.recorder.VoiceRecorderRenderer
-import application.liedetector.uicore.state.VoiceRecorderAction
-import application.liedetector.uicore.state.VoiceRecorderUiState
-import application.liedetector.uicore.theme.tokens.DimenToken
-import application.liedetector.uicore.theme.tokens.StringToken
-import application.liedetector.uicore.widgets.VoiceRecorder
+import application.poligraf.widgets.AppScaffold
+import application.poligraf.widgets.utils.composeColor
+import application.poligraf.widgets.utils.AppIcon
+import application.poligraf.widgets.recorder.VoiceRecorderRenderer
+import application.poligraf.presentation.recordingHistory.RecordingsHistoryComponent
+import application.poligraf.uicore.state.VoiceRecorderAction
+import application.poligraf.uicore.theme.LocalDesignSystem
+import application.poligraf.uicore.theme.tokens.ColorToken
+import application.poligraf.uicore.theme.tokens.DimenToken
+import application.poligraf.uicore.theme.tokens.IconToken
+import application.poligraf.uicore.theme.tokens.StringToken
+import application.poligraf.uicore.widgets.VoiceRecorder
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -87,15 +86,15 @@ fun RecordingsHistoryHost(component: RecordingsHistoryComponent) {
             TopAppBar(
                 title = { 
                     Text(
-                        text = designSystem.string(StringToken.RECORDER_HISTORY_TITLE), 
-                        color = designSystem.composeColor(ColorToken.TEXT_PRIMARY), 
+                        text = designSystem.string(StringToken.RECORDER_HISTORY_TITLE),
+                        color = designSystem.composeColor(ColorToken.TEXT_PRIMARY),
                         fontWeight = FontWeight.Bold
                     ) 
                 },
                 navigationIcon = {
                     IconButton(onClick = { component.goBack() }) {
                         AppIcon(
-                            icon = designSystem.icon(IconToken.ARROW_BACK), 
+                            icon = designSystem.icon(IconToken.ARROW_BACK),
                             contentDescription = null, 
                             tint = designSystem.composeColor(ColorToken.TEXT_PRIMARY)
                         )

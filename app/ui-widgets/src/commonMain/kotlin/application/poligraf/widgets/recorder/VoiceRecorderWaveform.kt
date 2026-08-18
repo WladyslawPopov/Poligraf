@@ -1,4 +1,4 @@
-package application.liedetector.widgets.recorder
+package application.poligraf.widgets.recorder
 
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
@@ -14,17 +14,18 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import application.liedetector.engine.io.audio.AudioConstants
-import application.liedetector.uicore.state.VoiceRecorderAction
-import application.liedetector.uicore.state.VoiceRecorderUiState
-import application.liedetector.uicore.theme.DesignSystem
-import application.liedetector.uicore.theme.tokens.ColorToken
-import application.liedetector.uicore.theme.tokens.DimenToken
-import application.liedetector.widgets.utils.composeColor
+import application.poligraf.engine.io.audio.AudioConstants
+import application.poligraf.uicore.state.VoiceRecorderAction
+import application.poligraf.uicore.state.VoiceRecorderUiState
+import application.poligraf.uicore.theme.DesignSystem
+import application.poligraf.uicore.theme.tokens.ColorToken
+import application.poligraf.uicore.theme.tokens.DimenToken
+import application.poligraf.widgets.utils.composeColor
 import kotlinx.coroutines.launch
 
 @Composable
@@ -198,7 +199,7 @@ fun VoiceRecorderWaveform(
                     
                     val textLayoutResult = textMeasurer.measure(
                         text = timeLabel,
-                        style = androidx.compose.ui.text.TextStyle(
+                        style = TextStyle(
                             color = rulerTextColor,
                             fontSize = rulerTextSize
                         )

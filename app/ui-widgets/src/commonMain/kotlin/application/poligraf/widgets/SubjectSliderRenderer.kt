@@ -1,4 +1,4 @@
-package application.liedetector.widgets
+package application.poligraf.widgets
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -12,18 +12,17 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import application.liedetector.uicore.theme.tokens.ColorToken
-import application.liedetector.uicore.theme.tokens.DimenToken
-import application.liedetector.uicore.theme.LocalDesignSystem
-import application.liedetector.uicore.theme.tokens.StringToken
-import application.liedetector.uicore.widgets.UiWidget
-import application.liedetector.widgets.utils.composeColor
-import application.liedetector.uicore.theme.DesignSystem
-import application.liedetector.uicore.actions.WidgetAction
+import application.poligraf.uicore.actions.WidgetAction
+import application.poligraf.uicore.theme.DesignSystem
+import application.poligraf.uicore.theme.LocalDesignSystem
+import application.poligraf.uicore.theme.tokens.ColorToken
+import application.poligraf.uicore.theme.tokens.DimenToken
+import application.poligraf.uicore.theme.tokens.StringToken
+import application.poligraf.uicore.widgets.UiWidget
+import application.poligraf.widgets.utils.composeColor
 
 @Composable
 fun SubjectSliderRenderer(
@@ -78,17 +77,16 @@ private fun SubjectStoryRenderer(
     onAction: (WidgetAction) -> Unit
 ) {
     Card(
-        modifier = Modifier
-            .width(designSystem.dimen(DimenToken.SUBJECT_STORY_WIDTH).dp)
+        modifier = Modifier.width(designSystem.dimen(DimenToken.SUBJECT_STORY_WIDTH).dp)
             .height(designSystem.dimen(DimenToken.SUBJECT_STORY_HEIGHT).dp),
         colors = CardDefaults.cardColors(
-            containerColor = (designSystem.composeColor(item.backgroundColor) as Color).copy(alpha = 0.4f)
+            containerColor = designSystem.composeColor(item.backgroundColor).copy(alpha = 0.4f)
         ),
         shape = MaterialTheme.shapes.large,
         onClick = { onAction(item.action) },
         border = BorderStroke(
             designSystem.dimen(DimenToken.DIVIDER_THICKNESS).dp, 
-            (designSystem.composeColor(ColorToken.GLASS_BORDER) as Color).copy(alpha = 0.15f)
+            designSystem.composeColor(ColorToken.GLASS_BORDER).copy(alpha = 0.15f)
         )
     ) {
         Column(
@@ -123,17 +121,16 @@ private fun SubjectCardRenderer(
     onAction: (WidgetAction) -> Unit
 ) {
     Card(
-        modifier = Modifier
-            .width(designSystem.dimen(DimenToken.SUBJECT_CARD_WIDTH).dp)
+        modifier = Modifier.width(designSystem.dimen(DimenToken.SUBJECT_CARD_WIDTH).dp)
             .height(designSystem.dimen(DimenToken.SUBJECT_CARD_HEIGHT).dp),
         colors = CardDefaults.cardColors(
-            containerColor = (designSystem.composeColor(item.backgroundColor) as Color).copy(alpha = 0.6f)
+            containerColor = designSystem.composeColor(item.backgroundColor).copy(alpha = 0.6f)
         ),
         shape = MaterialTheme.shapes.extraLarge,
         onClick = { onAction(item.action) },
         border = BorderStroke(
             designSystem.dimen(DimenToken.DIVIDER_THICKNESS).dp, 
-            (designSystem.composeColor(ColorToken.GLASS_BORDER) as Color).copy(alpha = 0.2f)
+            designSystem.composeColor(ColorToken.GLASS_BORDER).copy(alpha = 0.2f)
         )
     ) {
         Column(
@@ -144,10 +141,9 @@ private fun SubjectCardRenderer(
             verticalArrangement = Arrangement.Center
         ) {
             Box(
-                modifier = Modifier
-                    .size(designSystem.dimen(DimenToken.SUBJECT_CARD_ICON_SIZE).dp)
+                modifier = Modifier.size(designSystem.dimen(DimenToken.SUBJECT_CARD_ICON_SIZE).dp)
                     .background(
-                        (designSystem.composeColor(item.buttonColor) as Color).copy(alpha = 0.15f),
+                        designSystem.composeColor(item.buttonColor).copy(alpha = 0.15f),
                         CircleShape
                     ),
                 contentAlignment = Alignment.Center

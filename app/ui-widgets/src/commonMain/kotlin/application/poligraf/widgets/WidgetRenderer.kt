@@ -1,12 +1,12 @@
-package application.liedetector.widgets
+package application.poligraf.widgets
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import application.liedetector.uicore.actions.WidgetAction
-import application.liedetector.uicore.widgets.UiWidget
+import application.poligraf.uicore.actions.WidgetAction
+import application.poligraf.uicore.widgets.UiWidget
 
 @Composable
 fun WidgetRenderer(

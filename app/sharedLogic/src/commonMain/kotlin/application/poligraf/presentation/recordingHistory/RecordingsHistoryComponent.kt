@@ -2,7 +2,7 @@ package application.poligraf.presentation.recordingHistory
 
 import androidx.compose.runtime.Stable
 import application.poligraf.engine.component.ComponentContext
-import application.poligraf.uicore.widgets.UiWidget
+import application.poligraf.uicore.state.VoiceRecorderAction
 import application.poligraf.uicore.widgets.VoiceRecorder
 
 @Stable

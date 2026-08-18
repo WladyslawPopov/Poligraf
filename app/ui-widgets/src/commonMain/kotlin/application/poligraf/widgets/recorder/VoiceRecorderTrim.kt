@@ -1,4 +1,4 @@
-package application.liedetector.widgets.recorder
+package application.poligraf.widgets.recorder
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -17,14 +17,14 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
-import application.liedetector.uicore.state.VoiceRecorderAction
-import application.liedetector.uicore.state.VoiceRecorderUiState
-import application.liedetector.uicore.theme.DesignSystem
-import application.liedetector.uicore.theme.tokens.ColorToken
-import application.liedetector.uicore.theme.tokens.DimenToken
-import application.liedetector.uicore.theme.tokens.IconToken
-import application.liedetector.widgets.utils.composeColor
-import application.liedetector.widgets.utils.AppIcon
+import application.poligraf.uicore.state.VoiceRecorderAction
+import application.poligraf.uicore.state.VoiceRecorderUiState
+import application.poligraf.uicore.theme.DesignSystem
+import application.poligraf.uicore.theme.tokens.ColorToken
+import application.poligraf.uicore.theme.tokens.DimenToken
+import application.poligraf.uicore.theme.tokens.IconToken
+import application.poligraf.widgets.utils.composeColor
+import application.poligraf.widgets.utils.AppIcon
 import kotlin.math.absoluteValue
 
 @Composable
