@@ -19,7 +19,6 @@ ktor = "3.5.1"
 logback = "1.6.0"
 napier = "2.7.1"
 material3 = "1.9.0"
-materialIcon = "1.7.8"
 kotlinx-datetime = "0.8.0"
 kotlinx-serialization = "1.11.0"
 koin = "4.2.2"
@@ -126,8 +125,6 @@ google-vertexai = { module = "com.google.cloud:google-cloud-vertexai", version.r
 firebase-admin = { module = "com.google.firebase:firebase-admin", version.ref = "firebase-admin" }
 firebase-messaging = { module = "com.google.firebase:firebase-messaging-ktx", version.ref = "firebase-messaging" }
 firebase-config = { module = "com.google.firebase:firebase-config-ktx", version.ref = "firebase-config" }
-
-compose-material-icons = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIcon" }
 
 # === Decompose & Essenty ===
 decompose-core = { module = "com.arkivanov.decompose:decompose", version.ref = "decompose" }

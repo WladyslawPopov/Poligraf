@@ -11,8 +11,6 @@ import application.poligraf.engine.device.DeviceIntegrity
 import application.poligraf.engine.device.ReviewManager
 import application.poligraf.engine.io.audio.AndroidAudioRecorder
 import application.poligraf.engine.io.audio.AudioRecorder
-import application.poligraf.theme.AndroidResourceProvider
-import application.poligraf.uicore.theme.ResourceProvider
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
@@ -22,10 +20,8 @@ val androidModule = module {
     
     // 2. Native Analytics
     single<Analytics> { AndroidAnalytics(androidContext()) }
-    
-    // 3. Design System
-    single<ResourceProvider> { AndroidResourceProvider() }
-    
+
+
     // 4. Native Database Driver Factory
     single { DriverFactory(androidContext()) }
     

@@ -16,12 +16,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.times
 import application.poligraf.uicore.theme.tokens.DimenToken
 import application.poligraf.uicore.theme.LocalDesignSystem
 import application.poligraf.uicore.widgets.AppBackground
 import application.poligraf.uicore.theme.tokens.ColorToken
 import application.poligraf.uicore.types.BackgroundMode
-import application.poligraf.widgets.utils.composeColor
 import kotlin.math.abs
 import kotlin.math.pow
 import kotlin.math.sin
@@ -74,8 +74,8 @@ fun ScalesBackground(
         remember { mutableStateOf(1f) }
     }
 
-    val baseBgColor: Color = designSystem.composeColor(config.baseColor)
-    val scaleColor: Color = designSystem.composeColor(config.particleColor)
+    val baseBgColor: Color = designSystem.color(config.baseColor)
+    val scaleColor: Color = designSystem.color(config.particleColor)
     
     val energyColorToken = when (config.mode) {
         BackgroundMode.ERROR -> ColorToken.ERROR
@@ -86,13 +86,13 @@ fun ScalesBackground(
         else -> config.energyColor
     }
     val energyColor by animateColorAsState(
-        targetValue = designSystem.composeColor(energyColorToken),
+        targetValue = designSystem.color(energyColorToken),
         animationSpec = tween(400)
     )
 
-    val truthColor: Color = designSystem.composeColor(ColorToken.TRUTH)
-    val stressColor: Color = designSystem.composeColor(ColorToken.STRESS)
-    val recordingBaseColor: Color = designSystem.composeColor(ColorToken.ACCENT_ENERGY)
+    val truthColor: Color = designSystem.color(ColorToken.TRUTH)
+    val stressColor: Color = designSystem.color(ColorToken.STRESS)
+    val recordingBaseColor: Color = designSystem.color(ColorToken.ACCENT_ENERGY)
 
     val blurRadius by animateFloatAsState(
         targetValue = if (config.mode == BackgroundMode.ERROR) config.blurRadius * 1.5f else config.blurRadius,
@@ -102,10 +102,10 @@ fun ScalesBackground(
     val baseParallax = designSystem.dimen(DimenToken.PARALLAX_INTENSITY)
     val parallaxIntensity = baseParallax * config.parallaxIntensity
     val density = LocalDensity.current
-    val cornerRadiusPx = with(density) { designSystem.dimen(DimenToken.CORNER_RADIUS).dp.toPx() }
+    val cornerRadiusPx = with(density) { designSystem.dimen(DimenToken.CORNER_RADIUS).toPx() }
     
-    val cellWidthPx = with(density) { designSystem.dimen(DimenToken.BACKGROUND_CELL_WIDTH).dp.toPx() }
-    val cellHeightPx = with(density) { designSystem.dimen(DimenToken.BACKGROUND_CELL_HEIGHT).dp.toPx() }
+    val cellWidthPx = with(density) { designSystem.dimen(DimenToken.BACKGROUND_CELL_WIDTH).toPx() }
+    val cellHeightPx = with(density) { designSystem.dimen(DimenToken.BACKGROUND_CELL_HEIGHT).toPx() }
 
     Box(modifier = modifier.fillMaxSize().background(baseBgColor)) {
         Canvas(
@@ -118,8 +118,8 @@ fun ScalesBackground(
             
             val cellW = size.width / cols
             val cellH = size.height / rows
-            val px = smoothX * parallaxIntensity
-            val py = smoothY * parallaxIntensity
+            val px = with(density) { (smoothX * parallaxIntensity).toPx() }
+            val py = with(density) { (smoothY * parallaxIntensity).toPx() }
 
             val rectSize = Size(
                 (cellW / 1.5f) * pulseScale, 

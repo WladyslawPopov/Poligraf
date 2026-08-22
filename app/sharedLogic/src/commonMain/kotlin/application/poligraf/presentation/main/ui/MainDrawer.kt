@@ -1,4 +1,4 @@
-package application.poligraf.presentation.main
+package application.poligraf.presentation.main.ui
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -16,7 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
-import application.poligraf.widgets.utils.composeColor
+import application.poligraf.presentation.main.MainViewModel
 import application.poligraf.uicore.theme.DesignSystem
 import application.poligraf.presentation.main.data.MainState
 import application.poligraf.presentation.theme.ThemeState
@@ -33,19 +33,19 @@ fun MainDrawer(
         drawerContainerColor = Color.Transparent,
         drawerShape = RoundedCornerShape(0.dp), 
         windowInsets = WindowInsets(0, 0, 0, 0),
-        modifier = Modifier.fillMaxHeight().width(designSystem.dimen(DimenToken.DRAWER_WIDTH).dp)
+        modifier = Modifier.fillMaxHeight().width(designSystem.dimen(DimenToken.DRAWER_WIDTH))
     ) {
         Surface(
             modifier = Modifier.fillMaxSize(),
-            color = designSystem.composeColor(ColorToken.SURFACE).copy(alpha = 0.92f),
+            color = designSystem.color(ColorToken.SURFACE).copy(alpha = 0.92f),
             shape = RoundedCornerShape(
-                topEnd = designSystem.dimen(DimenToken.DRAWER_CORNER).dp, 
-                bottomEnd = designSystem.dimen(DimenToken.DRAWER_CORNER).dp
+                topEnd = designSystem.dimen(DimenToken.DRAWER_CORNER), 
+                bottomEnd = designSystem.dimen(DimenToken.DRAWER_CORNER)
             ),
             border = BorderStroke(
-                designSystem.dimen(DimenToken.DIVIDER_THICKNESS).dp, 
+                designSystem.dimen(DimenToken.DIVIDER_THICKNESS), 
                 Brush.horizontalGradient(
-                    listOf(Color.Transparent, designSystem.composeColor(ColorToken.ACCENT_PRIMARY).copy(alpha = 0.3f))
+                    listOf(Color.Transparent, designSystem.color(ColorToken.ACCENT_PRIMARY).copy(alpha = 0.3f))
                 )
             )
         ) {
@@ -57,30 +57,30 @@ fun MainDrawer(
                         .background(
                             Brush.verticalGradient(
                                 listOf(
-                                    designSystem.composeColor(ColorToken.ACCENT_PRIMARY).copy(alpha = 0.15f),
+                                    designSystem.color(ColorToken.ACCENT_PRIMARY).copy(alpha = 0.15f),
                                     Color.Transparent
                                 )
                             )
                         )
                         .statusBarsPadding()
                         .padding(
-                            top = designSystem.dimen(DimenToken.SPACING_MEDIUM).dp, 
-                            bottom = designSystem.dimen(DimenToken.SPACING_LARGE).dp, 
-                            start = designSystem.dimen(DimenToken.SPACING_LARGE).dp, 
-                            end = designSystem.dimen(DimenToken.SPACING_LARGE).dp
+                            top = designSystem.dimen(DimenToken.SPACING_MEDIUM), 
+                            bottom = designSystem.dimen(DimenToken.SPACING_LARGE), 
+                            start = designSystem.dimen(DimenToken.SPACING_LARGE), 
+                            end = designSystem.dimen(DimenToken.SPACING_LARGE)
                         )
                 ) {
                     Text(
                         text = designSystem.strings.drawer.settings,
                         style = MaterialTheme.typography.headlineMedium,
-                        color = designSystem.composeColor(ColorToken.ACCENT_PRIMARY),
+                        color = designSystem.color(ColorToken.ACCENT_PRIMARY),
                         fontWeight = FontWeight.ExtraBold
                     )
                 }
                 
                 GlassDivider(designSystem)
 
-                Spacer(modifier = Modifier.height(designSystem.dimen(DimenToken.SPACING_MEDIUM).dp))
+                Spacer(modifier = Modifier.height(designSystem.dimen(DimenToken.SPACING_MEDIUM)))
 
                 // Settings Content
                 val isDark by ThemeState.isDark.collectAsState()
@@ -93,23 +93,23 @@ fun MainDrawer(
                             checked = isDark,
                             onCheckedChange = { ThemeState.toggle() },
                             colors = SwitchDefaults.colors(
-                                checkedThumbColor = designSystem.composeColor(ColorToken.ACCENT_PRIMARY),
-                                checkedTrackColor = designSystem.composeColor(ColorToken.ACCENT_PRIMARY).copy(alpha = 0.3f),
-                                uncheckedBorderColor = designSystem.composeColor(ColorToken.TEXT_SECONDARY).copy(alpha = 0.5f)
+                                checkedThumbColor = designSystem.color(ColorToken.ACCENT_PRIMARY),
+                                checkedTrackColor = designSystem.color(ColorToken.ACCENT_PRIMARY).copy(alpha = 0.3f),
+                                uncheckedBorderColor = designSystem.color(ColorToken.TEXT_SECONDARY).copy(alpha = 0.5f)
                             )
                         )
                     }
                 )
 
                 if (designSystem.isDebug) {
-                    Spacer(modifier = Modifier.height(designSystem.dimen(DimenToken.SPACING_SMALL).dp))
+                    Spacer(modifier = Modifier.height(designSystem.dimen(DimenToken.SPACING_SMALL)))
                     GlassDivider(designSystem)
-                    Spacer(modifier = Modifier.height(designSystem.dimen(DimenToken.SPACING_SMALL).dp))
+                    Spacer(modifier = Modifier.height(designSystem.dimen(DimenToken.SPACING_SMALL)))
                     
                     DrawerItem(
                         label = designSystem.strings.drawer.openDebug,
                         designSystem = designSystem,
-                        color = designSystem.composeColor(ColorToken.ACCENT_ENERGY),
+                        color = designSystem.color(ColorToken.ACCENT_ENERGY),
                         onClick = {
                             viewModel.setDrawerOpen(false)
                             viewModel.onDebugClicked()
@@ -124,19 +124,19 @@ fun MainDrawer(
                     modifier = Modifier
                         .fillMaxWidth()
                         .navigationBarsPadding()
-                        .padding(designSystem.dimen(DimenToken.SPACING_LARGE).dp)
+                        .padding(designSystem.dimen(DimenToken.SPACING_LARGE))
                 ) {
                     Text(
                         text = designSystem.strings.drawer.footerTitle.uppercase(),
                         style = MaterialTheme.typography.labelMedium,
-                        color = designSystem.composeColor(ColorToken.TEXT_PRIMARY),
+                        color = designSystem.color(ColorToken.TEXT_PRIMARY),
                         fontWeight = FontWeight.Bold,
                         letterSpacing = TextUnit.Unspecified
                     )
                     Text(
                         text = (designSystem.strings.drawer.footerSubtitle + (state.appConfig?.appVersion ?: "1.0.0")).uppercase(),
                         style = MaterialTheme.typography.labelSmall,
-                        color = designSystem.composeColor(ColorToken.ACCENT_PRIMARY).copy(alpha = 0.6f)
+                        color = designSystem.color(ColorToken.ACCENT_PRIMARY).copy(alpha = 0.6f)
                     )
                 }
             }
@@ -155,15 +155,15 @@ private fun DrawerItem(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(designSystem.dimen(DimenToken.HEADER_HEIGHT).dp)
+            .height(designSystem.dimen(DimenToken.HEADER_HEIGHT))
             .clickable(enabled = onClick != null) { onClick?.invoke() }
-            .padding(horizontal = designSystem.dimen(DimenToken.SPACING_LARGE).dp),
+            .padding(horizontal = designSystem.dimen(DimenToken.SPACING_LARGE)),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(
             text = label,
-            color = color ?: designSystem.composeColor(ColorToken.TEXT_PRIMARY),
+            color = color ?: designSystem.color(ColorToken.TEXT_PRIMARY),
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold
         )
@@ -176,13 +176,13 @@ private fun GlassDivider(designSystem: DesignSystem) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(designSystem.dimen(DimenToken.DIVIDER_THICKNESS).dp)
-            .padding(horizontal = designSystem.dimen(DimenToken.SPACING_LARGE).dp)
+            .height(designSystem.dimen(DimenToken.DIVIDER_THICKNESS))
+            .padding(horizontal = designSystem.dimen(DimenToken.SPACING_LARGE))
             .background(
                 Brush.horizontalGradient(
                     colors = listOf(
                         Color.Transparent,
-                        designSystem.composeColor(ColorToken.ACCENT_PRIMARY).copy(alpha = 0.3f),
+                        designSystem.color(ColorToken.ACCENT_PRIMARY).copy(alpha = 0.3f),
                         Color.Transparent
                     )
                 )

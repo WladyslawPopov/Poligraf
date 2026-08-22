@@ -13,8 +13,7 @@ import application.poligraf.uicore.theme.tokens.ColorToken
 import application.poligraf.uicore.theme.tokens.DimenToken
 import application.poligraf.uicore.theme.tokens.IconToken
 import application.poligraf.uicore.types.ToastType
-import application.poligraf.widgets.utils.composeColor
-import application.poligraf.widgets.utils.AppIcon
+import application.poligraf.widgets.AppIcon
 
 /**
  * A custom Snackbar that follows the Design System's glass and neon aesthetic.
@@ -27,18 +26,18 @@ fun AppSnackBar(
     val designSystem = LocalDesignSystem.current
     
     val accentColor = when (type) {
-        ToastType.SUCCESS -> designSystem.composeColor(ColorToken.TRUTH)
-        ToastType.ERROR -> designSystem.composeColor(ColorToken.STRESS)
-        ToastType.WARNING -> designSystem.composeColor(ColorToken.ACCENT_PRIMARY)
+        ToastType.SUCCESS -> designSystem.color(ColorToken.TRUTH)
+        ToastType.ERROR -> designSystem.color(ColorToken.STRESS)
+        ToastType.WARNING -> designSystem.color(ColorToken.ACCENT_PRIMARY)
     }
 
     Snackbar(
         modifier = Modifier.padding(12.dp),
-        containerColor = designSystem.composeColor(ColorToken.GLASS_BASE),
-        contentColor = designSystem.composeColor(ColorToken.TEXT_PRIMARY),
+        containerColor = designSystem.color(ColorToken.GLASS_BASE),
+        contentColor = designSystem.color(ColorToken.TEXT_PRIMARY),
         actionContentColor = accentColor,
-        dismissActionContentColor = designSystem.composeColor(ColorToken.TEXT_SECONDARY),
-        shape = RoundedCornerShape(designSystem.dimen(DimenToken.CORNER_RADIUS).dp),
+        dismissActionContentColor = designSystem.color(ColorToken.TEXT_SECONDARY),
+        shape = RoundedCornerShape(designSystem.dimen(DimenToken.CORNER_RADIUS)),
         action = if (data.visuals.actionLabel != null) {
             @Composable {
                 TextButton(onClick = { data.performAction() }) {
@@ -52,7 +51,7 @@ fun AppSnackBar(
                     AppIcon(
                         icon = designSystem.icon(IconToken.CLOSE),
                         contentDescription = null,
-                        tint = designSystem.composeColor(ColorToken.TEXT_SECONDARY)
+                        tint = designSystem.color(ColorToken.TEXT_SECONDARY)
                     )
                 }
             }

@@ -18,6 +18,8 @@ interface ICommonStrings {
     val appName: StringResource
     val welcomeText: StringResource
     val record: StringResource
+    val history: StringResource
+    val settings: StringResource
     val close: StringResource
     val menu: StringResource
     val unknown: StringResource
@@ -97,6 +99,8 @@ class AppStringsImpl : IAppStrings {
         override val appName = Res.string.app_name
         override val welcomeText = Res.string.welcome_text
         override val record = Res.string.record
+        override val history = Res.string.recorder_history_title
+        override val settings = Res.string.drawer_settings
         override val close = Res.string.close
         override val menu = Res.string.menu
         override val unknown = Res.string.unknown_widget

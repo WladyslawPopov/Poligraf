@@ -1,0 +1,35 @@
+CREATE TABLE UserEntity (
+    id TEXT NOT NULL PRIMARY KEY,
+    jsonData TEXT NOT NULL
+);
+
+CREATE TABLE SessionEntity (
+    id TEXT NOT NULL PRIMARY KEY,
+    timestamp INTEGER NOT NULL,
+    jsonData TEXT NOT NULL
+);
+
+-- User Queries
+upsertUser:
+INSERT OR REPLACE INTO UserEntity(id, jsonData)
+VALUES (?, ?);
+
+getUser:
+SELECT * FROM UserEntity LIMIT 1;
+
+-- Session Queries
+insertSession:
+INSERT INTO SessionEntity(id, timestamp, jsonData)
+VALUES (?, ?, ?);
+
+getAllSessions:
+SELECT * FROM SessionEntity ORDER BY timestamp DESC;
+
+getSessionById:
+SELECT * FROM SessionEntity WHERE id = ?;
+
+deleteSessionById:
+DELETE FROM SessionEntity WHERE id = ?;
+
+clearSessions:
+DELETE FROM SessionEntity;

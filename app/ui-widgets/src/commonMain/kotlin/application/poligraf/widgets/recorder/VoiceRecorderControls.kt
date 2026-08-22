@@ -19,8 +19,7 @@ import application.poligraf.uicore.state.VoiceRecorderUiState
 import application.poligraf.uicore.theme.DesignSystem
 import application.poligraf.uicore.theme.tokens.ColorToken
 import application.poligraf.uicore.theme.tokens.DimenToken
-import application.poligraf.widgets.utils.composeColor
-import application.poligraf.widgets.utils.AppIcon
+import application.poligraf.widgets.AppIcon
 
 @Composable
 fun VoiceRecorderControls(
@@ -37,8 +36,8 @@ fun VoiceRecorderControls(
             AppIcon(
                 icon = designSystem.icon(state.controls.skipBackIcon),
                 contentDescription = null,
-                tint = designSystem.composeColor(ColorToken.TEXT_PRIMARY),
-                modifier = Modifier.size(designSystem.dimen(DimenToken.SPACING_XL).dp + 4.dp)
+                tint = designSystem.color(ColorToken.TEXT_PRIMARY),
+                modifier = Modifier.size(designSystem.dimen(DimenToken.SPACING_XL) + 4.dp)
             )
         }
         Spacer(modifier = Modifier.width(48.dp))
@@ -46,7 +45,7 @@ fun VoiceRecorderControls(
             AppIcon(
                 icon = designSystem.icon(state.controls.playbackIcon),
                 contentDescription = null,
-                tint = designSystem.composeColor(ColorToken.TEXT_PRIMARY),
+                tint = designSystem.color(ColorToken.TEXT_PRIMARY),
                 modifier = Modifier.size(56.dp)
             )
         }
@@ -55,8 +54,8 @@ fun VoiceRecorderControls(
             AppIcon(
                 icon = designSystem.icon(state.controls.skipForwardIcon),
                 contentDescription = null,
-                tint = designSystem.composeColor(ColorToken.TEXT_PRIMARY),
-                modifier = Modifier.size(designSystem.dimen(DimenToken.SPACING_XL).dp + 4.dp).graphicsLayer(scaleX = -1f)
+                tint = designSystem.color(ColorToken.TEXT_PRIMARY),
+                modifier = Modifier.size(designSystem.dimen(DimenToken.SPACING_XL) + 4.dp).graphicsLayer(scaleX = -1f)
             )
         }
     }
@@ -67,7 +66,7 @@ fun VoiceRecorderControls(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = designSystem.dimen(DimenToken.SPACING_LARGE).dp),
+            .padding(horizontal = designSystem.dimen(DimenToken.SPACING_LARGE)),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -75,41 +74,41 @@ fun VoiceRecorderControls(
             Box(
                 modifier = Modifier
                     .clip(CircleShape)
-                    .background(designSystem.composeColor(ColorToken.TEXT_PRIMARY).copy(alpha = 0.1f))
+                    .background(designSystem.color(ColorToken.TEXT_PRIMARY).copy(alpha = 0.1f))
                     .clickable { onAction(VoiceRecorderAction.ApplyTrim(state.trim.startMillis, state.trim.endMillis)) }
                     .padding(
-                        horizontal = designSystem.dimen(DimenToken.SPACING_XL).dp * 1.5f,
-                        vertical = designSystem.dimen(DimenToken.SPACING_MEDIUM).dp
+                        horizontal = designSystem.dimen(DimenToken.SPACING_XL) * 1.5f,
+                        vertical = designSystem.dimen(DimenToken.SPACING_MEDIUM)
                     ),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = designSystem.strings.recorder.trim,
-                    color = designSystem.composeColor(ColorToken.TEXT_PRIMARY),
+                    color = designSystem.color(ColorToken.TEXT_PRIMARY),
                     fontSize = 17.sp,
                     fontWeight = FontWeight.Bold
                 )
             }
         } else {
-            Spacer(modifier = Modifier.width(designSystem.dimen(DimenToken.AVATAR_SIZE_SMALL).dp))
+            Spacer(modifier = Modifier.width(designSystem.dimen(DimenToken.AVATAR_SIZE_SMALL)))
 
             Box(
                 modifier = Modifier
                     .size(72.dp)
                     .clip(CircleShape)
-                    .background(designSystem.composeColor(state.controls.recordButtonColor))
+                    .background(designSystem.color(state.controls.recordButtonColor))
                     .clickable { onAction(VoiceRecorderAction.ToggleRecord) },
                 contentAlignment = Alignment.Center
             ) {
                 AppIcon(
                     icon = designSystem.icon(state.controls.recordIcon),
                     contentDescription = null,
-                    tint = designSystem.composeColor(ColorToken.TEXT_INVERTED),
-                    modifier = Modifier.size(designSystem.dimen(DimenToken.SPACING_XL).dp)
+                    tint = designSystem.color(ColorToken.TEXT_INVERTED),
+                    modifier = Modifier.size(designSystem.dimen(DimenToken.SPACING_XL))
                 )
             }
 
-            Spacer(modifier = Modifier.width(designSystem.dimen(DimenToken.AVATAR_SIZE_SMALL).dp))
+            Spacer(modifier = Modifier.width(designSystem.dimen(DimenToken.AVATAR_SIZE_SMALL)))
         }
     }
 }

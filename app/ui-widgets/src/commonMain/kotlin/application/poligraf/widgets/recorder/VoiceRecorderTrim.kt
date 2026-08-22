@@ -23,8 +23,7 @@ import application.poligraf.uicore.theme.DesignSystem
 import application.poligraf.uicore.theme.tokens.ColorToken
 import application.poligraf.uicore.theme.tokens.DimenToken
 import application.poligraf.uicore.theme.tokens.IconToken
-import application.poligraf.widgets.utils.composeColor
-import application.poligraf.widgets.utils.AppIcon
+import application.poligraf.widgets.AppIcon
 import kotlin.math.absoluteValue
 
 @Composable
@@ -62,8 +61,8 @@ fun MiniTrimOverview(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = sidePadding)
-                .clip(RoundedCornerShape(designSystem.dimen(DimenToken.SPACING_TINY).dp))
-                .background(designSystem.composeColor(ColorToken.BACKGROUND).copy(alpha = 0.3f))
+                .clip(RoundedCornerShape(designSystem.dimen(DimenToken.SPACING_TINY)))
+                .background(designSystem.color(ColorToken.BACKGROUND).copy(alpha = 0.3f))
                 .pointerInput(state.waveform.durationMillis) {
                     detectTapGestures { offset ->
                         val tappedTime = ((offset.x - sidePaddingPx).coerceIn(0f, trackWidthPx) / trackWidthPx * state.waveform.durationMillis).toLong()
@@ -85,7 +84,7 @@ fun MiniTrimOverview(
                         val amp = state.waveform.amplitudes.getOrNull((i.toFloat() / count * state.waveform.amplitudes.size).toInt()) ?: 0.1f
                         val h = (amp * size.height * 0.4f).coerceAtLeast(1.dp.toPx())
                         drawRoundRect(
-                            color = designSystem.composeColor(ColorToken.TEXT_PRIMARY).copy(alpha = 0.2f),
+                            color = designSystem.color(ColorToken.TEXT_PRIMARY).copy(alpha = 0.2f),
                             topLeft = Offset(x, size.height/2 - h/2),
                             size = Size(1.dp.toPx(), h),
                             cornerRadius = CornerRadius(0.5.dp.toPx())
@@ -108,7 +107,7 @@ fun MiniTrimOverview(
                 .fillMaxHeight()
                 .width(with(LocalDensity.current) { (rightX - leftX).toDp() })
                 .offset(x = with(LocalDensity.current) { leftX.toDp() })
-                .border(2.dp, designSystem.composeColor(state.trim.frameColor))
+                .border(2.dp, designSystem.color(state.trim.frameColor))
         )
 
         TrimHandle(
@@ -150,7 +149,7 @@ fun MiniTrimOverview(
                 .fillMaxHeight()
                 .width(2.dp)
                 .offset(x = with(LocalDensity.current) { (playheadX - 1.dp.toPx()).toDp() })
-                .background(designSystem.composeColor(state.waveform.secondaryColor))
+                .background(designSystem.color(state.waveform.secondaryColor))
         )
     }
 }
@@ -177,7 +176,7 @@ private fun TrimHandle(
     Box(
         modifier = Modifier
             .fillMaxHeight()
-            .width(designSystem.dimen(DimenToken.AVATAR_SIZE_SMALL).dp)
+            .width(designSystem.dimen(DimenToken.AVATAR_SIZE_SMALL))
             .offset(x = with(LocalDensity.current) { (x - (if (isLeft) 34.dp.toPx() else 14.dp.toPx())).toDp() })
             .pointerInput(Unit) {
                 var accumulatedDrag = 0f
@@ -220,7 +219,7 @@ private fun TrimHandle(
                 .fillMaxHeight()
                 .width(20.dp)
                 .background(
-                    designSystem.composeColor(frameColor),
+                    designSystem.color(frameColor),
                     RoundedCornerShape(
                         topStart = if (isLeft) 4.dp else 0.dp,
                         bottomStart = if (isLeft) 4.dp else 0.dp,
@@ -233,7 +232,7 @@ private fun TrimHandle(
             AppIcon(
                 icon = designSystem.icon(icon),
                 contentDescription = null,
-                tint = designSystem.composeColor(ColorToken.TEXT_INVERTED),
+                tint = designSystem.color(ColorToken.TEXT_INVERTED),
                 modifier = Modifier.size(16.dp)
             )
         }

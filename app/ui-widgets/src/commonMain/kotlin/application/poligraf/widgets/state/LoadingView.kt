@@ -13,7 +13,6 @@ import androidx.compose.ui.unit.dp
 import application.poligraf.uicore.theme.LocalDesignSystem
 import application.poligraf.uicore.theme.tokens.ColorToken
 import application.poligraf.uicore.theme.tokens.DimenToken
-import application.poligraf.widgets.utils.composeColor
 
 /**
  * A non-blocking loading indicator overlay.
@@ -34,18 +33,18 @@ fun LoadingView(
             enter = fadeIn() + expandVertically(),
             exit = fadeOut() + shrinkVertically(),
             modifier = Modifier.align(Alignment.TopCenter).padding(top = designSystem.dimen(
-                DimenToken.SPACING_MEDIUM).dp)
+                DimenToken.SPACING_MEDIUM))
         ) {
             Box(
-                modifier = Modifier.size(designSystem.dimen(DimenToken.LOADING_INDICATOR_SIZE).dp)
+                modifier = Modifier.size(designSystem.dimen(DimenToken.LOADING_INDICATOR_SIZE))
                     .clip(CircleShape)
-                    .background(designSystem.composeColor(ColorToken.SURFACE).copy(alpha = 0.8f))
-                    .padding(designSystem.dimen(DimenToken.PADDING_LOADING).dp),
+                    .background(designSystem.color(ColorToken.SURFACE).copy(alpha = 0.8f))
+                    .padding(designSystem.dimen(DimenToken.PADDING_LOADING)),
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator(
-                    strokeWidth = designSystem.dimen(DimenToken.LOADING_INDICATOR_STROKE).dp,
-                    color = designSystem.composeColor(ColorToken.ACCENT_ENERGY)
+                    strokeWidth = designSystem.dimen(DimenToken.LOADING_INDICATOR_STROKE),
+                    color = designSystem.color(ColorToken.ACCENT_ENERGY)
                 )
             }
         }

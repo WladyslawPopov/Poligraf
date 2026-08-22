@@ -2,7 +2,6 @@ package application.poligraf.presentation.main
 
 import androidx.compose.runtime.Stable
 import application.poligraf.engine.component.AppComponentContext
-import application.poligraf.engine.config.AppConfig
 import com.arkivanov.decompose.ExperimentalDecomposeApi
 import com.arkivanov.decompose.jetpackcomponentcontext.viewModel
 import com.arkivanov.decompose.value.MutableValue
@@ -27,11 +26,9 @@ class DefaultMainComponent(
     val navigateToDebug: () -> Unit,
 ) : MainComponent, AppComponentContext by componentContext, KoinComponent {
 
-    private val appConfig: AppConfig = get()
-
     private val mainViewModel = viewModel("mainViewModel") {
         MainViewModel(
-            appConfig = appConfig,
+            appConfig = get(),
             navigateToDebug = navigateToDebug
         )
     }

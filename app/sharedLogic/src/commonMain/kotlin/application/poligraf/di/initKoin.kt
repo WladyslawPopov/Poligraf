@@ -1,6 +1,8 @@
 package application.poligraf.di
 
+import application.poligraf.data.di.dataModule
 import application.poligraf.engine.database.di.databaseModule
+import application.poligraf.engine.di.engineModule
 import application.poligraf.engine.network.di.networkModule
 import application.poligraf.engine.settings.di.settingsModule
 import application.poligraf.uicore.theme.AppStringsImpl
@@ -30,5 +32,7 @@ val sharedModules = listOf(
     uiModule,
     networkModule,
     databaseModule,
+    dataModule,
+    engineModule,
     settingsModule,
 )

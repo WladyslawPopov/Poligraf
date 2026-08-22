@@ -20,8 +20,7 @@ import application.poligraf.uicore.theme.DesignSystem
 import application.poligraf.uicore.theme.tokens.ColorToken
 import application.poligraf.uicore.theme.tokens.DimenToken
 import application.poligraf.uicore.theme.tokens.IconToken
-import application.poligraf.widgets.utils.composeColor
-import application.poligraf.widgets.utils.AppIcon
+import application.poligraf.widgets.AppIcon
 
 @Composable
 fun VoiceRecorderHeader(
@@ -34,13 +33,13 @@ fun VoiceRecorderHeader(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = designSystem.dimen(DimenToken.SPACING_MEDIUM).dp)
+            .padding(horizontal = designSystem.dimen(DimenToken.SPACING_MEDIUM))
     ) {
         if (state.header.isTrimming) {
             Text(
                 text = designSystem.strings.recorder.trimCancel,
-                color = designSystem.composeColor(ColorToken.TEXT_PRIMARY),
-                fontSize = designSystem.dimen(DimenToken.TEXT_SIZE_TITLE_SMALL).sp,
+                color = designSystem.color(ColorToken.TEXT_PRIMARY),
+                fontSize = designSystem.dimen(DimenToken.TEXT_SIZE_TITLE_SMALL).value.sp,
                 modifier = Modifier
                     .align(Alignment.CenterStart)
                     .clickable { onAction(VoiceRecorderAction.CancelTrim) }
@@ -49,9 +48,9 @@ fun VoiceRecorderHeader(
             // Title in center
             Text(
                 text = state.header.title,
-                color = designSystem.composeColor(ColorToken.TEXT_PRIMARY),
+                color = designSystem.color(ColorToken.TEXT_PRIMARY),
                 fontWeight = FontWeight.Bold,
-                fontSize = designSystem.dimen(DimenToken.TEXT_SIZE_TITLE_SMALL).sp,
+                fontSize = designSystem.dimen(DimenToken.TEXT_SIZE_TITLE_SMALL).value.sp,
                 modifier = Modifier.align(Alignment.Center)
             )
             
@@ -61,55 +60,55 @@ fun VoiceRecorderHeader(
             Row(
                 modifier = Modifier.align(Alignment.CenterStart),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(designSystem.dimen(DimenToken.SPACING_SMALL).dp)
+                horizontalArrangement = Arrangement.spacedBy(designSystem.dimen(DimenToken.SPACING_SMALL))
             ) {
                 // DISCARD (Close) Button
                 Box(
-                    modifier = Modifier.size(designSystem.dimen(DimenToken.RECORDER_DRAG_HANDLE_WIDTH).dp)
+                    modifier = Modifier.size(designSystem.dimen(DimenToken.RECORDER_DRAG_HANDLE_WIDTH))
                         .clip(CircleShape)
-                        .background(designSystem.composeColor(ColorToken.TEXT_PRIMARY).copy(alpha = 0.1f))
+                        .background(designSystem.color(ColorToken.TEXT_PRIMARY).copy(alpha = 0.1f))
                         .clickable { onAction(VoiceRecorderAction.DiscardActive) },
                     contentAlignment = Alignment.Center
                 ) {
                     AppIcon(
                         icon = designSystem.icon(IconToken.CLOSE),
                         contentDescription = null,
-                        tint = designSystem.composeColor(ColorToken.TEXT_PRIMARY).copy(alpha = 0.6f),
-                        modifier = Modifier.size(designSystem.dimen(DimenToken.ICON_SIZE_SMALL).dp)
+                        tint = designSystem.color(ColorToken.TEXT_PRIMARY).copy(alpha = 0.6f),
+                        modifier = Modifier.size(designSystem.dimen(DimenToken.ICON_SIZE_SMALL))
                     )
                 }
 
                 // MENU Button
                 Box(
-                    modifier = Modifier.size(designSystem.dimen(DimenToken.RECORDER_DRAG_HANDLE_WIDTH).dp)
+                    modifier = Modifier.size(designSystem.dimen(DimenToken.RECORDER_DRAG_HANDLE_WIDTH))
                         .clip(CircleShape)
-                        .background(designSystem.composeColor(state.header.accentColor).copy(alpha = 0.15f))
+                        .background(designSystem.color(state.header.accentColor).copy(alpha = 0.15f))
                         .clickable { menuExpanded = true },
                     contentAlignment = Alignment.Center
                 ) {
                     AppIcon(
                         icon = designSystem.icon(IconToken.MORE_HORIZ),
                         contentDescription = null,
-                        tint = designSystem.composeColor(state.header.accentColor),
-                        modifier = Modifier.size(designSystem.dimen(DimenToken.ICON_SIZE_NAV).dp)
+                        tint = designSystem.color(state.header.accentColor),
+                        modifier = Modifier.size(designSystem.dimen(DimenToken.ICON_SIZE_NAV))
                     )
 
                     DropdownMenu(
                         expanded = menuExpanded,
                         onDismissRequest = { menuExpanded = false },
                         modifier = Modifier
-                            .background(designSystem.composeColor(state.surfaceColor))
+                            .background(designSystem.color(state.surfaceColor))
                             .border(
-                                width = designSystem.dimen(DimenToken.DIVIDER_THICKNESS).dp,
-                                color = designSystem.composeColor(ColorToken.TEXT_PRIMARY).copy(alpha = 0.1f),
-                                shape = RoundedCornerShape(designSystem.dimen(DimenToken.SPACING_SMALL).dp)
+                                width = designSystem.dimen(DimenToken.DIVIDER_THICKNESS),
+                                color = designSystem.color(ColorToken.TEXT_PRIMARY).copy(alpha = 0.1f),
+                                shape = RoundedCornerShape(designSystem.dimen(DimenToken.SPACING_SMALL))
                             )
                     ) {
                         DropdownMenuItem(
                             text = {
                                 Text(
                                     text = designSystem.strings.recorder.uploadFile,
-                                    color = designSystem.composeColor(ColorToken.TEXT_PRIMARY)
+                                    color = designSystem.color(ColorToken.TEXT_PRIMARY)
                                 )
                             },
                             onClick = {
@@ -121,7 +120,7 @@ fun VoiceRecorderHeader(
                             text = {
                                 Text(
                                     text = designSystem.strings.recorder.trimMode,
-                                    color = designSystem.composeColor(ColorToken.TEXT_PRIMARY)
+                                    color = designSystem.color(ColorToken.TEXT_PRIMARY)
                                 )
                             },
                             onClick = {
@@ -139,7 +138,7 @@ fun VoiceRecorderHeader(
             ) {
                 Text(
                     text = state.header.title,
-                    color = designSystem.composeColor(ColorToken.TEXT_PRIMARY),
+                    color = designSystem.color(ColorToken.TEXT_PRIMARY),
                     fontWeight = FontWeight.ExtraBold,
                     fontSize = 17.sp,
                     letterSpacing = (-0.2).sp
@@ -147,7 +146,7 @@ fun VoiceRecorderHeader(
                 
                 Text(
                     text = state.header.subtitle,
-                    color = designSystem.composeColor(ColorToken.TEXT_PRIMARY).copy(alpha = 0.5f),
+                    color = designSystem.color(ColorToken.TEXT_PRIMARY).copy(alpha = 0.5f),
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Medium
                 )
@@ -158,14 +157,14 @@ fun VoiceRecorderHeader(
                     .align(Alignment.CenterEnd)
                     .size(36.dp)
                     .clip(CircleShape)
-                    .background(designSystem.composeColor(state.header.accentColor).copy(alpha = 0.15f))
+                    .background(designSystem.color(state.header.accentColor).copy(alpha = 0.15f))
                     .clickable { onAction(VoiceRecorderAction.SaveRecording) },
                 contentAlignment = Alignment.Center
             ) {
                 AppIcon(
                     icon = designSystem.icon(IconToken.CHECK),
                     contentDescription = null,
-                    tint = designSystem.composeColor(state.header.accentColor),
+                    tint = designSystem.color(state.header.accentColor),
                     modifier = Modifier.size(22.dp)
                 )
             }

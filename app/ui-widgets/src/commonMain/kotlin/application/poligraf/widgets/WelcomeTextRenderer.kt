@@ -7,11 +7,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.unit.dp
 import application.poligraf.uicore.theme.LocalDesignSystem
 import application.poligraf.uicore.theme.tokens.DimenToken
 import application.poligraf.uicore.widgets.UiWidget
-import application.poligraf.widgets.utils.composeColor
 import application.poligraf.widgets.utils.typography
 import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.milliseconds
@@ -27,22 +25,22 @@ fun WelcomeTextRenderer(
         val isLandscape = maxWidth > maxHeight
         
         val minHeight = if (isLandscape) {
-            designSystem.dimen(DimenToken.WELCOME_MIN_HEIGHT).dp / 2.5f
+            designSystem.dimen(DimenToken.WELCOME_MIN_HEIGHT) / 2.5f
         } else {
-            designSystem.dimen(DimenToken.WELCOME_MIN_HEIGHT).dp
+            designSystem.dimen(DimenToken.WELCOME_MIN_HEIGHT)
         }
         
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(designSystem.dimen(DimenToken.SPACING_LARGE).dp)
+                .padding(designSystem.dimen(DimenToken.SPACING_LARGE))
                 .heightIn(min = minHeight),
             verticalArrangement = Arrangement.Center
         ) {
             TypingText(
                 text = fullText,
                 style = designSystem.typography(widget.typographyToken),
-                color = designSystem.composeColor(widget.colorToken),
+                color = designSystem.color(widget.colorToken),
                 typingDelay = widget.typingDelay
             )
         }

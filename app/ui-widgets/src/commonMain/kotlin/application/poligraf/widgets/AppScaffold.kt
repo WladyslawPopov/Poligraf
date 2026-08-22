@@ -20,7 +20,6 @@ import application.poligraf.uicore.theme.LocalDesignSystem
 import application.poligraf.uicore.types.ContentPaddingType
 import application.poligraf.uicore.types.ToastType
 import application.poligraf.uicore.widgets.AppBackground
-import application.poligraf.widgets.utils.composeColor
 import application.poligraf.widgets.state.LoadingView
 
 /**
@@ -36,6 +35,7 @@ fun AppScaffold(
     onRetry: () -> Unit = {},
     onRefresh: (() -> Unit)? = null,
     topBar: @Composable () -> Unit = {},
+    bottomBar: @Composable () -> Unit = {},
     floatingActionButton: @Composable () -> Unit = {},
     content: @Composable (PaddingValues) -> Unit
 ) {
@@ -79,11 +79,10 @@ fun AppScaffold(
                     ScalesBackground(config = bg)
                 }
                 is AppBackground.Solid -> {
-                    val bgColor: Color = designSystem.composeColor(bg.colorToken)
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(bgColor)
+                            .background(designSystem.color(bg.colorToken))
                     )
                 }
             }
@@ -91,6 +90,7 @@ fun AppScaffold(
             Scaffold(
                 containerColor = Color.Transparent,
                 topBar = topBar,
+                bottomBar = bottomBar,
                 floatingActionButton = floatingActionButton,
                 snackbarHost = {
                     SnackbarHost(snackbarHostState) { data ->
@@ -122,7 +122,7 @@ fun AppScaffold(
                         .fillMaxHeight()
                         .then(
                             if (maxContent != null) {
-                                Modifier.widthIn(max = designSystem.dimen(maxContent).dp)
+                                Modifier.widthIn(max = designSystem.dimen(maxContent))
                             } else {
                                 Modifier.fillMaxWidth()
                             }

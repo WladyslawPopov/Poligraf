@@ -28,8 +28,6 @@ import application.poligraf.uicore.theme.tokens.ColorToken
 import application.poligraf.uicore.theme.tokens.IconToken
 import application.poligraf.uicore.theme.tokens.DimenToken
 import application.poligraf.uicore.widgets.UiWidget
-import application.poligraf.widgets.utils.composeColor
-import application.poligraf.widgets.utils.AppIcon
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -39,28 +37,28 @@ fun SubjectListRenderer(
 ) {
     val designSystem = LocalDesignSystem.current
 
-    Column(modifier = Modifier.fillMaxWidth().padding(vertical = designSystem.dimen(DimenToken.SPACING_SMALL).dp)) {
+    Column(modifier = Modifier.fillMaxWidth().padding(vertical = designSystem.dimen(DimenToken.SPACING_SMALL))) {
         // Header moved OUTSIDE the container
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
-                    horizontal = designSystem.dimen(DimenToken.SPACING_LARGE).dp, 
-                    vertical = designSystem.dimen(DimenToken.SPACING_SMALL).dp
+                    horizontal = designSystem.dimen(DimenToken.SPACING_LARGE), 
+                    vertical = designSystem.dimen(DimenToken.SPACING_SMALL)
                 ),
             verticalAlignment = Alignment.CenterVertically
         ) {
             AppIcon(
                 icon = designSystem.icon(IconToken.HISTORY),
                 contentDescription = null,
-                tint = designSystem.composeColor(ColorToken.TEXT_SECONDARY),
-                modifier = Modifier.size(designSystem.dimen(DimenToken.ICON_SIZE_TINY).dp)
+                tint = designSystem.color(ColorToken.TEXT_SECONDARY),
+                modifier = Modifier.size(designSystem.dimen(DimenToken.ICON_SIZE_TINY))
             )
-            Spacer(modifier = Modifier.width(designSystem.dimen(DimenToken.SPACING_SMALL).dp))
+            Spacer(modifier = Modifier.width(designSystem.dimen(DimenToken.SPACING_SMALL)))
             Text(
                 text = designSystem.strings.subjects.sectionRecordings.uppercase(),
                 style = MaterialTheme.typography.labelMedium,
-                color = designSystem.composeColor(ColorToken.TEXT_SECONDARY),
+                color = designSystem.color(ColorToken.TEXT_SECONDARY),
                 fontWeight = FontWeight.Bold
             )
         }
@@ -68,12 +66,12 @@ fun SubjectListRenderer(
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = designSystem.dimen(DimenToken.SPACING_MEDIUM).dp),
-            color = designSystem.composeColor(ColorToken.GLASS_BASE).copy(alpha = 0.3f),
+                .padding(horizontal = designSystem.dimen(DimenToken.SPACING_MEDIUM)),
+            color = designSystem.color(ColorToken.GLASS_BASE).copy(alpha = 0.3f),
             shape = MaterialTheme.shapes.large,
             border = BorderStroke(
-                designSystem.dimen(DimenToken.DIVIDER_THICKNESS).dp,
-                designSystem.composeColor(ColorToken.GLASS_BORDER).copy(alpha = 0.1f)
+                designSystem.dimen(DimenToken.DIVIDER_THICKNESS),
+                designSystem.color(ColorToken.GLASS_BORDER).copy(alpha = 0.1f)
             )
         ) {
             Column(modifier = Modifier.fillMaxWidth()) {
@@ -88,7 +86,7 @@ fun SubjectListRenderer(
 
                 // List Items
                 Column(
-                    modifier = Modifier.padding(vertical = designSystem.dimen(DimenToken.SPACING_TINY).dp)
+                    modifier = Modifier.padding(vertical = designSystem.dimen(DimenToken.SPACING_TINY))
                 ) {
                     widget.items.forEachIndexed { index, item ->
                         val isSelected = widget.selectedIds.contains(item.id)
@@ -99,14 +97,14 @@ fun SubjectListRenderer(
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(designSystem.dimen(DimenToken.DIVIDER_THICKNESS).dp)
-                                    .padding(horizontal = designSystem.dimen(DimenToken.SPACING_LARGE).dp)
+                                    .height(designSystem.dimen(DimenToken.DIVIDER_THICKNESS))
+                                    .padding(horizontal = designSystem.dimen(DimenToken.SPACING_LARGE))
                                     .background(
                                         Brush.horizontalGradient(
                                             colors = listOf(
                                                 Color.Transparent,
-                                                designSystem.composeColor(ColorToken.GLASS_BORDER).copy(alpha = 0.5f),
-                                                designSystem.composeColor(ColorToken.GLASS_BORDER).copy(alpha = 0.15f),
+                                                designSystem.color(ColorToken.GLASS_BORDER).copy(alpha = 0.5f),
+                                                designSystem.color(ColorToken.GLASS_BORDER).copy(alpha = 0.15f),
                                                 Color.Transparent
                                             )
                                         )
@@ -129,9 +127,9 @@ private fun SelectionPanel(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(designSystem.dimen(DimenToken.HEADER_HEIGHT).dp)
-            .background(designSystem.composeColor(ColorToken.ACCENT_PRIMARY).copy(alpha = 0.05f))
-            .padding(horizontal = designSystem.dimen(DimenToken.SPACING_MEDIUM).dp),
+            .height(designSystem.dimen(DimenToken.HEADER_HEIGHT))
+            .background(designSystem.color(ColorToken.ACCENT_PRIMARY).copy(alpha = 0.05f))
+            .padding(horizontal = designSystem.dimen(DimenToken.SPACING_MEDIUM)),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
@@ -140,13 +138,13 @@ private fun SelectionPanel(
                 AppIcon(
                     icon = designSystem.icon(IconToken.CLOSE),
                     contentDescription = null,
-                    tint = designSystem.composeColor(ColorToken.TEXT_PRIMARY)
+                    tint = designSystem.color(ColorToken.TEXT_PRIMARY)
                 )
             }
             Text(
                 text = "$selectedCount ${designSystem.strings.subjects.actionSelected}",
                 style = MaterialTheme.typography.titleSmall,
-                color = designSystem.composeColor(ColorToken.TEXT_PRIMARY)
+                color = designSystem.color(ColorToken.TEXT_PRIMARY)
             )
         }
 
@@ -155,14 +153,14 @@ private fun SelectionPanel(
                 AppIcon(
                     icon = designSystem.icon(IconToken.DELETE),
                     contentDescription = null,
-                    tint = designSystem.composeColor(ColorToken.ACCENT_PRIMARY)
+                    tint = designSystem.color(ColorToken.ACCENT_PRIMARY)
                 )
             }
             IconButton(onClick = { /* Future menu */ }) {
                 AppIcon(
                     icon = designSystem.icon(IconToken.MORE_VERT),
                     contentDescription = null,
-                    tint = designSystem.composeColor(ColorToken.TEXT_PRIMARY)
+                    tint = designSystem.color(ColorToken.TEXT_PRIMARY)
                 )
             }
         }
@@ -178,20 +176,20 @@ private fun SubjectRowRenderer(
     onAction: (WidgetAction) -> Unit
 ) {
     val backgroundColor by animateColorAsState(
-        if (isSelected) designSystem.composeColor(ColorToken.ACCENT_PRIMARY).copy(alpha = 0.12f)
+        if (isSelected) designSystem.color(ColorToken.ACCENT_PRIMARY).copy(alpha = 0.12f)
         else Color.Transparent,
         label = "row_bg"
     )
 
     val indicatorWidth by animateDpAsState(
-        if (isSelected) designSystem.dimen(DimenToken.SELECTION_INDICATOR_WIDTH).dp else 0.dp,
+        if (isSelected) designSystem.dimen(DimenToken.SELECTION_INDICATOR_WIDTH) else 0.dp,
         label = "indicator_width"
     )
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(designSystem.dimen(DimenToken.SUBJECT_ROW_HEIGHT).dp)
+            .height(designSystem.dimen(DimenToken.SUBJECT_ROW_HEIGHT))
             .background(backgroundColor)
             .combinedClickable(
                 onClick = { onAction(item.action) },
@@ -206,9 +204,9 @@ private fun SubjectRowRenderer(
                 .background(
                     Brush.verticalGradient(
                         colors = listOf(
-                            designSystem.composeColor(ColorToken.ACCENT_PRIMARY).copy(alpha = 0.5f),
-                            designSystem.composeColor(ColorToken.ACCENT_PRIMARY),
-                            designSystem.composeColor(ColorToken.ACCENT_PRIMARY).copy(alpha = 0.5f)
+                            designSystem.color(ColorToken.ACCENT_PRIMARY).copy(alpha = 0.5f),
+                            designSystem.color(ColorToken.ACCENT_PRIMARY),
+                            designSystem.color(ColorToken.ACCENT_PRIMARY).copy(alpha = 0.5f)
                         )
                     )
                 )
@@ -217,15 +215,15 @@ private fun SubjectRowRenderer(
         Row(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = designSystem.dimen(DimenToken.SPACING_MEDIUM).dp),
+                .padding(horizontal = designSystem.dimen(DimenToken.SPACING_MEDIUM)),
             verticalAlignment = Alignment.CenterVertically
         ) {
             // Avatar with animated border
-            val avatarBg: Color = designSystem.composeColor(item.backgroundColor)
-            val accentColor: Color = designSystem.composeColor(ColorToken.ACCENT_PRIMARY)
+            val avatarBg: Color = designSystem.color(item.backgroundColor)
+            val accentColor: Color = designSystem.color(ColorToken.ACCENT_PRIMARY)
             
             Box(
-                modifier = Modifier.size(designSystem.dimen(DimenToken.AVATAR_SIZE_SMALL).dp)
+                modifier = Modifier.size(designSystem.dimen(DimenToken.AVATAR_SIZE_SMALL))
                     .clip(CircleShape)
                     .background(avatarBg.copy(alpha = 0.2f))
                     .then(
@@ -243,21 +241,21 @@ private fun SubjectRowRenderer(
                         color = Color.Transparent,
                         shape = CircleShape,
                         border = BorderStroke(
-                            designSystem.dimen(DimenToken.DIVIDER_THICKNESS).dp * 4, 
-                            designSystem.composeColor(ColorToken.ACCENT_PRIMARY)
+                            designSystem.dimen(DimenToken.DIVIDER_THICKNESS) * 4, 
+                            designSystem.color(ColorToken.ACCENT_PRIMARY)
                         )
                     ) {}
                 }
             }
 
-            Spacer(modifier = Modifier.width(designSystem.dimen(DimenToken.SPACING_MEDIUM).dp))
+            Spacer(modifier = Modifier.width(designSystem.dimen(DimenToken.SPACING_MEDIUM)))
 
             // Info
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = item.title ?: "",
                     style = MaterialTheme.typography.titleMedium,
-                    color = designSystem.composeColor(ColorToken.TEXT_PRIMARY),
+                    color = designSystem.color(ColorToken.TEXT_PRIMARY),
                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.SemiBold
                 )
             }
@@ -268,14 +266,14 @@ private fun SubjectRowRenderer(
                     modifier = Modifier
                         .size(22.dp)
                         .clip(CircleShape)
-                        .background(designSystem.composeColor(ColorToken.ACCENT_PRIMARY)),
+                        .background(designSystem.color(ColorToken.ACCENT_PRIMARY)),
                     contentAlignment = Alignment.Center
                 ) {
                     AppIcon(
                         icon = designSystem.icon(IconToken.CHECK),
                         contentDescription = null,
-                        tint = designSystem.composeColor(ColorToken.PRIMARY),
-                        modifier = Modifier.size(designSystem.dimen(DimenToken.CHECKMARK_SIZE_SMALL).dp)
+                        tint = designSystem.color(ColorToken.PRIMARY),
+                        modifier = Modifier.size(designSystem.dimen(DimenToken.CHECKMARK_SIZE_SMALL))
                     )
                 }
             }

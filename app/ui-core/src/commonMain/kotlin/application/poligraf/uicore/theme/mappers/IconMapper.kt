@@ -1,4 +1,4 @@
-package application.poligraf.uicore.theme
+package application.poligraf.uicore.theme.mappers
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.*

@@ -23,7 +23,6 @@ import application.poligraf.uicore.state.VoiceRecorderUiState
 import application.poligraf.uicore.theme.DesignSystem
 import application.poligraf.uicore.theme.tokens.ColorToken
 import application.poligraf.uicore.theme.tokens.DimenToken
-import application.poligraf.widgets.utils.composeColor
 import kotlinx.coroutines.launch
 
 @Composable
@@ -107,18 +106,18 @@ fun VoiceRecorderWaveform(
 
         Canvas(modifier = Modifier.fillMaxSize()) {
             val startX = headX - (scrollOffset.value * stepPx)
-            val waveformHeight = heightPx - designSystem.dimen(DimenToken.HEADER_HEIGHT).dp.toPx()
+            val waveformHeight = heightPx - designSystem.dimen(DimenToken.HEADER_HEIGHT).toPx()
             val centerY = waveformHeight / 2f
 
             // Backgrounds
             drawRect(
-                color = designSystem.composeColor(ColorToken.BACKGROUND),
+                color = designSystem.color(ColorToken.BACKGROUND),
                 size = Size(widthPx, waveformHeight)
             )
 
             val recordedWidth = (state.waveform.durationMillis.toFloat() / millisPerBar) * stepPx
             drawRect(
-                color = designSystem.composeColor(ColorToken.SURFACE_VARIANT).copy(alpha = 0.5f),
+                color = designSystem.color(ColorToken.SURFACE_VARIANT).copy(alpha = 0.5f),
                 topLeft = Offset(startX, 0f),
                 size = Size(recordedWidth, waveformHeight)
             )
@@ -128,7 +127,7 @@ fun VoiceRecorderWaveform(
                 val trimStartX = startX + (state.waveform.trimStartMillis.toFloat() / millisPerBar) * stepPx
                 val trimEndX = startX + (state.waveform.trimEndMillis.toFloat() / millisPerBar) * stepPx
                 drawRect(
-                    color = designSystem.composeColor(state.trim.frameColor).copy(alpha = 0.25f),
+                    color = designSystem.color(state.trim.frameColor).copy(alpha = 0.25f),
                     topLeft = Offset(trimStartX, 0f),
                     size = Size((trimEndX - trimStartX).coerceAtLeast(1f), waveformHeight)
                 )
@@ -142,27 +141,27 @@ fun VoiceRecorderWaveform(
                 val x = startX + (i * stepPx)
                 val ampIdx = (i * millisPerBar / 33.33f).toInt()
                 val amp = state.waveform.amplitudes.getOrElse(ampIdx) { 0.05f }
-                val barH = (amp * waveformHeight * 0.55f).coerceAtLeast(designSystem.dimen(DimenToken.RECORDER_WAVEFORM_MIN_HEIGHT).dp.toPx())
+                val barH = (amp * waveformHeight * 0.55f).coerceAtLeast(designSystem.dimen(DimenToken.RECORDER_WAVEFORM_MIN_HEIGHT).toPx())
 
                 drawLine(
-                    color = designSystem.composeColor(ColorToken.TEXT_PRIMARY),
+                    color = designSystem.color(ColorToken.TEXT_PRIMARY),
                     start = Offset(x, centerY - barH / 2),
                     end = Offset(x, centerY + barH / 2),
-                    strokeWidth = designSystem.dimen(DimenToken.RECORDER_WAVEFORM_BAR_WIDTH).dp.toPx(),
+                    strokeWidth = designSystem.dimen(DimenToken.RECORDER_WAVEFORM_BAR_WIDTH).toPx(),
                     cap = StrokeCap.Round
                 )
             }
 
             // Ruler
             val rulerY = waveformHeight
-            val rulerTextColor = designSystem.composeColor(ColorToken.RECORDER_RULER_TEXT)
-            val rulerTextSize = designSystem.dimen(DimenToken.RECORDER_RULER_TEXT_SIZE).sp
+            val rulerTextColor = designSystem.color(ColorToken.RECORDER_RULER_TEXT)
+            val rulerTextSize = designSystem.dimen(DimenToken.RECORDER_RULER_TEXT_SIZE).value.sp
 
             drawLine(
-                color = designSystem.composeColor(ColorToken.TEXT_PRIMARY).copy(alpha = 0.15f),
+                color = designSystem.color(ColorToken.TEXT_PRIMARY).copy(alpha = 0.15f),
                 start = Offset(0f, rulerY),
                 end = Offset(widthPx, rulerY),
-                strokeWidth = designSystem.dimen(DimenToken.DIVIDER_THICKNESS).dp.toPx()
+                strokeWidth = designSystem.dimen(DimenToken.DIVIDER_THICKNESS).toPx()
             )
 
             val ticksPerSecond = 5
@@ -175,16 +174,16 @@ fun VoiceRecorderWaveform(
                 val x = startX + (timeMillis / millisPerBar) * stepPx
                 val isSecond = t % ticksPerSecond == 0
                 val tickHeight = if (isSecond) {
-                    designSystem.dimen(DimenToken.RECORDER_RULER_TICK_LARGE).dp.toPx()
+                    designSystem.dimen(DimenToken.RECORDER_RULER_TICK_LARGE).toPx()
                 } else {
-                    designSystem.dimen(DimenToken.RECORDER_RULER_TICK_SMALL).dp.toPx()
+                    designSystem.dimen(DimenToken.RECORDER_RULER_TICK_SMALL).toPx()
                 }
 
                 drawLine(
-                    color = designSystem.composeColor(ColorToken.TEXT_PRIMARY).copy(alpha = if (isSecond) 0.3f else 0.1f),
+                    color = designSystem.color(ColorToken.TEXT_PRIMARY).copy(alpha = if (isSecond) 0.3f else 0.1f),
                     start = Offset(x, rulerY),
                     end = Offset(x, rulerY + tickHeight),
-                    strokeWidth = designSystem.dimen(DimenToken.DIVIDER_THICKNESS).dp.toPx()
+                    strokeWidth = designSystem.dimen(DimenToken.DIVIDER_THICKNESS).toPx()
                 )
 
                 if (isSecond) {
@@ -206,7 +205,7 @@ fun VoiceRecorderWaveform(
                         textLayoutResult = textLayoutResult,
                         topLeft = Offset(
                             x - textLayoutResult.size.width / 2,
-                            rulerY + designSystem.dimen(DimenToken.SPACING_SMALL).dp.toPx()
+                            rulerY + designSystem.dimen(DimenToken.SPACING_SMALL).toPx()
                         )
                     )
                 }
@@ -214,24 +213,24 @@ fun VoiceRecorderWaveform(
 
             // Playhead
             val playheadColor = if (state.waveform.isRecording) {
-                designSystem.composeColor(state.waveform.primaryColor)
+                designSystem.color(state.waveform.primaryColor)
             } else {
-                designSystem.composeColor(state.waveform.secondaryColor)
+                designSystem.color(state.waveform.secondaryColor)
             }
             drawLine(
                 color = playheadColor,
                 start = Offset(headX, 0f),
                 end = Offset(headX, waveformHeight),
-                strokeWidth = designSystem.dimen(DimenToken.RECORDER_WAVEFORM_BAR_WIDTH).dp.toPx()
+                strokeWidth = designSystem.dimen(DimenToken.RECORDER_WAVEFORM_BAR_WIDTH).toPx()
             )
             drawCircle(
                 color = playheadColor,
-                radius = (designSystem.dimen(DimenToken.RECORDER_WAVEFORM_BAR_WIDTH).dp.toPx() * 1.75f),
+                radius = (designSystem.dimen(DimenToken.RECORDER_WAVEFORM_BAR_WIDTH).toPx() * 1.75f),
                 center = Offset(headX, 0f)
             )
             drawCircle(
                 color = playheadColor,
-                radius = (designSystem.dimen(DimenToken.RECORDER_WAVEFORM_BAR_WIDTH).dp.toPx() * 1.75f),
+                radius = (designSystem.dimen(DimenToken.RECORDER_WAVEFORM_BAR_WIDTH).toPx() * 1.75f),
                 center = Offset(headX, waveformHeight)
             )
         }

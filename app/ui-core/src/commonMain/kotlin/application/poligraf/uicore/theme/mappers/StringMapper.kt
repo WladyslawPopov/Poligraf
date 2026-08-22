@@ -1,6 +1,15 @@
-package application.poligraf.uicore.theme
+package application.poligraf.uicore.theme.mappers
 
 import androidx.compose.runtime.Composable
+import application.poligraf.uicore.theme.AppStrings
+import application.poligraf.uicore.theme.CommonStrings
+import application.poligraf.uicore.theme.DebugStrings
+import application.poligraf.uicore.theme.DrawerStrings
+import application.poligraf.uicore.theme.ErrorStrings
+import application.poligraf.uicore.theme.IAppStrings
+import application.poligraf.uicore.theme.RecorderStrings
+import application.poligraf.uicore.theme.SubjectStrings
+import application.poligraf.uicore.theme.ToastStrings
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -14,7 +23,9 @@ fun rememberAppUIStrings(provider: IAppStrings): AppStrings {
             menu = stringResource(provider.common.menu),
             ok = "OK",
             cancel = stringResource(provider.recorder.cancel),
-            unknown = stringResource(provider.common.unknown)
+            unknown = stringResource(provider.common.unknown),
+            settings = stringResource(provider.common.settings),
+            history = stringResource(provider.common.history),
         ),
         errors = ErrorStrings(
             noInternetTitle = stringResource(provider.errors.noInternetTitle),

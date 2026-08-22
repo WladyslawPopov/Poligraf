@@ -26,6 +26,9 @@ kotlin {
         commonMain.dependencies {
             implementation(projects.app.engine)
             implementation(libs.kotlinx.coroutines.core)
+            implementation(libs.sqldelight.coroutines)
+            implementation(libs.koin.core)
+            implementation(libs.kotlinx.serialization.json)
         }
     }
 }

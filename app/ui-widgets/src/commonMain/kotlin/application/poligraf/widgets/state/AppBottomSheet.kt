@@ -9,7 +9,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import application.poligraf.uicore.theme.DesignSystem
 import application.poligraf.uicore.theme.tokens.ColorToken
-import application.poligraf.widgets.utils.composeColor
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -23,11 +22,11 @@ fun AppBottomSheet(
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
         sheetState = sheetState,
-        containerColor = designSystem.composeColor(ColorToken.SURFACE).copy(alpha = 0.95f),
+        containerColor = designSystem.color(ColorToken.SURFACE).copy(alpha = 0.95f),
         shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
         dragHandle = {
             BottomSheetDefaults.DragHandle(
-                color = designSystem.composeColor(ColorToken.TEXT_SECONDARY).copy(alpha = 0.3f)
+                color = designSystem.color(ColorToken.TEXT_SECONDARY).copy(alpha = 0.3f)
             )
         },
         tonalElevation = 0.dp
@@ -42,7 +41,7 @@ fun AppBottomSheet(
                 Text(
                     text = title,
                     style = MaterialTheme.typography.titleLarge,
-                    color = designSystem.composeColor(ColorToken.TEXT_PRIMARY),
+                    color = designSystem.color(ColorToken.TEXT_PRIMARY),
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(16.dp)
                 )
@@ -51,7 +50,7 @@ fun AppBottomSheet(
                 HorizontalDivider(
                     modifier = Modifier.padding(horizontal = 16.dp),
                     thickness = 1.dp,
-                    color = designSystem.composeColor(ColorToken.GLASS_BORDER).copy(alpha = 0.1f)
+                    color = designSystem.color(ColorToken.GLASS_BORDER).copy(alpha = 0.1f)
                 )
                 
                 Spacer(modifier = Modifier.height(8.dp))

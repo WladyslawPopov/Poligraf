@@ -35,7 +35,6 @@ class AppDelegate: NSObject, UIApplicationDelegate {
             analytics: IosAnalytics(),
             integrity: IosIntegrityImpl(),
             reviewManager: IosReviewManagerImpl(),
-            resourceProvider: IosResourceProvider(),
             driverFactory: DriverFactory(),
             settings: settings,
             appVersion: version,

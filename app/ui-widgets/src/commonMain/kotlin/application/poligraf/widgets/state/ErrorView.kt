@@ -12,7 +12,6 @@ import application.poligraf.engine.error.ErrorType
 import application.poligraf.uicore.theme.LocalDesignSystem
 import application.poligraf.uicore.theme.tokens.ColorToken
 import application.poligraf.uicore.theme.tokens.DimenToken
-import application.poligraf.widgets.utils.composeColor
 import androidx.compose.ui.graphics.Color as ComposeColor
 
 /**
@@ -47,14 +46,14 @@ fun ErrorView(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .padding(designSystem.dimen(DimenToken.PADDING_ERROR).dp),
+            .padding(designSystem.dimen(DimenToken.PADDING_ERROR)),
         contentAlignment = Alignment.Center
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(
-                    designSystem.composeColor(ColorToken.GLASS_BASE).let { it as ComposeColor }.copy(alpha = 0.3f),
+                    designSystem.color(ColorToken.GLASS_BASE).let { it as ComposeColor }.copy(alpha = 0.3f),
                     MaterialTheme.shapes.extraLarge
                 )
                 .padding(24.dp),
@@ -69,22 +68,22 @@ fun ErrorView(
             Text(
                 text = title,
                 style = MaterialTheme.typography.headlineMedium,
-                color = designSystem.composeColor(ColorToken.TEXT_PRIMARY),
+                color = designSystem.color(ColorToken.TEXT_PRIMARY),
                 textAlign = TextAlign.Center
             )
-            Spacer(modifier = Modifier.height(designSystem.dimen(DimenToken.SPACING_SMALL).dp))
+            Spacer(modifier = Modifier.height(designSystem.dimen(DimenToken.SPACING_SMALL)))
             Text(
                 text = msg,
                 style = MaterialTheme.typography.bodyLarge,
-                color = designSystem.composeColor(ColorToken.TEXT_SECONDARY),
+                color = designSystem.color(ColorToken.TEXT_SECONDARY),
                 textAlign = TextAlign.Center
             )
-            Spacer(modifier = Modifier.height(designSystem.dimen(DimenToken.SPACING_LARGE).dp))
+            Spacer(modifier = Modifier.height(designSystem.dimen(DimenToken.SPACING_LARGE)))
             Button(
                 onClick = onRetry,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = designSystem.composeColor(ColorToken.ACCENT_ENERGY),
-                    contentColor = designSystem.composeColor(ColorToken.TEXT_INVERTED)
+                    containerColor = designSystem.color(ColorToken.ACCENT_ENERGY),
+                    contentColor = designSystem.color(ColorToken.TEXT_INVERTED)
                 ),
                 shape = MaterialTheme.shapes.large
             ) {

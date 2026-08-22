@@ -14,13 +14,12 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import application.poligraf.widgets.utils.composeColor
+import application.poligraf.uicore.theme.tokens.DimenToken
 import application.poligraf.widgets.VoiceRecorderWaveform
 import application.poligraf.uicore.state.VoiceRecorderAction
 import application.poligraf.uicore.state.VoiceRecorderUiState
 import application.poligraf.uicore.theme.LocalDesignSystem
 import application.poligraf.uicore.theme.tokens.ColorToken
-import application.poligraf.uicore.theme.tokens.DimenToken
 
 @Composable
 fun VoiceRecorderRenderer(
@@ -33,48 +32,48 @@ fun VoiceRecorderRenderer(
         modifier = Modifier
             .fillMaxWidth()
             .fillMaxHeight(),
-        color = designSystem.composeColor(state.surfaceColor),
+        color = designSystem.color(state.surfaceColor),
         shape = RoundedCornerShape(
-            topStart = designSystem.dimen(DimenToken.SPACING_XL).dp,
-            topEnd = designSystem.dimen(DimenToken.SPACING_XL).dp
+            topStart = designSystem.dimen(DimenToken.SPACING_XL),
+            topEnd = designSystem.dimen(DimenToken.SPACING_XL)
         ),
         border = BorderStroke(
-            designSystem.dimen(DimenToken.DIVIDER_THICKNESS).dp,
-            designSystem.composeColor(ColorToken.TEXT_PRIMARY).copy(alpha = 0.1f)
+            designSystem.dimen(DimenToken.DIVIDER_THICKNESS),
+            designSystem.color(ColorToken.TEXT_PRIMARY).copy(alpha = 0.1f)
         )
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(bottom = designSystem.dimen(DimenToken.SPACING_XL).dp),
+                .padding(bottom = designSystem.dimen(DimenToken.SPACING_XL)),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Drag Handle (Simplified)
             Box(
                 modifier = Modifier
-                    .padding(vertical = designSystem.dimen(DimenToken.SPACING_SMALL).dp)
+                    .padding(vertical = designSystem.dimen(DimenToken.SPACING_SMALL))
                     .size(
-                        width = designSystem.dimen(DimenToken.RECORDER_DRAG_HANDLE_WIDTH).dp,
-                        height = designSystem.dimen(DimenToken.RECORDER_DRAG_HANDLE_HEIGHT).dp
+                        width = designSystem.dimen(DimenToken.RECORDER_DRAG_HANDLE_WIDTH),
+                        height = designSystem.dimen(DimenToken.RECORDER_DRAG_HANDLE_HEIGHT)
                     )
                     .clip(CircleShape)
-                    .background(designSystem.composeColor(ColorToken.TEXT_PRIMARY).copy(alpha = 0.3f))
+                    .background(designSystem.color(ColorToken.TEXT_PRIMARY).copy(alpha = 0.3f))
             )
 
             VoiceRecorderHeader(state, onAction, designSystem)
 
-            Spacer(modifier = Modifier.height(designSystem.dimen(DimenToken.SPACING_LARGE).dp))
+            Spacer(modifier = Modifier.height(designSystem.dimen(DimenToken.SPACING_LARGE)))
 
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(designSystem.dimen(DimenToken.RECORDER_WAVEFORM_HEIGHT).dp)
+                    .height(designSystem.dimen(DimenToken.RECORDER_WAVEFORM_HEIGHT))
             ) {
                 VoiceRecorderWaveform(state, onAction, designSystem)
             }
 
             if (state.trim.isVisible) {
-                Spacer(modifier = Modifier.height(designSystem.dimen(DimenToken.SPACING_XL).dp))
+                Spacer(modifier = Modifier.height(designSystem.dimen(DimenToken.SPACING_XL)))
                 MiniTrimOverview(state, onAction, designSystem)
             }
 
@@ -83,7 +82,7 @@ fun VoiceRecorderRenderer(
             // Total Duration Label
             Text(
                 text = state.header.timerLabel,
-                color = designSystem.composeColor(ColorToken.TEXT_PRIMARY).copy(alpha = 0.4f),
+                color = designSystem.color(ColorToken.TEXT_PRIMARY).copy(alpha = 0.4f),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(bottom = 8.dp)
@@ -95,13 +94,13 @@ fun VoiceRecorderRenderer(
                 style = LocalTextStyle.current.copy(
                     fontFamily = FontFamily.Monospace,
                     fontWeight = FontWeight.Medium,
-                    fontSize = designSystem.dimen(DimenToken.TEXT_SIZE_TITLE_LARGE).sp,
+                    fontSize = designSystem.dimen(DimenToken.TEXT_SIZE_TITLE_LARGE).value.sp,
                     letterSpacing = (-1).sp
                 ),
-                color = designSystem.composeColor(ColorToken.TEXT_PRIMARY)
+                color = designSystem.color(ColorToken.TEXT_PRIMARY)
             )
 
-            Spacer(modifier = Modifier.height(designSystem.dimen(DimenToken.SPACING_XL).dp))
+            Spacer(modifier = Modifier.height(designSystem.dimen(DimenToken.SPACING_XL)))
 
             VoiceRecorderControls(state, onAction, designSystem)
         }

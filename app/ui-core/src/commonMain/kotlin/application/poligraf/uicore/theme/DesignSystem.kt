@@ -2,7 +2,11 @@ package application.poligraf.uicore.theme
 
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.Dp
+import application.poligraf.uicore.theme.mappers.IconMapper
+import application.poligraf.uicore.theme.mappers.ThemeDefaults
 import application.poligraf.uicore.theme.tokens.*
 
 /**
@@ -10,14 +14,13 @@ import application.poligraf.uicore.theme.tokens.*
  */
 @Stable
 class DesignSystem(
-    val resources: ResourceProvider,
     val strings: AppUIStrings,
     val isDark: Boolean = true,
     val isDebug: Boolean = false
 ) {
     // Helper methods to get values easily in UI
-    fun color(token: ColorToken): String = resources.getColorHex(token, isDark)
-    fun dimen(token: DimenToken): Float = resources.getDimension(token)
+    fun color(token: ColorToken): Color = ThemeDefaults.getColor(token, isDark)
+    fun dimen(token: DimenToken): Dp = ThemeDefaults.getDimension(token)
     fun icon(token: IconToken): ImageVector = IconMapper.getIcon(token)
 }
 

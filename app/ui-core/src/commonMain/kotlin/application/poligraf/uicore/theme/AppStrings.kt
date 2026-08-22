@@ -25,7 +25,9 @@ data class CommonStrings(
     val menu: String,
     val ok: String,
     val cancel: String,
-    val unknown: String
+    val unknown: String,
+    val history: String,
+    val settings: String
 )
 
 @Immutable

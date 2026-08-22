@@ -21,7 +21,6 @@ import application.poligraf.uicore.theme.LocalDesignSystem
 import application.poligraf.uicore.theme.tokens.ColorToken
 import application.poligraf.uicore.theme.tokens.DimenToken
 import application.poligraf.uicore.widgets.UiWidget
-import application.poligraf.widgets.utils.composeColor
 
 @Composable
 fun SubjectSliderRenderer(
@@ -31,21 +30,21 @@ fun SubjectSliderRenderer(
     val designSystem = LocalDesignSystem.current
     val state = rememberLazyListState()
     
-    Column(modifier = Modifier.fillMaxWidth().padding(vertical = designSystem.dimen(DimenToken.SPACING_SMALL).dp)) {
+    Column(modifier = Modifier.fillMaxWidth().padding(vertical = designSystem.dimen(DimenToken.SPACING_SMALL))) {
         // Header for Slider
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
-                    horizontal = designSystem.dimen(DimenToken.SPACING_LARGE).dp, 
-                    vertical = designSystem.dimen(DimenToken.SPACING_SMALL).dp
+                    horizontal = designSystem.dimen(DimenToken.SPACING_LARGE), 
+                    vertical = designSystem.dimen(DimenToken.SPACING_SMALL)
                 ),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = designSystem.strings.subjects.sectionTemplates.uppercase(),
                 style = MaterialTheme.typography.labelMedium,
-                color = designSystem.composeColor(ColorToken.TEXT_SECONDARY),
+                color = designSystem.color(ColorToken.TEXT_SECONDARY),
                 fontWeight = FontWeight.Bold
             )
         }
@@ -54,7 +53,7 @@ fun SubjectSliderRenderer(
             state = state,
             flingBehavior = rememberSnapFlingBehavior(lazyListState = state),
             modifier = Modifier.fillMaxWidth(),
-            contentPadding = PaddingValues(horizontal = designSystem.dimen(DimenToken.SPACING_MEDIUM).dp),
+            contentPadding = PaddingValues(horizontal = designSystem.dimen(DimenToken.SPACING_MEDIUM)),
             horizontalArrangement = Arrangement.spacedBy(widget.itemSpacing.dp)
         ) {
             items(widget.items, key = { it.id }) { item ->
@@ -76,33 +75,33 @@ private fun SubjectStoryRenderer(
     onAction: (WidgetAction) -> Unit
 ) {
     Card(
-        modifier = Modifier.width(designSystem.dimen(DimenToken.SUBJECT_STORY_WIDTH).dp)
-            .height(designSystem.dimen(DimenToken.SUBJECT_STORY_HEIGHT).dp),
+        modifier = Modifier.width(designSystem.dimen(DimenToken.SUBJECT_STORY_WIDTH))
+            .height(designSystem.dimen(DimenToken.SUBJECT_STORY_HEIGHT)),
         colors = CardDefaults.cardColors(
-            containerColor = designSystem.composeColor(item.backgroundColor).copy(alpha = 0.4f)
+            containerColor = designSystem.color(item.backgroundColor).copy(alpha = 0.4f)
         ),
         shape = MaterialTheme.shapes.large,
         onClick = { onAction(item.action) },
         border = BorderStroke(
-            designSystem.dimen(DimenToken.DIVIDER_THICKNESS).dp, 
-            designSystem.composeColor(ColorToken.GLASS_BORDER).copy(alpha = 0.15f)
+            designSystem.dimen(DimenToken.DIVIDER_THICKNESS), 
+            designSystem.color(ColorToken.GLASS_BORDER).copy(alpha = 0.15f)
         )
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(designSystem.dimen(DimenToken.SPACING_SMALL).dp),
+                .padding(designSystem.dimen(DimenToken.SPACING_SMALL)),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
             Text(text = item.emoji, style = MaterialTheme.typography.headlineLarge)
             
-            Spacer(modifier = Modifier.height(designSystem.dimen(DimenToken.SPACING_MEDIUM).dp))
+            Spacer(modifier = Modifier.height(designSystem.dimen(DimenToken.SPACING_MEDIUM)))
             
             Text(
                 text = item.title ?: item.titleProvider(designSystem.strings),
                 style = MaterialTheme.typography.labelSmall,
-                color = designSystem.composeColor(item.titleColor),
+                color = designSystem.color(item.titleColor),
                 textAlign = TextAlign.Center,
                 fontWeight = FontWeight.Medium,
                 maxLines = 2,
@@ -120,29 +119,29 @@ private fun SubjectCardRenderer(
     onAction: (WidgetAction) -> Unit
 ) {
     Card(
-        modifier = Modifier.width(designSystem.dimen(DimenToken.SUBJECT_CARD_WIDTH).dp)
-            .height(designSystem.dimen(DimenToken.SUBJECT_CARD_HEIGHT).dp),
+        modifier = Modifier.width(designSystem.dimen(DimenToken.SUBJECT_CARD_WIDTH))
+            .height(designSystem.dimen(DimenToken.SUBJECT_CARD_HEIGHT)),
         colors = CardDefaults.cardColors(
-            containerColor = designSystem.composeColor(item.backgroundColor).copy(alpha = 0.6f)
+            containerColor = designSystem.color(item.backgroundColor).copy(alpha = 0.6f)
         ),
         shape = MaterialTheme.shapes.extraLarge,
         onClick = { onAction(item.action) },
         border = BorderStroke(
-            designSystem.dimen(DimenToken.DIVIDER_THICKNESS).dp, 
-            designSystem.composeColor(ColorToken.GLASS_BORDER).copy(alpha = 0.2f)
+            designSystem.dimen(DimenToken.DIVIDER_THICKNESS), 
+            designSystem.color(ColorToken.GLASS_BORDER).copy(alpha = 0.2f)
         )
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(designSystem.dimen(DimenToken.SPACING_MEDIUM).dp),
+                .padding(designSystem.dimen(DimenToken.SPACING_MEDIUM)),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
             Box(
-                modifier = Modifier.size(designSystem.dimen(DimenToken.SUBJECT_CARD_ICON_SIZE).dp)
+                modifier = Modifier.size(designSystem.dimen(DimenToken.SUBJECT_CARD_ICON_SIZE))
                     .background(
-                        designSystem.composeColor(item.buttonColor).copy(alpha = 0.15f),
+                        designSystem.color(item.buttonColor).copy(alpha = 0.15f),
                         CircleShape
                     ),
                 contentAlignment = Alignment.Center
@@ -150,12 +149,12 @@ private fun SubjectCardRenderer(
                 Text(text = item.emoji, style = MaterialTheme.typography.displayMedium)
             }
             
-            Spacer(modifier = Modifier.height(designSystem.dimen(DimenToken.SPACING_LARGE).dp))
+            Spacer(modifier = Modifier.height(designSystem.dimen(DimenToken.SPACING_LARGE)))
             
             Text(
                 text = item.title ?: item.titleProvider(designSystem.strings),
                 style = MaterialTheme.typography.titleMedium,
-                color = designSystem.composeColor(item.titleColor),
+                color = designSystem.color(item.titleColor),
                 textAlign = TextAlign.Center,
                 fontWeight = FontWeight.SemiBold,
                 maxLines = 2,

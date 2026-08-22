@@ -1,4 +1,4 @@
-package application.poligraf.widgets.utils
+package application.poligraf.widgets
 
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable

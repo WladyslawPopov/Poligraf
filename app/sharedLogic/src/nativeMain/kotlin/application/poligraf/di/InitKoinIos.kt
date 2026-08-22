@@ -5,7 +5,6 @@ import application.poligraf.engine.analytics.Analytics
 import application.poligraf.engine.device.DeviceIntegrity
 import application.poligraf.engine.device.ReviewManager
 import application.poligraf.engine.database.common.DriverFactory
-import application.poligraf.uicore.theme.ResourceProvider
 import application.poligraf.engine.config.AppConfig
 import application.poligraf.engine.io.audio.AudioRecorder
 import application.poligraf.engine.io.audio.IosAudioRecorder
@@ -23,7 +22,6 @@ fun doInitKoinIos(
     analytics: Analytics,
     integrity: DeviceIntegrity,
     reviewManager: ReviewManager,
-    resourceProvider: ResourceProvider,
     driverFactory: DriverFactory,
     settings: Settings,
     appVersion: String,
@@ -37,7 +35,6 @@ fun doInitKoinIos(
         single { analytics }
         single { integrity }
         single { reviewManager }
-        single { resourceProvider }
         single { driverFactory }
         single { settings }
         single { 

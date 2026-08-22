@@ -13,8 +13,7 @@ import application.poligraf.widgets.state.GlassSegmentedTabRow
 import application.poligraf.presentation.debug.ui.tabs.LabsTab
 import application.poligraf.presentation.debug.ui.tabs.StatesTab
 import application.poligraf.presentation.debug.ui.tabs.WidgetsTab
-import application.poligraf.widgets.utils.composeColor
-import application.poligraf.widgets.utils.AppIcon
+import application.poligraf.widgets.AppIcon
 import application.poligraf.presentation.debug.data.DebugTab
 import application.poligraf.uicore.theme.LocalDesignSystem
 import application.poligraf.uicore.theme.tokens.ColorToken
@@ -59,7 +58,7 @@ fun DebugContent(component: DebugComponent) {
                             AppIcon(
                                 icon = designSystem.icon(IconToken.ARROW_BACK),
                                 contentDescription = null,
-                                tint = designSystem.composeColor(ColorToken.TEXT_PRIMARY)
+                                tint = designSystem.color(ColorToken.TEXT_PRIMARY)
                             )
                         }
                     },

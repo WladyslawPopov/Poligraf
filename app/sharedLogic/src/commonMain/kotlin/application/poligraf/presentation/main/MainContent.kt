@@ -1,11 +1,7 @@
 package application.poligraf.presentation.main
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -14,19 +10,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import application.poligraf.presentation.main.ui.MainDrawer
 import application.poligraf.uicore.theme.LocalDesignSystem
 import application.poligraf.uicore.theme.tokens.ColorToken
 import application.poligraf.uicore.theme.tokens.DimenToken
 import application.poligraf.uicore.theme.tokens.IconToken
 import application.poligraf.widgets.AppScaffold
-import application.poligraf.widgets.WidgetRenderer
-import application.poligraf.widgets.utils.AppIcon
-import application.poligraf.widgets.utils.composeColor
+import application.poligraf.widgets.AppIcon
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
-import kotlinx.coroutines.delay
-import kotlin.time.Duration.Companion.milliseconds
-import kotlinx.coroutines.delay
-import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -39,13 +30,7 @@ fun MainContent(
 
     val designSystem = LocalDesignSystem.current
 
-    var contentVisible by remember { mutableStateOf(false) }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-
-    LaunchedEffect(Unit) {
-        delay(200.milliseconds) // Small delay for entrance polish
-        contentVisible = true
-    }
 
     // Sync ViewModel State -> DrawerState
     LaunchedEffect(state.isDrawerOpen) {
@@ -87,14 +72,14 @@ fun MainContent(
                                 toolbar.titleProvider?.let { provider ->
                                     Text(
                                         text = provider(designSystem.strings),
-                                        color = designSystem.composeColor(ColorToken.TEXT_PRIMARY),
+                                        color = designSystem.color(ColorToken.TEXT_PRIMARY),
                                         style = MaterialTheme.typography.titleMedium
                                     )
                                 }
                                 toolbar.subtitleProvider?.let { provider ->
                                     Text(
                                         text = provider(designSystem.strings),
-                                        color = designSystem.composeColor(ColorToken.TEXT_SECONDARY),
+                                        color = designSystem.color(ColorToken.TEXT_SECONDARY),
                                         style = MaterialTheme.typography.labelSmall
                                     )
                                 }
@@ -104,29 +89,17 @@ fun MainContent(
                             IconButton(
                                 onClick = { viewModel.onWidgetAction(toolbar.menuAction) },
                                 modifier = Modifier
-                                    .padding(start = designSystem.dimen(DimenToken.SPACING_SMALL).dp)
+                                    .padding(start = designSystem.dimen(DimenToken.SPACING_SMALL))
                                     .clip(CircleShape)
-                                    .background(designSystem.composeColor(ColorToken.GLASS_BASE).copy(alpha = 0.3f))
+                                    .background(
+                                        designSystem.color(ColorToken.GLASS_BASE)
+                                            .copy(alpha = 0.3f)
+                                    )
                             ) {
                                 AppIcon(
                                     icon = designSystem.icon(IconToken.MENU),
                                     contentDescription = designSystem.strings.common.menu,
-                                    tint = designSystem.composeColor(ColorToken.TEXT_PRIMARY)
-                                )
-                            }
-                        },
-                        actions = {
-                            IconButton(
-                                onClick = { viewModel.onWidgetAction(toolbar.profileAction) },
-                                modifier = Modifier
-                                    .padding(end = designSystem.dimen(DimenToken.SPACING_SMALL).dp)
-                                    .clip(CircleShape)
-                                    .background(designSystem.composeColor(ColorToken.GLASS_BASE).copy(alpha = 0.3f))
-                            ) {
-                                AppIcon(
-                                    icon = designSystem.icon(IconToken.PROFILE),
-                                    contentDescription = null,
-                                    tint = designSystem.composeColor(ColorToken.TEXT_PRIMARY)
+                                    tint = designSystem.color(ColorToken.TEXT_PRIMARY)
                                 )
                             }
                         },
@@ -137,37 +110,7 @@ fun MainContent(
                 }
             }
         ) { padding ->
-            LazyColumn(
-                modifier = Modifier.fillMaxHeight(),
-                contentPadding = padding,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                state.welcomeWidget?.let { welcome ->
-                    item {
-                        WidgetRenderer(welcome, onAction = { action -> viewModel.onWidgetAction(action) })
-                    }
-                }
 
-                item {
-                    AnimatedVisibility(
-                        visible = contentVisible,
-                        enter = fadeIn() + slideInVertically { it / 4 }
-                    ) {
-                        Column {
-                            state.widgets.forEach { widget ->
-                                WidgetRenderer(
-                                    widget = widget,
-                                    onAction = { action -> viewModel.onWidgetAction(action) }
-                                )
-                            }
-                        }
-                    }
-                }
-
-                item {
-                    Spacer(modifier = Modifier.height(designSystem.dimen(DimenToken.SPACING_LARGE).dp))
-                }
-            }
         }
     }
 }

@@ -6,7 +6,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import application.poligraf.widgets.utils.composeColor
 import application.poligraf.uicore.theme.LocalDesignSystem
 import application.poligraf.uicore.theme.tokens.ColorToken
 
@@ -39,14 +38,14 @@ fun <T : Enum<T>> GlassSegmentedTabRow(
                 ),
                 icon = {}, // Remove the default checkmark
                 colors = SegmentedButtonDefaults.colors(
-                    activeContainerColor = designSystem.composeColor(ColorToken.ACCENT_PRIMARY)
+                    activeContainerColor = designSystem.color(ColorToken.ACCENT_PRIMARY)
                         .copy(alpha = 0.2f),
-                    activeContentColor = designSystem.composeColor(ColorToken.ACCENT_PRIMARY),
-                    inactiveContainerColor = designSystem.composeColor(ColorToken.GLASS_BASE),
-                    inactiveContentColor = designSystem.composeColor(ColorToken.TEXT_SECONDARY),
-                    activeBorderColor = designSystem.composeColor(ColorToken.ACCENT_PRIMARY)
+                    activeContentColor = designSystem.color(ColorToken.ACCENT_PRIMARY),
+                    inactiveContainerColor = designSystem.color(ColorToken.GLASS_BASE),
+                    inactiveContentColor = designSystem.color(ColorToken.TEXT_SECONDARY),
+                    activeBorderColor = designSystem.color(ColorToken.ACCENT_PRIMARY)
                         .copy(alpha = 0.5f),
-                    inactiveBorderColor = designSystem.composeColor(ColorToken.GLASS_BORDER)
+                    inactiveBorderColor = designSystem.color(ColorToken.GLASS_BORDER)
                 )
             ) {
                 Text(
