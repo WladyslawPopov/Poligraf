@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Poligraf</string>
+    <string name="welcome_1">Welcome to Poligraf&#160;👋</string>
+    <string name="welcome_2">Ready to Start a new analysis?</string>
+    <string name="welcome_3">Begin monitoring</string>
+    <string name="welcome_4">Ready for a new session?</string>
+    <string name="drawer_settings">Settings</string>
+    <string name="drawer_dark_mode">Dark Mode</string>
+
+    <!-- Error States -->
+    <string name="error_unknown_title">Something Went Wrong</string>
+    <string name="error_unknown_msg">We encountered an unexpected error. Please try again shortly.</string>
+    <string name="error_retry">Try Again</string>
+
+    <string name="close">Close</string>
+
+    <!-- Debug Dashboard -->
+    <string name="debug_title">Architecture Debug</string>
+    <string name="debug_trigger_loading">Show Loading</string>
+    <string name="debug_trigger_error_blocking">Blocking Error</string>
+    <string name="debug_trigger_success_toast">Test Success Notification</string>
+
+    <string name="recording_screen_placeholder">Make your first record</string>
+    <string name="recording_screen_title">Recording</string>
+
+    <string name="drawer_footer_title">Poligraf System</string>
+    <string name="drawer_footer_subtitle">Operational v</string>
+
+    <string name="recorder_history_title">History</string>
+</resources>

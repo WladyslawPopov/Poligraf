@@ -1,27 +1,19 @@
 package application.poligraf.engine.network.internal
 
-import application.poligraf.engine.auth.AuthService
 import application.poligraf.engine.error.ServerErrorException
 import application.poligraf.engine.network.config.NetworkConfigProvider
 import application.poligraf.engine.config.AppConfig
+import application.poligraf.engine.utils.jsonSerializer
 import io.ktor.client.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.serialization.kotlinx.json.*
-import kotlinx.serialization.json.Json
 import kotlin.coroutines.cancellation.CancellationException
-
-private val jsonSerializer = Json {
-    ignoreUnknownKeys = true
-    isLenient = true
-    encodeDefaults = true
-}
 
 internal fun HttpClientConfig<*>.installPlugins(
     networkConfig: NetworkConfigProvider,
-    authService: AuthService,
     appConfig: AppConfig
 ) {
     install(ContentNegotiation) {
@@ -72,10 +64,9 @@ internal fun HttpClientConfig<*>.installPlugins(
 
 fun getKtorClient(
     networkConfig: NetworkConfigProvider,
-    authService: AuthService,
     appConfig: AppConfig
 ) = HttpClient {
-    installPlugins(networkConfig, authService, appConfig)
+    installPlugins(networkConfig, appConfig)
 }
 //    .apply {
 //    sendPipeline.intercept(HttpSendPipeline.State) {

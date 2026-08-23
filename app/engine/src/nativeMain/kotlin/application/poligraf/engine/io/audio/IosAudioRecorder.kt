@@ -1,161 +1,118 @@
 package application.poligraf.engine.io.audio
 
 import io.github.aakira.napier.Napier
-import kotlinx.coroutines.*
+import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.cinterop.get
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
-import platform.Foundation.NSLog
+import kotlinx.coroutines.launch
+import platform.AVFAudio.AVAudioEngine
+import platform.AVFAudio.AVAudioSession
+import platform.AVFAudio.AVAudioSessionCategoryOptionAllowBluetooth
+import platform.AVFAudio.AVAudioSessionCategoryOptionDefaultToSpeaker
+import platform.AVFAudio.AVAudioSessionCategoryPlayAndRecord
+import platform.AVFAudio.AVAudioSessionModeMeasurement
+import platform.AVFAudio.setActive
+import platform.AVFAudio.setPreferredSampleRate
+
 
 /**
- * A bridge implementation of AudioRecorder for iOS.
- * This class holds the state that the shared ViewModel observes,
- * but delegates the actual hardware work to a Swift-based engine.
+ * Native implementation of [AudioRecorder] for iOS using AVAudioEngine.
+ * This implementation captures raw PCM data directly in Kotlin/Native.
  */
-class IosAudioRecorder(
+internal class IosAudioRecorderImpl(
     private val scope: CoroutineScope
 ) : AudioRecorder {
 
-    // --- State managed by Swift engine through the bridge ---
+    private val _isCapturing = MutableStateFlow(false)
+    override val isCapturing: StateFlow<Boolean> = _isCapturing.asStateFlow()
 
-    private val _isRecording = MutableStateFlow(false)
-    override val isRecording: StateFlow<Boolean> = _isRecording.asStateFlow()
+    private val _rawAudioFlow = MutableSharedFlow<ShortArray>(extraBufferCapacity = 64)
+    override val rawAudioFlow = _rawAudioFlow.asSharedFlow()
 
-    private val _isPaused = MutableStateFlow(false)
-    override val isPaused: StateFlow<Boolean> = _isPaused.asStateFlow()
+    private val audioEngine = AVAudioEngine()
 
-    private val _durationMillis = MutableStateFlow(0L)
-    override val durationMillis: StateFlow<Long> = _durationMillis.asStateFlow()
+    @OptIn(ExperimentalForeignApi::class)
+    override fun startCapture() {
+        if (_isCapturing.value) return
 
-    private val _amplitudes = MutableStateFlow<List<Float>>(emptyList())
-    override val amplitudes: StateFlow<List<Float>> = _amplitudes.asStateFlow()
+        try {
+            val session = AVAudioSession.sharedInstance()
+            
+            // Try to set preferred sample rate to match our constants
+            session.setPreferredSampleRate(AudioConstants.SAMPLING_RATE.toDouble(), error = null)
+            
+            session.setCategory(
+                AVAudioSessionCategoryPlayAndRecord,
+                mode = AVAudioSessionModeMeasurement,
+                options = AVAudioSessionCategoryOptionDefaultToSpeaker or AVAudioSessionCategoryOptionAllowBluetooth,
+                error = null
+            )
+            session.setActive(true, error = null)
 
-    private val internalAmplitudes = mutableListOf<Float>()
+            val inputNode = audioEngine.inputNode
+            val format = inputNode.inputFormatForBus(0u)
+            
+            Napier.d { "iOS Audio Input Format: $format" }
 
-    private val _playbackPositionMillis = MutableStateFlow(0L)
-    override val playbackPositionMillis: StateFlow<Long> = _playbackPositionMillis.asStateFlow()
+            // Ensure we are getting mono if possible, or handle multi-channel
+            // The engine usually handles this if we request a specific format in installTapOnBus,
+            // but let's use the node's native format to avoid engine-level resampling if not needed,
+            // or we can request 44100 mono directly.
+            
+            inputNode.installTapOnBus(0u, 1024u, format) { buffer, _ ->
+                if (buffer == null) return@installTapOnBus
+                
+                val frameCount = buffer.frameLength.toInt()
+                val floatData = buffer.floatChannelData?.get(0) ?: return@installTapOnBus
+                
+                val shortArray = ShortArray(frameCount)
+                for (i in 0 until frameCount) {
+                    // Convert Float32 to Int16 with clipping
+                    val sample = (floatData[i] * 32767.0f).toInt().coerceIn(-32768, 32767)
+                    shortArray[i] = sample.toShort()
+                }
+                
+                // Use tryEmit for efficiency, fallback to launch if buffer is full
+                if (!_rawAudioFlow.tryEmit(shortArray)) {
+                    scope.launch {
+                        _rawAudioFlow.emit(shortArray)
+                    }
+                }
+            }
 
-    private val _isPlaying = MutableStateFlow(false)
-    override val isPlaying: StateFlow<Boolean> = _isPlaying.asStateFlow()
-
-    private val _stressLevel = MutableStateFlow(0f)
-    override val stressLevel: StateFlow<Float> = _stressLevel.asStateFlow()
-
-    // --- Bridge Logic ---
-
-    /**
-     * Protocol-like interface that Swift engine must implement
-     */
-    interface Delegate {
-        fun start()
-        fun pause()
-        fun resume()
-        suspend fun stop(): String?
-        fun cancel()
-        fun play()
-        fun pausePlayback()
-        fun seekTo(positionMillis: Long)
-        suspend fun trim(startMillis: Long, endMillis: Long): String?
-        fun replace(positionMillis: Long)
-        suspend fun loadFile(path: String, amplitudes: List<Float>?)
-    }
-
-    private var delegate: Delegate? = null
-
-    fun setDelegate(delegate: Delegate) {
-        this.delegate = delegate
-        Napier.d { "IosAudioRecorder: Delegate hooked!" }
-    }
-
-    // --- Swift Helper Methods (to update state flows from Swift) ---
-
-    fun updateRecordingState(recording: Boolean, paused: Boolean) {
-        _isRecording.value = recording
-        _isPaused.value = paused
-    }
-
-    fun updateDuration(millis: Long) {
-        _durationMillis.value = millis
-    }
-
-    fun updatePlayback(playing: Boolean, positionMillis: Long) {
-        _isPlaying.value = playing
-        _playbackPositionMillis.value = positionMillis
-    }
-
-    fun updateStressLevel(level: Float) {
-        _stressLevel.value = level
-    }
-
-    fun addAmplitude(amplitude: Float) {
-        internalAmplitudes.add(amplitude)
-        
-        // Batch updates to the Flow to avoid excessive KMP bridge crossings and UI re-renders
-        // Emitting every 3 samples (~100ms) is enough for "live" feel while being much more efficient
-        if (internalAmplitudes.size % 3 == 0 || internalAmplitudes.size < 10) {
-            _amplitudes.value = internalAmplitudes.toList()
+            audioEngine.prepare()
+            if (!audioEngine.startAndReturnError(null)) {
+                Napier.e { "Failed to start AVAudioEngine" }
+                _isCapturing.value = false
+            }
+            
+            _isCapturing.value = true
+        } catch (e: Exception) {
+            Napier.e(e) { "Error starting iOS audio capture" }
+            _isCapturing.value = false
         }
     }
 
-    fun setAmplitudes(amplitudes: List<Float>) {
-        internalAmplitudes.clear()
-        internalAmplitudes.addAll(amplitudes)
-        _amplitudes.value = internalAmplitudes.toList()
-    }
-
-    // --- AudioRecorder Interface Implementation (Delegating to Swift) ---
-
-    override fun start() {
-        delegate?.start()
-    }
-
-    override fun pause() {
-        delegate?.pause()
-    }
-
-    override fun resume() {
-        delegate?.resume()
-    }
-
-    override suspend fun stop(): String? {
-        return delegate?.stop()
-    }
-
-    override fun cancel() {
-        delegate?.cancel()
-        internalAmplitudes.clear()
-        _amplitudes.value = emptyList()
-        _durationMillis.value = 0
-        _playbackPositionMillis.value = 0
-        _stressLevel.value = 0f
-        _isRecording.value = false
-        _isPaused.value = false
-        _isPlaying.value = false
-    }
-
-    override fun play() {
-        delegate?.play()
-    }
-
-    override fun pausePlayback() {
-        delegate?.pausePlayback()
-    }
-
-    override fun seekTo(positionMillis: Long) {
-        delegate?.seekTo(positionMillis)
-        _playbackPositionMillis.value = positionMillis
-    }
-
-    override suspend fun trim(startMillis: Long, endMillis: Long): String? {
-        return delegate?.trim(startMillis, endMillis)
-    }
-
-    override fun replace(positionMillis: Long) {
-        delegate?.replace(positionMillis)
-    }
-
-    override suspend fun loadFile(path: String, amplitudes: List<Float>?) {
-        delegate?.loadFile(path, amplitudes)
+    @OptIn(ExperimentalForeignApi::class)
+    override fun stopCapture() {
+        if (!_isCapturing.value) return
+        
+        try {
+            audioEngine.inputNode.removeTapOnBus(0u)
+            if (audioEngine.running) {
+                audioEngine.stop()
+            }
+            _isCapturing.value = false
+            
+            val session = AVAudioSession.sharedInstance()
+            session.setActive(false, error = null)
+        } catch (e: Exception) {
+            Napier.e(e) { "Error stopping iOS audio capture: ${e.message}" }
+        }
     }
 }

@@ -65,6 +65,7 @@ kotlin {
             implementation(libs.sqldelight.android.driver)
             implementation(libs.ktor.client.android)
             implementation(libs.androidx.navigation.compose)
+            implementation(libs.koin.android)
         }
 
         nativeMain.dependencies {
@@ -75,8 +76,13 @@ kotlin {
 
     sqldelight {
         databases {
-            create("PoligrafDatabase") {
+            create("PoligrafDatabase").apply {
                 packageName.set("application.poligraf.database")
+                dialect("app.cash.sqldelight:sqlite-3-38-dialect:${libs.versions.sqliteDriver.get()}")
+                schemaOutputDirectory = (file("src/commonMain/sqldelight"))
+                migrationOutputDirectory = file("src/commonMain/sqldelight/migrations")
+                version = 1
+                verifyMigrations = true
             }
         }
     }

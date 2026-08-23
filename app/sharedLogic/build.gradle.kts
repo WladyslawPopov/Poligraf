@@ -20,7 +20,7 @@ kotlin {
 
             export(projects.app.data)
             export(projects.app.engine)
-            export(projects.app.uiCore)
+            export(projects.app.ui)
             export(libs.napier)
             export(libs.multiplatform.settings)
 
@@ -48,19 +48,17 @@ kotlin {
         commonMain.dependencies {
             api(projects.app.data)
             api(projects.app.engine)
-            api(projects.app.uiCore)
-            api(projects.app.uiWidgets)
+            api(projects.app.ui)
 
             implementation(libs.kotlinx.datetime)
 
             // Compose Multiplatform
-            implementation(compose.runtime)
-            implementation(compose.foundation)
-            implementation(compose.material3)
-            implementation(compose.ui)
-            implementation(compose.components.resources)
-            implementation(compose.materialIconsExtended)
-
+            implementation(libs.compose.runtime)
+            implementation(libs.compose.foundation)
+            implementation(libs.compose.material3)
+            implementation(libs.compose.ui)
+            implementation(libs.compose.components.resources)
+            implementation(libs.material.icons.extended)
 
 
             // DI: Koin

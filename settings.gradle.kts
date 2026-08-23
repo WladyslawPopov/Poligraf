@@ -29,9 +29,8 @@ dependencyResolutionManagement {
 }
 
 
-include(":app:ui-widgets")
 include(":app:androidApp")
 include(":app:sharedLogic")
 include(":app:engine")
 include(":app:data")
-include(":app:ui-core")
+include(":app:ui")

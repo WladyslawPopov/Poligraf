@@ -1,50 +1,68 @@
 package application.poligraf.presentation.theme
 
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Shapes
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
-import androidx.compose.runtime.*
-import application.poligraf.uicore.theme.DesignSystem
-import application.poligraf.uicore.theme.LocalDesignSystem
-import application.poligraf.uicore.theme.IAppStrings
-import application.poligraf.uicore.theme.mappers.rememberAppUIStrings
-import application.poligraf.uicore.theme.tokens.ColorToken
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.unit.dp
+import application.poligraf.engine.theme.ThemeManager
+import application.poligraf.ui.theme.DesignSystem
+import application.poligraf.ui.theme.LocalDesignSystem
+import application.poligraf.ui.theme.IAppStrings
+import application.poligraf.ui.theme.tokens.ColorToken
+import application.poligraf.ui.utils.rememberAppUIStrings
 import org.koin.compose.koinInject
 
 @Composable
 fun PoligrafTheme(
+    themeManager: ThemeManager = koinInject(),
+    appStrings: IAppStrings = koinInject(),
     content: @Composable () -> Unit
 ) {
-    val darkTheme by ThemeState.isDark.collectAsState()
-    val appConfig: application.poligraf.engine.config.AppConfig = koinInject()
+    val isDark by themeManager.isDark.collectAsState()
+    val strings = rememberAppUIStrings(appStrings)
     
-    val stringProvider: IAppStrings = koinInject()
-    val strings = rememberAppUIStrings(stringProvider)
-    val designSystem = remember(darkTheme, strings) { 
-        DesignSystem(strings, darkTheme, isDebug = appConfig.isDebug)
-    }
-    
-    val colorScheme = if (darkTheme) {
+    val designSystem = DesignSystem(
+        strings = strings,
+        isDark = isDark,
+        isDebug = true
+    )
+
+    val colorScheme = if (isDark) {
         darkColorScheme(
-            primary = designSystem.color(ColorToken.PRIMARY),
-            background = designSystem.color(ColorToken.BACKGROUND),
-            surface = designSystem.color(ColorToken.SURFACE),
-            error = designSystem.color(ColorToken.ERROR)
+            primary = designSystem.color(ColorToken.ACCENT_PRIMARY),
+            background = designSystem.color(ColorToken.SURFACE_BACKGROUND),
+            surface = designSystem.color(ColorToken.SURFACE_PRIMARY),
+            error = designSystem.color(ColorToken.STATE_ERROR)
         )
     } else {
         lightColorScheme(
-            primary = designSystem.color(ColorToken.PRIMARY),
-            background = designSystem.color(ColorToken.BACKGROUND),
-            surface = designSystem.color(ColorToken.SURFACE),
-            error = designSystem.color(ColorToken.ERROR)
+            primary = designSystem.color(ColorToken.ACCENT_PRIMARY),
+            background = designSystem.color(ColorToken.SURFACE_BACKGROUND),
+            surface = designSystem.color(ColorToken.SURFACE_PRIMARY),
+            error = designSystem.color(ColorToken.STATE_ERROR)
         )
     }
+
+    val shapes = Shapes(
+        extraSmall = RoundedCornerShape(4.dp),
+        small = RoundedCornerShape(8.dp),
+        medium = RoundedCornerShape(12.dp),
+        large = RoundedCornerShape(16.dp),
+        extraLarge = RoundedCornerShape(24.dp)
+    )
 
     CompositionLocalProvider(
         LocalDesignSystem provides designSystem
     ) {
         MaterialTheme(
             colorScheme = colorScheme,
+            shapes = shapes,
             content = content
         )
     }

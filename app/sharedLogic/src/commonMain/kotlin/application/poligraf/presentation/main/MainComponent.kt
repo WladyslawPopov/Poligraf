@@ -29,6 +29,7 @@ class DefaultMainComponent(
     private val mainViewModel = viewModel("mainViewModel") {
         MainViewModel(
             appConfig = get(),
+            analyzerRepository = get(),
             navigateToDebug = navigateToDebug
         )
     }

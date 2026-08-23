@@ -1,43 +1,33 @@
 package application.poligraf.di
 
-import application.poligraf.engine.auth.AuthService
 import application.poligraf.engine.analytics.Analytics
 import application.poligraf.engine.device.DeviceIntegrity
 import application.poligraf.engine.device.ReviewManager
-import application.poligraf.engine.database.common.DriverFactory
 import application.poligraf.engine.config.AppConfig
-import application.poligraf.engine.io.audio.AudioRecorder
-import application.poligraf.engine.io.audio.IosAudioRecorder
 import com.russhwolf.settings.Settings
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import org.koin.core.context.startKoin
 import org.koin.dsl.module
 
 /**
- * Entry point for iOS to initialize Koin with native implementations.
+ * Entry point for iOS to initialize Koin.
+ * Firebase Auth is removed, only Analytics and core services remain.
  */
 fun doInitKoinIos(
-    authService: AuthService,
     analytics: Analytics,
     integrity: DeviceIntegrity,
     reviewManager: ReviewManager,
-    driverFactory: DriverFactory,
-    settings: Settings,
     appVersion: String,
     deviceId: String,
     isDebug: Boolean
-): IosAudioRecorder {
-    var recorderResult: IosAudioRecorder? = null
-    
-    val iosModule = module {
-        single { authService }
+) {
+    val iosPlatformModule = module {
         single { analytics }
         single { integrity }
         single { reviewManager }
-        single { driverFactory }
-        single { settings }
-        single { 
+        single {
             AppConfig(
                 appVersion = appVersion,
                 deviceId = deviceId,
@@ -45,20 +35,12 @@ fun doInitKoinIos(
                 platform = "iOS"
             )
         }
-        
-        val appScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
-        single { appScope }
-        
-        val recorder = IosAudioRecorder(appScope)
-        recorderResult = recorder
-        
-        single<IosAudioRecorder> { recorder }
-        single<AudioRecorder> { recorder }
+
+        // Internal KMP global scope
+        single { CoroutineScope(Dispatchers.Main + SupervisorJob()) }
     }
-    
-    initKoin(
-        platformModules = listOf(iosModule)
-    )
-    
-    return recorderResult!!
+    startKoin {
+        modules(iosPlatformModule)
+        modules(sharedModules)
+    }
 }

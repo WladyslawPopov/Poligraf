@@ -6,9 +6,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import application.poligraf.widgets.WidgetRenderer
+import application.poligraf.ui.features.render.WidgetRenderer
 import application.poligraf.presentation.debug.DebugViewModel
-import application.poligraf.uicore.widgets.UiWidget
+import application.poligraf.ui.foundation.models.UiWidget
 
 @Composable
 fun WidgetsTab(widgets: List<UiWidget>, viewModel: DebugViewModel, padding: PaddingValues) {

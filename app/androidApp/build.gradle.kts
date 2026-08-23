@@ -41,7 +41,7 @@ android {
 
 dependencies {
     implementation(projects.app.sharedLogic)
-    implementation(projects.app.uiCore)
+    implementation(projects.app.ui)
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.koin.android)
     implementation(libs.koin.compose)
@@ -65,9 +65,5 @@ dependencies {
 
     // Firebase
     implementation(platform("com.google.firebase:firebase-bom:33.5.1"))
-    implementation("com.google.firebase:firebase-auth")
-    implementation("com.google.firebase:firebase-storage")
     implementation("com.google.firebase:firebase-analytics")
-    implementation(libs.firebase.messaging)
-    implementation(libs.firebase.config)
 }

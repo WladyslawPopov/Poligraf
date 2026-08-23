@@ -1,0 +1,21 @@
+import kotlin.Boolean;
+
+CREATE TABLE SessionEntity (
+    id TEXT NOT NULL PRIMARY KEY,
+    timestamp INTEGER NOT NULL,
+    title TEXT,
+    notes TEXT,
+    duration INTEGER NOT NULL DEFAULT 0,
+    isCompleted INTEGER AS Boolean NOT NULL DEFAULT 0
+);
+
+CREATE TABLE SessionFrame (
+    sessionId TEXT NOT NULL,
+    timestamp INTEGER NOT NULL,
+    rms REAL NOT NULL,
+    pitch REAL NOT NULL,
+    jitter REAL NOT NULL,
+    stressScore REAL NOT NULL,
+    isAnomaly INTEGER AS Boolean NOT NULL,
+    FOREIGN KEY(sessionId) REFERENCES SessionEntity(id) ON DELETE CASCADE
+);

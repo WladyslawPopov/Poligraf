@@ -8,16 +8,17 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import application.poligraf.widgets.AppScaffold
-import application.poligraf.widgets.state.GlassSegmentedTabRow
+import application.poligraf.ui.components.layout.AppScaffold
+import application.poligraf.ui.components.layout.GlassSegmentedTabRow
 import application.poligraf.presentation.debug.ui.tabs.LabsTab
 import application.poligraf.presentation.debug.ui.tabs.StatesTab
 import application.poligraf.presentation.debug.ui.tabs.WidgetsTab
-import application.poligraf.widgets.AppIcon
+import application.poligraf.ui.components.icons.AppIcon
 import application.poligraf.presentation.debug.data.DebugTab
-import application.poligraf.uicore.theme.LocalDesignSystem
-import application.poligraf.uicore.theme.tokens.ColorToken
-import application.poligraf.uicore.theme.tokens.IconToken
+import application.poligraf.ui.theme.LocalDesignSystem
+import application.poligraf.ui.theme.tokens.ColorToken
+import application.poligraf.ui.theme.tokens.IconToken
+import application.poligraf.ui.theme.tokens.StringToken
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -34,12 +35,10 @@ fun DebugContent(component: DebugComponent) {
         pageCount = { DebugTab.entries.size }
     )
 
-    // Sync Pager -> ViewModel
     LaunchedEffect(pagerState.settledPage) {
         viewModel.setTab(DebugTab.entries[pagerState.settledPage])
     }
 
-    // Sync ViewModel -> Pager
     LaunchedEffect(state.selectedTab) {
         if (pagerState.currentPage != state.selectedTab.ordinal) {
             pagerState.animateScrollToPage(state.selectedTab.ordinal)
@@ -52,7 +51,7 @@ fun DebugContent(component: DebugComponent) {
         topBar = {
             Column(modifier = Modifier.statusBarsPadding()) {
                 CenterAlignedTopAppBar(
-                    title = { Text(designSystem.strings.debug.title) },
+                    title = { Text(designSystem.string(StringToken.DEBUG_TITLE)) },
                     navigationIcon = {
                         IconButton(onClick = { viewModel.goBack() }) {
                             AppIcon(
@@ -71,9 +70,9 @@ fun DebugContent(component: DebugComponent) {
                     onTabSelected = { viewModel.setTab(it) },
                     labelProvider = { tab ->
                         when (tab) {
-                            DebugTab.STATES -> designSystem.strings.debug.tabStates
-                            DebugTab.WIDGETS -> designSystem.strings.debug.tabWidgets
-                            DebugTab.LABS -> designSystem.strings.debug.tabLabs
+                            DebugTab.STATES -> "States"
+                            DebugTab.WIDGETS -> "Widgets"
+                            DebugTab.LABS -> "Labs"
                         }
                     }
                 )

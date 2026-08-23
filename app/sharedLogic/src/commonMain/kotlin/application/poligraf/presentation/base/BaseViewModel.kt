@@ -6,10 +6,10 @@ import application.poligraf.data.methods.isIgnorableException
 import application.poligraf.data.methods.toErrorType
 import application.poligraf.engine.error.AppException
 import application.poligraf.engine.error.ErrorType
-import application.poligraf.uicore.base.IBaseViewModel
-import application.poligraf.uicore.models.DisplayMetrics
-import application.poligraf.uicore.theme.AppStrings
-import application.poligraf.uicore.types.ToastType
+import application.poligraf.ui.base.IBaseViewModel
+import application.poligraf.ui.foundation.models.DisplayMetrics
+import application.poligraf.ui.theme.AppStrings
+import application.poligraf.ui.foundation.state.ToastType
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -66,9 +66,7 @@ abstract class BaseViewModel : ViewModel(), IBaseViewModel {
             // Non-blocking errors go to Toasts
             val toastType = if (type == ErrorType.NO_INTERNET) ToastType.WARNING else ToastType.ERROR
             val provider: (AppStrings) -> String = when(type) {
-                ErrorType.NO_INTERNET -> { strings -> strings.errors.noInternetTitle }
-                ErrorType.SERVER_UNAVAILABLE -> { strings -> strings.errors.serverTitle }
-                else -> { strings -> strings.errors.unknownTitle }
+                else -> { strings -> strings.errors.message}
             }
             showToast(provider, toastType)
         }

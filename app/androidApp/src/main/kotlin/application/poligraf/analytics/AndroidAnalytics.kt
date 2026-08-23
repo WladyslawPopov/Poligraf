@@ -5,7 +5,7 @@ import android.os.Bundle
 import application.poligraf.engine.analytics.Analytics
 import com.google.firebase.analytics.FirebaseAnalytics
 
-class AndroidAnalytics(context: Context) : Analytics {
+internal class AndroidAnalytics(context: Context) : Analytics {
     private val firebaseAnalytics = FirebaseAnalytics.getInstance(context)
 
     override fun logEvent(name: String, params: Map<String, Any>) {

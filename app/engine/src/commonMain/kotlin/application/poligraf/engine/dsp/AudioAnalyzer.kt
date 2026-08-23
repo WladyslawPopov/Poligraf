@@ -1,10 +1,11 @@
 package application.poligraf.engine.dsp
 
+import kotlin.math.abs
 import kotlin.math.sqrt
 
 /**
  * Science-based Audio Analyzer for Voice Stress Analysis.
- * Implements RMS, Pitch (F0), and Jitter estimation.
+ * Implements RMS, Pitch (F0), Jitter, and Moving Baseline estimation.
  */
 object AudioAnalyzer {
 
@@ -54,10 +55,10 @@ object AudioAnalyzer {
         if (pitchHistory.size < 2) return 0f
         var sumDiff = 0f
         for (i in 1 until pitchHistory.size) {
-            sumDiff += kotlin.math.abs(pitchHistory[i] - pitchHistory[i - 1])
+            sumDiff += abs(pitchHistory[i] - pitchHistory[i - 1])
         }
         val avgPitch = pitchHistory.average().toFloat()
-        return if (avgPitch > 0) sumDiff / (pitchHistory.size - 1) / avgPitch else 0f
+        return if (avgPitch > 10f) sumDiff / (pitchHistory.size - 1) / avgPitch else 0f
     }
 
     /**
@@ -72,5 +73,54 @@ object AudioAnalyzer {
             }
         }
         return count.toFloat() / buffer.size
+    }
+
+    /**
+     * Calculates Stress Score based on deviation from baseline.
+     */
+    fun calculateStressScore(
+        rms: Float,
+        pitch: Float,
+        jitter: Float,
+        baselineRms: Float,
+        baselinePitch: Float
+    ): Float {
+        if (pitch < 50f) return 0f // No voice detected
+        
+        // Pitch deviation (Stress/Spasms)
+        val pitchDev = if (baselinePitch > 0) abs(pitch - baselinePitch) / baselinePitch else 0f
+        
+        // RMS deviation (Aggression/Pressure)
+        val rmsDev = if (baselineRms > 0) (rms - baselineRms).coerceAtLeast(0f) / baselineRms else 0f
+        
+        // Jitter (Fear/Micro-tremor)
+        val jitterScore = jitter * 20f // Empirical multiplier
+        
+        // Weighted sum
+        val score = (pitchDev * 0.4f) + (rmsDev * 0.3f) + (jitterScore * 0.3f)
+        
+        return score.coerceIn(0f, 1f)
+    }
+
+    /**
+     * Helper to maintain a moving average for calibration.
+     */
+    class MovingBaseline(val windowSize: Int = 100) {
+        private val rmsHistory = mutableListOf<Float>()
+        private val pitchHistory = mutableListOf<Float>()
+
+        fun add(rms: Float, pitch: Float) {
+            if (rms > 0.001f) {
+                rmsHistory.add(rms)
+                if (rmsHistory.size > windowSize) rmsHistory.removeAt(0)
+            }
+            if (pitch > 50f) {
+                pitchHistory.add(pitch)
+                if (pitchHistory.size > windowSize) pitchHistory.removeAt(0)
+            }
+        }
+
+        fun getAvgRms(): Float = if (rmsHistory.isNotEmpty()) rmsHistory.average().toFloat() else 0.01f
+        fun getAvgPitch(): Float = if (pitchHistory.isNotEmpty()) pitchHistory.average().toFloat() else 150f
     }
 }

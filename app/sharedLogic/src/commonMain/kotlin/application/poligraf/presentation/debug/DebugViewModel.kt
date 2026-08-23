@@ -5,15 +5,15 @@ import application.poligraf.presentation.base.BaseViewModel
 import application.poligraf.engine.error.ErrorType
 import application.poligraf.presentation.debug.data.DebugState
 import application.poligraf.presentation.debug.data.DebugTab
-import application.poligraf.uicore.theme.tokens.ColorToken
-import application.poligraf.uicore.theme.tokens.TypographyToken
-import application.poligraf.uicore.actions.DebugAction
-import application.poligraf.uicore.actions.NavigationAction
-import application.poligraf.uicore.actions.WidgetAction
-import application.poligraf.uicore.types.BackgroundMode
-import application.poligraf.uicore.types.ToastType
-import application.poligraf.uicore.widgets.AppBackground
-import application.poligraf.uicore.widgets.UiWidget
+import application.poligraf.ui.theme.tokens.ColorToken
+import application.poligraf.ui.theme.tokens.StringToken
+import application.poligraf.ui.foundation.actions.DebugAction
+import application.poligraf.ui.foundation.actions.NavigationAction
+import application.poligraf.ui.foundation.actions.WidgetAction
+import application.poligraf.ui.foundation.state.BackgroundMode
+import application.poligraf.ui.foundation.state.ToastType
+import application.poligraf.ui.foundation.models.AppBackground
+import application.poligraf.ui.foundation.models.UiWidget
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -31,17 +31,22 @@ class DebugViewModel(
 ) : BaseViewModel() {
     private val _state = MutableStateFlow(DebugState(
         background = AppBackground.AnimatedScales(
-            baseColor = ColorToken.BACKGROUND,
+            baseColor = ColorToken.SURFACE_BACKGROUND,
             energyColor = ColorToken.ACCENT_ENERGY,
             particleColor = ColorToken.SURFACE_VARIANT,
-            parallaxIntensity = 1.0f,
             blurRadius = 6.0f
         )
     ))
     val state: StateFlow<DebugState> = _state.asStateFlow()
 
+    private val welcomeData = listOf(
+        StringToken.WELCOME_1 to "🛠️",
+        StringToken.WELCOME_2 to "📊",
+        StringToken.WELCOME_3 to "📡",
+        StringToken.WELCOME_4 to "🔴"
+    ).random()
+
     init {
-        // Sync background mode with application states
         combine(isLoading, errorType, toastState) { loading, error, toast ->
             _state.update { currentState ->
                 val currentBg = currentState.background
@@ -77,46 +82,9 @@ class DebugViewModel(
         return listOf(
             UiWidget.WelcomeText(
                 id = "debug_welcome",
-                textProvider = { it.common.welcomeText },
-                emoji = " 🛠️",
-                colorToken = ColorToken.ACCENT_PRIMARY,
-                typographyToken = TypographyToken.HEADER
-            ),
-            UiWidget.SubjectSlider(
-                id = "debug_slider_1",
-                items = listOf(
-                    UiWidget.SubjectCard(
-                        id = "mock_1",
-                        titleProvider = { it.subjects.newTitle },
-                        emoji = "🧪",
-                        action = DebugAction.TriggerSuccessToast,
-                        backgroundColor = ColorToken.GLASS_BASE,
-                        buttonColor = ColorToken.TRUTH
-                    ),
-                    UiWidget.SubjectCard(
-                        id = "mock_2",
-                        titleProvider = { it.subjects.newTitle },
-                        emoji = "💥",
-                        action = DebugAction.TriggerErrorNonBlocking,
-                        backgroundColor = ColorToken.GLASS_BASE,
-                        buttonColor = ColorToken.STRESS
-                    ),
-                    UiWidget.SubjectCard(
-                        id = "mock_3",
-                        titleProvider = { it.subjects.newTitle },
-                        emoji = "⏳",
-                        action = DebugAction.TriggerLoading,
-                        backgroundColor = ColorToken.GLASS_BASE,
-                        buttonColor = ColorToken.ACCENT_ENERGY
-                    )
-                )
-            ),
-            UiWidget.WelcomeText(
-                id = "debug_info",
-                textProvider = { it.debug.title },
-                colorToken = ColorToken.TEXT_SECONDARY,
-                typographyToken = TypographyToken.SUBHEADER,
-                typingDelay = 10L
+                textToken = welcomeData.first,
+                emoji = welcomeData.second,
+                colorToken = ColorToken.ACCENT_PRIMARY
             )
         )
     }
@@ -145,10 +113,10 @@ class DebugViewModel(
                 setManualError(ErrorType.SERVER_UNAVAILABLE)
             }
             DebugAction.TriggerErrorNonBlocking -> {
-                showToast({ it.errors.unknownTitle }, ToastType.ERROR)
+                showToast({ it.errors.message }, ToastType.ERROR)
             }
             DebugAction.TriggerSuccessToast -> {
-                showToast({ it.toast.authSuccess }, ToastType.SUCCESS)
+                showToast({ it.debug.triggerSuccess }, ToastType.SUCCESS)
             }
             else -> {}
         }

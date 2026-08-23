@@ -1,29 +1,34 @@
-CREATE TABLE UserEntity (
-    id TEXT NOT NULL PRIMARY KEY,
-    jsonData TEXT NOT NULL
-);
+import kotlin.Boolean;
 
+-- Session metadata and state
 CREATE TABLE SessionEntity (
     id TEXT NOT NULL PRIMARY KEY,
     timestamp INTEGER NOT NULL,
-    jsonData TEXT NOT NULL
+    title TEXT,
+    notes TEXT,
+    duration INTEGER NOT NULL DEFAULT 0,
+    isCompleted INTEGER AS Boolean NOT NULL DEFAULT 0
 );
 
--- User Queries
-upsertUser:
-INSERT OR REPLACE INTO UserEntity(id, jsonData)
-VALUES (?, ?);
-
-getUser:
-SELECT * FROM UserEntity LIMIT 1;
+-- Time-series data for analysis (10 frames per second)
+CREATE TABLE SessionFrame (
+    sessionId TEXT NOT NULL,
+    timestamp INTEGER NOT NULL,
+    rms REAL NOT NULL,
+    pitch REAL NOT NULL,
+    jitter REAL NOT NULL,
+    stressScore REAL NOT NULL,
+    isAnomaly INTEGER AS Boolean NOT NULL,
+    FOREIGN KEY(sessionId) REFERENCES SessionEntity(id) ON DELETE CASCADE
+);
 
 -- Session Queries
 insertSession:
-INSERT INTO SessionEntity(id, timestamp, jsonData)
-VALUES (?, ?, ?);
+INSERT OR REPLACE INTO SessionEntity(id, timestamp, title, notes, duration, isCompleted)
+VALUES (?, ?, ?, ?, ?, ?);
 
 getAllSessions:
-SELECT * FROM SessionEntity ORDER BY timestamp DESC;
+SELECT * FROM SessionEntity WHERE isCompleted = 1 ORDER BY timestamp DESC;
 
 getSessionById:
 SELECT * FROM SessionEntity WHERE id = ?;
@@ -31,5 +36,25 @@ SELECT * FROM SessionEntity WHERE id = ?;
 deleteSessionById:
 DELETE FROM SessionEntity WHERE id = ?;
 
+updateSessionDuration:
+UPDATE SessionEntity SET duration = ? WHERE id = ?;
+
 clearSessions:
 DELETE FROM SessionEntity;
+
+-- Frame Queries
+insertFrame:
+INSERT INTO SessionFrame(sessionId, timestamp, rms, pitch, jitter, stressScore, isAnomaly)
+VALUES (?, ?, ?, ?, ?, ?, ?);
+
+getFramesBySessionId:
+SELECT * FROM SessionFrame WHERE sessionId = ? ORDER BY timestamp ASC;
+
+deleteFramesBySessionId:
+DELETE FROM SessionFrame WHERE sessionId = ?;
+
+getUncompletedSession:
+SELECT * FROM SessionEntity WHERE isCompleted = 0 LIMIT 1;
+
+deleteUncompletedSessions:
+DELETE FROM SessionEntity WHERE isCompleted = 0;

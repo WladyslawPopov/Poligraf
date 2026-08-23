@@ -10,7 +10,7 @@ import application.poligraf.presentation.root.RootComponent
 import application.poligraf.presentation.theme.PoligrafTheme
 import application.poligraf.presentation.main.MainContent
 import application.poligraf.presentation.debug.DebugContent
-import application.poligraf.uicore.common.backAnimation
+import application.poligraf.ui.utils.backAnimation
 import com.arkivanov.decompose.extensions.compose.stack.Children
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
 

@@ -1,11 +1,11 @@
 package application.poligraf.presentation.base
 
 import application.poligraf.engine.error.ErrorType
-import application.poligraf.uicore.base.IBaseViewModel
-import application.poligraf.uicore.models.DisplayMetrics
-import application.poligraf.uicore.state.ToastState
-import application.poligraf.uicore.theme.AppStrings
-import application.poligraf.uicore.types.ToastType
+import application.poligraf.ui.base.IBaseViewModel
+import application.poligraf.ui.foundation.models.DisplayMetrics
+import application.poligraf.ui.foundation.state.ToastState
+import application.poligraf.ui.theme.AppStrings
+import application.poligraf.ui.foundation.state.ToastType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.asStateFlow
 /**
  * Delegation implementation of IBaseViewModel.
  */
-class BaseViewModelImpl(parentScope: CoroutineScope) : IBaseViewModel {
+internal class BaseViewModelImpl(parentScope: CoroutineScope) : IBaseViewModel {
     override val scope: CoroutineScope = parentScope
 
     private val _isLoading = MutableStateFlow(false)
