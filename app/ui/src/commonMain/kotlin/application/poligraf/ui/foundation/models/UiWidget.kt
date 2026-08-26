@@ -5,7 +5,6 @@ import androidx.compose.runtime.Stable
 import application.poligraf.ui.theme.tokens.ColorToken
 import application.poligraf.ui.theme.tokens.StringToken
 import application.poligraf.ui.foundation.actions.WidgetAction
-import application.poligraf.ui.foundation.state.BackgroundMode
 
 @Stable
 sealed class UiWidget {
@@ -24,11 +23,5 @@ sealed class UiWidget {
     data class AnalyzeBtn(
         override val id: String,
         val action: WidgetAction
-    ) : UiWidget()
-
-    @Immutable
-    data class Analyzer(
-        override val id: String,
-        val mode: BackgroundMode = BackgroundMode.RECORDING
     ) : UiWidget()
 }

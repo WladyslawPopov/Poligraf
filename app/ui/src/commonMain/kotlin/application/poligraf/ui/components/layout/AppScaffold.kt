@@ -16,8 +16,8 @@ import application.poligraf.ui.foundation.models.DisplayMetrics
 import application.poligraf.ui.foundation.state.ScaffoldUiState
 import application.poligraf.ui.theme.LocalDesignSystem
 import application.poligraf.ui.theme.tokens.DimenToken
-import application.poligraf.ui.foundation.state.ContentPaddingType
-import application.poligraf.ui.foundation.state.ToastType
+import application.poligraf.ui.foundation.types.ContentPaddingType
+import application.poligraf.ui.foundation.types.ToastType
 import application.poligraf.ui.foundation.models.AppBackground
 import application.poligraf.ui.components.status.AppSnackBar
 import application.poligraf.ui.components.status.ErrorView

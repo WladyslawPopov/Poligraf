@@ -2,6 +2,7 @@ package application.poligraf.presentation.main
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -32,8 +33,6 @@ fun MainContent(
     AppScaffold(
         viewModel = viewModel,
         state = state,
-        onRetry = { viewModel.loadContent() },
-        onRefresh = { viewModel.loadContent() },
         topBar = {
             state.toolbar?.let { toolbar ->
                 MainToolbar(
@@ -59,8 +58,9 @@ fun MainContent(
         }
 
         MainBottomSheet(
-            modifier = Modifier.padding(top = padding.calculateTopPadding()),
+            modifier = Modifier.navigationBarsPadding(),
             state = state,
+            analyzerViewModel = componentModel.analyzerViewModel,
             designSystem = designSystem,
             onDebugClicked = { viewModel.onDebugClicked() },
             closeBottomSheet = { viewModel.closeBottomSheet() }

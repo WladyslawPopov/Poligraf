@@ -17,6 +17,8 @@ internal object StringMapper {
             StringToken.DARK_MODE -> strings.common.darkMode
             StringToken.FOOTER_TITLE -> strings.common.footerTitle
             StringToken.FOOTER_SUBTITLE -> strings.common.footerSubtitle
+            StringToken.SAVE -> strings.common.save
+            StringToken.DELETE -> strings.common.delete
 
             StringToken.ERROR_TITLE -> strings.errors.title
             StringToken.ERROR_MESSAGE -> strings.errors.message
@@ -28,6 +30,23 @@ internal object StringMapper {
             StringToken.SKIN_VOICE_RIBBON -> strings.recorder.voiceRibbon
             StringToken.SKIN_EQUALIZER -> strings.recorder.equalizer
             StringToken.SKIN_RINGS -> strings.recorder.rings
+
+            StringToken.LABEL_STRESS -> strings.recorder.labelStress
+            StringToken.LABEL_PRESSURE -> strings.recorder.labelPressure
+            StringToken.LABEL_FEAR -> strings.recorder.labelFear
+            StringToken.LABEL_ZERO -> strings.recorder.labelZero
+            StringToken.LABEL_SYNC_ZONE -> strings.recorder.labelSyncZone
+            StringToken.TIMELINE_TITLE -> strings.recorder.timelineTitle
+            StringToken.INTERPRETATION_CALM -> strings.recorder.interpretationCalm
+            StringToken.INTERPRETATION_PANIC -> strings.recorder.interpretationPanic
+            StringToken.INTERPRETATION_AGGRESSION -> strings.recorder.interpretationAggression
+            StringToken.INTERPRETATION_CONFRONTATION -> strings.recorder.interpretationConfrontation
+            StringToken.INTERPRETATION_DISORGANIZATION -> strings.recorder.interpretationDisorganization
+            StringToken.INTERPRETATION_ANALYZING -> strings.recorder.interpretationAnalyzing
+            StringToken.INTERPRETATION_FORMAT -> strings.recorder.interpretationFormat
+            StringToken.METRIC_JITTER -> strings.recorder.metricJitter
+            StringToken.METRIC_PITCH -> strings.recorder.metricPitch
+            StringToken.METRIC_RMS -> strings.recorder.metricRms
 
             StringToken.DEBUG_TITLE -> strings.debug.title
             StringToken.DEBUG_TRIGGER_LOADING -> strings.debug.triggerLoading

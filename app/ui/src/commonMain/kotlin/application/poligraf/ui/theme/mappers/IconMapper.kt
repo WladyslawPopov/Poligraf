@@ -29,6 +29,10 @@ internal object IconMapper {
             IconToken.PAUSE -> Icons.Default.Pause
             IconToken.SKIP_BACK_15 -> Icons.Default.Replay10
             IconToken.SKIP_FORWARD_15 -> Icons.Default.Forward10
+            IconToken.SKIN_TRIANGLE -> Icons.Default.ChangeHistory
+            IconToken.SKIN_WAVE -> Icons.Default.Waves
+            IconToken.SKIN_BARS -> Icons.Default.BarChart
+            IconToken.SKIN_RINGS -> Icons.Default.RadioButtonChecked
             IconToken.TRIM_HANDLE_LEFT -> Icons.Default.West
             IconToken.TRIM_HANDLE_RIGHT -> Icons.Default.East
         }

@@ -12,5 +12,6 @@ data class AudioFrame(
     val pitch: Float,
     val jitter: Float,
     val stressScore: Float,
-    val isAnomaly: Boolean = false
+    val isAnomaly: Boolean = false,
+    val isCalibrated: Boolean = true
 )

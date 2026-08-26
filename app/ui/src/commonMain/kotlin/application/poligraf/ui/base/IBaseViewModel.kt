@@ -5,7 +5,7 @@ import application.poligraf.engine.error.ErrorType
 import application.poligraf.ui.foundation.models.DisplayMetrics
 import application.poligraf.ui.foundation.state.ToastState
 import application.poligraf.ui.theme.AppStrings
-import application.poligraf.ui.foundation.state.ToastType
+import application.poligraf.ui.foundation.types.ToastType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.StateFlow
 

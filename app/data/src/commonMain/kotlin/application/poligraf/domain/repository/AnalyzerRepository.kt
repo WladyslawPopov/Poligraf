@@ -35,4 +35,9 @@ interface AnalyzerRepository {
      * Deletes all uncompleted sessions.
      */
     fun cleanUpDrafts()
+
+    /**
+     * Returns all frames recorded for a specific session.
+     */
+    suspend fun getFramesForSession(sessionId: String): List<AudioFrame>
 }

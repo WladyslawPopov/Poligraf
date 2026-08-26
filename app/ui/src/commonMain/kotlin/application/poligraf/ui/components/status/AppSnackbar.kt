@@ -12,7 +12,7 @@ import application.poligraf.ui.theme.LocalDesignSystem
 import application.poligraf.ui.theme.tokens.ColorToken
 import application.poligraf.ui.theme.tokens.DimenToken
 import application.poligraf.ui.theme.tokens.IconToken
-import application.poligraf.ui.foundation.state.ToastType
+import application.poligraf.ui.foundation.types.ToastType
 
 /**
  * A custom Snackbar that follows the Design System's glass and neon aesthetic.

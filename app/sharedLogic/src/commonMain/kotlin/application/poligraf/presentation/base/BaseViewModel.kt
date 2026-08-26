@@ -9,7 +9,7 @@ import application.poligraf.engine.error.ErrorType
 import application.poligraf.ui.base.IBaseViewModel
 import application.poligraf.ui.foundation.models.DisplayMetrics
 import application.poligraf.ui.theme.AppStrings
-import application.poligraf.ui.foundation.state.ToastType
+import application.poligraf.ui.foundation.types.ToastType
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch

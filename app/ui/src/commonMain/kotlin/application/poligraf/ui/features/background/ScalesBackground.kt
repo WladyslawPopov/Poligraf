@@ -20,7 +20,7 @@ import application.poligraf.ui.theme.tokens.DimenToken
 import application.poligraf.ui.theme.LocalDesignSystem
 import application.poligraf.ui.foundation.models.AppBackground
 import application.poligraf.ui.theme.tokens.ColorToken
-import application.poligraf.ui.foundation.state.BackgroundMode
+import application.poligraf.ui.foundation.types.BackgroundMode
 import kotlin.math.abs
 import kotlin.math.pow
 import kotlin.math.sin

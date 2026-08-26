@@ -23,6 +23,8 @@ interface ICommonStrings {
     val darkMode: StringResource
     val footerTitle: StringResource
     val footerSubtitle: StringResource
+    val save: StringResource
+    val delete: StringResource
 }
 
 interface IErrorStrings {
@@ -38,6 +40,22 @@ interface IRecorderStrings {
     val voiceRibbon: StringResource
     val equalizer: StringResource
     val rings: StringResource
+    val interpretationCalm: StringResource
+    val interpretationPanic: StringResource
+    val interpretationAggression: StringResource
+    val interpretationConfrontation: StringResource
+    val interpretationDisorganization: StringResource
+    val interpretationAnalyzing: StringResource
+    val interpretationFormat: StringResource
+    val labelStress: StringResource
+    val labelPressure: StringResource
+    val labelFear: StringResource
+    val labelZero: StringResource
+    val labelSyncZone: StringResource
+    val timelineTitle: StringResource
+    val metricJitter: StringResource
+    val metricPitch: StringResource
+    val metricRms: StringResource
 }
 
 interface IDebugStrings {
@@ -60,6 +78,8 @@ internal class AppStringsImpl : IAppStrings {
         override val darkMode = Res.string.drawer_dark_mode
         override val footerTitle = Res.string.drawer_footer_title
         override val footerSubtitle = Res.string.drawer_footer_subtitle
+        override val save = Res.string.action_save
+        override val delete = Res.string.action_delete
     }
     
     override val errors = object : IErrorStrings {
@@ -70,11 +90,27 @@ internal class AppStringsImpl : IAppStrings {
     
     override val recorder = object : IRecorderStrings {
         override val title = Res.string.recording_screen_title
-        override val activeSession = Res.string.recording_screen_placeholder // Temporary mapping
-        override val stateMap = Res.string.drawer_settings // Temporary
-        override val voiceRibbon = Res.string.drawer_settings // Temporary
-        override val equalizer = Res.string.drawer_settings // Temporary
-        override val rings = Res.string.drawer_settings // Temporary
+        override val activeSession = Res.string.active_session
+        override val stateMap = Res.string.skin_state_map
+        override val voiceRibbon = Res.string.skin_voice_ribbon
+        override val equalizer = Res.string.skin_equalizer
+        override val rings = Res.string.skin_rings
+        override val interpretationCalm = Res.string.interpretation_calm
+        override val interpretationPanic = Res.string.interpretation_panic
+        override val interpretationAggression = Res.string.interpretation_aggression
+        override val interpretationConfrontation = Res.string.interpretation_confrontation
+        override val interpretationDisorganization = Res.string.interpretation_disorganization
+        override val interpretationAnalyzing = Res.string.interpretation_analyzing
+        override val interpretationFormat = Res.string.interpretation_format
+        override val labelStress = Res.string.label_stress
+        override val labelPressure = Res.string.label_pressure
+        override val labelFear = Res.string.label_fear
+        override val labelZero = Res.string.label_zero
+        override val labelSyncZone = Res.string.label_sync_zone
+        override val timelineTitle = Res.string.timeline_title
+        override val metricJitter = Res.string.metric_jitter
+        override val metricPitch = Res.string.metric_pitch
+        override val metricRms = Res.string.metric_rms
     }
     
     override val debug = object : IDebugStrings {

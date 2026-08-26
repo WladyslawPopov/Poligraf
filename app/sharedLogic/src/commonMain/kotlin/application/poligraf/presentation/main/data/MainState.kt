@@ -19,8 +19,4 @@ data class MainState(
     val widgets: List<UiWidget> = emptyList()
 ) : ScaffoldUiState
 
-enum class MainBottomSheetContent {
-    NONE,
-    SETTINGS,
-    ANALYZER
-}
+

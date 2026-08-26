@@ -43,18 +43,31 @@ internal class AnalyzerRepositoryImpl(
     private var sessionStartTime = 0L
     private var timeBeforePause = 0L
 
+    private fun resetInternalState() {
+        baseline.reset()
+        pitchHistory.clear()
+        frameBatch.clear()
+        _currentFrame.value = null
+        _durationMillis.value = 0L
+        timeBeforePause = 0L
+    }
+
     override fun startAnalysis() {
-        if (_isRecording.value) return
+        if (_isRecording.value && !_isPaused.value) return
         
+        // If already recording but paused, just resume
+        if (_isRecording.value && _isPaused.value) {
+            resumeAnalysis()
+            return
+        }
+
+        resetInternalState()
         val sessionId = "session_${nowAsEpochMilliseconds()}"
         currentSessionId = sessionId
         
         _isRecording.value = true
         _isPaused.value = false
-        _durationMillis.value = 0L
-        timeBeforePause = 0L
         sessionStartTime = nowAsEpochMilliseconds()
-        frameBatch.clear()
 
         // Create draft session in DB
         scope.launch(dbDispatcher) {
@@ -73,18 +86,24 @@ internal class AnalyzerRepositoryImpl(
 
     override fun pauseAnalysis() {
         if (!_isRecording.value || _isPaused.value) return
+        val sessionId = currentSessionId ?: return
         _isPaused.value = true
         timeBeforePause = _durationMillis.value
         analysisJob?.cancel()
         recorder.stopCapture()
         
-        flushBatch()
+        val framesToSave = frameBatch.toList()
+        frameBatch.clear()
+        if (framesToSave.isNotEmpty()) {
+            scope.launch(dbDispatcher) { persistFrames(sessionId, framesToSave) }
+        }
     }
 
     override fun resumeAnalysis() {
         if (!_isRecording.value || !_isPaused.value) return
         _isPaused.value = false
         sessionStartTime = nowAsEpochMilliseconds()
+        frameBatch.clear()
         startCaptureJob()
     }
 
@@ -93,13 +112,11 @@ internal class AnalyzerRepositoryImpl(
         
         currentSessionId = sessionId
         _isRecording.value = true
-        _isPaused.value = false
+        _isPaused.value = true 
         _durationMillis.value = lastDuration
         timeBeforePause = lastDuration
         sessionStartTime = nowAsEpochMilliseconds()
         frameBatch.clear()
-        
-        startCaptureJob()
     }
 
     private fun startCaptureJob() {
@@ -114,21 +131,26 @@ internal class AnalyzerRepositoryImpl(
                     val window = accumulatedBuffer.take(samplesPer100ms).toShortArray()
                     repeat(samplesPer100ms) { accumulatedBuffer.removeAt(0) }
                     
-                    processWindow(window)
+                    val currentDuration = timeBeforePause + (nowAsEpochMilliseconds() - sessionStartTime)
+                    _durationMillis.value = currentDuration
                     
-                    _durationMillis.value = timeBeforePause + (nowAsEpochMilliseconds() - sessionStartTime)
+                    processWindow(window, currentDuration)
                 }
             }
         }
     }
 
-    private fun processWindow(window: ShortArray) {
+    private fun processWindow(window: ShortArray, currentDuration: Long) {
         val rms = AudioAnalyzer.calculateRms(window)
-        val pitch = AudioAnalyzer.estimatePitch(window, AudioConstants.SAMPLING_RATE)
+        val pitch = AudioAnalyzer.estimatePitch(window, AudioConstants.SAMPLING_RATE, rms)
         
         if (pitch > 50f) {
             pitchHistory.add(pitch)
-            if (pitchHistory.size > 20) pitchHistory.removeAt(0)
+            if (pitchHistory.size > 15) pitchHistory.removeAt(0)
+        } else {
+            if (pitchHistory.isNotEmpty()) {
+                pitchHistory.removeAt(0)
+            }
         }
         
         val jitter = AudioAnalyzer.calculateJitter(pitchHistory)
@@ -143,12 +165,13 @@ internal class AnalyzerRepositoryImpl(
         )
         
         val frame = AudioFrame(
-            timestamp = _durationMillis.value,
+            timestamp = currentDuration,
             rms = rms,
             pitch = pitch,
             jitter = jitter,
             stressScore = stressScore,
-            isAnomaly = stressScore > 0.7f
+            isAnomaly = stressScore > 0.65f,
+            isCalibrated = baseline.isCalibrated()
         )
         
         _currentFrame.value = frame
@@ -156,33 +179,33 @@ internal class AnalyzerRepositoryImpl(
         
         frameBatch.add(frame)
         if (frameBatch.size >= 50) {
-            flushBatch()
+            val framesToSave = frameBatch.toList()
+            frameBatch.clear()
+            val sessionId = currentSessionId
+            if (sessionId != null) {
+                scope.launch(dbDispatcher) { persistFrames(sessionId, framesToSave) }
+            }
         }
     }
 
-    private fun flushBatch() {
-        val sessionId = currentSessionId ?: return
-        val framesToSave = frameBatch.toList()
-        frameBatch.clear()
-        
-        scope.launch(dbDispatcher) {
-            db.transaction {
-                framesToSave.forEach { frame ->
-                    db.appDatabaseQueries.insertFrame(
-                        sessionId = sessionId,
-                        timestamp = frame.timestamp,
-                        rms = frame.rms.toDouble(),
-                        pitch = frame.pitch.toDouble(),
-                        jitter = frame.jitter.toDouble(),
-                        stressScore = frame.stressScore.toDouble(),
-                        isAnomaly = frame.isAnomaly
-                    )
-                }
-                db.appDatabaseQueries.updateSessionDuration(
-                    duration = _durationMillis.value,
-                    id = sessionId
+    private suspend fun persistFrames(sessionId: String, frames: List<AudioFrame>) = withContext(dbDispatcher) {
+        db.transaction {
+            frames.forEach { frame ->
+                db.appDatabaseQueries.insertFrame(
+                    sessionId = sessionId,
+                    timestamp = frame.timestamp,
+                    rms = frame.rms.toDouble(),
+                    pitch = frame.pitch.toDouble(),
+                    jitter = frame.jitter.toDouble(),
+                    stressScore = frame.stressScore.toDouble(),
+                    isAnomaly = frame.isAnomaly,
+                    isCalibrated = frame.isCalibrated
                 )
             }
+            db.appDatabaseQueries.updateSessionDuration(
+                duration = _durationMillis.value,
+                id = sessionId
+            )
         }
     }
 
@@ -196,9 +219,14 @@ internal class AnalyzerRepositoryImpl(
         recorder.stopCapture()
         _currentFrame.value = null
         
-        flushBatch()
+        val finalFrames = frameBatch.toList()
+        frameBatch.clear()
 
         scope.launch(dbDispatcher) {
+            if (finalFrames.isNotEmpty()) {
+                persistFrames(sessionId, finalFrames)
+            }
+            
             if (save) {
                 val session = db.appDatabaseQueries.getSessionById(sessionId).executeAsOneOrNull()
                 db.appDatabaseQueries.insertSession(
@@ -212,8 +240,8 @@ internal class AnalyzerRepositoryImpl(
             } else {
                 db.appDatabaseQueries.deleteSessionById(sessionId)
             }
-            currentSessionId = null
         }
+        currentSessionId = null
     }
 
     override suspend fun getActiveDraft(): Pair<String, Long>? = withContext(dbDispatcher) {
@@ -228,6 +256,20 @@ internal class AnalyzerRepositoryImpl(
     override fun cleanUpDrafts() {
         scope.launch(dbDispatcher) {
             db.appDatabaseQueries.deleteUncompletedSessions()
+        }
+    }
+
+    override suspend fun getFramesForSession(sessionId: String): List<AudioFrame> = withContext(dbDispatcher) {
+        db.appDatabaseQueries.getFramesBySessionId(sessionId).executeAsList().map { entity ->
+            AudioFrame(
+                timestamp = entity.timestamp,
+                rms = entity.rms.toFloat(),
+                pitch = entity.pitch.toFloat(),
+                jitter = entity.jitter.toFloat(),
+                stressScore = entity.stressScore.toFloat(),
+                isAnomaly = entity.isAnomaly,
+                isCalibrated = entity.isCalibrated
+            )
         }
     }
 }

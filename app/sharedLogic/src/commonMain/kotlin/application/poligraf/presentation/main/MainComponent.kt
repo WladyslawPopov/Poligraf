@@ -16,6 +16,7 @@ interface MainComponent {
 
     data class Model(
         val viewModel: MainViewModel,
+        val analyzerViewModel: AnalyzerViewModel,
         val backHandler: BackHandler
     )
 }
@@ -30,13 +31,19 @@ class DefaultMainComponent(
         MainViewModel(
             appConfig = get(),
             analyzerRepository = get(),
+            permissionManager = get(),
             navigateToDebug = navigateToDebug
         )
+    }
+
+    private val analyzerViewModel = viewModel("analyzerViewModel") {
+        AnalyzerViewModel(get())
     }
 
     private val _model = MutableValue(
         MainComponent.Model(
             viewModel = mainViewModel,
+            analyzerViewModel = analyzerViewModel,
             backHandler = backHandler
         )
     )

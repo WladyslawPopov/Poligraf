@@ -10,8 +10,8 @@ import application.poligraf.ui.theme.tokens.StringToken
 import application.poligraf.ui.foundation.actions.DebugAction
 import application.poligraf.ui.foundation.actions.NavigationAction
 import application.poligraf.ui.foundation.actions.WidgetAction
-import application.poligraf.ui.foundation.state.BackgroundMode
-import application.poligraf.ui.foundation.state.ToastType
+import application.poligraf.ui.foundation.types.BackgroundMode
+import application.poligraf.ui.foundation.types.ToastType
 import application.poligraf.ui.foundation.models.AppBackground
 import application.poligraf.ui.foundation.models.UiWidget
 import kotlinx.coroutines.delay

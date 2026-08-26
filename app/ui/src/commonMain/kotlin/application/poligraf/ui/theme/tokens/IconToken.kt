@@ -22,6 +22,12 @@ enum class IconToken {
     SKIP_BACK_15,
     SKIP_FORWARD_15,
 
+    // Skins
+    SKIN_TRIANGLE,
+    SKIN_WAVE,
+    SKIN_BARS,
+    SKIN_RINGS,
+
     // Trim handles
     TRIM_HANDLE_LEFT,
     TRIM_HANDLE_RIGHT

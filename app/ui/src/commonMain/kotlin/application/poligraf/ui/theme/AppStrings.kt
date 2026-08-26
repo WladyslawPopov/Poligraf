@@ -25,7 +25,9 @@ data class CommonStrings(
     val history: String,
     val darkMode: String,
     val footerTitle: String,
-    val footerSubtitle: String
+    val footerSubtitle: String,
+    val save: String,
+    val delete: String
 )
 
 @Immutable
@@ -42,7 +44,23 @@ data class RecorderStrings(
     val stateMap: String,
     val voiceRibbon: String,
     val equalizer: String,
-    val rings: String
+    val rings: String,
+    val interpretationCalm: String,
+    val interpretationPanic: String,
+    val interpretationAggression: String,
+    val interpretationConfrontation: String,
+    val interpretationDisorganization: String,
+    val interpretationAnalyzing: String,
+    val interpretationFormat: String,
+    val labelStress: String,
+    val labelPressure: String,
+    val labelFear: String,
+    val labelZero: String,
+    val labelSyncZone: String,
+    val timelineTitle: String,
+    val metricJitter: String,
+    val metricPitch: String,
+    val metricRms: String
 )
 
 @Immutable

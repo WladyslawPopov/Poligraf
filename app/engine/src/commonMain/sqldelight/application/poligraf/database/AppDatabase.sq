@@ -19,6 +19,7 @@ CREATE TABLE SessionFrame (
     jitter REAL NOT NULL,
     stressScore REAL NOT NULL,
     isAnomaly INTEGER AS Boolean NOT NULL,
+    isCalibrated INTEGER AS Boolean NOT NULL DEFAULT 1,
     FOREIGN KEY(sessionId) REFERENCES SessionEntity(id) ON DELETE CASCADE
 );
 
@@ -44,8 +45,8 @@ DELETE FROM SessionEntity;
 
 -- Frame Queries
 insertFrame:
-INSERT INTO SessionFrame(sessionId, timestamp, rms, pitch, jitter, stressScore, isAnomaly)
-VALUES (?, ?, ?, ?, ?, ?, ?);
+INSERT INTO SessionFrame(sessionId, timestamp, rms, pitch, jitter, stressScore, isAnomaly, isCalibrated)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?);
 
 getFramesBySessionId:
 SELECT * FROM SessionFrame WHERE sessionId = ? ORDER BY timestamp ASC;

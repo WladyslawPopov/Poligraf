@@ -23,7 +23,9 @@ fun rememberAppUIStrings(provider: IAppStrings): AppStrings {
             history = stringResource(provider.common.history),
             darkMode = stringResource(provider.common.darkMode),
             footerTitle = stringResource(provider.common.footerTitle),
-            footerSubtitle = stringResource(provider.common.footerSubtitle)
+            footerSubtitle = stringResource(provider.common.footerSubtitle),
+            save = stringResource(provider.common.save),
+            delete = stringResource(provider.common.delete)
         ),
         errors = ErrorStrings(
             title = stringResource(provider.errors.title),
@@ -36,7 +38,23 @@ fun rememberAppUIStrings(provider: IAppStrings): AppStrings {
             stateMap = stringResource(provider.recorder.stateMap),
             voiceRibbon = stringResource(provider.recorder.voiceRibbon),
             equalizer = stringResource(provider.recorder.equalizer),
-            rings = stringResource(provider.recorder.rings)
+            rings = stringResource(provider.recorder.rings),
+            interpretationCalm = stringResource(provider.recorder.interpretationCalm),
+            interpretationPanic = stringResource(provider.recorder.interpretationPanic),
+            interpretationAggression = stringResource(provider.recorder.interpretationAggression),
+            interpretationConfrontation = stringResource(provider.recorder.interpretationConfrontation),
+            interpretationDisorganization = stringResource(provider.recorder.interpretationDisorganization),
+            interpretationAnalyzing = stringResource(provider.recorder.interpretationAnalyzing),
+            interpretationFormat = stringResource(provider.recorder.interpretationFormat),
+            labelStress = stringResource(provider.recorder.labelStress),
+            labelPressure = stringResource(provider.recorder.labelPressure),
+            labelFear = stringResource(provider.recorder.labelFear),
+            labelZero = stringResource(provider.recorder.labelZero),
+            labelSyncZone = stringResource(provider.recorder.labelSyncZone),
+            timelineTitle = stringResource(provider.recorder.timelineTitle),
+            metricJitter = stringResource(provider.recorder.metricJitter),
+            metricPitch = stringResource(provider.recorder.metricPitch),
+            metricRms = stringResource(provider.recorder.metricRms)
         ),
         debug = DebugStrings(
             title = stringResource(provider.debug.title),

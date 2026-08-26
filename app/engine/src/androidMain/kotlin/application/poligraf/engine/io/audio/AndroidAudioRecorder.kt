@@ -38,8 +38,22 @@ internal class AndroidAudioRecorder(
             bufferSize
         )
 
-        audioRecord?.startRecording()
-        _isCapturing.value = true
+        if (audioRecord?.state != AudioRecord.STATE_INITIALIZED) {
+            Napier.e { "AudioRecord initialization failed. Check RECORD_AUDIO permission." }
+            audioRecord?.release()
+            audioRecord = null
+            return
+        }
+
+        try {
+            audioRecord?.startRecording()
+            _isCapturing.value = true
+        } catch (e: Exception) {
+            Napier.e(e) { "Failed to start recording" }
+            audioRecord?.release()
+            audioRecord = null
+            return
+        }
         
         recordingJob = scope.launch(Dispatchers.IO) {
             val buffer = ShortArray(bufferSize / 2)

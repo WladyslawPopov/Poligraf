@@ -2,12 +2,7 @@ package application.poligraf.ui.components.layout
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -41,7 +36,7 @@ fun AppBottomSheet(
         scrimColor = Color.Black.copy(alpha = 0.4f),
     ) {
         Surface(
-            modifier = modifier,
+            modifier = modifier.fillMaxHeight(),
             color = designSystem.color(ColorToken.SURFACE_PRIMARY).copy(alpha = 0.92f),
             shape = MaterialTheme.shapes.extraLarge,
             border = BorderStroke(

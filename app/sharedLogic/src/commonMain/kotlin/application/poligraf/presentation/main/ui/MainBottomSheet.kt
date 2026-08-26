@@ -6,22 +6,31 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import application.poligraf.presentation.main.data.MainBottomSheetContent
 import application.poligraf.presentation.main.data.MainState
+import application.poligraf.presentation.main.AnalyzerViewModel
 import application.poligraf.ui.theme.DesignSystem
-import application.poligraf.ui.foundation.models.UiWidget
 import application.poligraf.ui.components.layout.AppBottomSheet
-import application.poligraf.ui.features.recorder.AnalyzerRenderer
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainBottomSheet(
     modifier: Modifier = Modifier,
     state: MainState,
+    analyzerViewModel: AnalyzerViewModel,
     designSystem: DesignSystem,
     onDebugClicked: () -> Unit,
     closeBottomSheet: () -> Unit,
 ) {
     val bottomSheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = true
+        skipPartiallyExpanded = true,
+        confirmValueChange = { targetValue ->
+            // Only disable closing (moving to Hidden) if recording is active
+            if (targetValue == androidx.compose.material3.SheetValue.Hidden) {
+                val isCurrentlyRecording = analyzerViewModel.state.value.isRecording && !analyzerViewModel.state.value.isPaused
+                !isCurrentlyRecording
+            } else {
+                true // Always allow opening/expanding
+            }
+        }
     )
 
     if (state.bottomSheetState) {
@@ -39,7 +48,8 @@ fun MainBottomSheet(
                 )
 
                 MainBottomSheetContent.ANALYZER -> AnalyzerRenderer(
-                    widget = UiWidget.Analyzer(id = "analyzer_main")
+                    viewModel = analyzerViewModel,
+                    onClose = closeBottomSheet
                 )
 
                 else -> {}

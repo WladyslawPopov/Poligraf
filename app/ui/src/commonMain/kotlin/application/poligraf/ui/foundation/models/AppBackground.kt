@@ -3,7 +3,7 @@ package application.poligraf.ui.foundation.models
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import application.poligraf.ui.theme.tokens.ColorToken
-import application.poligraf.ui.foundation.state.BackgroundMode
+import application.poligraf.ui.foundation.types.BackgroundMode
 
 @Stable
 sealed class AppBackground {

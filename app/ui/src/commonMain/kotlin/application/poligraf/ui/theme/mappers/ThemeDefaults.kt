@@ -33,6 +33,14 @@ internal object ThemeDefaults {
                 ColorToken.RECORDER_ACCENT -> Color(0xFFFFD600)
                 ColorToken.RECORDER_SURFACE -> Color(0xFF1C1C1E)
                 ColorToken.RECORDER_WAVEFORM -> Color(0xFFFF3B30)
+
+                ColorToken.CHART_JITTER -> Color(0xFF00FFCC)
+                ColorToken.CHART_JITTER_ALARM -> Color(0xFFFF4444)
+                ColorToken.CHART_PITCH -> Color(0xFF3399FF)
+                ColorToken.CHART_PITCH_ALARM -> Color(0xFFFFEE00)
+                ColorToken.CHART_RMS -> Color(0xFFFF9900)
+                ColorToken.CHART_RMS_ALARM -> Color(0xFFAA00FF)
+                ColorToken.CHART_ANOMALY -> Color(0xFFFF3B30)
             }
         } else {
             when (token) {
@@ -58,6 +66,14 @@ internal object ThemeDefaults {
                 ColorToken.RECORDER_ACCENT -> Color(0xFFFFC107)
                 ColorToken.RECORDER_SURFACE -> Color(0xFFF5F5F5)
                 ColorToken.RECORDER_WAVEFORM -> Color(0xFFD32F2F)
+
+                ColorToken.CHART_JITTER -> Color(0xFF0D9488)
+                ColorToken.CHART_JITTER_ALARM -> Color(0xFFDC2626)
+                ColorToken.CHART_PITCH -> Color(0xFF0284C7)
+                ColorToken.CHART_PITCH_ALARM -> Color(0xFFCA8A04)
+                ColorToken.CHART_RMS -> Color(0xFFD97706)
+                ColorToken.CHART_RMS_ALARM -> Color(0xFF7C3AED)
+                ColorToken.CHART_ANOMALY -> Color(0xFFDC2626)
             }
         }
     }

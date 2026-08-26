@@ -1,4 +1,4 @@
-package application.poligraf.ui.foundation.state
+package application.poligraf.ui.foundation.types
 
 enum class BackgroundMode {
     IDLE,

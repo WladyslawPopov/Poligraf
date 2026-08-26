@@ -7,9 +7,10 @@ import application.poligraf.ui.theme.tokens.StringToken
 import application.poligraf.ui.foundation.actions.NavigationAction
 import application.poligraf.ui.foundation.actions.WidgetAction
 import application.poligraf.ui.foundation.models.AppBackground
-import application.poligraf.engine.config.AppConfig
-import application.poligraf.engine.settings.SettingsRepository
 import application.poligraf.domain.repository.AnalyzerRepository
+import application.poligraf.engine.config.AppConfig
+import application.poligraf.engine.device.AppPermission
+import application.poligraf.engine.device.PermissionManager
 import application.poligraf.presentation.main.data.MainBottomSheetContent
 import application.poligraf.presentation.main.data.MainState
 import application.poligraf.ui.foundation.actions.RecordingAction
@@ -20,26 +21,16 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-
 import kotlinx.coroutines.launch
+
 
 @Stable
 class MainViewModel(
     private val appConfig: AppConfig,
     private val analyzerRepository: AnalyzerRepository,
-    private val navigateToDebug: () -> Unit
-) : BaseViewModel()
-{
-    init {
-        scope.launch {
-            val draft = analyzerRepository.getActiveDraft()
-            if (draft != null) {
-                analyzerRepository.resumeFromDraft(draft.first, draft.second)
-                openAnalyzer(true)
-            }
-        }
-    }
-
+    private val permissionManager: PermissionManager,
+    private val navigateToDebug: () -> Unit,
+) : BaseViewModel() {
     private val welcomeData = listOf(
         StringToken.WELCOME_2 to "📊",
         StringToken.WELCOME_3 to "📡",
@@ -78,9 +69,29 @@ class MainViewModel(
     )
     val state: StateFlow<MainState> = _state.asStateFlow()
 
+    private var isRequestingPermission = false
+
+    init {
+        scope.launch {
+            if (analyzerRepository.getActiveDraft() != null) {
+                openAnalyzer(true)
+            }
+        }
+
+        // Listen for permission changes
+        scope.launch {
+            permissionManager.permissionsState.collect { permissions ->
+                if (permissions[AppPermission.RECORD_AUDIO] == true && isRequestingPermission) {
+                    isRequestingPermission = false
+                    openAnalyzer(true)
+                }
+            }
+        }
+    }
+
     fun openSettings(isOpen: Boolean) {
         _state.update {
-            if (isOpen){
+            if (isOpen) {
                 it.copy(
                     bottomSheetState = true,
                     bottomSheetContent = MainBottomSheetContent.SETTINGS
@@ -96,7 +107,7 @@ class MainViewModel(
 
     fun openAnalyzer(isOpen: Boolean) {
         _state.update {
-            if (isOpen){
+            if (isOpen) {
                 it.copy(
                     bottomSheetState = true,
                     bottomSheetContent = MainBottomSheetContent.ANALYZER
@@ -116,8 +127,14 @@ class MainViewModel(
             is NavigationAction.History -> {}
             is NavigationAction.Settings -> openSettings(!_state.value.bottomSheetState)
             is RecordingAction.StartNew -> {
-                openAnalyzer(!_state.value.bottomSheetState)
+                if (permissionManager.isGranted(AppPermission.RECORD_AUDIO)) {
+                    openAnalyzer(true)
+                } else {
+                    isRequestingPermission = true
+                    permissionManager.requestPermission(AppPermission.RECORD_AUDIO)
+                }
             }
+
             else -> {}
         }
     }
@@ -133,8 +150,5 @@ class MainViewModel(
                 bottomSheetContent = MainBottomSheetContent.NONE
             )
         }
-    }
-
-    fun loadContent() {
     }
 }
