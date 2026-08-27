@@ -10,6 +10,8 @@ data class AppStrings(
     val common: CommonStrings,
     val errors: ErrorStrings,
     val recorder: RecorderStrings,
+    val history: HistoryStrings,
+    val settings: SettingsStrings,
     val debug: DebugStrings
 )
 
@@ -69,4 +71,29 @@ data class DebugStrings(
     val triggerLoading: String,
     val triggerError: String,
     val triggerSuccess: String
+)
+
+@Immutable
+data class HistoryStrings(
+    val empty: String,
+    val itemMarkers: String,
+    val summaryVolatility: String,
+    val summaryDuration: String,
+    val summaryMarkers: String,
+    val volatilityLow: String,
+    val volatilityMedium: String,
+    val volatilityHigh: String,
+    val conclusionPositive: String,
+    val conclusionNegative: String,
+    val conclusionNeutral: String,
+    val labelNotes: String,
+    val notesHint: String,
+    val detailTitle: String
+)
+
+@Immutable
+data class SettingsStrings(
+    val preferencesTitle: String,
+    val skinTitle: String,
+    val markerTitle: String
 )

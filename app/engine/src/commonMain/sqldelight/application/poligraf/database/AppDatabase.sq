@@ -29,7 +29,10 @@ INSERT OR REPLACE INTO SessionEntity(id, timestamp, title, notes, duration, isCo
 VALUES (?, ?, ?, ?, ?, ?);
 
 getAllSessions:
-SELECT * FROM SessionEntity WHERE isCompleted = 1 ORDER BY timestamp DESC;
+SELECT s.*, (SELECT COUNT(DISTINCT timestamp / 1000) FROM SessionFrame f WHERE f.sessionId = s.id AND f.isAnomaly = 1) AS anomalyCount
+FROM SessionEntity s
+WHERE s.isCompleted = 1
+ORDER BY s.timestamp DESC;
 
 getSessionById:
 SELECT * FROM SessionEntity WHERE id = ?;
@@ -39,6 +42,9 @@ DELETE FROM SessionEntity WHERE id = ?;
 
 updateSessionDuration:
 UPDATE SessionEntity SET duration = ? WHERE id = ?;
+
+updateSessionMetadata:
+UPDATE SessionEntity SET title = ?, notes = ? WHERE id = ?;
 
 clearSessions:
 DELETE FROM SessionEntity;

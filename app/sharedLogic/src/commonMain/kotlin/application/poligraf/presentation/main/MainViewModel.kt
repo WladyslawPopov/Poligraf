@@ -13,24 +13,32 @@ import application.poligraf.engine.device.AppPermission
 import application.poligraf.engine.device.PermissionManager
 import application.poligraf.presentation.main.data.MainBottomSheetContent
 import application.poligraf.presentation.main.data.MainState
+import application.poligraf.engine.settings.PreferenceManager
 import application.poligraf.ui.foundation.actions.RecordingAction
 import application.poligraf.ui.foundation.models.AppToolbar
 import application.poligraf.ui.foundation.models.UiWidget
+import application.poligraf.engine.models.AnalyzerSkin
+import application.poligraf.engine.models.MarkerShape
 import io.github.aakira.napier.Napier
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-
 
 @Stable
 class MainViewModel(
     private val appConfig: AppConfig,
     private val analyzerRepository: AnalyzerRepository,
     private val permissionManager: PermissionManager,
+    private val preferenceManager: PreferenceManager,
     private val navigateToDebug: () -> Unit,
+    private val navigateToHistory: () -> Unit,
 ) : BaseViewModel() {
+    
+    val defaultSkin = preferenceManager.defaultSkin
+    val markerShape = preferenceManager.markerShape
+
+    fun onSkinSelected(skin: AnalyzerSkin) = preferenceManager.setDefaultSkin(skin)
+    fun onMarkerShapeSelected(shape: MarkerShape) = preferenceManager.setMarkerShape(shape)
+
     private val welcomeData = listOf(
         StringToken.WELCOME_2 to "📊",
         StringToken.WELCOME_3 to "📡",
@@ -124,7 +132,7 @@ class MainViewModel(
     fun onWidgetAction(action: WidgetAction) {
         Napier.d { "Action triggered: $action" }
         when (action) {
-            is NavigationAction.History -> {}
+            is NavigationAction.History -> navigateToHistory()
             is NavigationAction.Settings -> openSettings(!_state.value.bottomSheetState)
             is RecordingAction.StartNew -> {
                 if (permissionManager.isGranted(AppPermission.RECORD_AUDIO)) {

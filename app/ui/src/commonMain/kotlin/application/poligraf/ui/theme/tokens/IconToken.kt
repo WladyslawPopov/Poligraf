@@ -22,6 +22,12 @@ enum class IconToken {
     SKIP_BACK_15,
     SKIP_FORWARD_15,
 
+    // Shapes
+    SHAPE_CIRCLE,
+    SHAPE_STAR,
+    SHAPE_DIAMOND,
+    SHAPE_HEART,
+
     // Skins
     SKIN_TRIANGLE,
     SKIN_WAVE,

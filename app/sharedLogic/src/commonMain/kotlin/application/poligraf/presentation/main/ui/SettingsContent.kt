@@ -1,36 +1,66 @@
 package application.poligraf.presentation.main.ui
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.dp
+import application.poligraf.engine.models.AnalyzerSkin
+import application.poligraf.engine.models.MarkerShape
 import application.poligraf.engine.theme.ThemeManager
+import application.poligraf.ui.components.decorators.GlassDivider
+import application.poligraf.ui.components.icons.AppIcon
+import application.poligraf.ui.components.items.DrawerItem
+import application.poligraf.ui.features.settings.ShapeSelectionItem
+import application.poligraf.ui.features.settings.SkinSelectionItem
 import application.poligraf.ui.theme.DesignSystem
 import application.poligraf.ui.theme.tokens.ColorToken
 import application.poligraf.ui.theme.tokens.DimenToken
 import application.poligraf.ui.theme.tokens.StringToken
-import application.poligraf.ui.components.decorators.GlassDivider
-import application.poligraf.ui.components.items.DrawerItem
+import kotlinx.coroutines.flow.Flow
 import org.koin.compose.koinInject
 
 @Composable
 fun SettingsContent(
     appVersion: String,
     designSystem: DesignSystem,
+    defaultSkin: Flow<AnalyzerSkin>,
+    markerShape: Flow<MarkerShape>,
+    onSkinSelected: (AnalyzerSkin) -> Unit,
+    onMarkerShapeSelected: (MarkerShape) -> Unit,
     onDebugClicked: () -> Unit,
-    themeManager: ThemeManager = koinInject()
+    themeManager: ThemeManager = koinInject(),
 ) {
+    val currentDefaultSkin by defaultSkin.collectAsState(AnalyzerSkin.RINGS)
+    val currentMarkerShape by markerShape.collectAsState(MarkerShape.CIRCLE)
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -49,6 +79,57 @@ fun SettingsContent(
 
         GlassDivider(designSystem)
 
+        // Preferences Section
+        Text(
+            text = designSystem.string(StringToken.SETTINGS_PREFERENCES_TITLE),
+            style = MaterialTheme.typography.titleLarge,
+            color = designSystem.color(ColorToken.TEXT_PRIMARY),
+            fontWeight = FontWeight.Bold
+        )
+
+        Text(
+            text = designSystem.string(StringToken.SETTINGS_SKIN_TITLE),
+            style = MaterialTheme.typography.labelMedium,
+            color = designSystem.color(ColorToken.TEXT_SECONDARY)
+        )
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            AnalyzerSkin.entries.forEach { skin ->
+                SkinSelectionItem(
+                    skin = skin,
+                    isSelected = skin == currentDefaultSkin,
+                    onClick = { onSkinSelected(skin) },
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+
+        Spacer(Modifier.height(8.dp))
+
+        Text(
+            text = designSystem.string(StringToken.SETTINGS_MARKER_TITLE),
+            style = MaterialTheme.typography.labelMedium,
+            color = designSystem.color(ColorToken.TEXT_SECONDARY)
+        )
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            MarkerShape.entries.forEach { shape ->
+                ShapeSelectionItem(
+                    shape = shape,
+                    isSelected = shape == currentMarkerShape,
+                    onClick = { onMarkerShapeSelected(shape) }
+                )
+            }
+        }
+
+        GlassDivider(designSystem)
+
         // Settings Content
         DrawerItem(
             label = designSystem.string(StringToken.DARK_MODE),
@@ -59,8 +140,10 @@ fun SettingsContent(
                     onCheckedChange = { themeManager.toggleTheme() },
                     colors = SwitchDefaults.colors(
                         checkedThumbColor = designSystem.color(ColorToken.ACCENT_PRIMARY),
-                        checkedTrackColor = designSystem.color(ColorToken.ACCENT_PRIMARY).copy(alpha = 0.3f),
-                        uncheckedBorderColor = designSystem.color(ColorToken.TEXT_SECONDARY).copy(alpha = 0.5f)
+                        checkedTrackColor = designSystem.color(ColorToken.ACCENT_PRIMARY)
+                            .copy(alpha = 0.3f),
+                        uncheckedBorderColor = designSystem.color(ColorToken.TEXT_SECONDARY)
+                            .copy(alpha = 0.5f)
                     )
                 )
             }

@@ -26,6 +26,14 @@ class DesignSystem(
     fun dimen(token: DimenToken): Dp = ThemeDefaults.getDimension(token)
     fun icon(token: IconToken): ImageVector = IconMapper.getIcon(token)
     fun string(token: StringToken): String = StringMapper.getString(token, strings)
+    
+    fun stringArgs(token: StringToken, vararg args: Any): String {
+        var base = string(token)
+        args.forEach { arg ->
+            base = base.replaceFirst("%s", arg.toString()).replaceFirst("%d", arg.toString())
+        }
+        return base
+    }
 }
 
 /**

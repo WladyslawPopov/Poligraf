@@ -5,6 +5,10 @@ import application.poligraf.engine.component.AppComponentContext
 import application.poligraf.engine.component.asAppComponentContext
 import application.poligraf.presentation.debug.DebugComponent
 import application.poligraf.presentation.debug.DefaultDebugComponent
+import application.poligraf.presentation.history.DefaultHistoryComponent
+import application.poligraf.presentation.history.HistoryComponent
+import application.poligraf.presentation.history_detail.DefaultHistoryDetailComponent
+import application.poligraf.presentation.history_detail.HistoryDetailComponent
 import application.poligraf.presentation.main.DefaultMainComponent
 import application.poligraf.presentation.main.MainComponent
 import com.arkivanov.decompose.ExperimentalDecomposeApi
@@ -26,6 +30,8 @@ interface RootComponent {
     sealed class Child {
         class MainChild(val component: MainComponent) : Child()
         class DebugChild(val component: DebugComponent) : Child()
+        class HistoryChild(val component: HistoryComponent) : Child()
+        class HistoryDetailChild(val component: HistoryDetailComponent) : Child()
     }
 
     fun goBack()
@@ -55,13 +61,28 @@ class DefaultRootComponent(
             is RootConfig.Main -> RootComponent.Child.MainChild(
                 DefaultMainComponent(
                     componentContext = appContext,
-                    navigateToDebug = { navigation.pushNew(RootConfig.Debug) }
+                    navigateToDebug = { navigation.pushNew(RootConfig.Debug) },
+                    navigateToHistory = { navigation.pushNew(RootConfig.History) }
                 )
             )
             is RootConfig.Debug -> RootComponent.Child.DebugChild(
                 DefaultDebugComponent(
                     componentContext = appContext,
                     navigateToMain = { navigation.pop() },
+                    navigateBack = { navigation.pop() }
+                )
+            )
+            is RootConfig.History -> RootComponent.Child.HistoryChild(
+                DefaultHistoryComponent(
+                    componentContext = appContext,
+                    navigateToDetail = { navigation.pushNew(RootConfig.HistoryDetail(it)) },
+                    navigateBack = { navigation.pop() }
+                )
+            )
+            is RootConfig.HistoryDetail -> RootComponent.Child.HistoryDetailChild(
+                DefaultHistoryDetailComponent(
+                    componentContext = appContext,
+                    sessionId = config.sessionId,
                     navigateBack = { navigation.pop() }
                 )
             )

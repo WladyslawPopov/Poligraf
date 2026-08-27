@@ -9,4 +9,10 @@ sealed interface RootConfig {
 
     @Serializable
     data object Debug : RootConfig
+
+    @Serializable
+    data object History : RootConfig
+
+    @Serializable
+    data class HistoryDetail(val sessionId: String) : RootConfig
 }

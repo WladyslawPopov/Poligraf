@@ -8,6 +8,8 @@ interface IAppStrings {
     val common: ICommonStrings
     val errors: IErrorStrings
     val recorder: IRecorderStrings
+    val history: IHistoryStrings
+    val settings: ISettingsStrings
     val debug: IDebugStrings
 }
 
@@ -65,6 +67,29 @@ interface IDebugStrings {
     val triggerSuccess: StringResource
 }
 
+interface IHistoryStrings {
+    val empty: StringResource
+    val itemMarkers: StringResource
+    val summaryVolatility: StringResource
+    val summaryDuration: StringResource
+    val summaryMarkers: StringResource
+    val volatilityLow: StringResource
+    val volatilityMedium: StringResource
+    val volatilityHigh: StringResource
+    val conclusionPositive: StringResource
+    val conclusionNegative: StringResource
+    val conclusionNeutral: StringResource
+    val labelNotes: StringResource
+    val notesHint: StringResource
+    val detailTitle: StringResource
+}
+
+interface ISettingsStrings {
+    val preferencesTitle: StringResource
+    val skinTitle: StringResource
+    val markerTitle: StringResource
+}
+
 internal class AppStringsImpl : IAppStrings {
     override val common = object : ICommonStrings {
         override val appName = Res.string.app_name
@@ -111,6 +136,29 @@ internal class AppStringsImpl : IAppStrings {
         override val metricJitter = Res.string.metric_jitter
         override val metricPitch = Res.string.metric_pitch
         override val metricRms = Res.string.metric_rms
+    }
+
+    override val history = object : IHistoryStrings {
+        override val empty = Res.string.history_empty
+        override val itemMarkers = Res.string.history_item_markers
+        override val summaryVolatility = Res.string.history_summary_volatility
+        override val summaryDuration = Res.string.history_summary_duration
+        override val summaryMarkers = Res.string.history_summary_markers
+        override val volatilityLow = Res.string.volatility_low
+        override val volatilityMedium = Res.string.volatility_medium
+        override val volatilityHigh = Res.string.volatility_high
+        override val conclusionPositive = Res.string.conclusion_positive
+        override val conclusionNegative = Res.string.conclusion_negative
+        override val conclusionNeutral = Res.string.conclusion_neutral
+        override val labelNotes = Res.string.label_notes
+        override val notesHint = Res.string.notes_hint
+        override val detailTitle = Res.string.history_detail_title
+    }
+
+    override val settings = object : ISettingsStrings {
+        override val preferencesTitle = Res.string.settings_preferences_title
+        override val skinTitle = Res.string.settings_skin_title
+        override val markerTitle = Res.string.settings_marker_title
     }
     
     override val debug = object : IDebugStrings {

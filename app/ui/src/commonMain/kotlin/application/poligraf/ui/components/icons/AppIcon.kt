@@ -9,9 +9,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 @Composable
 fun AppIcon(
     icon: ImageVector,
-    contentDescription: String?,
+    contentDescription: String? = "",
     modifier: Modifier = Modifier,
-    tint: Color = Color.Unspecified
+    tint: Color = Color.Unspecified,
 ) {
     Icon(
         imageVector = icon,

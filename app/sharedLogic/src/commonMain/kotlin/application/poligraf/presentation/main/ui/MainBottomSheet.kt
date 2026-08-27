@@ -44,6 +44,10 @@ fun MainBottomSheet(
                 MainBottomSheetContent.SETTINGS -> SettingsContent(
                     appVersion = state.appConfig?.appVersion ?: "1.0.0",
                     designSystem = designSystem,
+                    defaultSkin = analyzerViewModel.preferenceManager.defaultSkin,
+                    markerShape = analyzerViewModel.preferenceManager.markerShape,
+                    onSkinSelected = { analyzerViewModel.preferenceManager.setDefaultSkin(it) },
+                    onMarkerShapeSelected = { analyzerViewModel.preferenceManager.setMarkerShape(it) },
                     onDebugClicked = onDebugClicked
                 )
 

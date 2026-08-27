@@ -56,4 +56,23 @@
     <string name="metric_jitter">Jitter</string>
     <string name="metric_pitch">Pitch</string>
     <string name="metric_rms">RMS</string>
+
+    <!-- History & Reports -->
+    <string name="history_empty">No saved sessions yet</string>
+    <string name="history_item_markers">%d markers</string>
+    <string name="history_summary_volatility">Voice volatility</string>
+    <string name="history_summary_duration">Duration</string>
+    <string name="history_summary_markers">Markers</string>
+    <string name="volatility_low">Low</string>
+    <string name="volatility_medium">Medium</string>
+    <string name="volatility_high">High</string>
+    <string name="conclusion_positive">Reliable</string>
+    <string name="conclusion_negative">Unreliable</string>
+    <string name="conclusion_neutral">Uncertain</string>
+    <string name="label_notes">Notes</string>
+    <string name="notes_hint">Add a note...</string>
+    <string name="history_detail_title">Session Report</string>
+    <string name="settings_preferences_title">Preferences</string>
+    <string name="settings_skin_title">Indicator theme</string>
+    <string name="settings_marker_title">Marker set</string>
 </resources>

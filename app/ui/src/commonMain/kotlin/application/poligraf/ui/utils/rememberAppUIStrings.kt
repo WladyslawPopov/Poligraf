@@ -5,8 +5,10 @@ import application.poligraf.ui.theme.AppStrings
 import application.poligraf.ui.theme.CommonStrings
 import application.poligraf.ui.theme.DebugStrings
 import application.poligraf.ui.theme.ErrorStrings
+import application.poligraf.ui.theme.HistoryStrings
 import application.poligraf.ui.theme.IAppStrings
 import application.poligraf.ui.theme.RecorderStrings
+import application.poligraf.ui.theme.SettingsStrings
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -55,6 +57,27 @@ fun rememberAppUIStrings(provider: IAppStrings): AppStrings {
             metricJitter = stringResource(provider.recorder.metricJitter),
             metricPitch = stringResource(provider.recorder.metricPitch),
             metricRms = stringResource(provider.recorder.metricRms)
+        ),
+        history = HistoryStrings(
+            empty = stringResource(provider.history.empty),
+            itemMarkers = stringResource(provider.history.itemMarkers),
+            summaryVolatility = stringResource(provider.history.summaryVolatility),
+            summaryDuration = stringResource(provider.history.summaryDuration),
+            summaryMarkers = stringResource(provider.history.summaryMarkers),
+            volatilityLow = stringResource(provider.history.volatilityLow),
+            volatilityMedium = stringResource(provider.history.volatilityMedium),
+            volatilityHigh = stringResource(provider.history.volatilityHigh),
+            conclusionPositive = stringResource(provider.history.conclusionPositive),
+            conclusionNegative = stringResource(provider.history.conclusionNegative),
+            conclusionNeutral = stringResource(provider.history.conclusionNeutral),
+            labelNotes = stringResource(provider.history.labelNotes),
+            notesHint = stringResource(provider.history.notesHint),
+            detailTitle = stringResource(provider.history.detailTitle)
+        ),
+        settings = SettingsStrings(
+            preferencesTitle = stringResource(provider.settings.preferencesTitle),
+            skinTitle = stringResource(provider.settings.skinTitle),
+            markerTitle = stringResource(provider.settings.markerTitle)
         ),
         debug = DebugStrings(
             title = stringResource(provider.debug.title),

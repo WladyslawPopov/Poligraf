@@ -52,6 +52,25 @@ internal object StringMapper {
             StringToken.DEBUG_TRIGGER_LOADING -> strings.debug.triggerLoading
             StringToken.DEBUG_TRIGGER_ERROR -> strings.debug.triggerError
             StringToken.DEBUG_TRIGGER_SUCCESS -> strings.debug.triggerSuccess
+
+            StringToken.HISTORY_EMPTY -> strings.history.empty
+            StringToken.HISTORY_ITEM_MARKERS -> strings.history.itemMarkers
+            StringToken.HISTORY_SUMMARY_VOLATILITY -> strings.history.summaryVolatility
+            StringToken.HISTORY_SUMMARY_DURATION -> strings.history.summaryDuration
+            StringToken.HISTORY_SUMMARY_MARKERS -> strings.history.summaryMarkers
+            StringToken.VOLATILITY_LOW -> strings.history.volatilityLow
+            StringToken.VOLATILITY_MEDIUM -> strings.history.volatilityMedium
+            StringToken.VOLATILITY_HIGH -> strings.history.volatilityHigh
+            StringToken.CONCLUSION_POSITIVE -> strings.history.conclusionPositive
+            StringToken.CONCLUSION_NEGATIVE -> strings.history.conclusionNegative
+            StringToken.CONCLUSION_NEUTRAL -> strings.history.conclusionNeutral
+            StringToken.LABEL_NOTES -> strings.history.labelNotes
+            StringToken.NOTES_HINT -> strings.history.notesHint
+            StringToken.HISTORY_DETAIL_TITLE -> strings.history.detailTitle
+
+            StringToken.SETTINGS_PREFERENCES_TITLE -> strings.settings.preferencesTitle
+            StringToken.SETTINGS_SKIN_TITLE -> strings.settings.skinTitle
+            StringToken.SETTINGS_MARKER_TITLE -> strings.settings.markerTitle
         }
     }
 }

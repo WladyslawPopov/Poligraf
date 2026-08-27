@@ -2,21 +2,34 @@ package application.poligraf.ui.features.recorder
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import application.poligraf.ui.foundation.types.AnalyzerMarker
+import application.poligraf.engine.models.MarkerShape
+import application.poligraf.ui.foundation.models.AnalyzerMarker
 import application.poligraf.ui.theme.LocalDesignSystem
 import application.poligraf.ui.theme.tokens.ColorToken
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -34,15 +47,15 @@ fun AnomalyTimeline(
     val designSystem = LocalDesignSystem.current
     val density = LocalDensity.current
     val textMeasurer = rememberTextMeasurer()
-    
+
     val textStyle = MaterialTheme.typography.labelSmall.copy(
-        fontSize = 8.sp, 
+        fontSize = 8.sp,
         color = designSystem.color(ColorToken.TEXT_SECONDARY).copy(alpha = 0.4f)
     )
-    
+
     val dpPerSecond = 20.dp
     val pxPerMillis = with(density) { dpPerSecond.toPx() } / 1000f
-    
+
     val scrollState = rememberScrollState()
 
     Column(
@@ -65,11 +78,12 @@ fun AnomalyTimeline(
             // 1. LIVE MODE: Follow the right edge of the viewport
             LaunchedEffect(currentDurationMillis, isPaused) {
                 if (!isPaused) {
-                    val targetScroll = ((indicatorOffset + durationPx) - viewPortWidth).coerceAtLeast(0f).toInt()
+                    val targetScroll =
+                        ((indicatorOffset + durationPx) - viewPortWidth).coerceAtLeast(0f).toInt()
                     scrollState.scrollTo(targetScroll)
                 }
             }
-            
+
             // 2. PAUSE TRANSITION: When pausing, jump center indicator to the end of recording
             LaunchedEffect(isPaused) {
                 if (isPaused) {
@@ -82,11 +96,14 @@ fun AnomalyTimeline(
             }
 
             // 3. SEEK SYNC: Map whatever is under indicatorOffset to time
-            LaunchedEffect(isPaused) {
+            LaunchedEffect(isPaused, currentDurationMillis) {
                 if (isPaused) {
                     snapshotFlow { scrollState.value }
                         .map { scrollValue ->
-                            ((scrollValue / pxPerMillis).toLong()).coerceIn(0, currentDurationMillis)
+                            ((scrollValue / pxPerMillis).toLong()).coerceIn(
+                                0,
+                                currentDurationMillis
+                            )
                         }
                         .distinctUntilChanged()
                         .collect { time ->
@@ -141,7 +158,8 @@ fun AnomalyTimeline(
                         // Active Recorded Background Strip
                         if (durationPx > 0) {
                             drawRoundRect(
-                                color = designSystem.color(ColorToken.SURFACE_VARIANT).copy(alpha = 0.16f),
+                                color = designSystem.color(ColorToken.SURFACE_VARIANT)
+                                    .copy(alpha = 0.16f),
                                 topLeft = Offset(indicatorOffset, stripTop),
                                 size = Size(durationPx, stripHeight),
                                 cornerRadius = CornerRadius(6.dp.toPx())
@@ -151,33 +169,43 @@ fun AnomalyTimeline(
                         // Ticks and Labels (Optimized: only draw what fits on screen)
                         val visibleStartPx = scrollState.value.toFloat()
                         val visibleEndPx = visibleStartPx + viewPortWidth
-                        
-                        val firstVisibleSecond = (((visibleStartPx - indicatorOffset) / (1000f * pxPerMillis)).toInt() - 1).coerceAtLeast(0)
-                        val lastVisibleSecond = (((visibleEndPx - indicatorOffset) / (1000f * pxPerMillis)).toInt() + 1)
-                            .coerceAtMost((currentDurationMillis / 1000).toInt())
-                        
+
+                        val firstVisibleSecond =
+                            (((visibleStartPx - indicatorOffset) / (1000f * pxPerMillis)).toInt() - 1).coerceAtLeast(
+                                0
+                            )
+                        val lastVisibleSecond =
+                            (((visibleEndPx - indicatorOffset) / (1000f * pxPerMillis)).toInt() + 1)
+                                .coerceAtMost((currentDurationMillis / 1000).toInt())
+
                         if (firstVisibleSecond <= lastVisibleSecond) {
                             for (s in firstVisibleSecond..lastVisibleSecond) {
                                 val x = indicatorOffset + (s * 1000f * pxPerMillis)
                                 val isMajor = s % 2 == 0
                                 val isLabeled = s % 5 == 0
-                                
+
                                 val tickStartY = stripTop + stripHeight + 6.dp.toPx()
                                 val tickHeight = if (isMajor) 8.dp.toPx() else 4.dp.toPx()
-                                
+
                                 drawLine(
-                                    color = designSystem.color(ColorToken.TEXT_SECONDARY).copy(alpha = if (isMajor) 0.25f else 0.08f),
+                                    color = designSystem.color(ColorToken.TEXT_SECONDARY)
+                                        .copy(alpha = if (isMajor) 0.25f else 0.08f),
                                     start = Offset(x, tickStartY),
                                     end = Offset(x, tickStartY + tickHeight),
                                     strokeWidth = 1.dp.toPx()
                                 )
-                                
+
                                 if (isLabeled) {
-                                    val timeStr = "${(s / 60).toString().padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}"
+                                    val timeStr = "${
+                                        (s / 60).toString().padStart(2, '0')
+                                    }:${(s % 60).toString().padStart(2, '0')}"
                                     val textLayout = textMeasurer.measure(timeStr, textStyle)
                                     drawText(
                                         textLayout,
-                                        topLeft = Offset(x - textLayout.size.width / 2, tickStartY + tickHeight + 2.dp.toPx())
+                                        topLeft = Offset(
+                                            x - textLayout.size.width / 2,
+                                            tickStartY + tickHeight + 2.dp.toPx()
+                                        )
                                     )
                                 }
                             }
@@ -187,10 +215,11 @@ fun AnomalyTimeline(
                         markers.forEach { marker ->
                             val x = indicatorOffset + (marker.timestampMillis * pxPerMillis)
                             if (x in (visibleStartPx - 10f)..(visibleEndPx + 10f)) {
-                                drawCircle(
+                                drawMarker(
+                                    shape = marker.shape,
                                     color = designSystem.color(marker.colorToken),
-                                    radius = 3.dp.toPx(),
-                                    center = Offset(x, stripCenterY)
+                                    center = Offset(x, stripCenterY),
+                                    size = 6.dp.toPx()
                                 )
                             }
                         }
@@ -200,7 +229,7 @@ fun AnomalyTimeline(
                 // Pointer Overlay (Real-time live position or paused center indicator)
                 Canvas(modifier = Modifier.fillMaxSize()) {
                     val stripHeight = 36.dp.toPx()
-                    
+
                     // In Live mode: pointer follows the recording head on screen
                     // In Paused mode: pointer is centered and colored in accent
                     val pointerX = if (isPaused) {
@@ -229,6 +258,62 @@ fun AnomalyTimeline(
                     )
                 }
             }
+        }
+    }
+}
+
+private fun DrawScope.drawMarker(
+    shape: MarkerShape,
+    color: Color,
+    center: Offset,
+    size: Float,
+) {
+    when (shape) {
+        MarkerShape.CIRCLE -> drawCircle(color, size / 2, center)
+        MarkerShape.STAR -> {
+            val path = Path().apply {
+                val outerRadius = size / 2
+                val innerRadius = outerRadius / 2.5f
+                val points = 5
+                for (i in 0 until points * 2) {
+                    val angle = (i * kotlin.math.PI / points) - (kotlin.math.PI / 2)
+                    val r = if (i % 2 == 0) outerRadius else innerRadius
+                    val x = center.x + r * kotlin.math.cos(angle).toFloat()
+                    val y = center.y + r * kotlin.math.sin(angle).toFloat()
+                    if (i == 0) moveTo(x, y) else lineTo(x, y)
+                }
+                close()
+            }
+            drawPath(path, color)
+        }
+
+        MarkerShape.DIAMOND -> {
+            val path = Path().apply {
+                moveTo(center.x, center.y - size / 2)
+                lineTo(center.x + size / 2, center.y)
+                lineTo(center.x, center.y + size / 2)
+                lineTo(center.x - size / 2, center.y)
+                close()
+            }
+            drawPath(path, color)
+        }
+
+        MarkerShape.HEART -> {
+            val path = Path().apply {
+                val r = size / 2
+                moveTo(center.x, center.y + r)
+                cubicTo(
+                    center.x - r,
+                    center.y,
+                    center.x - r,
+                    center.y - r,
+                    center.x,
+                    center.y - r / 2
+                )
+                cubicTo(center.x + r, center.y - r, center.x + r, center.y, center.x, center.y + r)
+                close()
+            }
+            drawPath(path, color)
         }
     }
 }

@@ -6,10 +6,12 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import application.poligraf.presentation.debug.DebugContent
+import application.poligraf.presentation.history.HistoryContent
+import application.poligraf.presentation.history_detail.HistoryDetailContent
+import application.poligraf.presentation.main.MainContent
 import application.poligraf.presentation.root.RootComponent
 import application.poligraf.presentation.theme.PoligrafTheme
-import application.poligraf.presentation.main.MainContent
-import application.poligraf.presentation.debug.DebugContent
 import application.poligraf.ui.utils.backAnimation
 import com.arkivanov.decompose.extensions.compose.stack.Children
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
@@ -30,16 +32,18 @@ fun App(root: RootComponent) {
                     backHandler = when (val screen = childStack.active.instance) {
                         is RootComponent.Child.MainChild ->
                             screen.component.model.subscribeAsState().value.backHandler
+
                         is RootComponent.Child.DebugChild ->
+                            screen.component.model.subscribeAsState().value.backHandler
+
+                        is RootComponent.Child.HistoryChild ->
+                            screen.component.model.subscribeAsState().value.backHandler
+
+                        is RootComponent.Child.HistoryDetailChild ->
                             screen.component.model.subscribeAsState().value.backHandler
                     },
                     onBack = {
-                        when (val screen = childStack.active.instance) {
-                            is RootComponent.Child.MainChild -> {}
-                            is RootComponent.Child.DebugChild -> {
-                                root.goBack()
-                            }
-                        }
+                        root.goBack()
                     }
                 )
             ) { child ->
@@ -47,8 +51,17 @@ fun App(root: RootComponent) {
                     is RootComponent.Child.MainChild -> {
                         MainContent(screen.component)
                     }
+
                     is RootComponent.Child.DebugChild -> {
                         DebugContent(screen.component)
+                    }
+
+                    is RootComponent.Child.HistoryChild -> {
+                        HistoryContent(screen.component)
+                    }
+
+                    is RootComponent.Child.HistoryDetailChild -> {
+                        HistoryDetailContent(screen.component)
                     }
                 }
             }

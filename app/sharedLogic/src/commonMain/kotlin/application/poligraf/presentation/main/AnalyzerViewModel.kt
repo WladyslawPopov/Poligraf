@@ -4,19 +4,28 @@ import androidx.compose.runtime.Stable
 import application.poligraf.domain.model.AudioFrame
 import application.poligraf.domain.repository.AnalyzerRepository
 import application.poligraf.engine.dsp.AudioAnalyzer
+import application.poligraf.engine.io.audio.AudioConstants
 import application.poligraf.presentation.base.BaseViewModel
 import application.poligraf.presentation.main.data.AnalyzerState
-import application.poligraf.ui.foundation.types.AnalyzerMarker
-import application.poligraf.ui.foundation.types.AnalyzerSkin
+import application.poligraf.ui.foundation.models.AnalyzerMarker
+import application.poligraf.engine.models.AnalyzerSkin
+import application.poligraf.engine.models.MarkerShape
+import application.poligraf.engine.settings.PreferenceManager
 import application.poligraf.ui.theme.tokens.ColorToken
 import application.poligraf.ui.theme.tokens.StringToken
-import application.poligraf.engine.io.audio.AudioConstants
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 @Stable
 class AnalyzerViewModel(
     private val repository: AnalyzerRepository,
+    val preferenceManager: PreferenceManager
 ) : BaseViewModel() {
 
     private val _state = MutableStateFlow(AnalyzerState())
@@ -25,19 +34,41 @@ class AnalyzerViewModel(
     private val timelineMarkers = mutableListOf<AnalyzerMarker>()
     private val frameHistory = mutableListOf<AudioFrame>()
     private var currentSessionId: String? = null
+    
+    private var currentMarkerShape: MarkerShape = MarkerShape.CIRCLE
 
     private val baseline = AudioAnalyzer.MovingBaseline()
-    
+
     // Smoothing buffers for UI
     private var smoothedJitter = 0f
     private var smoothedPitch = 0f
     private var smoothedRms = 0f
-    
+
     // Sticky interpretation logic
     private var lastInterpretation: StringToken? = null
     private var interpretationTimestamp = 0L
 
     init {
+        // Observe preferences
+        scope.launch {
+            preferenceManager.markerShape.collect { shape ->
+                currentMarkerShape = shape
+                // Update existing markers shape
+                val updated = timelineMarkers.map { it.copy(shape = shape) }
+                timelineMarkers.clear()
+                timelineMarkers.addAll(updated)
+                _state.update { it.copy(timelineMarkers = timelineMarkers.toList()) }
+            }
+        }
+        
+        scope.launch {
+            preferenceManager.defaultSkin.collect { skin ->
+                if (!repository.isRecording.value) {
+                    _state.update { it.copy(currentSkin = skin) }
+                }
+            }
+        }
+
         // Observe repository and history updates
         scope.launch {
             combine(
@@ -47,7 +78,7 @@ class AnalyzerViewModel(
                 repository.isPaused,
                 repository.isAnomalous
             ) { frame, duration, recording, paused, anomalous ->
-                
+
                 if (frame != null && recording && (!paused)) {
                     val lastTimestamp = frameHistory.lastOrNull()?.timestamp ?: -1L
                     if (frame.timestamp > lastTimestamp) {
@@ -88,7 +119,7 @@ class AnalyzerViewModel(
         val currentState = _state.value
         val seekPos = currentState.seekPositionMillis
         val isPaused = currentState.isPaused
-        
+
         val activeFrame = if (isPaused && seekPos != null) {
             findClosestFrame(seekPos)
         } else {
@@ -115,17 +146,18 @@ class AnalyzerViewModel(
         val targetRms = (rawRms * AudioConstants.RMS_VISUAL_AMPLIFIER).coerceIn(0f, 1f)
 
         // Apply Exponential Moving Average (EMA) smoothing for visualization stability
-        val alpha = if (isPaused) 0.35f else 0.15f 
+        val alpha = if (isPaused) 0.35f else 0.15f
         smoothedJitter = (targetJitter * alpha) + (smoothedJitter * (1f - alpha))
         smoothedPitch = (targetPitch * alpha) + (smoothedPitch * (1f - alpha))
         smoothedRms = (targetRms * alpha) + (smoothedRms * (1f - alpha))
-        
+
         // Smooth the anomaly / stress detection to avoid flickering glow
         val stressAlpha = if (isPaused) 0.40f else 0.12f
         smoothedStress = (rawStress * stressAlpha) + (smoothedStress * (1f - stressAlpha))
 
         // Process interpretation with stickiness (Only in Live mode)
-        val currentInterpretation = determineInterpretation(smoothedJitter, smoothedPitch, smoothedRms)
+        val currentInterpretation =
+            determineInterpretation(smoothedJitter, smoothedPitch, smoothedRms)
         val now = application.poligraf.engine.utils.nowAsEpochMilliseconds()
 
         val finalInterpretation = if (currentInterpretation != null) {
@@ -140,7 +172,8 @@ class AnalyzerViewModel(
             null
         }
 
-        val isAnomalous = if (isPaused) (activeFrame?.isAnomaly ?: false) else (smoothedStress > 0.60f)
+        val isAnomalous =
+            if (isPaused) (activeFrame?.isAnomaly ?: false) else (smoothedStress > 0.60f)
 
         _state.update {
             it.copy(
@@ -150,7 +183,8 @@ class AnalyzerViewModel(
                 rmsLevel = smoothedRms,
                 activeInterpretation = finalInterpretation,
                 isDisplayAnomalous = isAnomalous,
-                isCalibrated = activeFrame?.isCalibrated ?: (if (isPaused) true else it.isCalibrated)
+                isCalibrated = activeFrame?.isCalibrated
+                    ?: (if (isPaused) true else it.isCalibrated)
             )
         }
     }
@@ -171,22 +205,22 @@ class AnalyzerViewModel(
 
     private fun findClosestFrame(seekPos: Long): AudioFrame? {
         if (frameHistory.isEmpty()) return null
-        
+
         // Binary search for efficiency
         var low = 0
         var high = frameHistory.size - 1
-        
+
         while (low <= high) {
             val mid = (low + high) / 2
             val midVal = frameHistory[mid].timestamp
-            
+
             when {
                 midVal < seekPos -> low = mid + 1
                 midVal > seekPos -> high = mid - 1
                 else -> return frameHistory[mid]
             }
         }
-        
+
         val index = low.coerceIn(0, frameHistory.size - 1)
         return frameHistory[index]
     }
@@ -198,13 +232,14 @@ class AnalyzerViewModel(
                 frame.pitch > 200f -> ColorToken.CHART_PITCH
                 else -> ColorToken.CHART_RMS
             }
-            
+
             val marker = AnalyzerMarker(
                 id = "m_$duration",
                 timestampMillis = duration,
                 timestampText = formatDuration(duration),
                 colorToken = dominantColor,
-                isAnomaly = true
+                isAnomaly = true,
+                shape = currentMarkerShape
             )
             if (timelineMarkers.none { it.timestampText == marker.timestampText }) {
                 timelineMarkers.add(marker)
@@ -233,7 +268,7 @@ class AnalyzerViewModel(
         val frames = repository.getFramesForSession(sessionId)
         frameHistory.clear()
         frameHistory.addAll(frames)
-        
+
         timelineMarkers.clear()
         frames.forEach { processAnomalyMarker(it, it.timestamp) }
     }
