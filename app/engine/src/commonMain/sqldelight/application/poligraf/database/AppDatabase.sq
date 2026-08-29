@@ -23,6 +23,17 @@ CREATE TABLE SessionFrame (
     FOREIGN KEY(sessionId) REFERENCES SessionEntity(id) ON DELETE CASCADE
 );
 
+-- Notes associated with a specific time in the session
+CREATE TABLE SessionNote (
+    id TEXT NOT NULL PRIMARY KEY,
+    sessionId TEXT NOT NULL,
+    timestamp INTEGER NOT NULL,
+    text TEXT NOT NULL,
+    markerColor TEXT,
+    markerShape TEXT,
+    FOREIGN KEY(sessionId) REFERENCES SessionEntity(id) ON DELETE CASCADE
+);
+
 -- Session Queries
 insertSession:
 INSERT OR REPLACE INTO SessionEntity(id, timestamp, title, notes, duration, isCompleted)
@@ -49,6 +60,9 @@ UPDATE SessionEntity SET title = ?, notes = ? WHERE id = ?;
 clearSessions:
 DELETE FROM SessionEntity;
 
+countSessions:
+SELECT COUNT(*) FROM SessionEntity;
+
 -- Frame Queries
 insertFrame:
 INSERT INTO SessionFrame(sessionId, timestamp, rms, pitch, jitter, stressScore, isAnomaly, isCalibrated)
@@ -65,3 +79,14 @@ SELECT * FROM SessionEntity WHERE isCompleted = 0 LIMIT 1;
 
 deleteUncompletedSessions:
 DELETE FROM SessionEntity WHERE isCompleted = 0;
+
+-- Note Queries
+insertNote:
+INSERT OR REPLACE INTO SessionNote(id, sessionId, timestamp, text, markerColor, markerShape)
+VALUES (?, ?, ?, ?, ?, ?);
+
+getNotesBySessionId:
+SELECT * FROM SessionNote WHERE sessionId = ? ORDER BY timestamp ASC;
+
+deleteNoteById:
+DELETE FROM SessionNote WHERE id = ?;

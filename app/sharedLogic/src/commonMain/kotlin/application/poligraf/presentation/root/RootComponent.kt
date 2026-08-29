@@ -3,6 +3,8 @@ package application.poligraf.presentation.root
 import androidx.compose.runtime.Stable
 import application.poligraf.engine.component.AppComponentContext
 import application.poligraf.engine.component.asAppComponentContext
+import application.poligraf.presentation.analyzer.AnalyzerComponent
+import application.poligraf.presentation.analyzer.DefaultAnalyzerComponent
 import application.poligraf.presentation.debug.DebugComponent
 import application.poligraf.presentation.debug.DefaultDebugComponent
 import application.poligraf.presentation.history.DefaultHistoryComponent
@@ -32,6 +34,7 @@ interface RootComponent {
         class DebugChild(val component: DebugComponent) : Child()
         class HistoryChild(val component: HistoryComponent) : Child()
         class HistoryDetailChild(val component: HistoryDetailComponent) : Child()
+        class AnalyzerChild(val component: AnalyzerComponent) : Child()
     }
 
     fun goBack()
@@ -62,7 +65,8 @@ class DefaultRootComponent(
                 DefaultMainComponent(
                     componentContext = appContext,
                     navigateToDebug = { navigation.pushNew(RootConfig.Debug) },
-                    navigateToHistory = { navigation.pushNew(RootConfig.History) }
+                    navigateToHistory = { navigation.pushNew(RootConfig.History) },
+                    navigateToAnalyzer = { navigation.pushNew(RootConfig.Analyzer) }
                 )
             )
             is RootConfig.Debug -> RootComponent.Child.DebugChild(
@@ -84,6 +88,17 @@ class DefaultRootComponent(
                     componentContext = appContext,
                     sessionId = config.sessionId,
                     navigateBack = { navigation.pop() }
+                )
+            )
+            is RootConfig.Analyzer -> RootComponent.Child.AnalyzerChild(
+                DefaultAnalyzerComponent(
+                    componentContext = appContext,
+                    onNavigateToDetail = { sessionId ->
+                        // Replace Analyzer with HistoryDetail on the stack (pop current and push detail)
+                        navigation.pop()
+                        navigation.pushNew(RootConfig.HistoryDetail(sessionId))
+                    },
+                    onNavigateBack = { navigation.pop() }
                 )
             )
         }

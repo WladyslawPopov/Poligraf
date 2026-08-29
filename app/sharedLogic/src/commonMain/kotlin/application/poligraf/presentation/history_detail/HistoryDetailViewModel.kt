@@ -1,15 +1,16 @@
 package application.poligraf.presentation.history_detail
 
 import androidx.compose.runtime.Stable
+import application.poligraf.domain.model.AnalyzerSkin
 import application.poligraf.domain.model.AudioFrame
+import application.poligraf.domain.model.MarkerShape
 import application.poligraf.domain.repository.AnalyzerRepository
 import application.poligraf.domain.repository.HistoryRepository
+import application.poligraf.domain.repository.PreferencesRepository
 import application.poligraf.engine.io.audio.AudioConstants
-import application.poligraf.engine.models.AnalyzerSkin
-import application.poligraf.engine.models.MarkerShape
-import application.poligraf.engine.settings.PreferenceManager
 import application.poligraf.presentation.base.BaseViewModel
 import application.poligraf.presentation.history_detail.data.HistoryDetailState
+import application.poligraf.presentation.history_detail.data.SessionNoteUiModel
 import application.poligraf.ui.foundation.models.AnalyzerMarker
 import application.poligraf.ui.foundation.models.AppToolbar
 import application.poligraf.ui.theme.tokens.ColorToken
@@ -22,7 +23,7 @@ class HistoryDetailViewModel(
     private val sessionId: String,
     private val historyRepository: HistoryRepository,
     private val analyzerRepository: AnalyzerRepository,
-    private val preferenceManager: PreferenceManager,
+    private val preferencesRepository: PreferencesRepository,
     private val navigateBack: () -> Unit,
 ) : BaseViewModel() {
 
@@ -44,7 +45,7 @@ class HistoryDetailViewModel(
     init {
         // Observe preferences
         scope.launch {
-            preferenceManager.markerShape.collect { shape ->
+            preferencesRepository.markerShape.collect { shape ->
                 currentMarkerShape = shape
                 val updated = timelineMarkers.map { it.copy(shape = shape) }
                 timelineMarkers.clear()
@@ -60,7 +61,7 @@ class HistoryDetailViewModel(
         }
 
         scope.launch {
-            preferenceManager.defaultSkin.collect { skin ->
+            preferencesRepository.defaultSkin.collect { skin ->
                 _state.update {
                     it.copy(
                         analyzerState = it.analyzerState.copy(
@@ -122,6 +123,27 @@ class HistoryDetailViewModel(
                     updateDisplayState()
                 }
         }
+
+        // Notes observer
+        scope.launch {
+            historyRepository.getNotesForSession(sessionId).collect { notes ->
+                val uiNotes = notes.map {
+                    SessionNoteUiModel(
+                        id = it.id,
+                        timestampMillis = it.timestamp,
+                        timestampText = formatDuration(it.timestamp),
+                        text = it.text,
+                        markerColor = it.markerColor?.let { colorName ->
+                            try { ColorToken.valueOf(colorName) } catch (_: Exception) { null }
+                        },
+                        markerShape = it.markerShape?.let { shapeName ->
+                            try { MarkerShape.valueOf(shapeName) } catch (e: Exception) { null }
+                        }
+                    )
+                }
+                _state.update { it.copy(notes = uiNotes) }
+            }
+        }
     }
 
     private fun updateDisplayState() {
@@ -158,7 +180,7 @@ class HistoryDetailViewModel(
 
     private fun findClosestFrame(seekPos: Long): AudioFrame? {
         if (frameHistory.isEmpty()) return null
-        
+
         // Find the frame with timestamp closest to seekPos
         return frameHistory.minByOrNull { kotlin.math.abs(it.timestamp - seekPos) }
     }
@@ -220,9 +242,44 @@ class HistoryDetailViewModel(
         _state.update { it.copy(session = currentSession.copy(title = title)) }
     }
 
+    fun toggleTitleEdit(isEditing: Boolean) {
+        if (!isEditing) {
+            onSaveMetadata()
+        }
+        _state.update { it.copy(isTitleEditing = isEditing) }
+    }
+
     fun onNotesChange(notes: String) {
-        val currentSession = _state.value.session ?: return
-        _state.update { it.copy(session = currentSession.copy(notes = notes)) }
+        _state.update { it.copy(currentNoteText = notes) }
+    }
+
+    fun onAddNote() {
+        val text = _state.value.currentNoteText
+        if (text.isBlank()) return
+
+        val timestamp = _state.value.analyzerState.seekPositionMillis ?: 0L
+
+        // Find if there is a marker at this timestamp (or very close)
+        val associatedMarker = timelineMarkers.find {
+            kotlin.math.abs(it.timestampMillis - timestamp) < 500 // 0.5s window
+        }
+
+        scope.launch {
+            historyRepository.addNote(
+                sessionId = sessionId,
+                timestamp = timestamp,
+                text = text,
+                markerColor = associatedMarker?.colorToken?.name,
+                markerShape = associatedMarker?.shape?.name
+            )
+            _state.update { it.copy(currentNoteText = "") }
+        }
+    }
+
+    fun onDeleteNote(noteId: String) {
+        scope.launch {
+            historyRepository.deleteNote(noteId)
+        }
     }
 
     fun onSaveMetadata() {
@@ -239,6 +296,7 @@ class HistoryDetailViewModel(
     }
 
     fun onSkinChange(skin: AnalyzerSkin) {
+        preferencesRepository.setDefaultSkin(skin)
         _state.update {
             it.copy(analyzerState = it.analyzerState.copy(currentSkin = skin))
         }

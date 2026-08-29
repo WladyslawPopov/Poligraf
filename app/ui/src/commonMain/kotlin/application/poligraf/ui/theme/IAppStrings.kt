@@ -82,6 +82,7 @@ interface IHistoryStrings {
     val labelNotes: StringResource
     val notesHint: StringResource
     val detailTitle: StringResource
+    val sessionIndexFormat: StringResource
 }
 
 interface ISettingsStrings {
@@ -153,6 +154,7 @@ internal class AppStringsImpl : IAppStrings {
         override val labelNotes = Res.string.label_notes
         override val notesHint = Res.string.notes_hint
         override val detailTitle = Res.string.history_detail_title
+        override val sessionIndexFormat = Res.string.session_index_format
     }
 
     override val settings = object : ISettingsStrings {

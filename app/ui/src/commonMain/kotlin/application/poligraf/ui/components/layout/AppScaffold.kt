@@ -87,6 +87,7 @@ fun AppScaffold(
                 topBar = topBar,
                 bottomBar = bottomBar,
                 floatingActionButton = floatingActionButton,
+                contentWindowInsets = WindowInsets(0, 0, 0, 0),
                 snackbarHost = {
                     SnackbarHost(snackbarHostState) { data ->
                         AppSnackBar(

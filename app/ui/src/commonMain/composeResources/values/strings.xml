@@ -72,6 +72,7 @@
     <string name="label_notes">Notes</string>
     <string name="notes_hint">Add a note...</string>
     <string name="history_detail_title">Session Report</string>
+    <string name="session_index_format">Session #%d</string>
     <string name="settings_preferences_title">Preferences</string>
     <string name="settings_skin_title">Indicator theme</string>
     <string name="settings_marker_title">Marker set</string>

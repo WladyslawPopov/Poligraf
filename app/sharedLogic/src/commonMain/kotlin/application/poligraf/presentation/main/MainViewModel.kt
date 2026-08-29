@@ -1,26 +1,31 @@
 package application.poligraf.presentation.main
 
 import androidx.compose.runtime.Stable
-import application.poligraf.presentation.base.BaseViewModel
-import application.poligraf.ui.theme.tokens.ColorToken
-import application.poligraf.ui.theme.tokens.StringToken
-import application.poligraf.ui.foundation.actions.NavigationAction
-import application.poligraf.ui.foundation.actions.WidgetAction
-import application.poligraf.ui.foundation.models.AppBackground
+import application.poligraf.domain.model.AnalyzerSkin
+import application.poligraf.domain.model.MarkerShape
 import application.poligraf.domain.repository.AnalyzerRepository
+import application.poligraf.domain.repository.PreferencesRepository
 import application.poligraf.engine.config.AppConfig
 import application.poligraf.engine.device.AppPermission
 import application.poligraf.engine.device.PermissionManager
+import application.poligraf.presentation.base.BaseViewModel
 import application.poligraf.presentation.main.data.MainBottomSheetContent
 import application.poligraf.presentation.main.data.MainState
-import application.poligraf.engine.settings.PreferenceManager
+import application.poligraf.ui.foundation.actions.NavigationAction
 import application.poligraf.ui.foundation.actions.RecordingAction
+import application.poligraf.ui.foundation.actions.WidgetAction
+import application.poligraf.ui.foundation.models.AppBackground
 import application.poligraf.ui.foundation.models.AppToolbar
+import application.poligraf.ui.foundation.models.ToolbarAction
 import application.poligraf.ui.foundation.models.UiWidget
-import application.poligraf.engine.models.AnalyzerSkin
-import application.poligraf.engine.models.MarkerShape
+import application.poligraf.ui.theme.tokens.ColorToken
+import application.poligraf.ui.theme.tokens.IconToken
+import application.poligraf.ui.theme.tokens.StringToken
 import io.github.aakira.napier.Napier
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 @Stable
@@ -28,16 +33,17 @@ class MainViewModel(
     private val appConfig: AppConfig,
     private val analyzerRepository: AnalyzerRepository,
     private val permissionManager: PermissionManager,
-    private val preferenceManager: PreferenceManager,
+    private val preferencesRepository: PreferencesRepository,
     private val navigateToDebug: () -> Unit,
     private val navigateToHistory: () -> Unit,
+    private val navigateToAnalyzer: () -> Unit,
 ) : BaseViewModel() {
-    
-    val defaultSkin = preferenceManager.defaultSkin
-    val markerShape = preferenceManager.markerShape
 
-    fun onSkinSelected(skin: AnalyzerSkin) = preferenceManager.setDefaultSkin(skin)
-    fun onMarkerShapeSelected(shape: MarkerShape) = preferenceManager.setMarkerShape(shape)
+    val defaultSkin = preferencesRepository.defaultSkin
+    val markerShape = preferencesRepository.markerShape
+
+    fun onSkinSelected(skin: AnalyzerSkin) = preferencesRepository.setDefaultSkin(skin)
+    fun onMarkerShapeSelected(shape: MarkerShape) = preferencesRepository.setMarkerShape(shape)
 
     private val welcomeData = listOf(
         StringToken.WELCOME_2 to "📊",
@@ -55,8 +61,14 @@ class MainViewModel(
             ),
             toolbar = AppToolbar(
                 titleToken = StringToken.WELCOME_1,
-                historyAction = NavigationAction.History,
-                settingsAction = NavigationAction.Settings,
+                navigationIcon = IconToken.SETTINGS,
+                navigationAction = NavigationAction.Settings,
+                trailingActions = listOf(
+                    ToolbarAction(
+                        icon = IconToken.HISTORY,
+                        action = NavigationAction.History
+                    )
+                ),
                 backgroundColor = ColorToken.SURFACE_BACKGROUND,
                 contentColor = ColorToken.TEXT_PRIMARY
             ),
@@ -114,18 +126,8 @@ class MainViewModel(
     }
 
     fun openAnalyzer(isOpen: Boolean) {
-        _state.update {
-            if (isOpen) {
-                it.copy(
-                    bottomSheetState = true,
-                    bottomSheetContent = MainBottomSheetContent.ANALYZER
-                )
-            } else {
-                it.copy(
-                    bottomSheetState = false,
-                    bottomSheetContent = MainBottomSheetContent.NONE
-                )
-            }
+        if (isOpen) {
+            navigateToAnalyzer()
         }
     }
 

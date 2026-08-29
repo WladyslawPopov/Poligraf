@@ -4,8 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import application.poligraf.presentation.history_detail.ui.HistoryDetailRenderer
-import application.poligraf.presentation.history.ui.HistoryToolbar
 import application.poligraf.ui.components.layout.AppScaffold
+import application.poligraf.ui.components.layout.StandardToolbar
 import application.poligraf.ui.foundation.state.ScaffoldUiState
 import application.poligraf.ui.theme.LocalDesignSystem
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
@@ -22,10 +22,10 @@ fun HistoryDetailContent(component: HistoryDetailComponent) {
         state = state as ScaffoldUiState,
         topBar = {
             state.toolbar?.let { toolbar ->
-                HistoryToolbar(
+                StandardToolbar(
                     toolbar = toolbar,
                     designSystem = designSystem,
-                    onBack = viewModel::onBack
+                    onNavigationClick = viewModel::onBack
                 )
             }
         }

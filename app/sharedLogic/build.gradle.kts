@@ -46,6 +46,7 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
+            api(projects.app.domain)
             api(projects.app.data)
             api(projects.app.engine)
             api(projects.app.ui)

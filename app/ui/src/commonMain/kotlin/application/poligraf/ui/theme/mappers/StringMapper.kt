@@ -67,6 +67,7 @@ internal object StringMapper {
             StringToken.LABEL_NOTES -> strings.history.labelNotes
             StringToken.NOTES_HINT -> strings.history.notesHint
             StringToken.HISTORY_DETAIL_TITLE -> strings.history.detailTitle
+            StringToken.SESSION_INDEX_FORMAT -> strings.history.sessionIndexFormat
 
             StringToken.SETTINGS_PREFERENCES_TITLE -> strings.settings.preferencesTitle
             StringToken.SETTINGS_SKIN_TITLE -> strings.settings.skinTitle

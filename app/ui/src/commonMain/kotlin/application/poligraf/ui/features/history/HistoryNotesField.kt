@@ -1,54 +1,82 @@
 package application.poligraf.ui.features.history
 
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import application.poligraf.ui.components.buttons.AppIconButton
 import application.poligraf.ui.theme.LocalDesignSystem
 import application.poligraf.ui.theme.tokens.ColorToken
-import application.poligraf.ui.theme.tokens.DimenToken
+import application.poligraf.ui.theme.tokens.IconToken
 import application.poligraf.ui.theme.tokens.StringToken
 
 @Composable
 fun HistoryNotesField(
     notes: String,
     onNotesChange: (String) -> Unit,
-    onSave: () -> Unit,
-    isSaving: Boolean,
-    modifier: Modifier = Modifier
+    onAddNote: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val designSystem = LocalDesignSystem.current
 
-    Column(modifier = modifier.fillMaxWidth()) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+    ) {
         Text(
             text = designSystem.string(StringToken.LABEL_NOTES),
             color = designSystem.color(ColorToken.TEXT_SECONDARY),
             style = MaterialTheme.typography.labelLarge
         )
 
-        TextField(
-            value = notes,
-            onValueChange = onNotesChange,
-            modifier = Modifier.fillMaxWidth().heightIn(min = 120.dp),
-            placeholder = { Text(designSystem.string(StringToken.NOTES_HINT)) },
-            colors = TextFieldDefaults.colors(
-                focusedContainerColor = designSystem.color(ColorToken.SURFACE_PRIMARY),
-                unfocusedContainerColor = designSystem.color(ColorToken.SURFACE_PRIMARY),
-                focusedTextColor = designSystem.color(ColorToken.TEXT_PRIMARY),
-                unfocusedTextColor = designSystem.color(ColorToken.TEXT_PRIMARY)
-            )
-        )
+        Spacer(Modifier.height(8.dp))
 
-        Spacer(Modifier.height(designSystem.dimen(DimenToken.SPACING_MEDIUM)))
-
-        Button(
-            onClick = onSave,
+        Row(
             modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.buttonColors(containerColor = designSystem.color(ColorToken.ACCENT_PRIMARY)),
-            enabled = !isSaving
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text(text = designSystem.string(StringToken.SAVE))
+            TextField(
+                value = notes,
+                onValueChange = onNotesChange,
+                modifier = Modifier.weight(1f),
+                placeholder = {
+                    Text(
+                        text = designSystem.string(StringToken.NOTES_HINT),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = designSystem.color(ColorToken.TEXT_SECONDARY).copy(alpha = 0.5f)
+                    )
+                },
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = designSystem.color(ColorToken.SURFACE_PRIMARY),
+                    unfocusedContainerColor = designSystem.color(ColorToken.SURFACE_PRIMARY),
+                    focusedTextColor = designSystem.color(ColorToken.TEXT_PRIMARY),
+                    unfocusedTextColor = designSystem.color(ColorToken.TEXT_PRIMARY),
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    disabledIndicatorColor = Color.Transparent
+                ),
+                shape = MaterialTheme.shapes.large,
+                textStyle = MaterialTheme.typography.bodyMedium,
+                maxLines = 3
+            )
+
+            AppIconButton(
+                icon = IconToken.NOTE,
+                tint = ColorToken.ACCENT_PRIMARY,
+                onClick = onAddNote
+            )
         }
     }
 }

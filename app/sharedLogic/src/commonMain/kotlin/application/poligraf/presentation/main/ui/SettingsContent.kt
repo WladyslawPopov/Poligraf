@@ -32,8 +32,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
-import application.poligraf.engine.models.AnalyzerSkin
-import application.poligraf.engine.models.MarkerShape
+import application.poligraf.domain.model.AnalyzerSkin
+import application.poligraf.domain.model.MarkerShape
 import application.poligraf.engine.theme.ThemeManager
 import application.poligraf.ui.components.decorators.GlassDivider
 import application.poligraf.ui.components.icons.AppIcon
@@ -97,7 +97,7 @@ fun SettingsContent(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            AnalyzerSkin.entries.forEach { skin ->
+            for (skin in AnalyzerSkin.entries) {
                 SkinSelectionItem(
                     skin = skin,
                     isSelected = skin == currentDefaultSkin,
@@ -119,7 +119,7 @@ fun SettingsContent(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            MarkerShape.entries.forEach { shape ->
+            for (shape in MarkerShape.entries) {
                 ShapeSelectionItem(
                     shape = shape,
                     isSelected = shape == currentMarkerShape,

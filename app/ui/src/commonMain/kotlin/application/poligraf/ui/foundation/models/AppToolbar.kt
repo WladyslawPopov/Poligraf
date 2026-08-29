@@ -3,6 +3,7 @@ package application.poligraf.ui.foundation.models
 import androidx.compose.runtime.Immutable
 import application.poligraf.ui.foundation.actions.WidgetAction
 import application.poligraf.ui.theme.tokens.ColorToken
+import application.poligraf.ui.theme.tokens.IconToken
 import application.poligraf.ui.theme.tokens.StringToken
 
 /**
@@ -11,8 +12,9 @@ import application.poligraf.ui.theme.tokens.StringToken
 @Immutable
 data class AppToolbar(
     val titleToken: StringToken = StringToken.APP_NAME,
-    val historyAction: WidgetAction? = null,
-    val settingsAction: WidgetAction? = null,
+    val navigationIcon: IconToken? = IconToken.ARROW_BACK,
+    val navigationAction: WidgetAction? = null,
+    val trailingActions: List<ToolbarAction> = emptyList(),
     val backgroundColor: ColorToken = ColorToken.SURFACE_BACKGROUND,
     val contentColor: ColorToken = ColorToken.TEXT_PRIMARY
 )

@@ -1,14 +1,11 @@
 package application.poligraf.ui.features.history
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import application.poligraf.ui.theme.LocalDesignSystem
@@ -21,7 +18,6 @@ fun HistoryItem(
     title: String,
     dateText: String,
     markerCount: Int,
-    onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val designSystem = LocalDesignSystem.current
@@ -29,10 +25,6 @@ fun HistoryItem(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = designSystem.dimen(DimenToken.SPACING_MEDIUM))
-            .clip(MaterialTheme.shapes.medium)
-            .background(designSystem.color(ColorToken.SURFACE_PRIMARY))
-            .clickable(onClick = onClick)
             .padding(designSystem.dimen(DimenToken.SPACING_MEDIUM))
     ) {
         Row(

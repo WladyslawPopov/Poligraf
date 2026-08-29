@@ -88,7 +88,8 @@ data class HistoryStrings(
     val conclusionNeutral: String,
     val labelNotes: String,
     val notesHint: String,
-    val detailTitle: String
+    val detailTitle: String,
+    val sessionIndexFormat: String
 )
 
 @Immutable

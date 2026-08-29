@@ -6,6 +6,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import application.poligraf.presentation.analyzer.AnalyzerContent
 import application.poligraf.presentation.debug.DebugContent
 import application.poligraf.presentation.history.HistoryContent
 import application.poligraf.presentation.history_detail.HistoryDetailContent
@@ -41,6 +42,9 @@ fun App(root: RootComponent) {
 
                         is RootComponent.Child.HistoryDetailChild ->
                             screen.component.model.subscribeAsState().value.backHandler
+
+                        is RootComponent.Child.AnalyzerChild ->
+                            screen.component.model.subscribeAsState().value.backHandler
                     },
                     onBack = {
                         root.goBack()
@@ -62,6 +66,10 @@ fun App(root: RootComponent) {
 
                     is RootComponent.Child.HistoryDetailChild -> {
                         HistoryDetailContent(screen.component)
+                    }
+
+                    is RootComponent.Child.AnalyzerChild -> {
+                        AnalyzerContent(screen.component)
                     }
                 }
             }

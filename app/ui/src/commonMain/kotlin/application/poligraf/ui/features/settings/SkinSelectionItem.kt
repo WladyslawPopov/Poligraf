@@ -5,7 +5,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -15,7 +14,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import application.poligraf.engine.models.AnalyzerSkin
+import application.poligraf.domain.model.AnalyzerSkin
 import application.poligraf.ui.components.icons.AppIcon
 import application.poligraf.ui.theme.LocalDesignSystem
 import application.poligraf.ui.theme.tokens.ColorToken
@@ -52,12 +51,12 @@ fun SkinSelectionItem(
 
     Column(
         modifier = modifier
-            .clip(RoundedCornerShape(12.dp))
+            .clip(MaterialTheme.shapes.medium)
             .background(if (isSelected) designSystem.color(ColorToken.SURFACE_PRIMARY) else Color.Transparent)
             .border(
                 width = 1.dp,
                 color = borderColor,
-                shape = RoundedCornerShape(12.dp)
+                shape = MaterialTheme.shapes.medium
             )
             .clickable(onClick = onClick)
             .padding(8.dp),

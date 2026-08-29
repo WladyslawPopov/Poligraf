@@ -40,6 +40,7 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
+            implementation(projects.app.domain)
             implementation(projects.app.engine)
             implementation(libs.kotlinx.coroutines.core)
 

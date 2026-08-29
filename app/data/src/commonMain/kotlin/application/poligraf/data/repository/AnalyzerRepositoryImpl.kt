@@ -52,13 +52,13 @@ internal class AnalyzerRepositoryImpl(
         timeBeforePause = 0L
     }
 
-    override fun startAnalysis() {
-        if (_isRecording.value && !_isPaused.value) return
+    override fun startAnalysis(title: String): String {
+        if (_isRecording.value && !_isPaused.value) return currentSessionId ?: ""
         
         // If already recording but paused, just resume
         if (_isRecording.value && _isPaused.value) {
             resumeAnalysis()
-            return
+            return currentSessionId ?: ""
         }
 
         resetInternalState()
@@ -74,7 +74,7 @@ internal class AnalyzerRepositoryImpl(
             db.appDatabaseQueries.insertSession(
                 id = sessionId,
                 timestamp = sessionStartTime,
-                title = "New Session",
+                title = title,
                 notes = "",
                 duration = 0,
                 isCompleted = false
@@ -82,6 +82,7 @@ internal class AnalyzerRepositoryImpl(
         }
         
         startCaptureJob()
+        return sessionId
     }
 
     override fun pauseAnalysis() {

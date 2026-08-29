@@ -69,6 +69,7 @@ enum class StringToken {
     LABEL_NOTES,
     NOTES_HINT,
     HISTORY_DETAIL_TITLE,
+    SESSION_INDEX_FORMAT,
 
     // Settings
     SETTINGS_PREFERENCES_TITLE,

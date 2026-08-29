@@ -16,7 +16,6 @@ interface MainComponent {
 
     data class Model(
         val viewModel: MainViewModel,
-        val analyzerViewModel: AnalyzerViewModel,
         val backHandler: BackHandler
     )
 }
@@ -26,6 +25,7 @@ class DefaultMainComponent(
     componentContext: AppComponentContext,
     val navigateToDebug: () -> Unit,
     val navigateToHistory: () -> Unit,
+    val navigateToAnalyzer: () -> Unit,
 ) : MainComponent, AppComponentContext by componentContext, KoinComponent {
 
     private val mainViewModel = viewModel("mainViewModel") {
@@ -33,23 +33,16 @@ class DefaultMainComponent(
             appConfig = get(),
             analyzerRepository = get(),
             permissionManager = get(),
-            preferenceManager = get(),
+            preferencesRepository = get(),
             navigateToDebug = navigateToDebug,
-            navigateToHistory = navigateToHistory
-        )
-    }
-
-    private val analyzerViewModel = viewModel("analyzerViewModel") {
-        AnalyzerViewModel(
-            repository = get(),
-            preferenceManager = get()
+            navigateToHistory = navigateToHistory,
+            navigateToAnalyzer = navigateToAnalyzer
         )
     }
 
     private val _model = MutableValue(
         MainComponent.Model(
             viewModel = mainViewModel,
-            analyzerViewModel = analyzerViewModel,
             backHandler = backHandler
         )
     )

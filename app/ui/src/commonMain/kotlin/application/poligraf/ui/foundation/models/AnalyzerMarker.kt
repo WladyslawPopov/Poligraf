@@ -1,7 +1,7 @@
 package application.poligraf.ui.foundation.models
 
 import androidx.compose.runtime.Stable
-import application.poligraf.engine.models.MarkerShape
+import application.poligraf.domain.model.MarkerShape
 import application.poligraf.ui.theme.tokens.ColorToken
 
 @Stable

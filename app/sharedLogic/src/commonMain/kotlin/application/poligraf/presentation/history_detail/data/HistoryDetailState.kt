@@ -2,7 +2,7 @@ package application.poligraf.presentation.history_detail.data
 
 import androidx.compose.runtime.Stable
 import application.poligraf.domain.model.Session
-import application.poligraf.presentation.main.data.AnalyzerState
+import application.poligraf.presentation.analyzer.data.AnalyzerState
 import application.poligraf.ui.foundation.models.AppBackground
 import application.poligraf.ui.foundation.models.AppToolbar
 import application.poligraf.ui.foundation.models.LayoutConfig
@@ -28,5 +28,9 @@ data class HistoryDetailState(
     val conclusionText: StringToken = StringToken.CONCLUSION_POSITIVE,
     val conclusionColor: ColorToken = ColorToken.STATE_SUCCESS,
     
+    val notes: List<SessionNoteUiModel> = emptyList(),
+    val currentNoteText: String = "",
+    
+    val isTitleEditing: Boolean = false,
     val isSaving: Boolean = false
 ) : ScaffoldUiState

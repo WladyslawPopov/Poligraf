@@ -1,40 +1,66 @@
-package application.poligraf.presentation.main
+package application.poligraf.presentation.analyzer
 
 import androidx.compose.runtime.Stable
+import application.poligraf.domain.model.AnalyzerSkin
 import application.poligraf.domain.model.AudioFrame
+import application.poligraf.domain.model.MarkerShape
 import application.poligraf.domain.repository.AnalyzerRepository
+import application.poligraf.domain.repository.HistoryRepository
+import application.poligraf.domain.repository.PreferencesRepository
 import application.poligraf.engine.dsp.AudioAnalyzer
 import application.poligraf.engine.io.audio.AudioConstants
+import application.poligraf.presentation.analyzer.data.AnalyzerState
 import application.poligraf.presentation.base.BaseViewModel
-import application.poligraf.presentation.main.data.AnalyzerState
+import application.poligraf.ui.foundation.actions.RecordingAction
+import application.poligraf.ui.foundation.actions.WidgetAction
 import application.poligraf.ui.foundation.models.AnalyzerMarker
-import application.poligraf.engine.models.AnalyzerSkin
-import application.poligraf.engine.models.MarkerShape
-import application.poligraf.engine.settings.PreferenceManager
+import application.poligraf.ui.foundation.models.AppToolbar
+import application.poligraf.ui.foundation.models.ToolbarAction
+import application.poligraf.ui.theme.IAppStrings
 import application.poligraf.ui.theme.tokens.ColorToken
+import application.poligraf.ui.theme.tokens.IconToken
 import application.poligraf.ui.theme.tokens.StringToken
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 @Stable
 class AnalyzerViewModel(
     private val repository: AnalyzerRepository,
-    val preferenceManager: PreferenceManager
+    private val historyRepository: HistoryRepository,
+    val preferencesRepository: PreferencesRepository,
+    private val appStrings: IAppStrings
 ) : BaseViewModel() {
 
-    private val _state = MutableStateFlow(AnalyzerState())
+    private val _state = MutableStateFlow(
+        AnalyzerState(
+            toolbar = AppToolbar(
+                titleToken = StringToken.RECORDER_TITLE,
+                backgroundColor = ColorToken.SURFACE_BACKGROUND,
+                contentColor = ColorToken.TEXT_PRIMARY,
+                trailingActions = listOf(
+                    ToolbarAction(
+                        icon = IconToken.DELETE,
+                        action = RecordingAction.Delete,
+                        tint = ColorToken.STATE_ERROR
+                    ),
+                    ToolbarAction(
+                        icon = IconToken.CHECK,
+                        action = RecordingAction.Save,
+                        tint = ColorToken.STATE_SUCCESS
+                    )
+                )
+            )
+        )
+    )
     val state = _state.asStateFlow()
+
+    private val _navigateToDetail = MutableSharedFlow<String>()
+    val navigateToDetail = _navigateToDetail.asSharedFlow()
 
     private val timelineMarkers = mutableListOf<AnalyzerMarker>()
     private val frameHistory = mutableListOf<AudioFrame>()
     private var currentSessionId: String? = null
-    
+
     private var currentMarkerShape: MarkerShape = MarkerShape.CIRCLE
 
     private val baseline = AudioAnalyzer.MovingBaseline()
@@ -51,7 +77,7 @@ class AnalyzerViewModel(
     init {
         // Observe preferences
         scope.launch {
-            preferenceManager.markerShape.collect { shape ->
+            preferencesRepository.markerShape.collect { shape ->
                 currentMarkerShape = shape
                 // Update existing markers shape
                 val updated = timelineMarkers.map { it.copy(shape = shape) }
@@ -60,12 +86,10 @@ class AnalyzerViewModel(
                 _state.update { it.copy(timelineMarkers = timelineMarkers.toList()) }
             }
         }
-        
+
         scope.launch {
-            preferenceManager.defaultSkin.collect { skin ->
-                if (!repository.isRecording.value) {
-                    _state.update { it.copy(currentSkin = skin) }
-                }
+            preferencesRepository.defaultSkin.collect { skin ->
+                _state.update { it.copy(currentSkin = skin) }
             }
         }
 
@@ -152,7 +176,7 @@ class AnalyzerViewModel(
         smoothedRms = (targetRms * alpha) + (smoothedRms * (1f - alpha))
 
         // Smooth the anomaly / stress detection to avoid flickering glow
-        val stressAlpha = if (isPaused) 0.40f else 0.12f
+        val stressAlpha = if (isPaused) 0.40f else 0.25f
         smoothedStress = (rawStress * stressAlpha) + (smoothedStress * (1f - stressAlpha))
 
         // Process interpretation with stickiness (Only in Live mode)
@@ -173,7 +197,7 @@ class AnalyzerViewModel(
         }
 
         val isAnomalous =
-            if (isPaused) (activeFrame?.isAnomaly ?: false) else (smoothedStress > 0.60f)
+            if (isPaused) (activeFrame?.isAnomaly ?: false) else ((activeFrame?.isAnomaly ?: false) || smoothedStress > 0.50f)
 
         _state.update {
             it.copy(
@@ -249,7 +273,14 @@ class AnalyzerViewModel(
 
     fun onAppear() {
         scope.launch {
-            if (repository.isRecording.value) return@launch
+            if (repository.isRecording.value) {
+                // Restore current session ID if resuming
+                val draft = repository.getActiveDraft()
+                if (draft != null) {
+                    currentSessionId = draft.first
+                }
+                return@launch
+            }
 
             val draft = repository.getActiveDraft()
             if (draft != null) {
@@ -257,9 +288,7 @@ class AnalyzerViewModel(
                 loadSessionHistory(draft.first)
                 repository.resumeFromDraft(draft.first, draft.second)
             } else {
-                frameHistory.clear()
-                timelineMarkers.clear()
-                repository.startAnalysis()
+                onStart()
             }
         }
     }
@@ -278,7 +307,14 @@ class AnalyzerViewModel(
     }
 
     fun onStart() {
-        repository.startAnalysis()
+        scope.launch {
+            val count = historyRepository.getSessionCount()
+            val defaultTitle = "Session #${count + 1}"
+            frameHistory.clear()
+            timelineMarkers.clear()
+            
+            currentSessionId = repository.startAnalysis(defaultTitle)
+        }
     }
 
     fun onPauseResume() {
@@ -292,10 +328,36 @@ class AnalyzerViewModel(
     }
 
     fun onStop(save: Boolean) {
+        if (_state.value.isProcessing) return
+        
+        val sessionId = currentSessionId
+        if (save && sessionId == null) return
+
+        _state.update { it.copy(isProcessing = true) }
+
         repository.stopAnalysis(save)
+        
+        if (save && sessionId != null) {
+            scope.launch {
+                _navigateToDetail.emit(sessionId)
+            }
+        }
+    }
+
+    fun onAction(action: WidgetAction) {
+        when (action) {
+            is RecordingAction.Save -> onStop(true)
+            is RecordingAction.Delete -> onStop(false)
+            else -> {}
+        }
+    }
+
+    fun onBack() {
+        // Here we could handle auto-save or something if needed
     }
 
     fun onSkinChange(skin: AnalyzerSkin) {
+        preferencesRepository.setDefaultSkin(skin)
         _state.update { it.copy(currentSkin = skin) }
     }
 

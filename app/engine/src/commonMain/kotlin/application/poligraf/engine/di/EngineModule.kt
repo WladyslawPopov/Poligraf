@@ -9,7 +9,6 @@ import application.poligraf.engine.device.common.getPermissionManager
 import application.poligraf.engine.io.audio.AudioRecorder
 import application.poligraf.engine.io.audio.common.getAudioRecorder
 import application.poligraf.engine.network.internal.getKtorClient
-import application.poligraf.engine.settings.PreferenceManager
 import application.poligraf.engine.settings.SettingsRepository
 import application.poligraf.engine.settings.SettingsRepositoryImpl
 import application.poligraf.engine.settings.common.getSettings
@@ -35,7 +34,6 @@ val engineModule = module {
     // Settings
     single<Settings> { getSettings() }
     single<SettingsRepository> { SettingsRepositoryImpl(get()) }
-    single { PreferenceManager(get()) }
 
     // Permission Manager
     singleOf(::getPermissionManager) bind PermissionManager::class

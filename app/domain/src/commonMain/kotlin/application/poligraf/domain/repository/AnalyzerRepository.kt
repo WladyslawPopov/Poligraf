@@ -10,7 +10,7 @@ interface AnalyzerRepository {
     val isPaused: StateFlow<Boolean>
     val durationMillis: StateFlow<Long>
     
-    fun startAnalysis()
+    fun startAnalysis(title: String): String
     fun pauseAnalysis()
     fun resumeAnalysis()
     

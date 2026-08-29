@@ -72,7 +72,8 @@ fun rememberAppUIStrings(provider: IAppStrings): AppStrings {
             conclusionNeutral = stringResource(provider.history.conclusionNeutral),
             labelNotes = stringResource(provider.history.labelNotes),
             notesHint = stringResource(provider.history.notesHint),
-            detailTitle = stringResource(provider.history.detailTitle)
+            detailTitle = stringResource(provider.history.detailTitle),
+            sessionIndexFormat = stringResource(provider.history.sessionIndexFormat)
         ),
         settings = SettingsStrings(
             preferencesTitle = stringResource(provider.settings.preferencesTitle),

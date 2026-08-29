@@ -5,8 +5,13 @@ import application.poligraf.engine.utils.convertDateWithMinutes
 import application.poligraf.presentation.base.BaseViewModel
 import application.poligraf.presentation.history.data.HistoryState
 import application.poligraf.presentation.history.data.SessionUiModel
+import application.poligraf.ui.foundation.actions.WidgetAction
+import application.poligraf.ui.foundation.models.AppBackground
 import application.poligraf.ui.foundation.models.AppToolbar
+import application.poligraf.ui.foundation.models.ToolbarAction
+import application.poligraf.ui.foundation.types.BackgroundMode
 import application.poligraf.ui.theme.tokens.ColorToken
+import application.poligraf.ui.theme.tokens.IconToken
 import application.poligraf.ui.theme.tokens.StringToken
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,18 +26,19 @@ class HistoryViewModel(
 
     private val _state = MutableStateFlow(
         HistoryState(
-            toolbar = AppToolbar(
-                titleToken = StringToken.HISTORY,
-                backgroundColor = ColorToken.SURFACE_BACKGROUND,
-                contentColor = ColorToken.TEXT_PRIMARY
-            )
+            toolbar = createDefaultToolbar()
         )
     )
     val state = _state.asStateFlow()
 
     init {
         scope.launch {
-            _state.update { it.copy(isLoading = true) }
+            _state.update {
+                it.copy(
+                    isLoading = true,
+                    background = createBackground(isLoading = true, isEmpty = it.sessions.isEmpty(), isSelection = false)
+                )
+            }
             historyRepository.getSessions().collect { sessions ->
                 val uiModels = sessions.map { session ->
                     SessionUiModel(
@@ -47,15 +53,109 @@ class HistoryViewModel(
                 _state.update {
                     it.copy(
                         sessions = uiModels,
-                        isLoading = false
+                        isLoading = false,
+                        background = createBackground(
+                            isLoading = false,
+                            isEmpty = uiModels.isEmpty(),
+                            isSelection = it.selectedIds.isNotEmpty()
+                        )
                     )
                 }
             }
         }
     }
 
+    private fun createBackground(isLoading: Boolean, isEmpty: Boolean, isSelection: Boolean): AppBackground {
+        return when {
+            isSelection -> AppBackground.AnimatedScales(
+                mode = BackgroundMode.ERROR,
+                energyColor = ColorToken.STATE_ERROR
+            )
+            isLoading -> AppBackground.AnimatedScales(
+                mode = BackgroundMode.IDLE,
+                energyColor = ColorToken.ACCENT_ENERGY
+            )
+            isEmpty -> AppBackground.AnimatedScales(
+                mode = BackgroundMode.WAITING,
+                energyColor = ColorToken.STATE_WARNING
+            )
+            else -> AppBackground.AnimatedScales(
+                mode = BackgroundMode.WAITING, // Yin-Yang effect for items
+                energyColor = ColorToken.ACCENT_ENERGY
+            )
+        }
+    }
+
+    private fun createDefaultToolbar() = AppToolbar(
+        titleToken = StringToken.HISTORY,
+        backgroundColor = ColorToken.SURFACE_BACKGROUND,
+        contentColor = ColorToken.TEXT_PRIMARY
+    )
+
+    private fun createSelectionToolbar(count: Int) = AppToolbar(
+        titleToken = StringToken.HISTORY,
+        navigationIcon = IconToken.CLOSE,
+        navigationAction = WidgetAction.ClearSelection,
+        trailingActions = listOf(
+            ToolbarAction(
+                icon = IconToken.DELETE,
+                action = WidgetAction.DeleteSelected,
+                tint = ColorToken.STATE_ERROR
+            )
+        )
+    )
+
+    private fun updateStateWithSelection(selectedIds: Set<String>) {
+        _state.update {
+            it.copy(
+                selectedIds = selectedIds,
+                toolbar = if (selectedIds.isNotEmpty()) createSelectionToolbar(selectedIds.size) else createDefaultToolbar(),
+                background = createBackground(
+                    isLoading = it.isLoading,
+                    isEmpty = it.sessions.isEmpty(),
+                    isSelection = selectedIds.isNotEmpty()
+                )
+            )
+        }
+    }
+
     fun onSessionClick(sessionId: String) {
-        navigateToDetail(sessionId)
+        if (_state.value.isSelectionMode) {
+            toggleSelection(sessionId)
+        } else {
+            navigateToDetail(sessionId)
+        }
+    }
+
+    fun onSessionLongClick(sessionId: String) {
+        toggleSelection(sessionId)
+    }
+
+    private fun toggleSelection(sessionId: String) {
+        val currentSelected = _state.value.selectedIds.toMutableSet()
+        if (currentSelected.contains(sessionId)) {
+            currentSelected.remove(sessionId)
+        } else {
+            currentSelected.add(sessionId)
+        }
+        updateStateWithSelection(currentSelected)
+    }
+
+    fun onAction(action: WidgetAction) {
+        when (action) {
+            is WidgetAction.ClearSelection -> {
+                updateStateWithSelection(emptySet())
+            }
+            is WidgetAction.DeleteSelected -> {
+                val idsToDelete = _state.value.selectedIds
+                scope.launch {
+                    idsToDelete.forEach { historyRepository.deleteSession(it) }
+                    updateStateWithSelection(emptySet())
+                }
+            }
+            is WidgetAction.ToggleSelection -> toggleSelection(action.id)
+            else -> {}
+        }
     }
 
     fun onDeleteSession(sessionId: String) {
@@ -65,6 +165,10 @@ class HistoryViewModel(
     }
 
     fun onBack() {
-        navigateBack()
+        if (_state.value.isSelectionMode) {
+            onAction(WidgetAction.ClearSelection)
+        } else {
+            navigateBack()
+        }
     }
 }

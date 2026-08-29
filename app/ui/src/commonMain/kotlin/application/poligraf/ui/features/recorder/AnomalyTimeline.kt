@@ -28,7 +28,7 @@ import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import application.poligraf.engine.models.MarkerShape
+import application.poligraf.domain.model.MarkerShape
 import application.poligraf.ui.foundation.models.AnalyzerMarker
 import application.poligraf.ui.theme.LocalDesignSystem
 import application.poligraf.ui.theme.tokens.ColorToken
@@ -262,7 +262,7 @@ fun AnomalyTimeline(
     }
 }
 
-private fun DrawScope.drawMarker(
+internal fun DrawScope.drawMarker(
     shape: MarkerShape,
     color: Color,
     center: Offset,

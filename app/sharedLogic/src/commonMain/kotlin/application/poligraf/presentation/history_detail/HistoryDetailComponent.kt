@@ -33,7 +33,7 @@ class DefaultHistoryDetailComponent(
             sessionId = sessionId,
             historyRepository = get(),
             analyzerRepository = get(),
-            preferenceManager = get(),
+            preferencesRepository = get(),
             navigateBack = navigateBack
         )
     }
