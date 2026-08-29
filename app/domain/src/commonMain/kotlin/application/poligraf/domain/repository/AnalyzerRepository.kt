@@ -1,10 +1,12 @@
 package application.poligraf.domain.repository
 
 import application.poligraf.domain.model.AudioFrame
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 
 interface AnalyzerRepository {
     val currentFrame: StateFlow<AudioFrame?>
+    val audioFrames: SharedFlow<AudioFrame>
     val isAnomalous: StateFlow<Boolean>
     val isRecording: StateFlow<Boolean>
     val isPaused: StateFlow<Boolean>

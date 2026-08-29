@@ -93,7 +93,19 @@ class AnalyzerViewModel(
             }
         }
 
-        // Observe repository and history updates
+        // Continuous history recording from SharedFlow (No conflation)
+        scope.launch {
+            repository.audioFrames.collect { frame ->
+                val lastTimestamp = frameHistory.lastOrNull()?.timestamp ?: -1L
+                if (frame.timestamp > lastTimestamp) {
+                    frameHistory.add(frame)
+                    processAnomalyMarker(frame, frame.timestamp)
+                    baseline.add(frame.rms, frame.pitch)
+                }
+            }
+        }
+
+        // Observe repository state for UI updates
         scope.launch {
             combine(
                 repository.currentFrame,
@@ -102,15 +114,6 @@ class AnalyzerViewModel(
                 repository.isPaused,
                 repository.isAnomalous
             ) { frame, duration, recording, paused, anomalous ->
-
-                if (frame != null && recording && (!paused)) {
-                    val lastTimestamp = frameHistory.lastOrNull()?.timestamp ?: -1L
-                    if (frame.timestamp > lastTimestamp) {
-                        frameHistory.add(frame)
-                        processAnomalyMarker(frame, duration)
-                        baseline.add(frame.rms, frame.pitch)
-                    }
-                }
 
                 _state.update {
                     it.copy(
@@ -273,16 +276,19 @@ class AnalyzerViewModel(
 
     fun onAppear() {
         scope.launch {
-            if (repository.isRecording.value) {
-                // Restore current session ID if resuming
-                val draft = repository.getActiveDraft()
+            val isRecording = repository.isRecording.value
+            val draft = repository.getActiveDraft()
+
+            if (isRecording) {
                 if (draft != null) {
                     currentSessionId = draft.first
+                    if (frameHistory.isEmpty()) {
+                        loadSessionHistory(draft.first)
+                    }
                 }
                 return@launch
             }
 
-            val draft = repository.getActiveDraft()
             if (draft != null) {
                 currentSessionId = draft.first
                 loadSessionHistory(draft.first)

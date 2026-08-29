@@ -23,6 +23,9 @@ internal class AnalyzerRepositoryImpl(
     private val _currentFrame = MutableStateFlow<AudioFrame?>(null)
     override val currentFrame = _currentFrame.asStateFlow()
 
+    private val _audioFrames = MutableSharedFlow<AudioFrame>(extraBufferCapacity = 64)
+    override val audioFrames = _audioFrames.asSharedFlow()
+
     private val _isAnomalous = MutableStateFlow(false)
     override val isAnomalous = _isAnomalous.asStateFlow()
 
@@ -40,8 +43,8 @@ internal class AnalyzerRepositoryImpl(
     private val frameBatch = mutableListOf<AudioFrame>()
     
     private val samplesPer100ms = AudioConstants.SAMPLING_RATE / 10
-    private var sessionStartTime = 0L
     private var timeBeforePause = 0L
+    private var windowsProcessedInStretch = 0L
 
     private fun resetInternalState() {
         baseline.reset()
@@ -50,6 +53,7 @@ internal class AnalyzerRepositoryImpl(
         _currentFrame.value = null
         _durationMillis.value = 0L
         timeBeforePause = 0L
+        windowsProcessedInStretch = 0L
     }
 
     override fun startAnalysis(title: String): String {
@@ -67,13 +71,13 @@ internal class AnalyzerRepositoryImpl(
         
         _isRecording.value = true
         _isPaused.value = false
-        sessionStartTime = nowAsEpochMilliseconds()
 
         // Create draft session in DB
+        val startTime = nowAsEpochMilliseconds()
         scope.launch(dbDispatcher) {
             db.appDatabaseQueries.insertSession(
                 id = sessionId,
-                timestamp = sessionStartTime,
+                timestamp = startTime,
                 title = title,
                 notes = "",
                 duration = 0,
@@ -103,7 +107,7 @@ internal class AnalyzerRepositoryImpl(
     override fun resumeAnalysis() {
         if (!_isRecording.value || !_isPaused.value) return
         _isPaused.value = false
-        sessionStartTime = nowAsEpochMilliseconds()
+        windowsProcessedInStretch = 0L
         frameBatch.clear()
         startCaptureJob()
     }
@@ -116,7 +120,7 @@ internal class AnalyzerRepositoryImpl(
         _isPaused.value = true 
         _durationMillis.value = lastDuration
         timeBeforePause = lastDuration
-        sessionStartTime = nowAsEpochMilliseconds()
+        windowsProcessedInStretch = 0L
         frameBatch.clear()
     }
 
@@ -132,7 +136,8 @@ internal class AnalyzerRepositoryImpl(
                     val window = accumulatedBuffer.take(samplesPer100ms).toShortArray()
                     repeat(samplesPer100ms) { accumulatedBuffer.removeAt(0) }
                     
-                    val currentDuration = timeBeforePause + (nowAsEpochMilliseconds() - sessionStartTime)
+                    windowsProcessedInStretch++
+                    val currentDuration = timeBeforePause + (windowsProcessedInStretch * 100)
                     _durationMillis.value = currentDuration
                     
                     processWindow(window, currentDuration)
@@ -177,6 +182,7 @@ internal class AnalyzerRepositoryImpl(
         
         _currentFrame.value = frame
         _isAnomalous.value = frame.isAnomaly
+        _audioFrames.tryEmit(frame)
         
         frameBatch.add(frame)
         if (frameBatch.size >= 50) {
