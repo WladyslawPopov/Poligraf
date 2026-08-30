@@ -37,8 +37,10 @@ The app listens to the shared audio stream. It doesn't attempt to technically se
 
 ## ⚡ Core Engine Features
 
-*   **Dual-Track Parallel Calibration:** Continuous background adaptation to ambient room noise (RMS) and vocal characteristics (Pitch & Jitter) with **Outlier Rejection** (stress spikes do not corrupt baseline statistics).
-*   **Real-time Timeline Clustering:** Intelligent event quantization (2.5s window) clustering anomalies into clean, readable timeline markers without visual clutter.
+*   **Dual-Track Adaptive Baseline (Continuous Voice Stress Analysis):** Continuously models both the room's ambient noise floor (in pauses) and the speaker's vocal profile (speech loudness RMS, fundamental pitch F0, and micro-tremor jitter). Features **Soft Leaky Outlier Learning** so temporary stress bursts do not corrupt baseline statistics while permanently adapted vocal changes are seamlessly tracked.
+*   **Unified Session Architecture:** Single codepath (`AnalyzerComponent` / `AnalyzerViewModel`) for both live recording and historical session review, powered by the pure `AnalyzerSessionController`.
+*   **High-Resolution Anomaly Timeline:** Zoomed timeline resolution (40dp/s) with 600ms event quantization clustering anomalies into clear, seekable diamond markers with zero overlap.
+*   **Session Volatility & Conclusion Engine:** Objective evaluation of session reliability based on anomaly density per minute (Anomalies/Min) rather than raw counts, ensuring equal accuracy for 15-second checks and 10-minute interviews.
 *   **Live Context Notes:** Direct note-taking with timestamp and anomaly linkage during live capture and review.
 
 ---
