@@ -9,8 +9,6 @@ import application.poligraf.presentation.debug.DebugComponent
 import application.poligraf.presentation.debug.DefaultDebugComponent
 import application.poligraf.presentation.history.DefaultHistoryComponent
 import application.poligraf.presentation.history.HistoryComponent
-import application.poligraf.presentation.history_detail.DefaultHistoryDetailComponent
-import application.poligraf.presentation.history_detail.HistoryDetailComponent
 import application.poligraf.presentation.main.DefaultMainComponent
 import application.poligraf.presentation.main.MainComponent
 import com.arkivanov.decompose.ExperimentalDecomposeApi
@@ -33,7 +31,6 @@ interface RootComponent {
         class MainChild(val component: MainComponent) : Child()
         class DebugChild(val component: DebugComponent) : Child()
         class HistoryChild(val component: HistoryComponent) : Child()
-        class HistoryDetailChild(val component: HistoryDetailComponent) : Child()
         class AnalyzerChild(val component: AnalyzerComponent) : Child()
     }
 
@@ -66,7 +63,7 @@ class DefaultRootComponent(
                     componentContext = appContext,
                     navigateToDebug = { navigation.pushNew(RootConfig.Debug) },
                     navigateToHistory = { navigation.pushNew(RootConfig.History) },
-                    navigateToAnalyzer = { navigation.pushNew(RootConfig.Analyzer) }
+                    navigateToAnalyzer = { navigation.pushNew(RootConfig.Analyzer()) }
                 )
             )
             is RootConfig.Debug -> RootComponent.Child.DebugChild(
@@ -79,24 +76,18 @@ class DefaultRootComponent(
             is RootConfig.History -> RootComponent.Child.HistoryChild(
                 DefaultHistoryComponent(
                     componentContext = appContext,
-                    navigateToDetail = { navigation.pushNew(RootConfig.HistoryDetail(it)) },
-                    navigateBack = { navigation.pop() }
-                )
-            )
-            is RootConfig.HistoryDetail -> RootComponent.Child.HistoryDetailChild(
-                DefaultHistoryDetailComponent(
-                    componentContext = appContext,
-                    sessionId = config.sessionId,
+                    navigateToDetail = { navigation.pushNew(RootConfig.Analyzer(sessionId = it)) },
                     navigateBack = { navigation.pop() }
                 )
             )
             is RootConfig.Analyzer -> RootComponent.Child.AnalyzerChild(
                 DefaultAnalyzerComponent(
                     componentContext = appContext,
+                    sessionId = config.sessionId,
                     onNavigateToDetail = { sessionId ->
-                        // Replace Analyzer with HistoryDetail on the stack (pop current and push detail)
+                        // Replace live Analyzer with review Analyzer on the stack
                         navigation.pop()
-                        navigation.pushNew(RootConfig.HistoryDetail(sessionId))
+                        navigation.pushNew(RootConfig.Analyzer(sessionId = sessionId))
                     },
                     onNavigateBack = { navigation.pop() }
                 )
@@ -108,4 +99,5 @@ class DefaultRootComponent(
         navigation.pop()
     }
 }
+
 

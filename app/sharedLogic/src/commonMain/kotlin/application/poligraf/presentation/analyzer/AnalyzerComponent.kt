@@ -25,15 +25,18 @@ interface AnalyzerComponent {
 @OptIn(ExperimentalDecomposeApi::class)
 class DefaultAnalyzerComponent(
     componentContext: AppComponentContext,
+    val sessionId: String? = null,
     private val onNavigateToDetail: (String) -> Unit,
     private val onNavigateBack: () -> Unit,
 ) : AnalyzerComponent, AppComponentContext by componentContext, KoinComponent {
 
-    private val analyzerViewModel = viewModel("analyzerViewModel") {
+    private val analyzerViewModel = viewModel("analyzerViewModel_${sessionId ?: "live"}") {
         AnalyzerViewModel(
+            initialSessionId = sessionId,
             repository = get(),
             historyRepository = get(),
             preferencesRepository = get(),
+            navigateBack = onNavigateBack,
         )
     }
 
@@ -48,10 +51,10 @@ class DefaultAnalyzerComponent(
 
     override fun onBack() {
         analyzerViewModel.onBack()
-        onNavigateBack()
     }
 
     override fun navigateToDetail(sessionId: String) {
         onNavigateToDetail(sessionId)
     }
 }
+

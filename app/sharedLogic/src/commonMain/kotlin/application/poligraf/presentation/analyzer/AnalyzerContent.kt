@@ -4,10 +4,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import application.poligraf.domain.model.AnalyzerMode
 import application.poligraf.presentation.analyzer.ui.AnalyzerRenderer
-import application.poligraf.ui.foundation.actions.AnalyzingAction
 import application.poligraf.ui.components.layout.AppScaffold
 import application.poligraf.ui.components.layout.StandardToolbar
+import application.poligraf.ui.foundation.actions.AnalyzingAction
 import application.poligraf.ui.theme.LocalDesignSystem
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
 
@@ -17,6 +18,7 @@ fun AnalyzerContent(component: AnalyzerComponent) {
     val viewModel = componentModel.viewModel
     val state by viewModel.state.collectAsState()
     val designSystem = LocalDesignSystem.current
+    val isLive = state.mode == AnalyzerMode.LIVE
 
     LaunchedEffect(viewModel) {
         viewModel.navigateToDetail.collect { sessionId ->
@@ -33,10 +35,10 @@ fun AnalyzerContent(component: AnalyzerComponent) {
                     toolbar = toolbar,
                     designSystem = designSystem,
                     onNavigationClick = component::onBack,
-                    durationText = state.durationText,
-                    isAnalyzing = state.isAnalyzing && !state.isPaused,
+                    durationText = if (isLive) state.durationText else null,
+                    isAnalyzing = if (isLive) state.isAnalyzing && !state.isPaused else false,
                     isProcessing = state.isProcessing,
-                    showIndicator = true,
+                    showIndicator = isLive,
                     onAction = { action ->
                         viewModel.onAction(action)
                         if (action is AnalyzingAction.Delete) {
@@ -53,3 +55,4 @@ fun AnalyzerContent(component: AnalyzerComponent) {
         )
     }
 }
+

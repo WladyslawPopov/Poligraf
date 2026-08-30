@@ -32,11 +32,6 @@ fun MetricRow(
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
         MetricItem(
-            label = designSystem.string(StringToken.METRIC_JITTER),
-            value = "$jitterPercent%",
-            color = designSystem.color(ColorToken.CHART_JITTER)
-        )
-        MetricItem(
             label = designSystem.string(StringToken.METRIC_PITCH),
             value = "$pitchPercent%",
             color = designSystem.color(ColorToken.CHART_PITCH)
@@ -45,6 +40,11 @@ fun MetricRow(
             label = designSystem.string(StringToken.METRIC_RMS),
             value = "$rmsPercent%",
             color = designSystem.color(ColorToken.CHART_RMS)
+        )
+        MetricItem(
+            label = designSystem.string(StringToken.METRIC_JITTER),
+            value = "$jitterPercent%",
+            color = designSystem.color(ColorToken.CHART_JITTER)
         )
     }
 }

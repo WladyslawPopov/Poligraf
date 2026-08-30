@@ -27,9 +27,6 @@ internal class AnalyzerRepositoryImpl(
     private val _audioFrames = MutableSharedFlow<AudioFrame>(extraBufferCapacity = 128)
     override val audioFrames = _audioFrames.asSharedFlow()
 
-    private val _isAnomalous = MutableStateFlow(false)
-    override val isAnomalous = _isAnomalous.asStateFlow()
-
     private val _isAnalyzing = MutableStateFlow(false)
     override val isAnalyzing = _isAnalyzing.asStateFlow()
 
@@ -49,7 +46,7 @@ internal class AnalyzerRepositoryImpl(
     private val pitchHistory = mutableListOf<Float>()
     private val frameBatch = mutableListOf<AudioFrame>()
     
-    // Atomization: 50ms windows with 75% overlap for "Instrument 2.1" precision
+    // Atomization: 100ms windows with 50% overlap (50ms step) for "Instrument 2.1" precision
     private val windowSizeMs = 100 
     private val samplesPerWindow = AudioConstants.SAMPLING_RATE / (1000 / windowSizeMs)
     
@@ -214,7 +211,6 @@ internal class AnalyzerRepositoryImpl(
         )
         
         _currentFrame.value = frame
-        _isAnomalous.value = result.isVisualAnomaly // Glow reacts to 2.0 sigma
         _audioFrames.tryEmit(frame)
         
         frameBatch.add(frame)

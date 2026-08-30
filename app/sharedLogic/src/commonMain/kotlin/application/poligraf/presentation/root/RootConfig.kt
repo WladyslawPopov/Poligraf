@@ -14,8 +14,5 @@ sealed interface RootConfig {
     data object History : RootConfig
 
     @Serializable
-    data class HistoryDetail(val sessionId: String) : RootConfig
-
-    @Serializable
-    data object Analyzer : RootConfig
+    data class Analyzer(val sessionId: String? = null) : RootConfig
 }

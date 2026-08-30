@@ -7,7 +7,6 @@ import kotlinx.coroutines.flow.StateFlow
 interface AnalyzerRepository {
     val currentFrame: StateFlow<AudioFrame?>
     val audioFrames: SharedFlow<AudioFrame>
-    val isAnomalous: StateFlow<Boolean>
     val isAnalyzing: StateFlow<Boolean>
     val isPaused: StateFlow<Boolean>
     val durationMillis: StateFlow<Long>

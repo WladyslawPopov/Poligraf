@@ -40,8 +40,8 @@ fun InterpretationOverlay(
         AnimatedContent(
             targetState = targetState,
             transitionSpec = {
-                (fadeIn(tween(800)) + slideInVertically { it / 2 }) togetherWith 
-                (fadeOut(tween(600)) + slideOutVertically { -it / 2 })
+                (fadeIn(tween(350)) + slideInVertically(tween(350)) { it / 3 }) togetherWith 
+                (fadeOut(tween(400)) + slideOutVertically(tween(400)) { -it / 3 })
             },
             label = "interpretation_anim"
         ) { state ->

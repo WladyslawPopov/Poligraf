@@ -15,26 +15,27 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import application.poligraf.engine.dsp.DominantMetric
+import application.poligraf.engine.dsp.SignalLevel
 import application.poligraf.ui.theme.LocalDesignSystem
 import application.poligraf.ui.theme.tokens.ColorToken
 
 @Composable
 fun AmbientGlow(
-    isAnomalous: Boolean,
-    jitter: Float,
-    pitch: Float,
+    signalLevel: SignalLevel,
+    dominantMetric: DominantMetric?,
     modifier: Modifier = Modifier
 ) {
     val designSystem = LocalDesignSystem.current
+    val visible = signalLevel != SignalLevel.NONE
 
-    val anomalyColor = remember(isAnomalous, jitter, pitch) {
-        if (isAnomalous) {
-            when {
-                jitter > 0.35f -> designSystem.color(ColorToken.CHART_JITTER)
-                pitch > 0.35f -> designSystem.color(ColorToken.CHART_PITCH)
-                else -> designSystem.color(ColorToken.CHART_RMS)
-            }
-        } else Color.Transparent
+    val anomalyColor = remember(signalLevel, dominantMetric) {
+        when (dominantMetric) {
+            DominantMetric.JITTER -> designSystem.color(ColorToken.CHART_JITTER)
+            DominantMetric.PITCH -> designSystem.color(ColorToken.CHART_PITCH)
+            DominantMetric.RMS -> designSystem.color(ColorToken.CHART_RMS)
+            null -> designSystem.color(ColorToken.CHART_JITTER)
+        }
     }
 
     val infiniteTransition = rememberInfiniteTransition(label = "ambient")
@@ -48,7 +49,7 @@ fun AmbientGlow(
     )
 
     AnimatedVisibility(
-        visible = isAnomalous,
+        visible = visible,
         enter = fadeIn(tween(600, easing = LinearOutSlowInEasing)),
         exit = fadeOut(tween(800, easing = LinearOutSlowInEasing)),
         modifier = modifier

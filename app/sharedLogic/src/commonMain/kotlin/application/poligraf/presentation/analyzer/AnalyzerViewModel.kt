@@ -1,25 +1,23 @@
 package application.poligraf.presentation.analyzer
 
 import androidx.compose.runtime.Stable
+import application.poligraf.domain.model.AnalyzerMode
 import application.poligraf.domain.model.AnalyzerSkin
-import application.poligraf.domain.model.AudioFrame
-import application.poligraf.domain.model.MarkerShape
 import application.poligraf.domain.repository.AnalyzerRepository
 import application.poligraf.domain.repository.HistoryRepository
 import application.poligraf.domain.repository.PreferencesRepository
-import application.poligraf.engine.dsp.AudioAnalyzer
-import application.poligraf.engine.io.audio.AudioConstants
 import application.poligraf.presentation.analyzer.logic.AnalyzerProcessor
+import application.poligraf.presentation.analyzer.logic.AnalyzerSessionController
 import application.poligraf.presentation.base.BaseViewModel
 import application.poligraf.ui.foundation.actions.AnalyzingAction
-import application.poligraf.ui.foundation.models.AnalyzerMarker
 import application.poligraf.ui.foundation.models.AppToolbar
+import application.poligraf.ui.foundation.models.SessionNoteUiModel
 import application.poligraf.ui.foundation.models.ToolbarAction
 import application.poligraf.ui.foundation.state.AnalyzerState
-import application.poligraf.ui.foundation.models.SessionNoteUiModel
 import application.poligraf.ui.theme.tokens.ColorToken
 import application.poligraf.ui.theme.tokens.IconToken
 import application.poligraf.ui.theme.tokens.StringToken
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -37,68 +35,79 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalCoroutinesApi::class)
 @Stable
 class AnalyzerViewModel(
+    initialSessionId: String? = null,
     private val repository: AnalyzerRepository,
     private val historyRepository: HistoryRepository,
     val preferencesRepository: PreferencesRepository,
+    private val navigateBack: () -> Unit = {},
 ) : BaseViewModel() {
 
+    private val isReviewMode = initialSessionId != null
+
     private val _state = MutableStateFlow(
-        AnalyzerState(
-            toolbar = AppToolbar(
-                titleToken = StringToken.ANALYZER_TITLE,
-                backgroundColor = ColorToken.SURFACE_BACKGROUND,
-                contentColor = ColorToken.TEXT_PRIMARY,
-                trailingActions = listOf(
-                    ToolbarAction(
-                        icon = IconToken.DELETE,
-                        action = AnalyzingAction.Delete,
-                        tint = ColorToken.STATE_ERROR
-                    ),
-                    ToolbarAction(
-                        icon = IconToken.CHECK,
-                        action = AnalyzingAction.Save,
-                        tint = ColorToken.STATE_SUCCESS
+        if (isReviewMode) {
+            AnalyzerState(
+                mode = AnalyzerMode.REVIEW,
+                isReadOnly = true,
+                isPaused = true,
+                toolbar = AppToolbar(
+                    titleToken = StringToken.HISTORY_DETAIL_TITLE,
+                    backgroundColor = ColorToken.SURFACE_BACKGROUND,
+                    contentColor = ColorToken.TEXT_PRIMARY
+                )
+            )
+        } else {
+            AnalyzerState(
+                mode = AnalyzerMode.LIVE,
+                isReadOnly = false,
+                toolbar = AppToolbar(
+                    titleToken = StringToken.ANALYZER_TITLE,
+                    backgroundColor = ColorToken.SURFACE_BACKGROUND,
+                    contentColor = ColorToken.TEXT_PRIMARY,
+                    trailingActions = listOf(
+                        ToolbarAction(
+                            icon = IconToken.DELETE,
+                            action = AnalyzingAction.Delete,
+                            tint = ColorToken.STATE_ERROR
+                        ),
+                        ToolbarAction(
+                            icon = IconToken.CHECK,
+                            action = AnalyzingAction.Save,
+                            tint = ColorToken.STATE_SUCCESS
+                        )
                     )
                 )
             )
-        )
+        }
     )
     val state = _state.asStateFlow()
 
     private val _navigateToDetail = MutableSharedFlow<String>()
     val navigateToDetail = _navigateToDetail.asSharedFlow()
 
-    private val timelineMarkers = mutableListOf<AnalyzerMarker>()
-    private val frameHistory = mutableListOf<AudioFrame>()
-    private val _currentSessionIdFlow = MutableStateFlow<String?>(null)
-    private var currentSessionId: String? = null
+    private val controller = AnalyzerSessionController()
+
+    private val _currentSessionIdFlow = MutableStateFlow<String?>(initialSessionId)
+    private var currentSessionId: String? = initialSessionId
         set(value) {
             field = value
             _currentSessionIdFlow.value = value
         }
 
-    private var currentMarkerShape: MarkerShape = MarkerShape.CIRCLE
-
-    private val baseline = AudioAnalyzer.MovingBaseline()
-
-    // Smoothing buffers for UI
-    private var smoothedJitter = 0f
-    private var smoothedPitch = 0f
-    private var smoothedRms = 0f
-
-    // Sticky interpretation logic
-    private var lastInterpretation: StringToken? = null
-    private var interpretationTimestamp = 0L
-
     init {
-        // Observe preferences
+        // Observe preferences (marker shape & skin)
         scope.launch {
             preferencesRepository.markerShape.collect { shape ->
-                currentMarkerShape = shape
-                val updated = timelineMarkers.map { it.copy(shape = shape) }
-                timelineMarkers.clear()
-                timelineMarkers.addAll(updated)
-                _state.update { it.copy(timelineMarkers = timelineMarkers.toList()) }
+                val markers = controller.setMarkerShape(shape)
+                val updatedNotes = _state.value.notes.map {
+                    if (it.markerColor != null) it.copy(markerShape = shape) else it
+                }
+                _state.update {
+                    it.copy(
+                        timelineMarkers = markers,
+                        notes = updatedNotes
+                    )
+                }
             }
         }
 
@@ -108,59 +117,13 @@ class AnalyzerViewModel(
             }
         }
 
-        // Continuous history recording from SharedFlow (No conflation)
-        scope.launch {
-            repository.audioFrames.collect { frame ->
-                val lastTimestamp = frameHistory.lastOrNull()?.timestamp ?: -1L
-                if (frame.timestamp > lastTimestamp) {
-                    frameHistory.add(frame)
-
-                    val lastMarkerTime = timelineMarkers.lastOrNull()?.timestampMillis ?: 0L
-                    AnalyzerProcessor.createAnomalyMarker(frame, currentMarkerShape, lastMarkerTime)
-                        ?.let {
-                            timelineMarkers.add(it)
-                        }
-                    baseline.add(frame.rms, frame.pitch, frame.jitter)
-                }
-            }
+        if (isReviewMode) {
+            initReviewMode(initialSessionId!!)
+        } else {
+            initLiveMode()
         }
 
-        // Observe repository state for UI updates
-        scope.launch {
-            combine(
-                repository.currentFrame,
-                repository.durationMillis,
-                repository.isAnalyzing,
-                repository.isPaused,
-                repository.isAnomalous,
-                repository.calibrationProgress,
-                repository.isCalibrated
-            ) { args ->
-                val frame = args[0] as AudioFrame?
-                val duration = args[1] as Long
-                val analyzing = args[2] as Boolean
-                val paused = args[3] as Boolean
-                val anomalous = args[4] as Boolean
-                val progress = args[5] as Float
-                val calibrated = args[6] as Boolean
-
-                _state.update {
-                    it.copy(
-                        currentFrame = frame,
-                        durationText = AnalyzerProcessor.formatDuration(duration),
-                        currentDurationMillis = duration,
-                        isAnalyzing = analyzing,
-                        isPaused = paused,
-                        isAnomalous = anomalous,
-                        isCalibrated = calibrated,
-                        calibrationProgress = progress,
-                        timelineMarkers = timelineMarkers.toList()
-                    )
-                }
-            }.collect()
-        }
-
-        // Notes observer for current session
+        // Shared Notes observer for current session
         scope.launch {
             _currentSessionIdFlow
                 .flatMapLatest { sessionId ->
@@ -194,81 +157,163 @@ class AnalyzerViewModel(
                     _state.update { it.copy(notes = uiNotes) }
                 }
         }
+    }
 
-        // Separate observer for Seek & Display Logic
+    private fun initReviewMode(sessionId: String) {
+        setLoading(true)
+
+        // Load session metadata
         scope.launch {
-            _state.map { Triple(it.seekPositionMillis, it.isPaused, it.currentFrame) }
+            historyRepository.getSessionById(sessionId).collect { session ->
+                _state.update { it.copy(session = session) }
+                if (session != null) {
+                    _state.update {
+                        it.copy(durationText = AnalyzerProcessor.formatDuration(session.duration))
+                    }
+                }
+            }
+        }
+
+        // Load frames and process with analyzer processor
+        scope.launch(Dispatchers.Default) {
+            try {
+                val rawFrames = repository.getFramesForSession(sessionId)
+                val processedFrames = AnalyzerProcessor.processFrames(rawFrames)
+                controller.loadFrames(processedFrames)
+
+                val markers = controller.timelineMarkers
+                val anomalyCount = markers.count { it.isAnomaly }
+                val avgConfidence = if (processedFrames.isNotEmpty()) {
+                    processedFrames.map { it.confidence }.average().toFloat()
+                } else 0f
+                val lastTimestamp = processedFrames.lastOrNull()?.timestamp ?: 0L
+
+                val volatilityStatus = AnalyzerProcessor.determineVolatilityStatus(anomalyCount, lastTimestamp)
+                val volatilityColor = AnalyzerProcessor.determineVolatilityColor(volatilityStatus)
+                val conclusionText = AnalyzerProcessor.determineConclusionText(anomalyCount, lastTimestamp, avgConfidence)
+                val conclusionColor = AnalyzerProcessor.determineConclusionColor(conclusionText)
+
+                _state.update { s ->
+                    s.copy(
+                        timelineMarkers = markers,
+                        currentDurationMillis = lastTimestamp,
+                        durationText = AnalyzerProcessor.formatDuration(lastTimestamp),
+                        isCalibrated = true,
+                        calibrationProgress = 1f,
+                        anomalyCount = anomalyCount,
+                        averageConfidence = avgConfidence,
+                        volatilityStatus = volatilityStatus,
+                        volatilityColor = volatilityColor,
+                        conclusionText = conclusionText,
+                        conclusionColor = conclusionColor
+                    )
+                }
+
+                updateReviewDisplayState()
+            } finally {
+                setLoading(false)
+            }
+        }
+
+        // Seek observer for review mode
+        scope.launch {
+            _state.map { it.seekPositionMillis }
                 .distinctUntilChanged()
                 .collect {
-                    updateDisplayState()
+                    updateReviewDisplayState()
                 }
         }
     }
 
-    private var smoothedStress = 0f
-
-    private fun updateDisplayState() {
-        val currentState = _state.value
-        val seekPos = currentState.seekPositionMillis
-        val isPaused = currentState.isPaused
-
-        val activeFrame = if (isPaused && seekPos != null) {
-            AnalyzerProcessor.findClosestFrame(frameHistory, seekPos)
-        } else {
-            currentState.currentFrame
-        }
-
-        if (isPaused) {
-            lastInterpretation = null
-            interpretationTimestamp = 0
-        }
-
-        val (targetJitter, targetPitch, targetRms) = AnalyzerProcessor.calculateNormalizedMetrics(
-            activeFrame
+    private fun updateReviewDisplayState() {
+        val seekPos = _state.value.seekPositionMillis ?: 0L
+        val snapshot = controller.resolveDisplay(
+            seekPos = seekPos,
+            isPaused = true,
+            liveFrame = null,
+            smooth = false
         )
-        val rawStress = activeFrame?.stressScore ?: 0f
-
-        smoothedJitter = AnalyzerProcessor.applyEmaSmoothing(targetJitter, smoothedJitter, isPaused)
-        smoothedPitch = AnalyzerProcessor.applyEmaSmoothing(targetPitch, smoothedPitch, isPaused)
-        smoothedRms = AnalyzerProcessor.applyEmaSmoothing(targetRms, smoothedRms, isPaused)
-
-        val stressAlpha = if (isPaused) 0.40f else 0.25f
-        smoothedStress = (rawStress * stressAlpha) + (smoothedStress * (1f - stressAlpha))
-
-        val currentInterpretation =
-            AnalyzerProcessor.determineInterpretation(smoothedJitter, smoothedPitch, smoothedRms)
-        val now = application.poligraf.engine.utils.nowAsEpochMilliseconds()
-
-        val finalInterpretation = if (currentInterpretation != null) {
-            lastInterpretation = currentInterpretation
-            interpretationTimestamp = now
-            currentInterpretation
-        } else if (!isPaused && lastInterpretation != null && (now - interpretationTimestamp) < AudioConstants.INTERPRETATION_STICKY_MS) {
-            lastInterpretation
-        } else {
-            lastInterpretation = null
-            null
-        }
-
-        val isAnomalous =
-            if (isPaused) (activeFrame?.isAnomaly ?: false) else ((activeFrame?.isAnomaly
-                ?: false) || smoothedStress > 0.30f)
 
         _state.update {
             it.copy(
-                displayFrame = activeFrame,
-                jitterLevel = smoothedJitter,
-                pitchLevel = smoothedPitch,
-                rmsLevel = smoothedRms,
-                activeInterpretation = finalInterpretation,
-                isDisplayAnomalous = isAnomalous,
-                isCalibrated = activeFrame?.isCalibrated
-                    ?: (if (isPaused) true else it.isCalibrated)
+                displayFrame = snapshot.displayFrame,
+                jitterLevel = snapshot.jitterLevel,
+                pitchLevel = snapshot.pitchLevel,
+                rmsLevel = snapshot.rmsLevel,
+                signalLevel = snapshot.signalLevel,
+                dominantMetric = snapshot.dominantMetric,
+                activeInterpretation = snapshot.activeInterpretation,
             )
         }
     }
 
+
+    private fun initLiveMode() {
+        // Continuous history recording from SharedFlow (no conflation)
+        scope.launch {
+            repository.audioFrames.collect { frame ->
+                controller.onLiveFrame(frame)
+                _state.update { it.copy(timelineMarkers = controller.timelineMarkers) }
+            }
+        }
+
+        // Observe repository state for UI updates
+        scope.launch {
+            combine(
+                repository.currentFrame,
+                repository.durationMillis,
+                repository.isAnalyzing,
+                repository.isPaused,
+                repository.calibrationProgress,
+                repository.isCalibrated
+            ) { args ->
+                val duration = args[1] as Long
+                val analyzing = args[2] as Boolean
+                val paused = args[3] as Boolean
+                val progress = args[4] as Float
+                val calibrated = args[5] as Boolean
+
+                _state.update {
+                    it.copy(
+                        durationText = AnalyzerProcessor.formatDuration(duration),
+                        currentDurationMillis = duration,
+                        isAnalyzing = analyzing,
+                        isPaused = paused,
+                        isCalibrated = calibrated,
+                        calibrationProgress = progress,
+                        timelineMarkers = controller.timelineMarkers
+                    )
+                }
+            }.collect()
+        }
+
+        // Display resolution reacts to the latest frame + seek/pause state.
+        scope.launch {
+            val seekPaused = _state.map { it.seekPositionMillis to it.isPaused }
+                .distinctUntilChanged()
+
+            combine(repository.currentFrame, seekPaused) { frame, (seek, paused) ->
+                Triple(frame, seek, paused)
+            }.collect { (frame, seek, paused) ->
+                val snapshot = controller.resolveDisplay(seek, paused, frame)
+                _state.update {
+                    it.copy(
+                        displayFrame = snapshot.displayFrame,
+                        jitterLevel = snapshot.jitterLevel,
+                        pitchLevel = snapshot.pitchLevel,
+                        rmsLevel = snapshot.rmsLevel,
+                        signalLevel = snapshot.signalLevel,
+                        dominantMetric = snapshot.dominantMetric,
+                        activeInterpretation = snapshot.activeInterpretation,
+                    )
+                }
+            }
+        }
+    }
+
     fun onAppear() {
+        if (isReviewMode) return
+
         scope.launch {
             val isAnalyzing = repository.isAnalyzing.value
             val draft = repository.getActiveDraft()
@@ -276,7 +321,7 @@ class AnalyzerViewModel(
             if (isAnalyzing) {
                 if (draft != null) {
                     currentSessionId = draft.first
-                    if (frameHistory.isEmpty()) {
+                    if (controller.frameHistory.isEmpty()) {
                         loadSessionHistory(draft.first)
                     }
                 }
@@ -295,16 +340,8 @@ class AnalyzerViewModel(
 
     private suspend fun loadSessionHistory(sessionId: String) {
         val frames = repository.getFramesForSession(sessionId)
-        frameHistory.clear()
-        frameHistory.addAll(frames)
-
-        timelineMarkers.clear()
-        frames.forEach { frame ->
-            val lastMarkerTime = timelineMarkers.lastOrNull()?.timestampMillis ?: 0L
-            AnalyzerProcessor.createAnomalyMarker(frame, currentMarkerShape, lastMarkerTime)?.let {
-                timelineMarkers.add(it)
-            }
-        }
+        controller.loadFrames(frames)
+        _state.update { it.copy(timelineMarkers = controller.timelineMarkers) }
     }
 
     fun onSeek(positionMillis: Long?) {
@@ -312,21 +349,19 @@ class AnalyzerViewModel(
     }
 
     fun onStart() {
+        if (isReviewMode) return
         scope.launch {
             val count = historyRepository.getSessionCount()
             val defaultTitle = "Session #${count + 1}"
-            frameHistory.clear()
-            timelineMarkers.clear()
-            smoothedJitter = 0f
-            smoothedPitch = 0f
-            smoothedRms = 0f
-            smoothedStress = 0f
+            controller.reset()
+            _state.update { it.copy(timelineMarkers = emptyList()) }
 
             currentSessionId = repository.startAnalysis(defaultTitle)
         }
     }
 
     fun onPauseResume() {
+        if (isReviewMode) return
         if (repository.isPaused.value) {
             _state.update { it.copy(seekPositionMillis = null) }
             repository.resumeAnalysis()
@@ -336,7 +371,7 @@ class AnalyzerViewModel(
     }
 
     fun onStop(save: Boolean) {
-        if (_state.value.isProcessing) return
+        if (isReviewMode || _state.value.isProcessing) return
 
         val sessionId = currentSessionId
         if (save && sessionId == null) return
@@ -360,6 +395,7 @@ class AnalyzerViewModel(
     }
 
     fun onBack() {
+        navigateBack()
     }
 
     fun onSkinChange(skin: AnalyzerSkin) {
@@ -376,9 +412,10 @@ class AnalyzerViewModel(
         if (text.isBlank()) return
 
         val sessionId = currentSessionId ?: return
-        val timestamp = _state.value.seekPositionMillis ?: _state.value.currentDurationMillis
+        val timestamp = _state.value.seekPositionMillis
+            ?: if (isReviewMode) 0L else _state.value.currentDurationMillis
 
-        val associatedMarker = timelineMarkers.find {
+        val associatedMarker = controller.timelineMarkers.find {
             kotlin.math.abs(it.timestampMillis - timestamp) < 500
         }
 
@@ -399,4 +436,32 @@ class AnalyzerViewModel(
             historyRepository.deleteNote(noteId)
         }
     }
+
+    // Review Mode - Title & Metadata editing
+    fun onTitleChange(title: String) {
+        val currentSession = _state.value.session ?: return
+        _state.update { it.copy(session = currentSession.copy(title = title)) }
+    }
+
+    fun toggleTitleEdit(isEditing: Boolean) {
+        if (!isEditing) {
+            onSaveMetadata()
+        }
+        _state.update { it.copy(isTitleEditing = isEditing) }
+    }
+
+    fun onSaveMetadata() {
+        val sessionId = currentSessionId ?: return
+        val session = _state.value.session ?: return
+        scope.launch {
+            _state.update { it.copy(isSaving = true) }
+            historyRepository.updateSessionMetadata(
+                id = sessionId,
+                title = session.title,
+                notes = session.notes
+            )
+            _state.update { it.copy(isSaving = false) }
+        }
+    }
 }
+

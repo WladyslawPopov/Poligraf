@@ -9,10 +9,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.layout.Row
 import androidx.compose.ui.unit.dp
+import application.poligraf.domain.model.AnalyzerSkin
 import application.poligraf.ui.components.containers.AppCard
 import application.poligraf.ui.features.analyzer.components.AnomalyTimeline
+import application.poligraf.ui.features.analyzer.components.InterpretationOverlay
+import application.poligraf.ui.features.analyzer.components.MetricLegend
 import application.poligraf.ui.features.analyzer.components.MetricRow
+import application.poligraf.ui.features.analyzer.components.SkinSwitcher
 import application.poligraf.ui.features.analyzer.visualizations.VisualizationContent
 import application.poligraf.ui.foundation.state.AnalyzerState
 import application.poligraf.ui.theme.LocalDesignSystem
@@ -26,6 +31,8 @@ fun AnalyzerCoreView(
     showControls: Boolean = false,
     onStart: () -> Unit = {},
     onPauseResume: () -> Unit = {},
+    onSkinChange: (AnalyzerSkin) -> Unit = {},
+    showHeader: Boolean = true,
 ) {
     val designSystem = LocalDesignSystem.current
 
@@ -34,6 +41,28 @@ fun AnalyzerCoreView(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(designSystem.dimen(DimenToken.SPACING_MEDIUM))
     ) {
+        // 0. Consolidated Header (Synthesis Status + Skin Switcher)
+        if (showHeader) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                InterpretationOverlay(
+                    interpretation = state.activeInterpretation,
+                    isSynthesized = state.isCalibrated,
+                    synthesisProgress = state.calibrationProgress,
+                    modifier = Modifier.weight(1f)
+                )
+
+                SkinSwitcher(
+                    currentSkin = state.currentSkin,
+                    onSkinChange = onSkinChange,
+                    showLabel = true
+                )
+            }
+        }
+
         // 1. Main Visualization & Metrics Card
         AppCard(
             modifier = Modifier.fillMaxWidth(),
@@ -56,6 +85,10 @@ fun AnalyzerCoreView(
                         rms = state.rmsLevel,
                         isPaused = state.isPaused
                     )
+                }
+
+                if (state.currentSkin != AnalyzerSkin.STATE_MAP) {
+                    MetricLegend()
                 }
 
                 MetricRow(

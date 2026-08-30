@@ -46,11 +46,12 @@ fun AnomalyTimeline(
     val textMeasurer = rememberTextMeasurer()
 
     val textStyle = MaterialTheme.typography.labelSmall.copy(
-        fontSize = 8.sp,
-        color = designSystem.color(ColorToken.TEXT_SECONDARY).copy(alpha = 0.4f)
+        fontSize = 9.sp,
+        color = designSystem.color(ColorToken.TEXT_SECONDARY).copy(alpha = 0.5f)
     )
 
-    val dpPerSecond = 20.dp
+    // Expanded scale: 40dp per second (2x more detailed timeline for precision seeking)
+    val dpPerSecond = 40.dp
     val pxPerMillis = with(density) { dpPerSecond.toPx() } / 1000f
 
     val scrollState = rememberScrollState()
@@ -190,14 +191,14 @@ fun AnomalyTimeline(
                             for (s in firstVisibleSecond..lastVisibleSecond) {
                                 val x = indicatorOffset + (s * 1000f * pxPerMillis)
                                 val isMajor = s % 2 == 0
-                                val isLabeled = s % 5 == 0
+                                val isLabeled = s % 2 == 0 // Labeled every 2s for increased readability at 40dp/s
 
                                 val tickStartY = stripTop + stripHeight + 6.dp.toPx()
                                 val tickHeight = if (isMajor) 8.dp.toPx() else 4.dp.toPx()
 
                                 drawLine(
                                     color = designSystem.color(ColorToken.TEXT_SECONDARY)
-                                        .copy(alpha = if (isMajor) 0.25f else 0.08f),
+                                        .copy(alpha = if (isMajor) 0.35f else 0.12f),
                                     start = Offset(x, tickStartY),
                                     end = Offset(x, tickStartY + tickHeight),
                                     strokeWidth = 1.dp.toPx()

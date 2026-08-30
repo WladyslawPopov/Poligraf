@@ -5,9 +5,13 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -18,11 +22,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
+import application.poligraf.domain.model.AnalyzerMode
 import application.poligraf.presentation.analyzer.AnalyzerViewModel
 import application.poligraf.ui.features.analyzer.components.AmbientGlow
-import application.poligraf.ui.features.analyzer.components.InterpretationOverlay
-import application.poligraf.ui.features.analyzer.components.SkinSwitcher
 import application.poligraf.ui.features.analyzer.parts.AnalyzerCoreView
+import application.poligraf.ui.features.history.detail.HistoryEditableTitle
+import application.poligraf.ui.features.history.detail.HistoryNotesField
+import application.poligraf.ui.features.history.detail.SessionNoteItem
+import application.poligraf.ui.features.history.detail.SessionSummaryCard
 import application.poligraf.ui.theme.LocalDesignSystem
 import application.poligraf.ui.theme.tokens.DimenToken
 
@@ -34,6 +41,7 @@ fun AnalyzerRenderer(
 ) {
     val designSystem = LocalDesignSystem.current
     val state by viewModel.state.collectAsState()
+    val isReviewMode = state.mode == AnalyzerMode.REVIEW
 
     val focusManager = LocalFocusManager.current
 
@@ -49,13 +57,15 @@ fun AnalyzerRenderer(
                 indication = null
             ) {
                 focusManager.clearFocus()
+                if (isReviewMode) {
+                    viewModel.toggleTitleEdit(false)
+                }
             }
     ) {
         // 0. Ambient Background Glow (Full screen, no padding)
         AmbientGlow(
-            isAnomalous = state.isDisplayAnomalous,
-            jitter = state.displayFrame?.jitterScore ?: 0f,
-            pitch = state.displayFrame?.pitchScore ?: 0f
+            signalLevel = state.signalLevel,
+            dominantMetric = state.dominantMetric
         )
 
         LazyColumn(
@@ -69,42 +79,48 @@ fun AnalyzerRenderer(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(designSystem.dimen(DimenToken.SPACING_MEDIUM)),
         ) {
-            // 1. Consolidated Header (Synthesis Status + Skin Switcher)
-            item {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    InterpretationOverlay(
-                        interpretation = state.activeInterpretation,
-                        isSynthesized = state.isCalibrated,
-                        synthesisProgress = state.calibrationProgress,
-                        modifier = Modifier.weight(1f)
+            // If Review Mode: Title & Summary Card
+            if (isReviewMode) {
+                item {
+                    HistoryEditableTitle(
+                        title = state.session?.title ?: "",
+                        isEditing = state.isTitleEditing,
+                        onTitleChange = viewModel::onTitleChange,
+                        onToggleEdit = { isEditing ->
+                            viewModel.toggleTitleEdit(isEditing)
+                            if (!isEditing) focusManager.clearFocus()
+                        }
                     )
+                }
 
-                    SkinSwitcher(
-                        currentSkin = state.currentSkin,
-                        onSkinChange = viewModel::onSkinChange,
-                        showLabel = true
+                item {
+                    SessionSummaryCard(
+                        volatilityStatus = state.volatilityStatus,
+                        volatilityColor = state.volatilityColor,
+                        anomalyCount = state.anomalyCount,
+                        durationText = state.durationText,
+                        conclusionText = state.conclusionText,
+                        conclusionColor = state.conclusionColor
                     )
                 }
             }
 
-            // 2. Core Analyzer Blocks
+            // 1. Core Analyzer Blocks (Unified Header, Visualizer, Timeline, Controls)
             item {
                 AnalyzerCoreView(
                     state = state,
                     onSeek = viewModel::onSeek,
-                    showControls = true,
+                    showControls = !isReviewMode,
                     onStart = viewModel::onStart,
-                    onPauseResume = viewModel::onPauseResume
+                    onPauseResume = viewModel::onPauseResume,
+                    onSkinChange = viewModel::onSkinChange,
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
 
-            // 3. Notes Field
+            // 2. Notes Field
             item {
-                application.poligraf.ui.features.history.detail.HistoryNotesField(
+                HistoryNotesField(
                     notes = state.currentNoteText,
                     onNotesChange = viewModel::onNotesChange,
                     onAddNote = {
@@ -114,13 +130,13 @@ fun AnalyzerRenderer(
                 )
             }
 
-            // 4. Notes List
+            // 3. Notes List
             items(
                 count = state.notes.size,
                 key = { index -> state.notes.reversed()[index].id }
             ) { index ->
                 val note = state.notes.reversed()[index]
-                application.poligraf.ui.features.history.detail.SessionNoteItem(
+                SessionNoteItem(
                     timestampText = note.timestampText,
                     text = note.text,
                     markerColor = note.markerColor,
@@ -128,6 +144,17 @@ fun AnalyzerRenderer(
                     onDelete = { viewModel.onDeleteNote(note.id) }
                 )
             }
+
+            if (isReviewMode) {
+                item {
+                    Spacer(
+                        Modifier
+                            .windowInsetsPadding(WindowInsets.ime)
+                            .height(designSystem.dimen(DimenToken.SPACING_LARGE))
+                    )
+                }
+            }
         }
     }
 }
+

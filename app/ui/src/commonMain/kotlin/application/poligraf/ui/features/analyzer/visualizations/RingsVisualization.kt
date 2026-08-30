@@ -25,11 +25,11 @@ fun RingsVisualization(
         val center = Offset(size.width / 2, size.height / 2)
         val maxRadius = size.minDimension / 2.2f
         
-        val values = listOf(jitterLevel, pitchLevel, rmsLevel)
+        val values = listOf(pitchLevel, rmsLevel, jitterLevel)
         val colors = listOf(
-            designSystem.color(ColorToken.CHART_JITTER),
             designSystem.color(ColorToken.CHART_PITCH),
-            designSystem.color(ColorToken.CHART_RMS)
+            designSystem.color(ColorToken.CHART_RMS),
+            designSystem.color(ColorToken.CHART_JITTER)
         )
         
         values.forEachIndexed { index, value ->

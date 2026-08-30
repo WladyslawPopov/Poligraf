@@ -65,11 +65,11 @@ fun VoiceRibbonVisualization(
                 cornerRadius = androidx.compose.ui.geometry.CornerRadius(8.dp.toPx())
             )
 
-            val factors = listOf(jitterLevel, pitchLevel, rmsLevel)
+            val factors = listOf(pitchLevel, rmsLevel, jitterLevel)
             val colors = listOf(
-                designSystem.color(ColorToken.CHART_JITTER),
                 designSystem.color(ColorToken.CHART_PITCH),
-                designSystem.color(ColorToken.CHART_RMS)
+                designSystem.color(ColorToken.CHART_RMS),
+                designSystem.color(ColorToken.CHART_JITTER)
             )
             
             factors.forEachIndexed { index, factor ->

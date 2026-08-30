@@ -31,11 +31,11 @@ fun EqualizerVisualization(
             val spacing = 64.dp.toPx()
             val centerX = size.width / 2
             
-            val values = listOf(jitterLevel, pitchLevel, rmsLevel)
+            val values = listOf(pitchLevel, rmsLevel, jitterLevel)
             val colorPairs = listOf(
-                designSystem.color(ColorToken.CHART_JITTER) to designSystem.color(ColorToken.CHART_JITTER_ALARM),
                 designSystem.color(ColorToken.CHART_PITCH) to designSystem.color(ColorToken.CHART_PITCH_ALARM),
-                designSystem.color(ColorToken.CHART_RMS) to designSystem.color(ColorToken.CHART_RMS_ALARM)
+                designSystem.color(ColorToken.CHART_RMS) to designSystem.color(ColorToken.CHART_RMS_ALARM),
+                designSystem.color(ColorToken.CHART_JITTER) to designSystem.color(ColorToken.CHART_JITTER_ALARM)
             )
             
             values.forEachIndexed { index, value ->

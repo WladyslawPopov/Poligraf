@@ -9,7 +9,6 @@ import androidx.compose.ui.Modifier
 import application.poligraf.presentation.analyzer.AnalyzerContent
 import application.poligraf.presentation.debug.DebugContent
 import application.poligraf.presentation.history.HistoryContent
-import application.poligraf.presentation.history_detail.HistoryDetailContent
 import application.poligraf.presentation.main.MainContent
 import application.poligraf.presentation.root.RootComponent
 import application.poligraf.presentation.theme.PoligrafTheme
@@ -40,9 +39,6 @@ fun App(root: RootComponent) {
                         is RootComponent.Child.HistoryChild ->
                             screen.component.model.subscribeAsState().value.backHandler
 
-                        is RootComponent.Child.HistoryDetailChild ->
-                            screen.component.model.subscribeAsState().value.backHandler
-
                         is RootComponent.Child.AnalyzerChild ->
                             screen.component.model.subscribeAsState().value.backHandler
                     },
@@ -64,10 +60,6 @@ fun App(root: RootComponent) {
                         HistoryContent(screen.component)
                     }
 
-                    is RootComponent.Child.HistoryDetailChild -> {
-                        HistoryDetailContent(screen.component)
-                    }
-
                     is RootComponent.Child.AnalyzerChild -> {
                         AnalyzerContent(screen.component)
                     }
@@ -76,3 +68,4 @@ fun App(root: RootComponent) {
         }
     }
 }
+
