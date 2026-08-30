@@ -17,8 +17,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import application.poligraf.ui.components.buttons.AppIconButton
+import application.poligraf.ui.components.status.StatusDot
 import application.poligraf.ui.components.text.TypingText
-import application.poligraf.ui.foundation.actions.WidgetAction
 import application.poligraf.ui.foundation.models.AppToolbar
 import application.poligraf.ui.theme.DesignSystem
 import application.poligraf.ui.theme.tokens.ColorToken
@@ -29,10 +29,10 @@ fun StandardToolbar(
     toolbar: AppToolbar,
     designSystem: DesignSystem,
     onNavigationClick: () -> Unit = {},
-    onAction: (WidgetAction) -> Unit = {},
+    onAction: (Any) -> Unit = {},
     isTyping: Boolean = false,
     durationText: String? = null,
-    isRecording: Boolean = false,
+    isAnalyzing: Boolean = false,
     isProcessing: Boolean = false,
     showIndicator: Boolean = true
 ) {
@@ -62,14 +62,10 @@ fun StandardToolbar(
                         modifier = Modifier.padding(top = 2.dp)
                     ) {
                         if (showIndicator) {
-                            Box(
-                                modifier = Modifier
-                                    .size(8.dp)
-                                    .clip(CircleShape)
-                                    .background(
-                                        if (isRecording) designSystem.color(ColorToken.STATE_SUCCESS)
-                                        else designSystem.color(ColorToken.STATE_ERROR)
-                                    )
+                            StatusDot(
+                                isAnalyzing = isAnalyzing,
+                                size = 8.dp,
+                                pulse = true
                             )
                         }
                         Text(
@@ -95,7 +91,7 @@ fun StandardToolbar(
         },
         actions = {
             toolbar.trailingActions.forEach { actionItem ->
-                val isActionEnabled = !isRecording && !isProcessing // Disable delete/save actions during active recording or processing
+                val isActionEnabled = !isAnalyzing && !isProcessing // Disable delete/save actions during active analyzing or processing
                 
                 AppIconButton(
                     icon = actionItem.icon,

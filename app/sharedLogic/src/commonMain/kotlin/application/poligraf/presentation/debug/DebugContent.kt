@@ -12,7 +12,6 @@ import application.poligraf.ui.components.layout.AppScaffold
 import application.poligraf.ui.components.layout.GlassSegmentedTabRow
 import application.poligraf.presentation.debug.ui.tabs.LabsTab
 import application.poligraf.presentation.debug.ui.tabs.StatesTab
-import application.poligraf.presentation.debug.ui.tabs.WidgetsTab
 import application.poligraf.ui.components.icons.AppIcon
 import application.poligraf.presentation.debug.data.DebugTab
 import application.poligraf.ui.theme.LocalDesignSystem
@@ -71,7 +70,6 @@ fun DebugContent(component: DebugComponent) {
                     labelProvider = { tab ->
                         when (tab) {
                             DebugTab.STATES -> "States"
-                            DebugTab.WIDGETS -> "Widgets"
                             DebugTab.LABS -> "Labs"
                         }
                     }
@@ -86,7 +84,6 @@ fun DebugContent(component: DebugComponent) {
         ) { page ->
             when (DebugTab.entries[page]) {
                 DebugTab.STATES -> StatesTab(viewModel, padding)
-                DebugTab.WIDGETS -> WidgetsTab(state.widgets, viewModel, padding)
                 DebugTab.LABS -> LabsTab()
             }
         }

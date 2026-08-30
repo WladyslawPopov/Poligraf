@@ -18,6 +18,9 @@ internal class PreferencesRepositoryImpl(
     private val _markerShape = MutableStateFlow(loadMarkerShape())
     override val markerShape: Flow<MarkerShape> = _markerShape.asStateFlow()
 
+    private val _isDarkMode = MutableStateFlow(loadDarkMode())
+    override val isDarkMode: Flow<Boolean> = _isDarkMode.asStateFlow()
+
     override fun setDefaultSkin(skin: AnalyzerSkin) {
         settingsRepository.setString(KEY_DEFAULT_SKIN, skin.name)
         _defaultSkin.value = skin
@@ -37,6 +40,11 @@ internal class PreferencesRepositoryImpl(
         _markerShape.value = shape
     }
 
+    override fun setDarkMode(isDark: Boolean) {
+        settingsRepository.setBoolean(KEY_DARK_MODE, isDark)
+        _isDarkMode.value = isDark
+    }
+
     private fun loadMarkerShape(): MarkerShape {
         val name = settingsRepository.getString(KEY_MARKER_SHAPE, MarkerShape.CIRCLE.name)
         return try {
@@ -46,8 +54,13 @@ internal class PreferencesRepositoryImpl(
         }
     }
 
+    private fun loadDarkMode(): Boolean {
+        return settingsRepository.getBoolean(KEY_DARK_MODE, true)
+    }
+
     companion object {
         private const val KEY_DEFAULT_SKIN = "pref_default_skin"
         private const val KEY_MARKER_SHAPE = "pref_marker_shape"
+        private const val KEY_DARK_MODE = "pref_dark_mode"
     }
 }

@@ -31,7 +31,8 @@ internal class HistoryRepositoryImpl(
                         notes = item.notes ?: "",
                         duration = item.duration,
                         isCompleted = item.isCompleted,
-                        anomalyCount = item.anomalyCount.toInt()
+                        anomalyCount = item.anomalyCount.toInt(),
+                        noteCount = item.noteCount.toInt()
                     )
                 }
             }
@@ -51,7 +52,8 @@ internal class HistoryRepositoryImpl(
                         notes = it.notes ?: "",
                         duration = it.duration,
                         isCompleted = it.isCompleted,
-                        anomalyCount = 0
+                        anomalyCount = 0,
+                        noteCount = 0
                     )
                 }
             }

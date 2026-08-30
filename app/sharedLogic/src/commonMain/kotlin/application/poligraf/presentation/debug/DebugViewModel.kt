@@ -9,11 +9,9 @@ import application.poligraf.ui.theme.tokens.ColorToken
 import application.poligraf.ui.theme.tokens.StringToken
 import application.poligraf.ui.foundation.actions.DebugAction
 import application.poligraf.ui.foundation.actions.NavigationAction
-import application.poligraf.ui.foundation.actions.WidgetAction
 import application.poligraf.ui.foundation.types.BackgroundMode
 import application.poligraf.ui.foundation.types.ToastType
 import application.poligraf.ui.foundation.models.AppBackground
-import application.poligraf.ui.foundation.models.UiWidget
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -72,21 +70,6 @@ class DebugViewModel(
                 }
             }
         }.launchIn(scope)
-
-        _state.update { 
-            it.copy(widgets = createMockWidgets())
-        }
-    }
-
-    private fun createMockWidgets(): List<UiWidget> {
-        return listOf(
-            UiWidget.WelcomeText(
-                id = "debug_welcome",
-                textToken = welcomeData.first,
-                emoji = welcomeData.second,
-                colorToken = ColorToken.ACCENT_PRIMARY
-            )
-        )
     }
 
     fun setTab(tab: DebugTab) {
@@ -97,9 +80,9 @@ class DebugViewModel(
         navigateBack()
     }
 
-    fun onWidgetAction(action: WidgetAction) {
+    fun onAction(action: Any) {
         when (action) {
-            NavigationAction.History -> {
+            is NavigationAction.History -> {
                 navigateToMain()
             }
             DebugAction.TriggerLoading -> {

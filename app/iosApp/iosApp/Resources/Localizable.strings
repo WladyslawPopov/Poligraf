@@ -1,7 +1,7 @@
 "app_name" = "Poligraf";
 "welcome_text" = "Welcome to Poligraf 🎙️";
-"subject_new_title" = "New Recording";
-"subject_new_button" = "Start\nRecording ⏺️";
+"subject_new_title" = "New Analysis";
+"subject_new_button" = "Start\nAnalysis ⏺️";
 "drawer_settings" = "Settings";
 "drawer_dark_mode" = "Dark Mode";
 
@@ -19,7 +19,7 @@
 "toast_auth_failed" = "We couldn't verify your account. Please sign in again.";
 "toast_generic_warning" = "Heads up! Please double-check before continuing.";
 
-"record" = "Record";
+"record" = "Analyze";
 "analysis_score" = "Analysis Score";
 "unknown_widget" = "Unknown Widget";
 "menu" = "Menu";
@@ -37,13 +37,13 @@
 "tab_labs" = "Labs";
 "open_debug_sandbox" = "Debug Sandbox";
 "labs_empty_message" = "Experimental Features will appear here";
-"recording_screen_placeholder" = "Make your first record";
-"recording_screen_title" = "Recording";
-"delete_recording_confirmation" = "Are you sure you want to delete this recording?";
-"action_delete_recording" = "Delete Recording";
+"recording_screen_placeholder" = "Make your first analysis";
+"recording_screen_title" = "Analyzing";
+"delete_recording_confirmation" = "Are you sure you want to delete this analysis?";
+"action_delete_recording" = "Delete Analysis";
 "action_selected" = "selected";
 "section_templates" = "Templates";
-"section_recordings" = "Recordings";
+"section_recordings" = "Analyses";
 
 "drawer_footer_title" = "Poligraf System";
 "drawer_footer_subtitle" = "Operational v";
@@ -57,10 +57,10 @@
 "recorder_save" = "Save";
 "recorder_edit" = "Edit";
 "recorder_upload_file" = "Upload audio from file";
-"recorder_trim_mode" = "Trim recording";
-"recorder_history_title" = "All Recordings";
+"recorder_trim_mode" = "Trim analysis";
+"recorder_history_title" = "All Analyses";
 "recorder_history_select" = "Select";
-"recorder_history_empty" = "Make your first\nrecord 🎙️";
+"recorder_history_empty" = "Make your first\nanalysis 🎙️";
 "recorder_today" = "Today";
 "recorder_cancel" = "Cancel";
 "recorder_trim_apply" = "Apply";

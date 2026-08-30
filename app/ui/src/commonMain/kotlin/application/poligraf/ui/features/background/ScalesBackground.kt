@@ -31,10 +31,11 @@ fun ScalesBackground(
     modifier: Modifier = Modifier
 ) {
     val designSystem = LocalDesignSystem.current
+    val isDark = designSystem.isDark
     
     val speedMultiplier = when (config.mode) {
         BackgroundMode.PROCESSING -> 5.0f
-        BackgroundMode.RECORDING -> 0.4f
+        BackgroundMode.ANALYZING -> 0.4f
         BackgroundMode.ERROR -> 0.2f
         BackgroundMode.SUCCESS -> 1.5f
         else -> 1.0f
@@ -49,7 +50,7 @@ fun ScalesBackground(
         )
     )
 
-    val pulseScale by if (config.mode == BackgroundMode.RECORDING) {
+    val pulseScale by if (config.mode == BackgroundMode.ANALYZING) {
         infiniteTransition.animateFloat(
             initialValue = 1f,
             targetValue = 1.2f,
@@ -68,7 +69,7 @@ fun ScalesBackground(
     val energyColorToken = when (config.mode) {
         BackgroundMode.ERROR -> ColorToken.STATE_ERROR
         BackgroundMode.SUCCESS -> ColorToken.STATE_SUCCESS
-        BackgroundMode.RECORDING -> ColorToken.ACCENT_ENERGY
+        BackgroundMode.ANALYZING -> ColorToken.ACCENT_ENERGY
         BackgroundMode.PROCESSING -> ColorToken.STATE_WARNING
         BackgroundMode.WAITING -> ColorToken.ACCENT_ENERGY
         else -> config.energyColor
@@ -80,10 +81,14 @@ fun ScalesBackground(
 
     val successColor: Color = designSystem.color(ColorToken.STATE_SUCCESS)
     val errorColor: Color = designSystem.color(ColorToken.STATE_ERROR)
-    val recordingBaseColor: Color = designSystem.color(ColorToken.ACCENT_ENERGY)
+    val analyzingBaseColor: Color = designSystem.color(ColorToken.ACCENT_ENERGY)
 
     val blurRadius by animateFloatAsState(
-        targetValue = if (config.mode == BackgroundMode.ERROR) config.blurRadius * 1.5f else config.blurRadius,
+        targetValue = if (config.mode == BackgroundMode.ERROR) {
+            config.blurRadius * 1.5f
+        } else {
+            if (isDark) config.blurRadius else config.blurRadius * 0.5f
+        },
         animationSpec = tween(600)
     )
     
@@ -124,13 +129,18 @@ fun ScalesBackground(
                     val rectTopLeft = Offset(x - halfRectW, y - halfRectH)
 
                     val finalEnergyColor = when (config.mode) {
-                        BackgroundMode.RECORDING -> {
+                        BackgroundMode.ANALYZING -> {
                             val pulse = (sin(distMask * 5f - time * 1.5f) * 0.5f + 0.5f).pow(10f)
-                            lerp(recordingBaseColor, errorColor, pulse.coerceIn(0f, 1f))
+                            lerp(analyzingBaseColor, errorColor, pulse.coerceIn(0f, 1f))
                         }
                         BackgroundMode.WAITING -> {
-                            val mix = (sin(x * 0.01f + time) * 0.5f + 0.5f)
-                            lerp(successColor, errorColor, mix)
+                            if (isDark) {
+                                val mix = (sin(x * 0.01f + time) * 0.5f + 0.5f)
+                                lerp(successColor, errorColor, mix)
+                            } else {
+                                // In light mode, use a much softer single color pulse
+                                energyColor
+                            }
                         }
                         else -> energyColor
                     }
@@ -141,12 +151,12 @@ fun ScalesBackground(
                         topLeft = rectTopLeft,
                         size = rectSize,
                         cornerRadius = CornerRadius(cornerRadiusPx, cornerRadiusPx),
-                        alpha = 0.3f
+                        alpha = if (isDark) 0.3f else 0.15f
                     )
 
                     // Draw Energy
                     drawRoundRect(
-                        color = finalEnergyColor.copy(alpha = energyIntensity * 0.4f * (0.3f + wave * 0.7f)),
+                        color = finalEnergyColor.copy(alpha = energyIntensity * (if (isDark) 0.4f else 0.2f) * (0.3f + wave * 0.7f)),
                         topLeft = rectTopLeft,
                         size = rectSize,
                         cornerRadius = CornerRadius(cornerRadiusPx, cornerRadiusPx)

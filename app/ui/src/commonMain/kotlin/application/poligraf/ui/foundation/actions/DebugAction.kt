@@ -1,6 +1,6 @@
 package application.poligraf.ui.foundation.actions
 
-sealed class DebugAction : WidgetAction() {
+sealed class DebugAction {
     data object TriggerLoading : DebugAction()
     data object TriggerErrorBlocking : DebugAction()
     data object TriggerErrorNonBlocking : DebugAction()

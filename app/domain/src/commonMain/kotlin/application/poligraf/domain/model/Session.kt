@@ -10,5 +10,6 @@ data class Session(
     val notes: String,
     val duration: Long,
     val isCompleted: Boolean,
-    val anomalyCount: Int = 0
+    val anomalyCount: Int = 0,
+    val noteCount: Int = 0
 )

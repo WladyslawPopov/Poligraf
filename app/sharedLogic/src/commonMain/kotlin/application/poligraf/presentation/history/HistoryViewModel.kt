@@ -5,7 +5,7 @@ import application.poligraf.engine.utils.convertDateWithMinutes
 import application.poligraf.presentation.base.BaseViewModel
 import application.poligraf.presentation.history.data.HistoryState
 import application.poligraf.presentation.history.data.SessionUiModel
-import application.poligraf.ui.foundation.actions.WidgetAction
+import application.poligraf.ui.foundation.actions.HistoryAction
 import application.poligraf.ui.foundation.models.AppBackground
 import application.poligraf.ui.foundation.models.AppToolbar
 import application.poligraf.ui.foundation.models.ToolbarAction
@@ -47,6 +47,7 @@ class HistoryViewModel(
                         dateText = (session.timestamp / 1000).convertDateWithMinutes(),
                         durationMillis = session.duration,
                         markerCount = session.anomalyCount,
+                        noteCount = session.noteCount,
                         timestamp = session.timestamp
                     )
                 }
@@ -95,11 +96,11 @@ class HistoryViewModel(
     private fun createSelectionToolbar(count: Int) = AppToolbar(
         titleToken = StringToken.HISTORY,
         navigationIcon = IconToken.CLOSE,
-        navigationAction = WidgetAction.ClearSelection,
+        navigationAction = HistoryAction.ClearSelection,
         trailingActions = listOf(
             ToolbarAction(
                 icon = IconToken.DELETE,
-                action = WidgetAction.DeleteSelected,
+                action = HistoryAction.DeleteSelected,
                 tint = ColorToken.STATE_ERROR
             )
         )
@@ -141,19 +142,19 @@ class HistoryViewModel(
         updateStateWithSelection(currentSelected)
     }
 
-    fun onAction(action: WidgetAction) {
+    fun onAction(action: Any) {
         when (action) {
-            is WidgetAction.ClearSelection -> {
+            is HistoryAction.ClearSelection -> {
                 updateStateWithSelection(emptySet())
             }
-            is WidgetAction.DeleteSelected -> {
+            is HistoryAction.DeleteSelected -> {
                 val idsToDelete = _state.value.selectedIds
                 scope.launch {
                     idsToDelete.forEach { historyRepository.deleteSession(it) }
                     updateStateWithSelection(emptySet())
                 }
             }
-            is WidgetAction.ToggleSelection -> toggleSelection(action.id)
+            is HistoryAction.ToggleSelection -> toggleSelection(action.id)
             else -> {}
         }
     }
@@ -166,7 +167,7 @@ class HistoryViewModel(
 
     fun onBack() {
         if (_state.value.isSelectionMode) {
-            onAction(WidgetAction.ClearSelection)
+            onAction(HistoryAction.ClearSelection)
         } else {
             navigateBack()
         }

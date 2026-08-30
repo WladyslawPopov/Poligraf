@@ -21,9 +21,10 @@
     <string name="debug_trigger_error_blocking">Blocking Error</string>
     <string name="debug_trigger_success_toast">Test Success Notification</string>
 
-    <string name="recording_screen_placeholder">Make your first record</string>
-    <string name="recording_screen_title">Recording</string>
-    <string name="active_session">Session active</string>
+    <string name="analyzing_screen_placeholder">Make your first analysis</string>
+    <string name="analyzing_screen_title">Analyzing</string>
+    <string name="active_analysis">Analysis active</string>
+    <string name="analyzing_synthesizing">Synthesizing universe acoustics…</string>
     <string name="skin_state_map">State Map</string>
     <string name="skin_voice_ribbon">Voice Ribbon</string>
     <string name="skin_equalizer">Equalizer</string>
@@ -60,6 +61,7 @@
     <!-- History & Reports -->
     <string name="history_empty">No saved sessions yet</string>
     <string name="history_item_markers">%d markers</string>
+    <string name="history_item_notes">%d notes</string>
     <string name="history_summary_volatility">Voice volatility</string>
     <string name="history_summary_duration">Duration</string>
     <string name="history_summary_markers">Markers</string>
@@ -69,6 +71,7 @@
     <string name="conclusion_positive">Reliable</string>
     <string name="conclusion_negative">Unreliable</string>
     <string name="conclusion_neutral">Uncertain</string>
+    <string name="conclusion_unreliable">Unreliable (Insufficient Data)</string>
     <string name="label_notes">Notes</string>
     <string name="notes_hint">Add a note...</string>
     <string name="history_detail_title">Session Report</string>

@@ -24,15 +24,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import application.poligraf.presentation.history_detail.HistoryDetailViewModel
-import application.poligraf.ui.features.history.HistoryEditableTitle
-import application.poligraf.ui.features.history.HistoryNotesField
-import application.poligraf.ui.features.history.SessionNoteItem
-import application.poligraf.ui.features.history.SessionSummaryCard
-import application.poligraf.ui.features.recorder.AmbientGlow
-import application.poligraf.ui.features.recorder.AnomalyTimeline
-import application.poligraf.ui.features.recorder.MetricRow
-import application.poligraf.ui.features.recorder.SkinSwitcher
-import application.poligraf.ui.features.recorder.VisualizationContent
+import application.poligraf.ui.features.history.detail.HistoryEditableTitle
+import application.poligraf.ui.features.history.detail.HistoryNotesField
+import application.poligraf.ui.features.history.detail.SessionNoteItem
+import application.poligraf.ui.features.history.detail.SessionSummaryCard
+import application.poligraf.ui.features.analyzer.components.AmbientGlow
+import application.poligraf.ui.features.analyzer.parts.AnalyzerCoreView
 import application.poligraf.ui.theme.LocalDesignSystem
 import application.poligraf.ui.theme.tokens.DimenToken
 
@@ -45,11 +42,6 @@ fun HistoryDetailRenderer(
     val designSystem = LocalDesignSystem.current
     val state by viewModel.state.collectAsState()
     val analyzerState = state.analyzerState
-
-    val displayFrame = analyzerState.displayFrame
-    val displayJitter = displayFrame?.jitter ?: 0f
-    val displayPitch = displayFrame?.pitch ?: 0f
-    val displayRms = displayFrame?.rms ?: 0f
 
     val scrollState = rememberScrollState()
     val focusManager = LocalFocusManager.current
@@ -67,19 +59,22 @@ fun HistoryDetailRenderer(
     ) {
         AmbientGlow(
             isAnomalous = analyzerState.isDisplayAnomalous,
-            jitter = displayJitter,
-            pitch = displayPitch
+            jitter = analyzerState.displayFrame?.jitterScore ?: 0f,
+            pitch = analyzerState.displayFrame?.pitchScore ?: 0f
         )
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(scrollState)
-                .padding(horizontal = designSystem.dimen(DimenToken.SPACING_LARGE)),
+                .padding(
+                    top = contentPadding.calculateTopPadding(),
+                    bottom = contentPadding.calculateBottomPadding() + designSystem.dimen(DimenToken.SPACING_XL),
+                    start = designSystem.dimen(DimenToken.SPACING_LARGE),
+                    end = designSystem.dimen(DimenToken.SPACING_LARGE)
+                ),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(Modifier.height(contentPadding.calculateTopPadding()))
-
             HistoryEditableTitle(
                 title = state.session?.title ?: "",
                 isEditing = state.isTitleEditing,
@@ -103,44 +98,12 @@ fun HistoryDetailRenderer(
 
             Spacer(Modifier.height(designSystem.dimen(DimenToken.SPACING_LARGE)))
 
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(300.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                VisualizationContent(
-                    skin = analyzerState.currentSkin,
-                    jitter = analyzerState.jitterLevel,
-                    pitch = analyzerState.pitchLevel,
-                    rms = analyzerState.rmsLevel,
-                    isPaused = true
-                )
-
-                SkinSwitcher(
-                    currentSkin = analyzerState.currentSkin,
-                    onSkinChange = viewModel::onSkinChange,
-                    showLabel = true,
-                    modifier = Modifier.align(Alignment.TopEnd).padding(8.dp)
-                )
-            }
-
-            Spacer(Modifier.height(designSystem.dimen(DimenToken.SPACING_MEDIUM)))
-
-            MetricRow(
-                jitter = displayJitter,
-                pitch = displayPitch,
-                rms = displayRms
-            )
-
-            Spacer(Modifier.height(designSystem.dimen(DimenToken.SPACING_LARGE)))
-
-            AnomalyTimeline(
-                markers = analyzerState.timelineMarkers,
-                currentDurationMillis = analyzerState.currentDurationMillis,
-                seekPositionMillis = analyzerState.seekPositionMillis,
-                isPaused = true,
-                onSeek = viewModel::onSeek
+            // Core Analyzer (Unified component)
+            AnalyzerCoreView(
+                state = analyzerState,
+                onSeek = viewModel::onSeek,
+                showControls = false,
+                modifier = Modifier.fillMaxWidth()
             )
 
             Spacer(Modifier.height(designSystem.dimen(DimenToken.SPACING_LARGE)))

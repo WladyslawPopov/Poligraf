@@ -9,15 +9,14 @@ import application.poligraf.engine.config.AppConfig
 import application.poligraf.engine.device.AppPermission
 import application.poligraf.engine.device.PermissionManager
 import application.poligraf.presentation.base.BaseViewModel
-import application.poligraf.presentation.main.data.MainBottomSheetContent
 import application.poligraf.presentation.main.data.MainState
+import application.poligraf.ui.foundation.actions.AnalyzingAction
 import application.poligraf.ui.foundation.actions.NavigationAction
-import application.poligraf.ui.foundation.actions.RecordingAction
-import application.poligraf.ui.foundation.actions.WidgetAction
 import application.poligraf.ui.foundation.models.AppBackground
 import application.poligraf.ui.foundation.models.AppToolbar
+import application.poligraf.ui.foundation.models.MainAnalyzeBtnModel
+import application.poligraf.ui.foundation.models.MainWelcomeModel
 import application.poligraf.ui.foundation.models.ToolbarAction
-import application.poligraf.ui.foundation.models.UiWidget
 import application.poligraf.ui.theme.tokens.ColorToken
 import application.poligraf.ui.theme.tokens.IconToken
 import application.poligraf.ui.theme.tokens.StringToken
@@ -73,18 +72,12 @@ class MainViewModel(
                 contentColor = ColorToken.TEXT_PRIMARY
             ),
             appConfig = appConfig,
-            widgets = listOf(
-                UiWidget.WelcomeText(
-                    id = "main_welcome",
-                    textToken = welcomeData.first,
-                    emoji = welcomeData.second,
-                    colorToken = ColorToken.TEXT_PRIMARY
-                ),
-                UiWidget.AnalyzeBtn(
-                    id = "analyze_btn",
-                    action = RecordingAction.StartNew
-                )
-            )
+            welcomeWidget = MainWelcomeModel(
+                textToken = welcomeData.first,
+                emoji = welcomeData.second,
+                colorToken = ColorToken.TEXT_PRIMARY
+            ),
+            analyzeBtn = MainAnalyzeBtnModel()
         )
     )
     val state: StateFlow<MainState> = _state.asStateFlow()
@@ -113,13 +106,11 @@ class MainViewModel(
         _state.update {
             if (isOpen) {
                 it.copy(
-                    bottomSheetState = true,
-                    bottomSheetContent = MainBottomSheetContent.SETTINGS
+                    bottomSheetState = true
                 )
             } else {
                 it.copy(
-                    bottomSheetState = false,
-                    bottomSheetContent = MainBottomSheetContent.NONE
+                    bottomSheetState = false
                 )
             }
         }
@@ -131,21 +122,22 @@ class MainViewModel(
         }
     }
 
-    fun onWidgetAction(action: WidgetAction) {
+    fun onAction(action: Any) {
         Napier.d { "Action triggered: $action" }
         when (action) {
             is NavigationAction.History -> navigateToHistory()
             is NavigationAction.Settings -> openSettings(!_state.value.bottomSheetState)
-            is RecordingAction.StartNew -> {
-                if (permissionManager.isGranted(AppPermission.RECORD_AUDIO)) {
-                    openAnalyzer(true)
-                } else {
-                    isRequestingPermission = true
-                    permissionManager.requestPermission(AppPermission.RECORD_AUDIO)
-                }
-            }
-
+            is AnalyzingAction.StartNew -> onAnalyzeClick()
             else -> {}
+        }
+    }
+
+    fun onAnalyzeClick() {
+        if (permissionManager.isGranted(AppPermission.RECORD_AUDIO)) {
+            openAnalyzer(true)
+        } else {
+            isRequestingPermission = true
+            permissionManager.requestPermission(AppPermission.RECORD_AUDIO)
         }
     }
 
@@ -156,8 +148,7 @@ class MainViewModel(
     fun closeBottomSheet() {
         _state.update {
             it.copy(
-                bottomSheetState = false,
-                bottomSheetContent = MainBottomSheetContent.NONE
+                bottomSheetState = false
             )
         }
     }

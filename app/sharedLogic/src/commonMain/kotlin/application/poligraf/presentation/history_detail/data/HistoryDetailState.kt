@@ -2,7 +2,7 @@ package application.poligraf.presentation.history_detail.data
 
 import androidx.compose.runtime.Stable
 import application.poligraf.domain.model.Session
-import application.poligraf.presentation.analyzer.data.AnalyzerState
+import application.poligraf.ui.foundation.state.AnalyzerState
 import application.poligraf.ui.foundation.models.AppBackground
 import application.poligraf.ui.foundation.models.AppToolbar
 import application.poligraf.ui.foundation.models.LayoutConfig
@@ -30,6 +30,7 @@ data class HistoryDetailState(
     
     val notes: List<SessionNoteUiModel> = emptyList(),
     val currentNoteText: String = "",
+    val averageConfidence: Float = 1.0f,
     
     val isTitleEditing: Boolean = false,
     val isSaving: Boolean = false

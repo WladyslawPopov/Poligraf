@@ -18,10 +18,18 @@ CREATE TABLE SessionFrame (
     pitch REAL NOT NULL,
     jitter REAL NOT NULL,
     stressScore REAL NOT NULL,
+    jitterScore REAL NOT NULL DEFAULT 0.0,
+    pitchScore REAL NOT NULL DEFAULT 0.0,
+    rmsScore REAL NOT NULL DEFAULT 0.0,
     isAnomaly INTEGER AS Boolean NOT NULL,
     isCalibrated INTEGER AS Boolean NOT NULL DEFAULT 1,
+    confidence REAL NOT NULL DEFAULT 1.0,
+    isCritical INTEGER AS Boolean NOT NULL DEFAULT 0,
     FOREIGN KEY(sessionId) REFERENCES SessionEntity(id) ON DELETE CASCADE
 );
+
+CREATE INDEX IF NOT EXISTS idx_session_frame_session_time ON SessionFrame(sessionId, timestamp);
+CREATE INDEX IF NOT EXISTS idx_session_frame_anomaly ON SessionFrame(sessionId, isAnomaly);
 
 -- Notes associated with a specific time in the session
 CREATE TABLE SessionNote (
@@ -40,7 +48,9 @@ INSERT OR REPLACE INTO SessionEntity(id, timestamp, title, notes, duration, isCo
 VALUES (?, ?, ?, ?, ?, ?);
 
 getAllSessions:
-SELECT s.*, (SELECT COUNT(DISTINCT timestamp / 1000) FROM SessionFrame f WHERE f.sessionId = s.id AND f.isAnomaly = 1) AS anomalyCount
+SELECT s.*,
+       (SELECT COUNT(DISTINCT timestamp / 1000) FROM SessionFrame f WHERE f.sessionId = s.id AND f.isAnomaly = 1) AS anomalyCount,
+       (SELECT COUNT(*) FROM SessionNote n WHERE n.sessionId = s.id) AS noteCount
 FROM SessionEntity s
 WHERE s.isCompleted = 1
 ORDER BY s.timestamp DESC;
@@ -65,8 +75,8 @@ SELECT COUNT(*) FROM SessionEntity;
 
 -- Frame Queries
 insertFrame:
-INSERT INTO SessionFrame(sessionId, timestamp, rms, pitch, jitter, stressScore, isAnomaly, isCalibrated)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+INSERT INTO SessionFrame(sessionId, timestamp, rms, pitch, jitter, stressScore, jitterScore, pitchScore, rmsScore, isAnomaly, isCalibrated, confidence, isCritical)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
 getFramesBySessionId:
 SELECT * FROM SessionFrame WHERE sessionId = ? ORDER BY timestamp ASC;

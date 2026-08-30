@@ -43,6 +43,7 @@ data class ErrorStrings(
 data class RecorderStrings(
     val title: String,
     val activeSession: String,
+    val synthesizing: String,
     val stateMap: String,
     val voiceRibbon: String,
     val equalizer: String,
@@ -77,6 +78,7 @@ data class DebugStrings(
 data class HistoryStrings(
     val empty: String,
     val itemMarkers: String,
+    val itemNotes: String,
     val summaryVolatility: String,
     val summaryDuration: String,
     val summaryMarkers: String,
@@ -86,6 +88,7 @@ data class HistoryStrings(
     val conclusionPositive: String,
     val conclusionNegative: String,
     val conclusionNeutral: String,
+    val conclusionUnreliable: String,
     val labelNotes: String,
     val notesHint: String,
     val detailTitle: String,

@@ -12,8 +12,6 @@ import application.poligraf.engine.network.internal.getKtorClient
 import application.poligraf.engine.settings.SettingsRepository
 import application.poligraf.engine.settings.SettingsRepositoryImpl
 import application.poligraf.engine.settings.common.getSettings
-import application.poligraf.engine.theme.ThemeManager
-import application.poligraf.engine.theme.ThemeManagerImpl
 import com.russhwolf.settings.Settings
 import io.ktor.client.HttpClient
 import org.koin.core.module.dsl.singleOf
@@ -21,9 +19,6 @@ import org.koin.dsl.bind
 import org.koin.dsl.module
 
 val engineModule = module {
-    // Theme
-    single<ThemeManager> { ThemeManagerImpl() }
-
     // Database
     single {
         val driver = createDriver()

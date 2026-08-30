@@ -1,8 +1,6 @@
 package application.poligraf.presentation.history.ui
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -11,12 +9,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import application.poligraf.presentation.history.data.HistoryState
 import application.poligraf.presentation.history.data.SessionUiModel
-import application.poligraf.ui.features.history.HistoryItem
+import application.poligraf.ui.components.containers.AppCard
+import application.poligraf.ui.features.history.list.HistoryItem
 import application.poligraf.ui.theme.LocalDesignSystem
 import application.poligraf.ui.theme.tokens.ColorToken
 import application.poligraf.ui.theme.tokens.DimenToken
@@ -84,21 +82,22 @@ private fun HistoryListItemWrapper(
         else -> Color.Transparent
     }
 
-    Box(
+    AppCard(
         modifier = Modifier
             .padding(horizontal = designSystem.dimen(DimenToken.SPACING_MEDIUM))
-            .clip(MaterialTheme.shapes.medium)
-            .background(backgroundColor)
-            .border(1.dp, borderColor, MaterialTheme.shapes.medium)
             .combinedClickable(
                 onClick = onClick,
                 onLongClick = onLongClick
-            )
+            ),
+        backgroundColor = backgroundColor,
+        borderColor = borderColor,
+        contentPadding = PaddingValues(designSystem.dimen(DimenToken.SPACING_MEDIUM))
     ) {
         HistoryItem(
             title = session.title,
             dateText = session.dateText,
-            markerCount = session.markerCount
+            markerCount = session.markerCount,
+            noteCount = session.noteCount
         )
     }
 }

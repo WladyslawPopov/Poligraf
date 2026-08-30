@@ -18,7 +18,7 @@ interface AnalyzerComponent {
 
     data class Model(
         val viewModel: AnalyzerViewModel,
-        val backHandler: BackHandler
+        val backHandler: BackHandler,
     )
 }
 
@@ -26,7 +26,7 @@ interface AnalyzerComponent {
 class DefaultAnalyzerComponent(
     componentContext: AppComponentContext,
     private val onNavigateToDetail: (String) -> Unit,
-    private val onNavigateBack: () -> Unit
+    private val onNavigateBack: () -> Unit,
 ) : AnalyzerComponent, AppComponentContext by componentContext, KoinComponent {
 
     private val analyzerViewModel = viewModel("analyzerViewModel") {
@@ -34,7 +34,6 @@ class DefaultAnalyzerComponent(
             repository = get(),
             historyRepository = get(),
             preferencesRepository = get(),
-            appStrings = get()
         )
     }
 

@@ -37,6 +37,7 @@ fun rememberAppUIStrings(provider: IAppStrings): AppStrings {
         recorder = RecorderStrings(
             title = stringResource(provider.recorder.title),
             activeSession = stringResource(provider.recorder.activeSession),
+            synthesizing = stringResource(provider.recorder.synthesizing),
             stateMap = stringResource(provider.recorder.stateMap),
             voiceRibbon = stringResource(provider.recorder.voiceRibbon),
             equalizer = stringResource(provider.recorder.equalizer),
@@ -61,6 +62,7 @@ fun rememberAppUIStrings(provider: IAppStrings): AppStrings {
         history = HistoryStrings(
             empty = stringResource(provider.history.empty),
             itemMarkers = stringResource(provider.history.itemMarkers),
+            itemNotes = stringResource(provider.history.itemNotes),
             summaryVolatility = stringResource(provider.history.summaryVolatility),
             summaryDuration = stringResource(provider.history.summaryDuration),
             summaryMarkers = stringResource(provider.history.summaryMarkers),
@@ -70,6 +72,7 @@ fun rememberAppUIStrings(provider: IAppStrings): AppStrings {
             conclusionPositive = stringResource(provider.history.conclusionPositive),
             conclusionNegative = stringResource(provider.history.conclusionNegative),
             conclusionNeutral = stringResource(provider.history.conclusionNeutral),
+            conclusionUnreliable = stringResource(provider.history.conclusionUnreliable),
             labelNotes = stringResource(provider.history.labelNotes),
             notesHint = stringResource(provider.history.notesHint),
             detailTitle = stringResource(provider.history.detailTitle),

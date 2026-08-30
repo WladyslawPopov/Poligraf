@@ -24,8 +24,9 @@ internal object StringMapper {
             StringToken.ERROR_MESSAGE -> strings.errors.message
             StringToken.RETRY -> strings.errors.retry
 
-            StringToken.RECORDER_TITLE -> strings.recorder.title
+            StringToken.ANALYZER_TITLE -> strings.recorder.title
             StringToken.ACTIVE_SESSION -> strings.recorder.activeSession
+            StringToken.ANALYSIS_SYNTHESIZING -> strings.recorder.synthesizing
             StringToken.SKIN_STATE_MAP -> strings.recorder.stateMap
             StringToken.SKIN_VOICE_RIBBON -> strings.recorder.voiceRibbon
             StringToken.SKIN_EQUALIZER -> strings.recorder.equalizer
@@ -55,6 +56,7 @@ internal object StringMapper {
 
             StringToken.HISTORY_EMPTY -> strings.history.empty
             StringToken.HISTORY_ITEM_MARKERS -> strings.history.itemMarkers
+            StringToken.HISTORY_ITEM_NOTES -> strings.history.itemNotes
             StringToken.HISTORY_SUMMARY_VOLATILITY -> strings.history.summaryVolatility
             StringToken.HISTORY_SUMMARY_DURATION -> strings.history.summaryDuration
             StringToken.HISTORY_SUMMARY_MARKERS -> strings.history.summaryMarkers
@@ -64,6 +66,7 @@ internal object StringMapper {
             StringToken.CONCLUSION_POSITIVE -> strings.history.conclusionPositive
             StringToken.CONCLUSION_NEGATIVE -> strings.history.conclusionNegative
             StringToken.CONCLUSION_NEUTRAL -> strings.history.conclusionNeutral
+            StringToken.CONCLUSION_UNRELIABLE -> strings.history.conclusionUnreliable
             StringToken.LABEL_NOTES -> strings.history.labelNotes
             StringToken.NOTES_HINT -> strings.history.notesHint
             StringToken.HISTORY_DETAIL_TITLE -> strings.history.detailTitle

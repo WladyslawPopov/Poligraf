@@ -9,5 +9,6 @@ data class SessionUiModel(
     val dateText: String,
     val durationMillis: Long,
     val markerCount: Int,
+    val noteCount: Int,
     val timestamp: Long
 )

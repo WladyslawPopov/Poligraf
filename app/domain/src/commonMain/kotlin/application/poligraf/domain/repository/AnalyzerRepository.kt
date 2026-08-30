@@ -8,9 +8,11 @@ interface AnalyzerRepository {
     val currentFrame: StateFlow<AudioFrame?>
     val audioFrames: SharedFlow<AudioFrame>
     val isAnomalous: StateFlow<Boolean>
-    val isRecording: StateFlow<Boolean>
+    val isAnalyzing: StateFlow<Boolean>
     val isPaused: StateFlow<Boolean>
     val durationMillis: StateFlow<Long>
+    val calibrationProgress: StateFlow<Float>
+    val isCalibrated: StateFlow<Boolean>
     
     fun startAnalysis(title: String): String
     fun pauseAnalysis()
@@ -20,7 +22,7 @@ interface AnalyzerRepository {
      * Stops the analysis.
      * @param save If true, the session is marked as completed. If false, all draft data is deleted.
      */
-    fun stopAnalysis(save: Boolean)
+    suspend fun stopAnalysis(save: Boolean)
 
     /**
      * Checks if there is an unfinished session from a previous run.

@@ -7,16 +7,21 @@ import application.poligraf.domain.model.MarkerShape
 import application.poligraf.domain.repository.AnalyzerRepository
 import application.poligraf.domain.repository.HistoryRepository
 import application.poligraf.domain.repository.PreferencesRepository
+import application.poligraf.engine.dsp.AudioAnalyzer
 import application.poligraf.engine.io.audio.AudioConstants
 import application.poligraf.presentation.base.BaseViewModel
 import application.poligraf.presentation.history_detail.data.HistoryDetailState
 import application.poligraf.presentation.history_detail.data.SessionNoteUiModel
+import application.poligraf.presentation.analyzer.logic.AnalyzerProcessor
 import application.poligraf.ui.foundation.models.AnalyzerMarker
 import application.poligraf.ui.foundation.models.AppToolbar
+import application.poligraf.ui.foundation.state.AnalyzerState
 import application.poligraf.ui.theme.tokens.ColorToken
 import application.poligraf.ui.theme.tokens.StringToken
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @Stable
 class HistoryDetailViewModel(
@@ -33,7 +38,8 @@ class HistoryDetailViewModel(
                 titleToken = StringToken.HISTORY_DETAIL_TITLE,
                 backgroundColor = ColorToken.SURFACE_BACKGROUND,
                 contentColor = ColorToken.TEXT_PRIMARY
-            )
+            ),
+            analyzerState = AnalyzerState(isReadOnly = true)
         )
     )
     val state = _state.asStateFlow()
@@ -50,9 +56,15 @@ class HistoryDetailViewModel(
                 val updated = timelineMarkers.map { it.copy(shape = shape) }
                 timelineMarkers.clear()
                 timelineMarkers.addAll(updated)
-                _state.update {
-                    it.copy(
-                        analyzerState = it.analyzerState.copy(
+
+                val updatedNotes = _state.value.notes.map {
+                    if (it.markerColor != null) it.copy(markerShape = shape) else it
+                }
+
+                _state.update { s ->
+                    s.copy(
+                        notes = updatedNotes,
+                        analyzerState = s.analyzerState.copy(
                             timelineMarkers = timelineMarkers.toList()
                         )
                     )
@@ -62,9 +74,9 @@ class HistoryDetailViewModel(
 
         scope.launch {
             preferencesRepository.defaultSkin.collect { skin ->
-                _state.update {
-                    it.copy(
-                        analyzerState = it.analyzerState.copy(
+                _state.update { s ->
+                    s.copy(
+                        analyzerState = s.analyzerState.copy(
                             currentSkin = skin
                         )
                     )
@@ -78,36 +90,71 @@ class HistoryDetailViewModel(
                 _state.update { it.copy(session = session) }
                 if (session != null) {
                     _state.update {
-                        it.copy(durationText = formatDuration(session.duration))
+                        it.copy(durationText = AnalyzerProcessor.formatDuration(session.duration))
                     }
                 }
             }
         }
 
-        // Load frames and process summary
-        scope.launch {
-            val frames = analyzerRepository.getFramesForSession(sessionId)
+        // Load frames and process summary with POST-SESSION NORMALIZATION
+        scope.launch(Dispatchers.Default) {
+            val rawFrames = analyzerRepository.getFramesForSession(sessionId)
+            
+            // Re-process for higher accuracy using full session context
+            val globalBaseline = AudioAnalyzer.MovingBaseline(windowSize = rawFrames.size.coerceAtLeast(100))
+            rawFrames.forEach { globalBaseline.add(it.rms, it.pitch, it.jitter) }
+
+            val processedFrames = ArrayList<AudioFrame>(rawFrames.size)
+            val markers = mutableListOf<AnalyzerMarker>()
+
+            rawFrames.forEach { raw ->
+                val result = AudioAnalyzer.calculateAdvancedAnalysis(
+                    rms = raw.rms,
+                    pitch = raw.pitch,
+                    jitter = raw.jitter,
+                    baseline = globalBaseline
+                )
+                
+                val refinedFrame = raw.copy(
+                    stressScore = result.stressScore,
+                    jitterScore = result.jitterScore,
+                    pitchScore = result.pitchScore,
+                    rmsScore = result.rmsScore,
+                    isAnomaly = result.isAnomaly,
+                    confidence = result.confidence,
+                    isCritical = result.isCritical
+                )
+                
+                processedFrames.add(refinedFrame)
+                
+                val lastMarkerTime = markers.lastOrNull()?.timestampMillis ?: 0L
+                AnalyzerProcessor.createAnomalyMarker(refinedFrame, currentMarkerShape, lastMarkerTime)?.let {
+                    markers.add(it)
+                }
+            }
+
             frameHistory.clear()
-            frameHistory.addAll(frames)
-
+            frameHistory.addAll(processedFrames)
             timelineMarkers.clear()
-            frames.forEach { processAnomalyMarker(it) }
+            timelineMarkers.addAll(markers)
 
-            val markers = timelineMarkers.toList()
             val anomalyCount = markers.count { it.isAnomaly }
+            val avgConfidence = if (rawFrames.isNotEmpty()) rawFrames.map { it.confidence }.average().toFloat() else 0f
 
-            _state.update {
-                it.copy(
-                    analyzerState = it.analyzerState.copy(
+            _state.update { s ->
+                val lastTimestamp = frameHistory.lastOrNull()?.timestamp ?: 0L
+                s.copy(
+                    analyzerState = s.analyzerState.copy(
                         timelineMarkers = markers,
-                        currentDurationMillis = frameHistory.lastOrNull()?.timestamp ?: 0L,
-                        durationText = formatDuration(frameHistory.lastOrNull()?.timestamp ?: 0L)
+                        currentDurationMillis = lastTimestamp,
+                        durationText = AnalyzerProcessor.formatDuration(lastTimestamp)
                     ),
                     anomalyCount = anomalyCount,
+                    averageConfidence = avgConfidence,
                     volatilityStatus = determineVolatilityStatus(anomalyCount),
                     volatilityColor = determineVolatilityColor(anomalyCount),
-                    conclusionText = determineConclusionText(anomalyCount),
-                    conclusionColor = determineConclusionColor(anomalyCount)
+                    conclusionText = determineConclusionText(anomalyCount, avgConfidence),
+                    conclusionColor = determineConclusionColor(anomalyCount, avgConfidence)
                 )
             }
 
@@ -126,21 +173,27 @@ class HistoryDetailViewModel(
 
         // Notes observer
         scope.launch {
-            historyRepository.getNotesForSession(sessionId).collect { notes ->
-                val uiNotes = notes.map {
+            combine(
+                historyRepository.getNotesForSession(sessionId),
+                preferencesRepository.markerShape
+            ) { notes, shape ->
+                notes.map {
                     SessionNoteUiModel(
                         id = it.id,
                         timestampMillis = it.timestamp,
-                        timestampText = formatDuration(it.timestamp),
+                        timestampText = AnalyzerProcessor.formatDuration(it.timestamp),
                         text = it.text,
                         markerColor = it.markerColor?.let { colorName ->
-                            try { ColorToken.valueOf(colorName) } catch (_: Exception) { null }
+                            try {
+                                ColorToken.valueOf(colorName)
+                            } catch (_: Exception) {
+                                null
+                            }
                         },
-                        markerShape = it.markerShape?.let { shapeName ->
-                            try { MarkerShape.valueOf(shapeName) } catch (e: Exception) { null }
-                        }
+                        markerShape = if (it.markerColor != null) shape else null
                     )
                 }
+            }.collect { uiNotes ->
                 _state.update { it.copy(notes = uiNotes) }
             }
         }
@@ -150,60 +203,20 @@ class HistoryDetailViewModel(
         val currentState = _state.value.analyzerState
         val seekPos = currentState.seekPositionMillis ?: 0L
 
-        val activeFrame = findClosestFrame(seekPos) ?: frameHistory.firstOrNull()
+        val activeFrame = AnalyzerProcessor.findClosestFrame(frameHistory, seekPos) ?: frameHistory.firstOrNull()
+        val (targetJitter, targetPitch, targetRms) = AnalyzerProcessor.calculateNormalizedMetrics(activeFrame)
 
-        val rawJitter = activeFrame?.jitter ?: 0f
-        val rawPitch = activeFrame?.pitch ?: 0f
-        val rawRms = activeFrame?.rms ?: 0f
-
-        // Normalize for UI
-        val targetJitter = (rawJitter / AudioConstants.MAX_EXPECTED_JITTER).coerceIn(0f, 1f)
-        val targetPitch = if (rawPitch > 50f) {
-            ((rawPitch - AudioConstants.MIN_EXPECTED_PITCH) / (AudioConstants.MAX_EXPECTED_PITCH - AudioConstants.MIN_EXPECTED_PITCH))
-                .coerceIn(0f, 1f)
-        } else 0f
-        val targetRms = (rawRms * AudioConstants.RMS_VISUAL_AMPLIFIER).coerceIn(0f, 1f)
-
-        _state.update {
-            it.copy(
-                analyzerState = it.analyzerState.copy(
+        _state.update { s ->
+            s.copy(
+                analyzerState = s.analyzerState.copy(
                     displayFrame = activeFrame,
                     jitterLevel = targetJitter,
                     pitchLevel = targetPitch,
                     rmsLevel = targetRms,
                     isDisplayAnomalous = activeFrame?.isAnomaly ?: false,
-                    isPaused = true // Ensure UI treats it as static
+                    isPaused = true 
                 )
             )
-        }
-    }
-
-    private fun findClosestFrame(seekPos: Long): AudioFrame? {
-        if (frameHistory.isEmpty()) return null
-
-        // Find the frame with timestamp closest to seekPos
-        return frameHistory.minByOrNull { kotlin.math.abs(it.timestamp - seekPos) }
-    }
-
-    private fun processAnomalyMarker(frame: AudioFrame) {
-        if (frame.isAnomaly) {
-            val dominantColor = when {
-                frame.jitter > 30f -> ColorToken.CHART_JITTER
-                frame.pitch > 200f -> ColorToken.CHART_PITCH
-                else -> ColorToken.CHART_RMS
-            }
-
-            val marker = AnalyzerMarker(
-                id = "m_${frame.timestamp}",
-                timestampMillis = frame.timestamp,
-                timestampText = formatDuration(frame.timestamp),
-                colorToken = dominantColor,
-                isAnomaly = true,
-                shape = currentMarkerShape
-            )
-            if (timelineMarkers.none { it.timestampText == marker.timestampText }) {
-                timelineMarkers.add(marker)
-            }
         }
     }
 
@@ -219,21 +232,27 @@ class HistoryDetailViewModel(
         else -> ColorToken.STATE_ERROR
     }
 
-    private fun determineConclusionText(count: Int) = when {
-        count <= 3 -> StringToken.CONCLUSION_POSITIVE
-        count <= 6 -> StringToken.CONCLUSION_NEUTRAL
-        else -> StringToken.CONCLUSION_NEGATIVE
+    private fun determineConclusionText(count: Int, confidence: Float): StringToken {
+        if (confidence < 0.6f) return StringToken.RETRY // Or any "Unreliable" token
+        return when {
+            count <= 3 -> StringToken.CONCLUSION_POSITIVE
+            count <= 6 -> StringToken.CONCLUSION_NEUTRAL
+            else -> StringToken.CONCLUSION_NEGATIVE
+        }
     }
 
-    private fun determineConclusionColor(count: Int) = when {
-        count <= 3 -> ColorToken.STATE_SUCCESS
-        count <= 6 -> ColorToken.STATE_WARNING
-        else -> ColorToken.STATE_ERROR
+    private fun determineConclusionColor(count: Int, confidence: Float): ColorToken {
+        if (confidence < 0.6f) return ColorToken.STATE_ERROR
+        return when {
+            count <= 3 -> ColorToken.STATE_SUCCESS
+            count <= 6 -> ColorToken.STATE_WARNING
+            else -> ColorToken.STATE_ERROR
+        }
     }
 
     fun onSeek(positionMillis: Long?) {
-        _state.update {
-            it.copy(analyzerState = it.analyzerState.copy(seekPositionMillis = positionMillis))
+        _state.update { s ->
+            s.copy(analyzerState = s.analyzerState.copy(seekPositionMillis = positionMillis))
         }
     }
 
@@ -259,9 +278,8 @@ class HistoryDetailViewModel(
 
         val timestamp = _state.value.analyzerState.seekPositionMillis ?: 0L
 
-        // Find if there is a marker at this timestamp (or very close)
         val associatedMarker = timelineMarkers.find {
-            kotlin.math.abs(it.timestampMillis - timestamp) < 500 // 0.5s window
+            kotlin.math.abs(it.timestampMillis - timestamp) < 500 
         }
 
         scope.launch {
@@ -297,18 +315,12 @@ class HistoryDetailViewModel(
 
     fun onSkinChange(skin: AnalyzerSkin) {
         preferencesRepository.setDefaultSkin(skin)
-        _state.update {
-            it.copy(analyzerState = it.analyzerState.copy(currentSkin = skin))
+        _state.update { s ->
+            s.copy(analyzerState = s.analyzerState.copy(currentSkin = skin))
         }
     }
 
     fun onBack() {
         navigateBack()
-    }
-
-    private fun formatDuration(millis: Long): String {
-        val seconds = (millis / 1000) % 60
-        val minutes = (millis / (1000 * 60)) % 60
-        return "${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}"
     }
 }

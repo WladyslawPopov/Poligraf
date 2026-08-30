@@ -44,36 +44,36 @@ internal object ThemeDefaults {
             }
         } else {
             when (token) {
-                ColorToken.SURFACE_BACKGROUND -> Color(0xFFF8FAFC)
-                ColorToken.SURFACE_PRIMARY -> Color(0xFFFFFFFF)
-                ColorToken.SURFACE_SECONDARY -> Color(0xFFF1F5F9)
-                ColorToken.SURFACE_VARIANT -> Color(0xFFE2E8F0)
-                ColorToken.GLASS_BASE -> Color(0xB3FFFFFF)
-                ColorToken.GLASS_BORDER -> Color(0x33000000)
-                ColorToken.ACCENT_PRIMARY -> Color(0xFF0891B2)
-                ColorToken.ACCENT_SECONDARY -> Color(0xFF0E7490)
-                ColorToken.ACCENT_ENERGY -> Color(0xFF22D3EE)
-                ColorToken.STATE_SUCCESS -> Color(0xFF16A34A)
-                ColorToken.STATE_ERROR -> Color(0xFFDC2626)
-                ColorToken.STATE_WARNING -> Color(0xFFF59E0B)
-                ColorToken.STATE_INFO -> Color(0xFF3B82F6)
-                ColorToken.TEXT_PRIMARY -> Color(0xFF0F172A)
+                ColorToken.SURFACE_BACKGROUND -> Color(0xFFE2E8F0) // Cleaner, lighter Slate grey
+                ColorToken.SURFACE_PRIMARY -> Color(0xFFFFFFFF)    // Pure white for cards
+                ColorToken.SURFACE_SECONDARY -> Color(0xFFF3F4F6)  // Very light grey for internal elements
+                ColorToken.SURFACE_VARIANT -> Color(0xFF9CA3AF)    // Slightly darker borders
+                ColorToken.GLASS_BASE -> Color(0x43fffdff)
+                ColorToken.GLASS_BORDER -> Color(0x1A000000)
+                ColorToken.ACCENT_PRIMARY -> Color(0xFF0E7490) // Deeper teal
+                ColorToken.ACCENT_SECONDARY -> Color(0xFF155E75)
+                ColorToken.ACCENT_ENERGY -> Color(0xFF06B6D4)
+                ColorToken.STATE_SUCCESS -> Color(0xFF15803D) // More muted forest green
+                ColorToken.STATE_ERROR -> Color(0xFFB91C1C)   // Softened red
+                ColorToken.STATE_WARNING -> Color(0xFFB45309) // Deep amber instead of bright yellow
+                ColorToken.STATE_INFO -> Color(0xFF1D4ED8)
+                ColorToken.TEXT_PRIMARY -> Color(0xFF1E293B) // Slate blue-grey instead of near-black
                 ColorToken.TEXT_SECONDARY -> Color(0xFF64748B)
-                ColorToken.TEXT_INVERTED -> Color(0xFFFFFFFF)
+                ColorToken.TEXT_INVERTED -> Color(0xffdddddd)
 
-                ColorToken.RECORDER_PRIMARY -> Color(0xFFD32F2F)
-                ColorToken.RECORDER_SECONDARY -> Color(0xFF1976D2)
-                ColorToken.RECORDER_ACCENT -> Color(0xFFFFC107)
-                ColorToken.RECORDER_SURFACE -> Color(0xFFF5F5F5)
-                ColorToken.RECORDER_WAVEFORM -> Color(0xFFD32F2F)
+                ColorToken.RECORDER_PRIMARY -> Color(0xFFB91C1C)
+                ColorToken.RECORDER_SECONDARY -> Color(0xFF1D4ED8)
+                ColorToken.RECORDER_ACCENT -> Color(0xFFB45309)
+                ColorToken.RECORDER_SURFACE -> Color(0xFFE2E8F0)
+                ColorToken.RECORDER_WAVEFORM -> Color(0xFFB91C1C)
 
-                ColorToken.CHART_JITTER -> Color(0xFF0D9488)
-                ColorToken.CHART_JITTER_ALARM -> Color(0xFFDC2626)
-                ColorToken.CHART_PITCH -> Color(0xFF0284C7)
-                ColorToken.CHART_PITCH_ALARM -> Color(0xFFCA8A04)
-                ColorToken.CHART_RMS -> Color(0xFFD97706)
-                ColorToken.CHART_RMS_ALARM -> Color(0xFF7C3AED)
-                ColorToken.CHART_ANOMALY -> Color(0xFFDC2626)
+                ColorToken.CHART_JITTER -> Color(0xFF0F766E)
+                ColorToken.CHART_JITTER_ALARM -> Color(0xFF991B1B)
+                ColorToken.CHART_PITCH -> Color(0xFF0369A1)
+                ColorToken.CHART_PITCH_ALARM -> Color(0xFF92400E)
+                ColorToken.CHART_RMS -> Color(0xFFB45309)
+                ColorToken.CHART_RMS_ALARM -> Color(0xFF6D28D9)
+                ColorToken.CHART_ANOMALY -> Color(0xFFB91C1C)
             }
         }
     }
@@ -90,7 +90,7 @@ internal object ThemeDefaults {
             DimenToken.BUTTON_HEIGHT -> 56.dp
             DimenToken.HEADER_HEIGHT -> 64.dp
             DimenToken.DIVIDER_THICKNESS -> 0.5.dp
-            
+
             DimenToken.MAX_CONTENT_WIDTH -> 600.dp
             DimenToken.RECORDER_BTN_SIZE -> 160.dp
             DimenToken.RECORDER_BTN_STROKE -> 4.dp

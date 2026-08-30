@@ -1,21 +1,13 @@
 package application.poligraf.presentation.main.ui
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
@@ -26,18 +18,15 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import application.poligraf.domain.model.AnalyzerSkin
 import application.poligraf.domain.model.MarkerShape
-import application.poligraf.engine.theme.ThemeManager
+import application.poligraf.domain.repository.PreferencesRepository
 import application.poligraf.ui.components.decorators.GlassDivider
-import application.poligraf.ui.components.icons.AppIcon
 import application.poligraf.ui.components.items.DrawerItem
+import application.poligraf.ui.components.text.SectionHeader
 import application.poligraf.ui.features.settings.ShapeSelectionItem
 import application.poligraf.ui.features.settings.SkinSelectionItem
 import application.poligraf.ui.theme.DesignSystem
@@ -56,10 +45,11 @@ fun SettingsContent(
     onSkinSelected: (AnalyzerSkin) -> Unit,
     onMarkerShapeSelected: (MarkerShape) -> Unit,
     onDebugClicked: () -> Unit,
-    themeManager: ThemeManager = koinInject(),
+    preferencesRepository: PreferencesRepository = koinInject(),
 ) {
     val currentDefaultSkin by defaultSkin.collectAsState(AnalyzerSkin.RINGS)
     val currentMarkerShape by markerShape.collectAsState(MarkerShape.CIRCLE)
+    val isDarkMode by preferencesRepository.isDarkMode.collectAsState(true)
 
     Column(
         modifier = Modifier
@@ -80,17 +70,13 @@ fun SettingsContent(
         GlassDivider(designSystem)
 
         // Preferences Section
-        Text(
-            text = designSystem.string(StringToken.SETTINGS_PREFERENCES_TITLE),
-            style = MaterialTheme.typography.titleLarge,
-            color = designSystem.color(ColorToken.TEXT_PRIMARY),
-            fontWeight = FontWeight.Bold
+        SectionHeader(
+            titleToken = StringToken.SETTINGS_PREFERENCES_TITLE,
+            isLarge = true
         )
 
-        Text(
-            text = designSystem.string(StringToken.SETTINGS_SKIN_TITLE),
-            style = MaterialTheme.typography.labelMedium,
-            color = designSystem.color(ColorToken.TEXT_SECONDARY)
+        SectionHeader(
+            titleToken = StringToken.SETTINGS_SKIN_TITLE
         )
 
         Row(
@@ -109,10 +95,8 @@ fun SettingsContent(
 
         Spacer(Modifier.height(8.dp))
 
-        Text(
-            text = designSystem.string(StringToken.SETTINGS_MARKER_TITLE),
-            style = MaterialTheme.typography.labelMedium,
-            color = designSystem.color(ColorToken.TEXT_SECONDARY)
+        SectionHeader(
+            titleToken = StringToken.SETTINGS_MARKER_TITLE
         )
 
         Row(
@@ -136,8 +120,8 @@ fun SettingsContent(
             designSystem = designSystem,
             trailing = {
                 Switch(
-                    checked = designSystem.isDark,
-                    onCheckedChange = { themeManager.toggleTheme() },
+                    checked = isDarkMode,
+                    onCheckedChange = { preferencesRepository.setDarkMode(it) },
                     colors = SwitchDefaults.colors(
                         checkedThumbColor = designSystem.color(ColorToken.ACCENT_PRIMARY),
                         checkedTrackColor = designSystem.color(ColorToken.ACCENT_PRIMARY)

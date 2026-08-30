@@ -38,6 +38,7 @@ interface IErrorStrings {
 interface IRecorderStrings {
     val title: StringResource
     val activeSession: StringResource
+    val synthesizing: StringResource
     val stateMap: StringResource
     val voiceRibbon: StringResource
     val equalizer: StringResource
@@ -70,6 +71,7 @@ interface IDebugStrings {
 interface IHistoryStrings {
     val empty: StringResource
     val itemMarkers: StringResource
+    val itemNotes: StringResource
     val summaryVolatility: StringResource
     val summaryDuration: StringResource
     val summaryMarkers: StringResource
@@ -79,6 +81,7 @@ interface IHistoryStrings {
     val conclusionPositive: StringResource
     val conclusionNegative: StringResource
     val conclusionNeutral: StringResource
+    val conclusionUnreliable: StringResource
     val labelNotes: StringResource
     val notesHint: StringResource
     val detailTitle: StringResource
@@ -115,8 +118,9 @@ internal class AppStringsImpl : IAppStrings {
     }
     
     override val recorder = object : IRecorderStrings {
-        override val title = Res.string.recording_screen_title
-        override val activeSession = Res.string.active_session
+        override val title = Res.string.analyzing_screen_title
+        override val activeSession = Res.string.active_analysis
+        override val synthesizing = Res.string.analyzing_synthesizing
         override val stateMap = Res.string.skin_state_map
         override val voiceRibbon = Res.string.skin_voice_ribbon
         override val equalizer = Res.string.skin_equalizer
@@ -142,6 +146,7 @@ internal class AppStringsImpl : IAppStrings {
     override val history = object : IHistoryStrings {
         override val empty = Res.string.history_empty
         override val itemMarkers = Res.string.history_item_markers
+        override val itemNotes = Res.string.history_item_notes
         override val summaryVolatility = Res.string.history_summary_volatility
         override val summaryDuration = Res.string.history_summary_duration
         override val summaryMarkers = Res.string.history_summary_markers
@@ -151,6 +156,7 @@ internal class AppStringsImpl : IAppStrings {
         override val conclusionPositive = Res.string.conclusion_positive
         override val conclusionNegative = Res.string.conclusion_negative
         override val conclusionNeutral = Res.string.conclusion_neutral
+        override val conclusionUnreliable = Res.string.conclusion_unreliable
         override val labelNotes = Res.string.label_notes
         override val notesHint = Res.string.notes_hint
         override val detailTitle = Res.string.history_detail_title

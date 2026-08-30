@@ -5,7 +5,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import application.poligraf.presentation.analyzer.ui.AnalyzerRenderer
-import application.poligraf.ui.foundation.actions.RecordingAction
+import application.poligraf.ui.foundation.actions.AnalyzingAction
 import application.poligraf.ui.components.layout.AppScaffold
 import application.poligraf.ui.components.layout.StandardToolbar
 import application.poligraf.ui.theme.LocalDesignSystem
@@ -34,12 +34,12 @@ fun AnalyzerContent(component: AnalyzerComponent) {
                     designSystem = designSystem,
                     onNavigationClick = component::onBack,
                     durationText = state.durationText,
-                    isRecording = state.isRecording && !state.isPaused,
+                    isAnalyzing = state.isAnalyzing && !state.isPaused,
                     isProcessing = state.isProcessing,
                     showIndicator = true,
                     onAction = { action ->
                         viewModel.onAction(action)
-                        if (action is RecordingAction.Delete) {
+                        if (action is AnalyzingAction.Delete) {
                             component.onBack()
                         }
                     }

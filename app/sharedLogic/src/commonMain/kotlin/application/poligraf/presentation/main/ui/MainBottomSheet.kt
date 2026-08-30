@@ -6,10 +6,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import application.poligraf.domain.model.AnalyzerSkin
 import application.poligraf.domain.model.MarkerShape
-import application.poligraf.presentation.main.data.MainBottomSheetContent
 import application.poligraf.presentation.main.data.MainState
-import application.poligraf.ui.theme.DesignSystem
 import application.poligraf.ui.components.layout.AppBottomSheet
+import application.poligraf.ui.theme.DesignSystem
 import kotlinx.coroutines.flow.Flow
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -36,19 +35,15 @@ fun MainBottomSheet(
             modifier = modifier,
             onDismissRequest = closeBottomSheet
         ) {
-            when (state.bottomSheetContent) {
-                MainBottomSheetContent.SETTINGS -> SettingsContent(
-                    appVersion = state.appConfig?.appVersion ?: "1.0.0",
-                    designSystem = designSystem,
-                    defaultSkin = defaultSkin,
-                    markerShape = markerShape,
-                    onSkinSelected = onSkinSelected,
-                    onMarkerShapeSelected = onMarkerShapeSelected,
-                    onDebugClicked = onDebugClicked
-                )
-
-                else -> {}
-            }
+            SettingsContent(
+                appVersion = state.appConfig?.appVersion ?: "1.0.0",
+                designSystem = designSystem,
+                defaultSkin = defaultSkin,
+                markerShape = markerShape,
+                onSkinSelected = onSkinSelected,
+                onMarkerShapeSelected = onMarkerShapeSelected,
+                onDebugClicked = onDebugClicked
+            )
         }
     }
 }

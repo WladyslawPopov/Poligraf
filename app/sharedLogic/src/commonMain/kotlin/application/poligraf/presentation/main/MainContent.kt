@@ -1,12 +1,15 @@
 package application.poligraf.presentation.main
 
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -16,7 +19,8 @@ import androidx.compose.ui.Modifier
 import application.poligraf.presentation.main.ui.MainBottomSheet
 import application.poligraf.ui.components.layout.AppScaffold
 import application.poligraf.ui.components.layout.StandardToolbar
-import application.poligraf.ui.features.render.WidgetRenderer
+import application.poligraf.ui.features.main.components.MainAnalyzeBtn
+import application.poligraf.ui.features.main.components.MainWelcomeText
 import application.poligraf.ui.theme.LocalDesignSystem
 import application.poligraf.ui.theme.tokens.DimenToken
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
@@ -39,24 +43,33 @@ fun MainContent(
                 StandardToolbar(
                     toolbar = toolbar,
                     designSystem = designSystem,
-                    onAction = viewModel::onWidgetAction,
+                    onAction = viewModel::onAction,
                     isTyping = true
                 )
             }
         }
     ) { padding ->
-        LazyColumn(
-            modifier = Modifier.fillMaxWidth(),
-            contentPadding = padding,
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(designSystem.dimen(DimenToken.SPACING_MEDIUM))
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            items(state.widgets) { item ->
-                WidgetRenderer(
-                    item,
-                    onAction = viewModel::onWidgetAction
+            state.welcomeWidget?.let {
+                MainWelcomeText(it)
+            }
+
+            Spacer(Modifier.weight(1f))
+
+            state.analyzeBtn?.let {
+                MainAnalyzeBtn(
+                    model = it,
+                    onClick = viewModel::onAnalyzeClick
                 )
             }
+            
+            Spacer(Modifier.height(designSystem.dimen(DimenToken.SPACING_XL)))
         }
 
         MainBottomSheet(
