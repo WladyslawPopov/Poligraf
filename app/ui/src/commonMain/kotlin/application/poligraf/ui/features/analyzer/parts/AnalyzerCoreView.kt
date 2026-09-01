@@ -1,19 +1,19 @@
 package application.poligraf.ui.features.analyzer.parts
 
+import application.poligraf.ui.features.analyzer.components.AnomalyTimeline
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.foundation.layout.Row
 import androidx.compose.ui.unit.dp
 import application.poligraf.domain.model.AnalyzerSkin
 import application.poligraf.ui.components.containers.AppCard
-import application.poligraf.ui.features.analyzer.components.AnomalyTimeline
 import application.poligraf.ui.features.analyzer.components.InterpretationOverlay
 import application.poligraf.ui.features.analyzer.components.MetricLegend
 import application.poligraf.ui.features.analyzer.components.MetricRow
@@ -106,6 +106,7 @@ fun AnalyzerCoreView(
         ) {
             AnomalyTimeline(
                 markers = state.timelineMarkers,
+                notes = state.notes,
                 currentDurationMillis = state.currentDurationMillis,
                 seekPositionMillis = state.seekPositionMillis,
                 isPaused = state.isPaused,

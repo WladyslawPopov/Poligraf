@@ -65,7 +65,10 @@ fun AnalyzerRenderer(
         // 0. Ambient Background Glow (Full screen, no padding)
         AmbientGlow(
             signalLevel = state.signalLevel,
-            dominantMetric = state.dominantMetric
+            dominantMetric = state.dominantMetric,
+            jitterLevel = state.jitterLevel,
+            pitchLevel = state.pitchLevel,
+            rmsLevel = state.rmsLevel
         )
 
         LazyColumn(

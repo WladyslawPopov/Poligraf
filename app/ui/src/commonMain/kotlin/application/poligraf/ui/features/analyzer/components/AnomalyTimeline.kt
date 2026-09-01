@@ -5,9 +5,7 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.snapshotFlow
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
@@ -19,7 +17,9 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
@@ -31,10 +31,12 @@ import application.poligraf.ui.theme.tokens.ColorToken
 import application.poligraf.ui.theme.tokens.IconToken
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
+import kotlin.math.abs
 
 @Composable
 fun AnomalyTimeline(
     markers: List<AnalyzerMarker>,
+    notes: List<application.poligraf.ui.foundation.models.SessionNoteUiModel> = emptyList(),
     currentDurationMillis: Long,
     seekPositionMillis: Long?,
     isPaused: Boolean,
@@ -43,6 +45,7 @@ fun AnomalyTimeline(
 ) {
     val designSystem = LocalDesignSystem.current
     val density = LocalDensity.current
+    val haptic = LocalHapticFeedback.current
     val textMeasurer = rememberTextMeasurer()
 
     val textStyle = MaterialTheme.typography.labelSmall.copy(
@@ -50,11 +53,26 @@ fun AnomalyTimeline(
         color = designSystem.color(ColorToken.TEXT_SECONDARY).copy(alpha = 0.5f)
     )
 
-    // Expanded scale: 40dp per second (2x more detailed timeline for precision seeking)
+    // Expanded scale: 40dp per second
     val dpPerSecond = 40.dp
     val pxPerMillis = with(density) { dpPerSecond.toPx() } / 1000f
 
     val scrollState = rememberScrollState()
+
+    // Haptic feedback for ticks during manual scroll
+    var lastVibratedSecond by remember { mutableStateOf(-1) }
+    LaunchedEffect(isPaused) {
+        if (isPaused) {
+            snapshotFlow { scrollState.value }
+                .collect { scrollValue ->
+                    val currentSecond = ((scrollValue / pxPerMillis) / 1000).toInt()
+                    if (currentSecond != lastVibratedSecond) {
+                        haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                        lastVibratedSecond = currentSecond
+                    }
+                }
+        }
+    }
 
     val shapePainters = MarkerShape.entries.associateWith { shape ->
         val iconToken = when (shape) {
@@ -65,6 +83,8 @@ fun AnomalyTimeline(
         }
         rememberVectorPainter(designSystem.icon(iconToken))
     }
+    
+    val notePainter = rememberVectorPainter(designSystem.icon(IconToken.HISTORY))
 
     Column(
         modifier = modifier.fillMaxWidth(),
@@ -83,30 +103,39 @@ fun AnomalyTimeline(
             val totalContentWidthPx = indicatorOffset + durationPx + indicatorOffset
             val totalContentWidthDp = with(density) { totalContentWidthPx.toDp() }
 
-            // 1. LIVE MODE: Follow the right edge of the viewport
+            // 1. LIVE MODE: Follow the right edge with Throttling to prevent lags
             LaunchedEffect(currentDurationMillis, isPaused) {
                 if (!isPaused) {
                     val targetScroll =
                         ((indicatorOffset + durationPx) - viewPortWidth).coerceAtLeast(0f).toInt()
-                    scrollState.scrollTo(targetScroll)
+                    // More aggressive throttling: only scroll if move > 20px
+                    if (abs(scrollState.value - targetScroll) > 20) {
+                        scrollState.scrollTo(targetScroll)
+                    }
                 }
             }
 
-            // 2. PAUSE TRANSITION: When pausing, jump center indicator to the end of analysis
+            // 2. PAUSE TRANSITION: When pausing, jump center indicator to the current head
+            // In Review mode, we don't want to jump to the end automatically if we're already viewing.
             LaunchedEffect(isPaused) {
-                if (isPaused) {
-                    val targetScroll = durationPx.toInt()
-                    scrollState.scrollTo(targetScroll.coerceIn(0, scrollState.maxValue))
-                    onSeek(currentDurationMillis)
-                } else {
+                if (isPaused && currentDurationMillis > 0) {
+                    // Only auto-scroll to end if we just transitioned from Live
+                    if (seekPositionMillis == null) {
+                        val targetScroll = (currentDurationMillis * pxPerMillis).toInt()
+                        scrollState.animateScrollTo(targetScroll.coerceIn(0, scrollState.maxValue))
+                        onSeek(currentDurationMillis)
+                    }
+                } else if (!isPaused) {
                     onSeek(null)
                 }
             }
 
             // 3. SEEK SYNC: Map whatever is under indicatorOffset to time
+            // Only update VM if the scroll state is actually moving (manual scroll)
             LaunchedEffect(isPaused, currentDurationMillis) {
                 if (isPaused) {
                     snapshotFlow { scrollState.value }
+                        .distinctUntilChanged()
                         .map { scrollValue ->
                             ((scrollValue / pxPerMillis).toLong()).coerceIn(
                                 0,
@@ -115,16 +144,20 @@ fun AnomalyTimeline(
                         }
                         .distinctUntilChanged()
                         .collect { time ->
-                            onSeek(time)
+                            // Avoid updating if it's already close to seekPositionMillis
+                            if (seekPositionMillis == null || abs(time - seekPositionMillis) > 50) {
+                                onSeek(time)
+                            }
                         }
                 }
             }
 
-            // Handle external seek position changes (e.g. restoration)
+            // Handle external seek position changes (e.g. restoration or marker click)
             LaunchedEffect(seekPositionMillis) {
                 if (isPaused && seekPositionMillis != null) {
                     val targetScroll = (seekPositionMillis * pxPerMillis).toInt()
-                    if (kotlin.math.abs(targetScroll - scrollState.value) > 2) {
+                    // Increase threshold to avoid jitter loops
+                    if (abs(targetScroll - scrollState.value) > 5) {
                         scrollState.scrollTo(targetScroll.coerceIn(0, scrollState.maxValue))
                     }
                 }
@@ -153,8 +186,19 @@ fun AnomalyTimeline(
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .horizontalScroll(scrollState, enabled = isPaused)
+                        .horizontalScroll(
+                            state = scrollState,
+                            enabled = isPaused
+                        )
                 ) {
+                    val visibleRange by remember {
+                        derivedStateOf {
+                            val start = scrollState.value.toFloat()
+                            val end = start + viewPortWidth
+                            start to end
+                        }
+                    }
+
                     Canvas(
                         modifier = Modifier
                             .width(totalContentWidthDp)
@@ -164,7 +208,25 @@ fun AnomalyTimeline(
                         val stripTop = 0f
                         val stripCenterY = stripTop + stripHeight / 2
 
-                        // Active Recorded Background Strip
+                        val (visibleStartPx, visibleEndPx) = visibleRange
+
+                        // 1. Magnetic Notches Background (OPTIMIZED: only draw visible)
+                        val notchStep = 4.dp.toPx()
+                        val firstVisibleNotch = (visibleStartPx / notchStep).toInt()
+                        val lastVisibleNotch = (visibleEndPx / notchStep).toInt()
+                        
+                        for (i in firstVisibleNotch..lastVisibleNotch) {
+                            val nx = i * notchStep
+                            drawLine(
+                                color = designSystem.color(ColorToken.SURFACE_VARIANT)
+                                    .copy(alpha = 0.05f),
+                                start = Offset(nx, stripTop + 4.dp.toPx()),
+                                end = Offset(nx, stripTop + stripHeight - 4.dp.toPx()),
+                                strokeWidth = 0.5.dp.toPx()
+                            )
+                        }
+
+                        // 2. Active Recorded Background Strip
                         if (durationPx > 0) {
                             drawRoundRect(
                                 color = designSystem.color(ColorToken.SURFACE_VARIANT)
@@ -176,9 +238,6 @@ fun AnomalyTimeline(
                         }
 
                         // Ticks and Labels (Optimized: only draw what fits on screen)
-                        val visibleStartPx = scrollState.value.toFloat()
-                        val visibleEndPx = visibleStartPx + viewPortWidth
-
                         val firstVisibleSecond =
                             (((visibleStartPx - indicatorOffset) / (1000f * pxPerMillis)).toInt() - 1).coerceAtLeast(
                                 0
@@ -191,7 +250,8 @@ fun AnomalyTimeline(
                             for (s in firstVisibleSecond..lastVisibleSecond) {
                                 val x = indicatorOffset + (s * 1000f * pxPerMillis)
                                 val isMajor = s % 2 == 0
-                                val isLabeled = s % 2 == 0 // Labeled every 2s for increased readability at 40dp/s
+                                val isLabeled =
+                                    s % 2 == 0 // Labeled every 2s for increased readability at 40dp/s
 
                                 val tickStartY = stripTop + stripHeight + 6.dp.toPx()
                                 val tickHeight = if (isMajor) 8.dp.toPx() else 4.dp.toPx()
@@ -224,8 +284,7 @@ fun AnomalyTimeline(
                         markers.forEach { marker ->
                             val x = indicatorOffset + (marker.timestampMillis * pxPerMillis)
                             if (x in (visibleStartPx - 15f)..(visibleEndPx + 15f)) {
-                                val painter = shapePainters[marker.shape]
-                                if (painter != null) {
+                                shapePainters[marker.shape]?.let { painter ->
                                     drawMarker(
                                         painter = painter,
                                         color = designSystem.color(marker.colorToken),
@@ -234,6 +293,20 @@ fun AnomalyTimeline(
                                         outlineColor = designSystem.color(ColorToken.SURFACE_BACKGROUND)
                                     )
                                 }
+                            }
+                        }
+                        
+                        // Note Markers (Only visible notes)
+                        notes.forEach { note ->
+                            val x = indicatorOffset + (note.timestampMillis * pxPerMillis)
+                            if (x in (visibleStartPx - 15f)..(visibleEndPx + 15f)) {
+                                drawMarker(
+                                    painter = notePainter,
+                                    color = designSystem.color(ColorToken.ACCENT_PRIMARY),
+                                    center = Offset(x, stripCenterY),
+                                    size = 12.dp.toPx(),
+                                    outlineColor = designSystem.color(ColorToken.SURFACE_BACKGROUND)
+                                )
                             }
                         }
                     }
@@ -284,20 +357,20 @@ fun DrawScope.drawMarker(
 ) {
     if (outlineColor != null) {
         val outlineSize = size + 2.dp.toPx()
-        translate(center.x - outlineSize / 2, center.y - outlineSize / 2) {
+        translate((center.x - outlineSize / 2), (center.y - outlineSize / 2)) {
             with(painter) {
                 draw(
                     size = Size(outlineSize, outlineSize),
-                    colorFilter = ColorFilter.tint(outlineColor)
+                    colorFilter = ColorFilter.tint(outlineColor),
                 )
             }
         }
     }
-    translate(center.x - size / 2, center.y - size / 2) {
+    translate((center.x - size / 2), (center.y - size / 2)) {
         with(painter) {
             draw(
                 size = Size(size, size),
-                colorFilter = ColorFilter.tint(color)
+                colorFilter = ColorFilter.tint(color),
             )
         }
     }

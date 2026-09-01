@@ -34,10 +34,11 @@ fun RingsVisualization(
         
         values.forEachIndexed { index, value ->
             val radius = maxRadius - (index * 30.dp.toPx())
-            val sweep = (value * 360f).coerceIn(10f, 360f)
+            val sweep = (value * 360f).coerceIn(2f, 360f)
             
+            // Background Track
             drawArc(
-                color = colors[index].copy(alpha = 0.2f),
+                color = colors[index].copy(alpha = 0.12f),
                 startAngle = 0f,
                 sweepAngle = 360f,
                 useCenter = false,
@@ -46,6 +47,7 @@ fun RingsVisualization(
                 style = Stroke(width = 12.dp.toPx())
             )
             
+            // Core Visible Arc
             drawArc(
                 color = colors[index],
                 startAngle = -90f,
@@ -55,6 +57,23 @@ fun RingsVisualization(
                 size = Size(radius * 2, radius * 2),
                 style = Stroke(width = 12.dp.toPx(), cap = StrokeCap.Round)
             )
+
+            // Dynamic Shadow Glow (Grows with intensity/value)
+            // This creates a "light bleed" effect around the rings
+            if (value > 0.05f) {
+                drawArc(
+                    color = colors[index].copy(alpha = (value * 0.5f).coerceAtMost(0.6f)),
+                    startAngle = -90f,
+                    sweepAngle = sweep,
+                    useCenter = false,
+                    topLeft = Offset(center.x - radius, center.y - radius),
+                    size = Size(radius * 2, radius * 2),
+                    style = Stroke(
+                        width = (12.dp.toPx() + (value * 32.dp.toPx())), 
+                        cap = StrokeCap.Round
+                    )
+                )
+            }
         }
     }
 }

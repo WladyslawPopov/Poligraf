@@ -10,6 +10,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
@@ -54,10 +56,30 @@ fun VoiceRibbonVisualization(
             val height = size.height
             val centerY = height / 2
             
+            val factors = listOf(pitchLevel, rmsLevel, jitterLevel)
+            val colors = listOf(
+                designSystem.color(ColorToken.CHART_PITCH),
+                designSystem.color(ColorToken.CHART_RMS),
+                designSystem.color(ColorToken.CHART_JITTER)
+            )
+
+            // 1. Reactive Background Gradient (Integrated glow that reacts to wave levels)
+            factors.forEachIndexed { index, factor ->
+                if (factor > 0.04f) {
+                    drawRect(
+                        brush = Brush.verticalGradient(
+                            0.0f to Color.Transparent,
+                            0.5f to colors[index].copy(alpha = factor * 0.18f),
+                            1.0f to Color.Transparent
+                        ),
+                        alpha = factor.coerceIn(0.1f, 0.9f)
+                    )
+                }
+            }
+            
+            // 2. Sync Zone Indicator
             val syncZoneStart = width * 0.35f
             val syncZoneWidth = width * 0.3f
-            
-            // Sync Zone Indicator (Rectangle zone from mockups)
             drawRoundRect(
                 color = designSystem.color(ColorToken.SURFACE_VARIANT).copy(alpha = 0.12f),
                 topLeft = Offset(syncZoneStart, 16.dp.toPx()),
@@ -65,17 +87,11 @@ fun VoiceRibbonVisualization(
                 cornerRadius = androidx.compose.ui.geometry.CornerRadius(8.dp.toPx())
             )
 
-            val factors = listOf(pitchLevel, rmsLevel, jitterLevel)
-            val colors = listOf(
-                designSystem.color(ColorToken.CHART_PITCH),
-                designSystem.color(ColorToken.CHART_RMS),
-                designSystem.color(ColorToken.CHART_JITTER)
-            )
-            
+            // 3. The Waves
             factors.forEachIndexed { index, factor ->
                 val path = Path()
-                // Smooth sine waves - Boosted amplitude for Instrument 2.7
-                val amplitude = (height / 2.2f) * factor.coerceIn(0.12f, 1f)
+                // Smooth sine waves - Playful amplitude for subtle indicators
+                val amplitude = (height / 2.2f) * factor.coerceIn(0.02f, 1f)
                 val freq = 6f
                 
                 for (x in 0..width.toInt() step 4) {

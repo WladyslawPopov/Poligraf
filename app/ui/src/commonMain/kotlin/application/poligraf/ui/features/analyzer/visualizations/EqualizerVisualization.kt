@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.unit.dp
 import application.poligraf.ui.theme.LocalDesignSystem
@@ -42,6 +43,18 @@ fun EqualizerVisualization(
                 val x = centerX + (index - 1) * (barWidth + spacing)
                 val barHeight = (value * size.height * 0.4f).coerceIn(4.dp.toPx(), size.height * 0.45f)
                 
+                // Background Glow Area (reactive to signal intensity)
+                drawRect(
+                    brush = Brush.radialGradient(
+                        0.0f to colorPairs[index].first.copy(alpha = value * 0.15f),
+                        1.0f to Color.Transparent,
+                        center = Offset(x, centerY),
+                        radius = barWidth * 2.5f
+                    ),
+                    topLeft = Offset(x - barWidth, 0f),
+                    size = Size(barWidth * 2, size.height)
+                )
+
                 // Studio-style VU gradient (Calm center color, intense alarm color at edges)
                 drawRect(
                     brush = Brush.verticalGradient(

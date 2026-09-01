@@ -67,31 +67,32 @@ fun StateMapVisualization(
             }
             
             // Dynamic Gradient Mesh based on vertex colors (Stress = Blue, Pressure = Orange, Fear = Green)
+            // UI Sensitivity: Boosted alpha for subtle indicator play
             drawPath(
                 path = trianglePath,
                 brush = Brush.radialGradient(
-                    0.0f to designSystem.color(ColorToken.CHART_JITTER).copy(alpha = (jitterLevel * 0.45f).coerceIn(0.12f, 0.5f)),
+                    0.0f to designSystem.color(ColorToken.CHART_JITTER).copy(alpha = (jitterLevel * 0.65f).coerceIn(0.08f, 0.7f)),
                     1.0f to Color.Transparent,
                     center = pJitter,
-                    radius = radius * 1.3f
+                    radius = radius * 1.4f
                 )
             )
             drawPath(
                 path = trianglePath,
                 brush = Brush.radialGradient(
-                    0.0f to designSystem.color(ColorToken.CHART_PITCH).copy(alpha = (pitchLevel * 0.45f).coerceIn(0.12f, 0.5f)),
+                    0.0f to designSystem.color(ColorToken.CHART_PITCH).copy(alpha = (pitchLevel * 0.65f).coerceIn(0.08f, 0.7f)),
                     1.0f to Color.Transparent,
                     center = pPitch,
-                    radius = radius * 1.3f
+                    radius = radius * 1.4f
                 )
             )
             drawPath(
                 path = trianglePath,
                 brush = Brush.radialGradient(
-                    0.0f to designSystem.color(ColorToken.CHART_RMS).copy(alpha = (rmsLevel * 0.45f).coerceIn(0.12f, 0.5f)),
+                    0.0f to designSystem.color(ColorToken.CHART_RMS).copy(alpha = (rmsLevel * 0.65f).coerceIn(0.08f, 0.7f)),
                     1.0f to Color.Transparent,
                     center = pRms,
-                    radius = radius * 1.3f
+                    radius = radius * 1.4f
                 )
             )
             

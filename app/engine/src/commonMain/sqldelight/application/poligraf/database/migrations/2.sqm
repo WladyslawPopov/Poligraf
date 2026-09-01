@@ -1,0 +1,39 @@
+import kotlin.Boolean;
+
+-- Migration to version 2
+
+-- 1. Add anomalyCount to SessionEntity
+ALTER TABLE SessionEntity ADD COLUMN anomalyCount INTEGER NOT NULL DEFAULT 0;
+
+-- 2. Add new metrics and state columns to SessionFrame
+ALTER TABLE SessionFrame ADD COLUMN jitterScore REAL NOT NULL DEFAULT 0.0;
+ALTER TABLE SessionFrame ADD COLUMN pitchScore REAL NOT NULL DEFAULT 0.0;
+ALTER TABLE SessionFrame ADD COLUMN rmsScore REAL NOT NULL DEFAULT 0.0;
+ALTER TABLE SessionFrame ADD COLUMN isCalibrated INTEGER AS Boolean NOT NULL DEFAULT 1;
+ALTER TABLE SessionFrame ADD COLUMN confidence REAL NOT NULL DEFAULT 1.0;
+ALTER TABLE SessionFrame ADD COLUMN isCritical INTEGER AS Boolean NOT NULL DEFAULT 0;
+
+-- 3. Create CalibrationFrame table for session-long statistics
+CREATE TABLE CalibrationFrame (
+    sessionId TEXT NOT NULL,
+    rms REAL NOT NULL,
+    pitch REAL NOT NULL,
+    jitter REAL NOT NULL,
+    FOREIGN KEY(sessionId) REFERENCES SessionEntity(id) ON DELETE CASCADE
+);
+
+-- 4. Create SessionNote table
+CREATE TABLE SessionNote (
+    id TEXT NOT NULL PRIMARY KEY,
+    sessionId TEXT NOT NULL,
+    timestamp INTEGER NOT NULL,
+    text TEXT NOT NULL,
+    markerColor TEXT,
+    markerShape TEXT,
+    FOREIGN KEY(sessionId) REFERENCES SessionEntity(id) ON DELETE CASCADE
+);
+
+-- 5. Add Indexes for performance
+CREATE INDEX IF NOT EXISTS idx_calibration_session ON CalibrationFrame(sessionId);
+CREATE INDEX IF NOT EXISTS idx_session_frame_session_time ON SessionFrame(sessionId, timestamp);
+CREATE INDEX IF NOT EXISTS idx_session_frame_anomaly ON SessionFrame(sessionId, isAnomaly);

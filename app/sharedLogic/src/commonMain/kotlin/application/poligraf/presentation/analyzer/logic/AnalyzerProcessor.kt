@@ -9,6 +9,7 @@ import application.poligraf.engine.dsp.SignalLevel
 import application.poligraf.ui.foundation.models.AnalyzerMarker
 import application.poligraf.ui.theme.tokens.ColorToken
 import application.poligraf.ui.theme.tokens.StringToken
+import kotlin.math.*
 
 /**
  * Single presentation processor for both LIVE and REVIEW sessions.
@@ -47,13 +48,26 @@ object AnalyzerProcessor {
     }
 
     /**
-     * Unified normalization: returns pre-computed statistical scores (0..1).
+     * Maps a raw score (0..1) to a UI-friendly intensity (0..1).
+     * Uses a non-linear transfer function (power curve) to make subtle indicators
+     * more expressive and "playful" in the low-to-mid range.
+     */
+    fun mapToUiIntensity(score: Float): Float {
+        val safeScore = safe(score)
+        if (safeScore <= 0f) return 0f
+        // Power function: x^0.60 amplifies small values even more for "playful" UI.
+        // 0.05 -> 0.16, 0.1 -> 0.25, 0.2 -> 0.38, 0.5 -> 0.66
+        return safeScore.pow(0.60f).coerceIn(0f, 1f)
+    }
+
+    /**
+     * Unified normalization: returns UI-ready intensities (0..1).
      */
     fun calculateNormalizedMetrics(frame: AudioFrame?): Triple<Float, Float, Float> {
         if (frame == null) return Triple(0f, 0f, 0f)
-        val jitter = safe(frame.jitterScore)
-        val pitch = safe(frame.pitchScore)
-        val rms = safe(frame.rmsScore)
+        val jitter = mapToUiIntensity(frame.jitterScore)
+        val pitch = mapToUiIntensity(frame.pitchScore)
+        val rms = mapToUiIntensity(frame.rmsScore)
         return Triple(jitter, pitch, rms)
     }
 
@@ -80,9 +94,9 @@ object AnalyzerProcessor {
         if (frame == null) return SignalLevel.NONE
         val maxBiomarkerScore = maxOf(safe(frame.jitterScore), safe(frame.pitchScore), safe(frame.rmsScore))
         return when {
-            frame.isCritical || maxBiomarkerScore >= AnalyzerThresholds.CRITICAL_SCORE -> SignalLevel.CRITICAL
-            frame.isAnomaly || maxBiomarkerScore >= AnalyzerThresholds.ANOMALY_SCORE -> SignalLevel.ANOMALY
-            safe(frame.stressScore) >= AnalyzerThresholds.GLOW_SCORE || maxBiomarkerScore >= AnalyzerThresholds.GLOW_SCORE -> SignalLevel.GLOW
+            (frame.isCritical || maxBiomarkerScore >= AnalyzerThresholds.CRITICAL_SCORE) -> SignalLevel.CRITICAL
+            (frame.isAnomaly || maxBiomarkerScore >= AnalyzerThresholds.ANOMALY_SCORE) -> SignalLevel.ANOMALY
+            (safe(frame.stressScore) >= AnalyzerThresholds.GLOW_SCORE || maxBiomarkerScore >= AnalyzerThresholds.GLOW_SCORE) -> SignalLevel.GLOW
             else -> SignalLevel.NONE
         }
     }
@@ -93,8 +107,8 @@ object AnalyzerProcessor {
         val pitch = safe(frame.pitchScore)
         val rms = safe(frame.rmsScore)
         return when {
-            jitter >= pitch && jitter >= rms -> DominantMetric.JITTER
-            pitch >= rms -> DominantMetric.PITCH
+            ((jitter >= pitch) && (jitter >= rms)) -> DominantMetric.JITTER
+            (pitch >= rms) -> DominantMetric.PITCH
             else -> DominantMetric.RMS
         }
     }
@@ -190,38 +204,66 @@ object AnalyzerProcessor {
         signalLevel: SignalLevel,
         dominantMetric: DominantMetric?,
     ): AnalyzerMarker? {
-        if (signalLevel != SignalLevel.ANOMALY && signalLevel != SignalLevel.CRITICAL) return null
+        // Professional Update: Markers now appear for GLOW level too (subtle tension)
+        if (signalLevel == SignalLevel.NONE) return null
 
-        // Quantized clustering window groups nearby anomalies into one readable marker.
-        if ((frame.timestamp - lastMarkerTimestamp) < AnalyzerThresholds.MARKER_CLUSTER_MS) return null
+        // Quantized clustering window groups nearby reactions into one readable marker.
+        // For GLOW markers, we can be slightly more selective to avoid clutter.
+        val clusterWindow = if (signalLevel == SignalLevel.GLOW) 1000L else AnalyzerThresholds.MARKER_CLUSTER_MS
+        
+        if ((frame.timestamp - lastMarkerTimestamp) < clusterWindow) return null
 
         return AnalyzerMarker(
             id = "m_${frame.timestamp}",
             timestampMillis = frame.timestamp,
             timestampText = formatDuration(frame.timestamp),
             colorToken = dominantMetric?.let { colorForDominant(it) } ?: ColorToken.CHART_JITTER,
-            isAnomaly = true,
-            shape = shape
+            isAnomaly = signalLevel != SignalLevel.GLOW, // true only for real anomalies
+            shape = shape,
         )
     }
 
     /**
      * Post-session recalibration: recomputes scores for a full session against a
-     * global baseline. Uses the same engine + thresholds as live.
+     * global baseline. Uses the same "Honest" engine as live.
+     * Optimized for speed: avoids redundant mappings.
      */
     fun processFrames(frames: List<AudioFrame>): List<AudioFrame> {
         if (frames.isEmpty()) return emptyList()
 
-        val baseline = AudioAnalyzer.MovingBaseline(windowSize = frames.size.coerceAtLeast(100))
-        baseline.addBulk(frames.map { Triple(it.rms, it.pitch, it.jitter) })
+        // 1. Convert to internal metrics for analysis
+        val metrics = frames.map { AudioAnalyzer.AcousticMetrics(it.rms, it.pitch, it.jitter) }
 
-        return frames.map { raw ->
-            val result = AudioAnalyzer.calculateAdvancedAnalysis(
+        val globalProfile = AudioAnalyzer.calculateGlobalProfile(metrics)
+        val baseline = AudioAnalyzer.MovingBaseline(windowSize = 200)
+        
+        // Pre-warm baseline
+        val warmupCount = metrics.size.coerceAtMost(100)
+        for (i in 0 until warmupCount) {
+            val m = metrics[i]
+            baseline.add(rms = m.rms, pitch = m.pitch, jitter = m.jitter, isAnomalyOutlier = false)
+        }
+
+        val lookAheadCount = (AnalyzerThresholds.LOOKAHEAD_WINDOW_MS / 50).toInt()
+
+        return frames.mapIndexed { index, raw ->
+            val futureEnd = (index + 1 + lookAheadCount).coerceAtMost(metrics.size)
+            val futureAtoms = if (index + 1 < futureEnd) {
+                metrics.subList(index + 1, futureEnd)
+            } else emptyList()
+
+            val result = AudioAnalyzer.calculateHonestAnalysis(
                 rms = raw.rms,
                 pitch = raw.pitch,
                 jitter = raw.jitter,
-                baseline = baseline
+                baseline = baseline,
+                globalProfile = globalProfile,
+                futureAtoms = futureAtoms,
+                isWarmup = raw.timestamp < AnalyzerThresholds.WARMUP_DURATION_MS,
             )
+            
+            baseline.add(raw.rms, raw.pitch, raw.jitter, result.isAnomaly)
+
             raw.copy(
                 stressScore = result.stressScore,
                 jitterScore = result.jitterScore,

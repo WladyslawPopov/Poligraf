@@ -205,7 +205,8 @@ class AnalyzerViewModel(
                         volatilityStatus = volatilityStatus,
                         volatilityColor = volatilityColor,
                         conclusionText = conclusionText,
-                        conclusionColor = conclusionColor
+                        conclusionColor = conclusionColor,
+                        seekPositionMillis = 0L // Start at the beginning for review
                     )
                 }
 

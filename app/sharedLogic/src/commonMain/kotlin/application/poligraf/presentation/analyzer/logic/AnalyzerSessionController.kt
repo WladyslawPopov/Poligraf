@@ -16,9 +16,6 @@ import application.poligraf.ui.theme.tokens.StringToken
  */
 class AnalyzerSessionController {
 
-    private val _frameHistory = mutableListOf<AudioFrame>()
-    private val _timelineMarkers = mutableListOf<AnalyzerMarker>()
-
     private var markerShape: MarkerShape = MarkerShape.CIRCLE
 
     private var smoothedJitter = 0f
@@ -29,12 +26,14 @@ class AnalyzerSessionController {
     private var lastInterpretation: StringToken? = null
     private var interpretationTimestamp = 0L
 
-    val frameHistory: List<AudioFrame> get() = _frameHistory
-    val timelineMarkers: List<AnalyzerMarker> get() = _timelineMarkers
+    val frameHistory: List<AudioFrame>
+        field = mutableListOf<AudioFrame>()
+    val timelineMarkers: List<AnalyzerMarker>
+        field = mutableListOf<AnalyzerMarker>()
 
     fun reset() {
-        _frameHistory.clear()
-        _timelineMarkers.clear()
+        frameHistory.clear()
+        timelineMarkers.clear()
         smoothedJitter = 0f
         smoothedPitch = 0f
         smoothedRms = 0f
@@ -48,19 +47,19 @@ class AnalyzerSessionController {
      */
     fun setMarkerShape(shape: MarkerShape): List<AnalyzerMarker> {
         markerShape = shape
-        val updated = _timelineMarkers.map { it.copy(shape = shape) }
-        _timelineMarkers.clear()
-        _timelineMarkers.addAll(updated)
-        return _timelineMarkers.toList()
+        val updated = timelineMarkers.map { it.copy(shape = shape) }
+        timelineMarkers.clear()
+        timelineMarkers.addAll(updated)
+        return timelineMarkers.toList()
     }
 
     /**
      * Ingests one live frame, appending history and clustering anomaly markers.
      */
     fun onLiveFrame(frame: AudioFrame) {
-        val lastTimestamp = _frameHistory.lastOrNull()?.timestamp ?: -1L
+        val lastTimestamp = frameHistory.lastOrNull()?.timestamp ?: -1L
         if (frame.timestamp > lastTimestamp) {
-            _frameHistory.add(frame)
+            frameHistory.add(frame)
         }
         appendMarkerIfNeeded(frame)
     }
@@ -69,50 +68,57 @@ class AnalyzerSessionController {
      * Replaces history from persisted frames (resume draft or history review).
      */
     fun loadFrames(frames: List<AudioFrame>) {
-        _frameHistory.clear()
-        _frameHistory.addAll(frames)
-        _timelineMarkers.clear()
+        frameHistory.clear()
+        frameHistory.addAll(frames)
+        timelineMarkers.clear()
         frames.forEach { appendMarkerIfNeeded(it) }
     }
 
     private fun appendMarkerIfNeeded(frame: AudioFrame) {
         val level = AnalyzerProcessor.resolveSignalLevel(frame)
-        val dominant = if (level == SignalLevel.ANOMALY || level == SignalLevel.CRITICAL) {
+        // Set dominant metric for all visible levels (Glow and above) to have colored markers
+        val dominant = if (level != SignalLevel.NONE) {
             AnalyzerProcessor.resolveDominantMetric(frame)
         } else null
-        val lastMarkerTime = _timelineMarkers.lastOrNull()?.timestampMillis ?: -10000L
+        val lastMarkerTime = timelineMarkers.lastOrNull()?.timestampMillis ?: -10000L
         AnalyzerProcessor.createAnomalyMarker(
             frame = frame,
             shape = markerShape,
             lastMarkerTimestamp = lastMarkerTime,
             signalLevel = level,
             dominantMetric = dominant
-        )?.let { _timelineMarkers.add(it) }
+        )?.let { timelineMarkers.add(it) }
     }
 
     /**
      * Resolves the full display snapshot for the current seek/frame.
+     * Note: AudioFrames from the repository are already smoothed at 20Hz.
      */
     fun resolveDisplay(
         seekPos: Long?,
         isPaused: Boolean,
         liveFrame: AudioFrame?,
-        smooth: Boolean = true,
+        smooth: Boolean = false, // Disabled by default as frames are pre-smoothed
     ): AnalyzerDisplaySnapshot {
         val activeFrame = if (isPaused && seekPos != null) {
-            AnalyzerProcessor.findClosestFrame(_frameHistory, seekPos)
+            AnalyzerProcessor.findClosestFrame(frameHistory, seekPos)
         } else {
-            liveFrame ?: _frameHistory.lastOrNull()
+            liveFrame ?: frameHistory.lastOrNull()
         }
 
-        val (targetJitter, targetPitch, targetRms) = AnalyzerProcessor.calculateNormalizedMetrics(activeFrame)
+        val (targetJitter, targetPitch, targetRms) = AnalyzerProcessor.calculateNormalizedMetrics(
+            activeFrame
+        )
         val rawStress = activeFrame?.stressScore ?: 0f
 
         if (smooth) {
-            smoothedJitter = AnalyzerProcessor.applyEmaSmoothing(targetJitter, smoothedJitter, isPaused)
-            smoothedPitch = AnalyzerProcessor.applyEmaSmoothing(targetPitch, smoothedPitch, isPaused)
+            smoothedJitter =
+                AnalyzerProcessor.applyEmaSmoothing(targetJitter, smoothedJitter, isPaused)
+            smoothedPitch =
+                AnalyzerProcessor.applyEmaSmoothing(targetPitch, smoothedPitch, isPaused)
             smoothedRms = AnalyzerProcessor.applyEmaSmoothing(targetRms, smoothedRms, isPaused)
-            smoothedStress = AnalyzerProcessor.applyStressSmoothing(rawStress, smoothedStress, isPaused)
+            smoothedStress =
+                AnalyzerProcessor.applyStressSmoothing(rawStress, smoothedStress, isPaused)
         } else {
             smoothedJitter = targetJitter
             smoothedPitch = targetPitch
@@ -139,8 +145,10 @@ class AnalyzerSessionController {
                     interpretationTimestamp = now
                     currentInterpretation
                 }
+
                 lastInterpretation != null &&
-                    (now - interpretationTimestamp) < AnalyzerThresholds.INTERPRETATION_STICKY_MS -> lastInterpretation
+                        (now - interpretationTimestamp) < AnalyzerThresholds.INTERPRETATION_STICKY_MS -> lastInterpretation
+
                 else -> {
                     lastInterpretation = null
                     null

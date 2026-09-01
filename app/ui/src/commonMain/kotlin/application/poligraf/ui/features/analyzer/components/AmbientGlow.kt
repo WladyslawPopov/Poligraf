@@ -24,10 +24,16 @@ import application.poligraf.ui.theme.tokens.ColorToken
 fun AmbientGlow(
     signalLevel: SignalLevel,
     dominantMetric: DominantMetric?,
+    jitterLevel: Float,
+    pitchLevel: Float,
+    rmsLevel: Float,
     modifier: Modifier = Modifier
 ) {
     val designSystem = LocalDesignSystem.current
-    val visible = signalLevel != SignalLevel.NONE
+    
+    // UI Sensitivity: Even low levels should create a subtle glow
+    val maxLevel = maxOf(jitterLevel, pitchLevel, rmsLevel)
+    val visible = maxLevel > 0.02f
 
     val anomalyColor = remember(signalLevel, dominantMetric) {
         when (dominantMetric) {
@@ -39,19 +45,23 @@ fun AmbientGlow(
     }
 
     val infiniteTransition = rememberInfiniteTransition(label = "ambient")
-    val ambientAlpha by infiniteTransition.animateFloat(
-        initialValue = 0.10f,
-        targetValue = 0.25f,
+    val breathingBase by infiniteTransition.animateFloat(
+        initialValue = 0.05f,
+        targetValue = 0.15f,
         animationSpec = infiniteRepeatable(
-            animation = tween(2800, easing = LinearOutSlowInEasing),
+            animation = tween(3200, easing = LinearOutSlowInEasing),
             repeatMode = RepeatMode.Reverse
-        ), label = "alpha"
+        ), label = "breathing"
     )
+
+    // Modulate alpha by the actual signal intensity
+    // UI Sensitivity: Faster scaling for subtle half-tones
+    val intensityAlpha = (maxLevel * 0.5f).coerceAtLeast(breathingBase)
 
     AnimatedVisibility(
         visible = visible,
-        enter = fadeIn(tween(600, easing = LinearOutSlowInEasing)),
-        exit = fadeOut(tween(800, easing = LinearOutSlowInEasing)),
+        enter = fadeIn(tween(400, easing = LinearOutSlowInEasing)),
+        exit = fadeOut(tween(1200, easing = LinearOutSlowInEasing)),
         modifier = modifier
     ) {
         BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
@@ -62,12 +72,12 @@ fun AmbientGlow(
                     .background(
                         Brush.radialGradient(
                             colors = listOf(
-                                anomalyColor.copy(alpha = ambientAlpha * 1.4f),
-                                anomalyColor.copy(alpha = ambientAlpha * 0.6f),
+                                anomalyColor.copy(alpha = intensityAlpha * 1.5f),
+                                anomalyColor.copy(alpha = intensityAlpha * 0.4f),
                                 Color.Transparent
                             ),
                             center = Offset(width / 2f, 0f),
-                            radius = 1800f
+                            radius = (1000f + maxLevel * 1200f) // Radius also plays with intensity
                         )
                     )
             )

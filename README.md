@@ -37,11 +37,16 @@ The app listens to the shared audio stream. It doesn't attempt to technically se
 
 ## ⚡ Core Engine Features
 
-*   **Dual-Track Adaptive Baseline (Continuous Voice Stress Analysis):** Continuously models both the room's ambient noise floor (in pauses) and the speaker's vocal profile (speech loudness RMS, fundamental pitch F0, and micro-tremor jitter). Features **Soft Leaky Outlier Learning** so temporary stress bursts do not corrupt baseline statistics while permanently adapted vocal changes are seamlessly tracked.
-*   **Unified Session Architecture:** Single codepath (`AnalyzerComponent` / `AnalyzerViewModel`) for both live recording and historical session review, powered by the pure `AnalyzerSessionController`.
-*   **High-Resolution Anomaly Timeline:** Zoomed timeline resolution (40dp/s) with 600ms event quantization clustering anomalies into clear, seekable diamond markers with zero overlap.
-*   **Session Volatility & Conclusion Engine:** Objective evaluation of session reliability based on anomaly density per minute (Anomalies/Min) rather than raw counts, ensuring equal accuracy for 15-second checks and 10-minute interviews.
-*   **Live Context Notes:** Direct note-taking with timestamp and anomaly linkage during live capture and review.
+*   **Honest VSA Engine (Scientific Grade):** A high-precision acoustic analyzer that moves beyond simple "equalizer" logic. It uses a three-tier verification system to detect real physiological stress:
+    *   **Global Session Profile:** Continuous statistical calibration against the speaker's *entire session history*. It calculates individual norms (90th percentiles, log-domain variance) to establish a true vocal baseline.
+    *   **Dynamic Headroom (Adaptive Damper):** Automatically desensitizes the analyzer during loud or aggressive speech segments. It prevents normal emotional accents from being falsely identified as stress by widening the "sigma-norm corridor" in real-time.
+    *   **Look-ahead Verification:** Utilizes a 600ms "future" buffer to distinguish between transient autonomic spikes (Stress) and sustained vocal shifts (Adaptation).
+*   **Non-linear Intensity Mapping:** Uses a power curve transfer function ($x^{0.6}$) for UI visualizations. This makes subtle, low-range physiological tremors more expressive and visible to the human eye without compromising high-end accuracy.
+*   **VAD-Gated Calibration:** Only active speech segments are used for calibration. This eliminates "Silence Bias," where long pauses would artificially lower the baseline.
+*   **60 FPS Visual Fluidity:** Integrated Exponential Moving Average (EMA) smoothing at the data layer ensures that all gauges, rings, and charts move with analog-like smoothness, even though raw DSP data arrives in discrete 50ms atoms.
+*   **Unified Session Architecture:** Single codepath for both live recording and historical session review. Historical data is "re-lived" through the same Honest Engine (using look-ahead into the stored frames) for 100% data consistency.
+*   **DB-First Resilience:** Temporary calibration data is persisted to a local SQLDelight table. If the app crashes or the battery dies, the session can be resumed without losing its learned vocal profile.
+*   **High-Resolution Anomaly Timeline:** Zoomed timeline resolution (40dp/s) with 600ms event quantization clustering anomalies into clear, seekable diamond markers.
 
 ---
 
