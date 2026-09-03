@@ -30,6 +30,7 @@ import application.poligraf.ui.features.history.detail.HistoryEditableTitle
 import application.poligraf.ui.features.history.detail.HistoryNotesField
 import application.poligraf.ui.features.history.detail.SessionNoteItem
 import application.poligraf.ui.features.history.detail.SessionSummaryCard
+import application.poligraf.ui.utils.KeepScreenOn
 import application.poligraf.ui.theme.LocalDesignSystem
 import application.poligraf.ui.theme.tokens.DimenToken
 
@@ -48,6 +49,9 @@ fun AnalyzerRenderer(
     LaunchedEffect(Unit) {
         viewModel.onAppear()
     }
+
+    // Keep screen active (prevent dimming/sleep) during live audio recording
+    KeepScreenOn(keepOn = state.isAnalyzing && !state.isPaused)
 
     Box(
         modifier = modifier
