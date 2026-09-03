@@ -21,9 +21,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
-import application.poligraf.domain.model.AnalyzerSkin
-import application.poligraf.domain.model.MarkerShape
-import application.poligraf.domain.repository.PreferencesRepository
+import application.poligraf.domain.analyzer.types.AnalyzerSkin
+import application.poligraf.domain.analyzer.types.MarkerShape
+import application.poligraf.domain.preferences.repository.PreferencesRepository
 import application.poligraf.ui.components.decorators.GlassDivider
 import application.poligraf.ui.components.items.DrawerItem
 import application.poligraf.ui.components.text.SectionHeader
@@ -49,7 +49,7 @@ fun SettingsContent(
 ) {
     val currentDefaultSkin by defaultSkin.collectAsState(AnalyzerSkin.RINGS)
     val currentMarkerShape by markerShape.collectAsState(MarkerShape.CIRCLE)
-    val isDarkMode by preferencesRepository.isDarkMode.collectAsState(true)
+    val isDarkMode by preferencesRepository.isDarkModeFlow.collectAsState(true)
 
     Column(
         modifier = Modifier

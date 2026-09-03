@@ -11,21 +11,15 @@ CREATE TABLE SessionEntity (
     anomalyCount INTEGER NOT NULL DEFAULT 0
 );
 
--- Time-series data for analysis (10 frames per second)
+-- Time-series clean UI frames for analysis (10 frames per second)
 CREATE TABLE SessionFrame (
     sessionId TEXT NOT NULL,
     timestamp INTEGER NOT NULL,
-    rms REAL NOT NULL,
-    pitch REAL NOT NULL,
-    jitter REAL NOT NULL,
     stressScore REAL NOT NULL,
     jitterScore REAL NOT NULL DEFAULT 0.0,
     pitchScore REAL NOT NULL DEFAULT 0.0,
     rmsScore REAL NOT NULL DEFAULT 0.0,
     isAnomaly INTEGER AS Boolean NOT NULL,
-    isCalibrated INTEGER AS Boolean NOT NULL DEFAULT 1,
-    confidence REAL NOT NULL DEFAULT 1.0,
-    isCritical INTEGER AS Boolean NOT NULL DEFAULT 0,
     FOREIGN KEY(sessionId) REFERENCES SessionEntity(id) ON DELETE CASCADE
 );
 
@@ -39,7 +33,6 @@ CREATE TABLE CalibrationFrame (
 );
 
 CREATE INDEX IF NOT EXISTS idx_calibration_session ON CalibrationFrame(sessionId);
-
 CREATE INDEX IF NOT EXISTS idx_session_frame_session_time ON SessionFrame(sessionId, timestamp);
 CREATE INDEX IF NOT EXISTS idx_session_frame_anomaly ON SessionFrame(sessionId, isAnomaly);
 
@@ -60,7 +53,12 @@ INSERT OR REPLACE INTO SessionEntity(id, timestamp, title, notes, duration, isCo
 VALUES (?, ?, ?, ?, ?, ?, ?);
 
 getAllSessions:
-SELECT s.*,
+SELECT s.id,
+       s.timestamp,
+       s.title,
+       s.notes,
+       s.duration,
+       s.isCompleted,
        s.anomalyCount AS anomalyCount,
        (SELECT COUNT(*) FROM SessionNote n WHERE n.sessionId = s.id) AS noteCount
 FROM SessionEntity s
@@ -90,8 +88,8 @@ SELECT COUNT(*) FROM SessionEntity;
 
 -- Frame Queries
 insertFrame:
-INSERT INTO SessionFrame(sessionId, timestamp, rms, pitch, jitter, stressScore, jitterScore, pitchScore, rmsScore, isAnomaly, isCalibrated, confidence, isCritical)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+INSERT INTO SessionFrame(sessionId, timestamp, stressScore, jitterScore, pitchScore, rmsScore, isAnomaly)
+VALUES (?, ?, ?, ?, ?, ?, ?);
 
 insertCalibrationFrame:
 INSERT INTO CalibrationFrame(sessionId, rms, pitch, jitter)
@@ -108,6 +106,9 @@ SELECT * FROM SessionFrame WHERE sessionId = ? ORDER BY timestamp ASC;
 
 deleteFramesBySessionId:
 DELETE FROM SessionFrame WHERE sessionId = ?;
+
+countAnomaliesBySessionId:
+SELECT COUNT(*) FROM SessionFrame WHERE sessionId = ? AND isAnomaly = 1;
 
 getUncompletedSession:
 SELECT * FROM SessionEntity WHERE isCompleted = 0 LIMIT 1;

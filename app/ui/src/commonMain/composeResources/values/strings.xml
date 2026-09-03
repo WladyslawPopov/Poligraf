@@ -37,14 +37,24 @@
     <string name="action_save">Save</string>
     <string name="action_delete">Delete</string>
 
+    <!-- Continuous Statuses -->
+    <string name="status_warmup">Voice profiling in progress</string>
+    <string name="status_clipping">Microphone clipping</string>
+    <string name="status_low_snr">Low signal level</string>
+    <string name="status_calm">Speech is steady</string>
+    <string name="status_mild_fluctuation">Subtle emotional fluctuation</string>
+    <string name="status_fear_single">Pronounced micro-tremor</string>
+    <string name="status_stress_single">Cognitive stress spike</string>
+    <string name="status_pressure_single">Acoustic pressure spike</string>
+
     <!-- Interpretations -->
-    <string name="interpretation_calm">Steady background</string>
-    <string name="interpretation_panic">Hidden panic</string>
-    <string name="interpretation_aggression">Compensatory aggression</string>
-    <string name="interpretation_confrontation">Open confrontation</string>
-    <string name="interpretation_disorganization">Total disorganization</string>
-    <string name="interpretation_analyzing">Analyzing state...</string>
-    <string name="interpretation_format">«%s»</string>
+    <string name="interpretation_calm">Speech is steady</string>
+    <string name="interpretation_panic">Hidden panic reaction</string>
+    <string name="interpretation_aggression">Aggressive speech tone</string>
+    <string name="interpretation_confrontation">Open vocal confrontation</string>
+    <string name="interpretation_disorganization">Disorganized pitch state</string>
+    <string name="interpretation_analyzing">Analyzing vocal state...</string>
+    <string name="interpretation_format">%s</string>
 
     <!-- Chart Labels -->
     <string name="label_stress">Stress</string>

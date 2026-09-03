@@ -1,11 +1,11 @@
 package application.poligraf.presentation.history
 
-import application.poligraf.domain.repository.HistoryRepository
+import application.poligraf.domain.history.repository.HistoryRepository
 import application.poligraf.engine.utils.convertDateWithMinutes
 import application.poligraf.presentation.base.BaseViewModel
-import application.poligraf.presentation.history.data.HistoryState
-import application.poligraf.presentation.history.data.SessionUiModel
-import application.poligraf.ui.foundation.actions.HistoryAction
+import application.poligraf.ui.features.history.actions.HistoryAction
+import application.poligraf.ui.features.history.state.HistoryState
+import application.poligraf.ui.features.history.state.SessionUiModel
 import application.poligraf.ui.foundation.models.AppBackground
 import application.poligraf.ui.foundation.models.AppToolbar
 import application.poligraf.ui.foundation.models.ToolbarAction
@@ -36,7 +36,11 @@ class HistoryViewModel(
             _state.update {
                 it.copy(
                     isLoading = true,
-                    background = createBackground(isLoading = true, isEmpty = it.sessions.isEmpty(), isSelection = false)
+                    background = createBackground(
+                        isLoading = true,
+                        isEmpty = it.sessions.isEmpty(),
+                        isSelection = false
+                    )
                 )
             }
             historyRepository.getSessions().collect { sessions ->
@@ -66,20 +70,27 @@ class HistoryViewModel(
         }
     }
 
-    private fun createBackground(isLoading: Boolean, isEmpty: Boolean, isSelection: Boolean): AppBackground {
+    private fun createBackground(
+        isLoading: Boolean,
+        isEmpty: Boolean,
+        isSelection: Boolean,
+    ): AppBackground {
         return when {
             isSelection -> AppBackground.AnimatedScales(
                 mode = BackgroundMode.ERROR,
                 energyColor = ColorToken.STATE_ERROR
             )
+
             isLoading -> AppBackground.AnimatedScales(
                 mode = BackgroundMode.IDLE,
                 energyColor = ColorToken.ACCENT_ENERGY
             )
+
             isEmpty -> AppBackground.AnimatedScales(
                 mode = BackgroundMode.WAITING,
                 energyColor = ColorToken.STATE_WARNING
             )
+
             else -> AppBackground.AnimatedScales(
                 mode = BackgroundMode.WAITING, // Yin-Yang effect for items
                 energyColor = ColorToken.ACCENT_ENERGY
@@ -147,6 +158,7 @@ class HistoryViewModel(
             is HistoryAction.ClearSelection -> {
                 updateStateWithSelection(emptySet())
             }
+
             is HistoryAction.DeleteSelected -> {
                 val idsToDelete = _state.value.selectedIds
                 scope.launch {
@@ -154,6 +166,7 @@ class HistoryViewModel(
                     updateStateWithSelection(emptySet())
                 }
             }
+
             is HistoryAction.ToggleSelection -> toggleSelection(action.id)
             else -> {}
         }

@@ -20,10 +20,11 @@ fun AnalyzerHeader(
     isPaused: Boolean,
     onSave: () -> Unit,
     onDelete: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isSaving: Boolean = false,
 ) {
     val designSystem = LocalDesignSystem.current
-    val isActionEnabled = isPaused || !isAnalyzing
+    val isActionEnabled = (isPaused || !isAnalyzing) && !isSaving
     val disabledAlpha = 0.2f
     
     Column(modifier = modifier.fillMaxWidth()) {
@@ -93,11 +94,19 @@ fun AnalyzerHeader(
                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
                 modifier = Modifier.height(32.dp)
             ) {
-                Text(
-                    designSystem.string(StringToken.SAVE), 
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = FontWeight.Bold
-                )
+                if (isSaving) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(14.dp),
+                        strokeWidth = 2.dp,
+                        color = designSystem.color(ColorToken.STATE_SUCCESS)
+                    )
+                } else {
+                    Text(
+                        designSystem.string(StringToken.SAVE), 
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
         }
     }

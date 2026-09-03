@@ -2,19 +2,24 @@ package application.poligraf.presentation.history.ui
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.*
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import application.poligraf.presentation.history.data.HistoryState
-import application.poligraf.presentation.history.data.SessionUiModel
 import application.poligraf.ui.components.containers.AppCard
 import application.poligraf.ui.features.history.list.HistoryItem
+import application.poligraf.ui.features.history.state.HistoryState
+import application.poligraf.ui.features.history.state.SessionUiModel
 import application.poligraf.ui.theme.LocalDesignSystem
 import application.poligraf.ui.theme.tokens.ColorToken
 import application.poligraf.ui.theme.tokens.DimenToken
@@ -26,7 +31,7 @@ fun HistoryListRenderer(
     onSessionClick: (String) -> Unit,
     onSessionLongClick: (String) -> Unit,
     onDeleteSession: (String) -> Unit,
-    contentPadding: PaddingValues = PaddingValues(0.dp)
+    contentPadding: PaddingValues = PaddingValues(0.dp),
 ) {
     val designSystem = LocalDesignSystem.current
 
@@ -67,7 +72,7 @@ private fun HistoryListItemWrapper(
     isSelected: Boolean,
     isSelectionMode: Boolean,
     onClick: () -> Unit,
-    onLongClick: () -> Unit
+    onLongClick: () -> Unit,
 ) {
     val designSystem = LocalDesignSystem.current
 
@@ -75,7 +80,7 @@ private fun HistoryListItemWrapper(
         isSelected -> designSystem.color(ColorToken.STATE_ERROR).copy(alpha = 0.15f)
         else -> designSystem.color(ColorToken.SURFACE_PRIMARY).copy(alpha = 0.8f)
     }
-    
+
     val borderColor = when {
         isSelected -> designSystem.color(ColorToken.STATE_ERROR)
         isSelectionMode -> designSystem.color(ColorToken.SURFACE_VARIANT).copy(alpha = 0.5f)

@@ -10,10 +10,10 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.unit.dp
-import application.poligraf.domain.repository.PreferencesRepository
+import application.poligraf.domain.preferences.repository.PreferencesRepository
 import application.poligraf.ui.theme.DesignSystem
-import application.poligraf.ui.theme.LocalDesignSystem
 import application.poligraf.ui.theme.IAppStrings
+import application.poligraf.ui.theme.LocalDesignSystem
 import application.poligraf.ui.theme.tokens.ColorToken
 import application.poligraf.ui.utils.rememberAppUIStrings
 import org.koin.compose.koinInject
@@ -22,11 +22,11 @@ import org.koin.compose.koinInject
 fun PoligrafTheme(
     preferencesRepository: PreferencesRepository = koinInject(),
     appStrings: IAppStrings = koinInject(),
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
-    val isDark by preferencesRepository.isDarkMode.collectAsState(true)
+    val isDark by preferencesRepository.isDarkModeFlow.collectAsState(true)
     val strings = rememberAppUIStrings(appStrings)
-    
+
     val designSystem = DesignSystem(
         strings = strings,
         isDark = isDark,

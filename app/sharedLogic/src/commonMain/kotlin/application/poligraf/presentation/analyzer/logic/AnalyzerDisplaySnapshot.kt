@@ -1,13 +1,13 @@
 package application.poligraf.presentation.analyzer.logic
 
-import application.poligraf.domain.model.AudioFrame
-import application.poligraf.engine.dsp.DominantMetric
-import application.poligraf.engine.dsp.SignalLevel
+import application.poligraf.domain.analyzer.model.AudioFrame
+import application.poligraf.domain.analyzer.types.DominantMetric
+import application.poligraf.domain.analyzer.types.SignalLevel
 import application.poligraf.ui.theme.tokens.StringToken
 
 /**
  * Fully resolved display state for one analysis frame. ViewModels copy this into
- * [application.poligraf.ui.foundation.state.AnalyzerState] without re-deriving anything.
+ * [application.poligraf.ui.features.analyzer.state.AnalyzerState] without re-deriving anything.
  */
 data class AnalyzerDisplaySnapshot(
     val displayFrame: AudioFrame?,

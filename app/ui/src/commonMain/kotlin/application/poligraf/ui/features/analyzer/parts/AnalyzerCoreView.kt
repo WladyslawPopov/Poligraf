@@ -1,6 +1,5 @@
 package application.poligraf.ui.features.analyzer.parts
 
-import application.poligraf.ui.features.analyzer.components.AnomalyTimeline
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,14 +11,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import application.poligraf.domain.model.AnalyzerSkin
+import application.poligraf.domain.analyzer.types.AnalyzerSkin
 import application.poligraf.ui.components.containers.AppCard
+import application.poligraf.ui.features.analyzer.components.AnomalyTimeline
 import application.poligraf.ui.features.analyzer.components.InterpretationOverlay
 import application.poligraf.ui.features.analyzer.components.MetricLegend
 import application.poligraf.ui.features.analyzer.components.MetricRow
 import application.poligraf.ui.features.analyzer.components.SkinSwitcher
+import application.poligraf.ui.features.analyzer.state.AnalyzerState
 import application.poligraf.ui.features.analyzer.visualizations.VisualizationContent
-import application.poligraf.ui.foundation.state.AnalyzerState
 import application.poligraf.ui.theme.LocalDesignSystem
 import application.poligraf.ui.theme.tokens.DimenToken
 
@@ -50,8 +50,6 @@ fun AnalyzerCoreView(
             ) {
                 InterpretationOverlay(
                     interpretation = state.activeInterpretation,
-                    isSynthesized = state.isCalibrated,
-                    synthesisProgress = state.calibrationProgress,
                     modifier = Modifier.weight(1f)
                 )
 

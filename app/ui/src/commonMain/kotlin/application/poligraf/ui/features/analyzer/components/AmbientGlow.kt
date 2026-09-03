@@ -1,7 +1,12 @@
 package application.poligraf.ui.features.analyzer.components
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.*
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
@@ -15,8 +20,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import application.poligraf.engine.dsp.DominantMetric
-import application.poligraf.engine.dsp.SignalLevel
+import application.poligraf.domain.analyzer.types.DominantMetric
+import application.poligraf.domain.analyzer.types.SignalLevel
 import application.poligraf.ui.theme.LocalDesignSystem
 import application.poligraf.ui.theme.tokens.ColorToken
 
@@ -27,10 +32,10 @@ fun AmbientGlow(
     jitterLevel: Float,
     pitchLevel: Float,
     rmsLevel: Float,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val designSystem = LocalDesignSystem.current
-    
+
     // UI Sensitivity: Even low levels should create a subtle glow
     val maxLevel = maxOf(jitterLevel, pitchLevel, rmsLevel)
     val visible = maxLevel > 0.02f

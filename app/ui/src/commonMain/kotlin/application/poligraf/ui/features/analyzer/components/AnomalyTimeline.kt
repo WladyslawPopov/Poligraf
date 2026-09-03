@@ -2,10 +2,24 @@ package application.poligraf.ui.features.analyzer.components
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
@@ -24,8 +38,9 @@ import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import application.poligraf.domain.model.MarkerShape
-import application.poligraf.ui.foundation.models.AnalyzerMarker
+import application.poligraf.domain.analyzer.types.MarkerShape
+import application.poligraf.ui.features.analyzer.models.AnalyzerMarker
+import application.poligraf.ui.features.analyzer.models.SessionNoteUiModel
 import application.poligraf.ui.theme.LocalDesignSystem
 import application.poligraf.ui.theme.tokens.ColorToken
 import application.poligraf.ui.theme.tokens.IconToken
@@ -36,7 +51,7 @@ import kotlin.math.abs
 @Composable
 fun AnomalyTimeline(
     markers: List<AnalyzerMarker>,
-    notes: List<application.poligraf.ui.foundation.models.SessionNoteUiModel> = emptyList(),
+    notes: List<SessionNoteUiModel> = emptyList(),
     currentDurationMillis: Long,
     seekPositionMillis: Long?,
     isPaused: Boolean,
@@ -83,7 +98,7 @@ fun AnomalyTimeline(
         }
         rememberVectorPainter(designSystem.icon(iconToken))
     }
-    
+
     val notePainter = rememberVectorPainter(designSystem.icon(IconToken.HISTORY))
 
     Column(
@@ -214,7 +229,7 @@ fun AnomalyTimeline(
                         val notchStep = 4.dp.toPx()
                         val firstVisibleNotch = (visibleStartPx / notchStep).toInt()
                         val lastVisibleNotch = (visibleEndPx / notchStep).toInt()
-                        
+
                         for (i in firstVisibleNotch..lastVisibleNotch) {
                             val nx = i * notchStep
                             drawLine(
@@ -295,7 +310,7 @@ fun AnomalyTimeline(
                                 }
                             }
                         }
-                        
+
                         // Note Markers (Only visible notes)
                         notes.forEach { note ->
                             val x = indicatorOffset + (note.timestampMillis * pxPerMillis)

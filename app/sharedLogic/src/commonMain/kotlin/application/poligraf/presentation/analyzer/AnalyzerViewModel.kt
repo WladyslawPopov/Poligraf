@@ -1,19 +1,20 @@
 package application.poligraf.presentation.analyzer
 
 import androidx.compose.runtime.Stable
-import application.poligraf.domain.model.AnalyzerMode
-import application.poligraf.domain.model.AnalyzerSkin
-import application.poligraf.domain.repository.AnalyzerRepository
-import application.poligraf.domain.repository.HistoryRepository
-import application.poligraf.domain.repository.PreferencesRepository
-import application.poligraf.presentation.analyzer.logic.AnalyzerProcessor
+import application.poligraf.data.analyzer.dsp.AnalyzerProcessor
+import application.poligraf.domain.analyzer.repository.AnalyzerRepository
+import application.poligraf.domain.analyzer.types.AnalyzerMode
+import application.poligraf.domain.analyzer.types.AnalyzerSkin
+import application.poligraf.domain.history.repository.HistoryRepository
+import application.poligraf.domain.preferences.repository.PreferencesRepository
 import application.poligraf.presentation.analyzer.logic.AnalyzerSessionController
+import application.poligraf.presentation.analyzer.logic.AnalyzerUiMapper
 import application.poligraf.presentation.base.BaseViewModel
-import application.poligraf.ui.foundation.actions.AnalyzingAction
+import application.poligraf.ui.features.analyzer.actions.AnalyzingAction
+import application.poligraf.ui.features.analyzer.models.SessionNoteUiModel
+import application.poligraf.ui.features.analyzer.state.AnalyzerState
 import application.poligraf.ui.foundation.models.AppToolbar
-import application.poligraf.ui.foundation.models.SessionNoteUiModel
 import application.poligraf.ui.foundation.models.ToolbarAction
-import application.poligraf.ui.foundation.state.AnalyzerState
 import application.poligraf.ui.theme.tokens.ColorToken
 import application.poligraf.ui.theme.tokens.IconToken
 import application.poligraf.ui.theme.tokens.StringToken
@@ -87,7 +88,7 @@ class AnalyzerViewModel(
 
     private val controller = AnalyzerSessionController()
 
-    private val _currentSessionIdFlow = MutableStateFlow<String?>(initialSessionId)
+    private val _currentSessionIdFlow = MutableStateFlow(initialSessionId)
     private var currentSessionId: String? = initialSessionId
         set(value) {
             field = value
@@ -97,7 +98,7 @@ class AnalyzerViewModel(
     init {
         // Observe preferences (marker shape & skin)
         scope.launch {
-            preferencesRepository.markerShape.collect { shape ->
+            preferencesRepository.markerShapeFlow.collect { shape ->
                 val markers = controller.setMarkerShape(shape)
                 val updatedNotes = _state.value.notes.map {
                     if (it.markerColor != null) it.copy(markerShape = shape) else it
@@ -112,7 +113,7 @@ class AnalyzerViewModel(
         }
 
         scope.launch {
-            preferencesRepository.defaultSkin.collect { skin ->
+            preferencesRepository.skinFlow.collect { skin ->
                 _state.update { it.copy(currentSkin = skin) }
             }
         }
@@ -130,7 +131,7 @@ class AnalyzerViewModel(
                     if (sessionId != null) {
                         combine(
                             historyRepository.getNotesForSession(sessionId),
-                            preferencesRepository.markerShape
+                            preferencesRepository.markerShapeFlow
                         ) { notes, shape ->
                             notes.map {
                                 SessionNoteUiModel(
@@ -174,39 +175,40 @@ class AnalyzerViewModel(
             }
         }
 
-        // Load frames and process with analyzer processor
+        // Load frames for Review Mode (1:1 match with Live Mode, excluding initial warmup calibration)
         scope.launch(Dispatchers.Default) {
             try {
-                val rawFrames = repository.getFramesForSession(sessionId)
-                val processedFrames = AnalyzerProcessor.processFrames(rawFrames)
-                controller.loadFrames(processedFrames)
+                val allFrames = repository.getFramesForSession(sessionId)
+                val reviewFrames = allFrames.filter { it.timestamp >= 5000L }
+                controller.loadFrames(reviewFrames)
 
                 val markers = controller.timelineMarkers
-                val anomalyCount = markers.count { it.isAnomaly }
-                val avgConfidence = if (processedFrames.isNotEmpty()) {
-                    processedFrames.map { it.confidence }.average().toFloat()
-                } else 0f
-                val lastTimestamp = processedFrames.lastOrNull()?.timestamp ?: 0L
+                val anomalyCount = markers.size
+                val avgConfidence = 1.0f
+                val lastTimestamp = reviewFrames.lastOrNull()?.timestamp ?: 0L
 
-                val volatilityStatus = AnalyzerProcessor.determineVolatilityStatus(anomalyCount, lastTimestamp)
-                val volatilityColor = AnalyzerProcessor.determineVolatilityColor(volatilityStatus)
-                val conclusionText = AnalyzerProcessor.determineConclusionText(anomalyCount, lastTimestamp, avgConfidence)
-                val conclusionColor = AnalyzerProcessor.determineConclusionColor(conclusionText)
+                val volatilityStatus =
+                    AnalyzerUiMapper.determineVolatilityStatus(anomalyCount, lastTimestamp)
+                val volatilityColor = AnalyzerUiMapper.determineVolatilityColor(volatilityStatus)
+                val conclusionText = AnalyzerUiMapper.determineConclusionText(
+                    anomalyCount,
+                    lastTimestamp,
+                    avgConfidence
+                )
+                val conclusionColor = AnalyzerUiMapper.determineConclusionColor(conclusionText)
 
                 _state.update { s ->
                     s.copy(
                         timelineMarkers = markers,
                         currentDurationMillis = lastTimestamp,
                         durationText = AnalyzerProcessor.formatDuration(lastTimestamp),
-                        isCalibrated = true,
-                        calibrationProgress = 1f,
                         anomalyCount = anomalyCount,
                         averageConfidence = avgConfidence,
                         volatilityStatus = volatilityStatus,
                         volatilityColor = volatilityColor,
                         conclusionText = conclusionText,
                         conclusionColor = conclusionColor,
-                        seekPositionMillis = 0L // Start at the beginning for review
+                        seekPositionMillis = reviewFrames.firstOrNull()?.timestamp ?: 0L
                     )
                 }
 
@@ -265,14 +267,10 @@ class AnalyzerViewModel(
                 repository.durationMillis,
                 repository.isAnalyzing,
                 repository.isPaused,
-                repository.calibrationProgress,
-                repository.isCalibrated
             ) { args ->
                 val duration = args[1] as Long
                 val analyzing = args[2] as Boolean
                 val paused = args[3] as Boolean
-                val progress = args[4] as Float
-                val calibrated = args[5] as Boolean
 
                 _state.update {
                     it.copy(
@@ -280,8 +278,6 @@ class AnalyzerViewModel(
                         currentDurationMillis = duration,
                         isAnalyzing = analyzing,
                         isPaused = paused,
-                        isCalibrated = calibrated,
-                        calibrationProgress = progress,
                         timelineMarkers = controller.timelineMarkers
                     )
                 }
@@ -379,8 +375,10 @@ class AnalyzerViewModel(
 
         _state.update { it.copy(isProcessing = true) }
 
+        val markerCount = controller.timelineMarkers.size.toLong()
+
         scope.launch {
-            repository.stopAnalysis(save)
+            repository.stopAnalysis(save, markerCount)
             if (save && sessionId != null) {
                 _navigateToDetail.emit(sessionId)
             }
@@ -400,7 +398,7 @@ class AnalyzerViewModel(
     }
 
     fun onSkinChange(skin: AnalyzerSkin) {
-        preferencesRepository.setDefaultSkin(skin)
+        preferencesRepository.setSkin(skin)
         _state.update { it.copy(currentSkin = skin) }
     }
 

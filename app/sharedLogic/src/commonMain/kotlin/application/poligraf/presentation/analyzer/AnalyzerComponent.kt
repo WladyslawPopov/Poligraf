@@ -1,6 +1,9 @@
 package application.poligraf.presentation.analyzer
 
 import androidx.compose.runtime.Stable
+import application.poligraf.domain.analyzer.repository.AnalyzerRepository
+import application.poligraf.domain.history.repository.HistoryRepository
+import application.poligraf.domain.preferences.repository.PreferencesRepository
 import application.poligraf.engine.component.AppComponentContext
 import com.arkivanov.decompose.ExperimentalDecomposeApi
 import com.arkivanov.decompose.jetpackcomponentcontext.viewModel
@@ -33,9 +36,9 @@ class DefaultAnalyzerComponent(
     private val analyzerViewModel = viewModel("analyzerViewModel_${sessionId ?: "live"}") {
         AnalyzerViewModel(
             initialSessionId = sessionId,
-            repository = get(),
-            historyRepository = get(),
-            preferencesRepository = get(),
+            repository = get<AnalyzerRepository>(),
+            historyRepository = get<HistoryRepository>(),
+            preferencesRepository = get<PreferencesRepository>(),
             navigateBack = onNavigateBack,
         )
     }

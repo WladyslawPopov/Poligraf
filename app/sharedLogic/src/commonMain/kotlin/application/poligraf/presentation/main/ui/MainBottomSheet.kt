@@ -4,8 +4,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import application.poligraf.domain.model.AnalyzerSkin
-import application.poligraf.domain.model.MarkerShape
+import application.poligraf.domain.analyzer.types.AnalyzerSkin
+import application.poligraf.domain.analyzer.types.MarkerShape
 import application.poligraf.presentation.main.data.MainState
 import application.poligraf.ui.components.layout.AppBottomSheet
 import application.poligraf.ui.theme.DesignSystem

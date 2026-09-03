@@ -2,15 +2,22 @@ package application.poligraf.ui.features.analyzer.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.*
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import application.poligraf.domain.model.AnalyzerSkin
+import application.poligraf.domain.analyzer.types.AnalyzerSkin
 import application.poligraf.ui.theme.LocalDesignSystem
 import application.poligraf.ui.theme.tokens.ColorToken
 import application.poligraf.ui.theme.tokens.IconToken
@@ -21,7 +28,7 @@ fun SkinSwitcher(
     currentSkin: AnalyzerSkin,
     onSkinChange: (AnalyzerSkin) -> Unit,
     modifier: Modifier = Modifier,
-    showLabel: Boolean = true
+    showLabel: Boolean = true,
 ) {
     val designSystem = LocalDesignSystem.current
 

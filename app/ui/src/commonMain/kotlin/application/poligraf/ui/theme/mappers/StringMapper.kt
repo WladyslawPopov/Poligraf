@@ -5,7 +5,7 @@ import application.poligraf.ui.theme.tokens.StringToken
 
 internal object StringMapper {
     fun getString(token: StringToken, strings: AppStrings): String {
-        return when(token) {
+        return when (token) {
             StringToken.APP_NAME -> strings.common.appName
             StringToken.WELCOME_1 -> strings.common.welcome1
             StringToken.WELCOME_2 -> strings.common.welcome2
@@ -75,6 +75,14 @@ internal object StringMapper {
             StringToken.SETTINGS_PREFERENCES_TITLE -> strings.settings.preferencesTitle
             StringToken.SETTINGS_SKIN_TITLE -> strings.settings.skinTitle
             StringToken.SETTINGS_MARKER_TITLE -> strings.settings.markerTitle
+            StringToken.STATUS_WARMUP -> strings.recorder.statusWarmup
+            StringToken.STATUS_CLIPPING -> strings.recorder.statusClipping
+            StringToken.STATUS_LOW_SNR -> strings.recorder.statusLowSnr
+            StringToken.STATUS_CALM -> strings.recorder.statusCalm
+            StringToken.STATUS_MILD_FLUCTUATION -> strings.recorder.statusMildFluctuation
+            StringToken.STATUS_FEAR_SINGLE -> strings.recorder.statusFearSingle
+            StringToken.STATUS_STRESS_SINGLE -> strings.recorder.statusStressSingle
+            StringToken.STATUS_PRESSURE_SINGLE -> strings.recorder.statusPressureSingle
         }
     }
 }

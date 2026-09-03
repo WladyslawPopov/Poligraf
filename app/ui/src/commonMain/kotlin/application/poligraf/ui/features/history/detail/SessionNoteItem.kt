@@ -23,7 +23,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import application.poligraf.domain.model.MarkerShape
+import application.poligraf.domain.analyzer.types.MarkerShape
 import application.poligraf.ui.components.buttons.AppIconButton
 import application.poligraf.ui.components.containers.AppCard
 import application.poligraf.ui.features.analyzer.components.drawMarker

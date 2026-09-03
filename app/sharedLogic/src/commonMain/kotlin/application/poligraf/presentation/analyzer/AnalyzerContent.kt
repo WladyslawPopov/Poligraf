@@ -4,11 +4,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import application.poligraf.domain.model.AnalyzerMode
+import application.poligraf.domain.analyzer.types.AnalyzerMode
 import application.poligraf.presentation.analyzer.ui.AnalyzerRenderer
 import application.poligraf.ui.components.layout.AppScaffold
 import application.poligraf.ui.components.layout.StandardToolbar
-import application.poligraf.ui.foundation.actions.AnalyzingAction
+import application.poligraf.ui.features.analyzer.actions.AnalyzingAction
 import application.poligraf.ui.theme.LocalDesignSystem
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
 

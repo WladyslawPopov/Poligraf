@@ -43,6 +43,14 @@ interface IRecorderStrings {
     val voiceRibbon: StringResource
     val equalizer: StringResource
     val rings: StringResource
+    val statusWarmup: StringResource
+    val statusClipping: StringResource
+    val statusLowSnr: StringResource
+    val statusCalm: StringResource
+    val statusMildFluctuation: StringResource
+    val statusFearSingle: StringResource
+    val statusStressSingle: StringResource
+    val statusPressureSingle: StringResource
     val interpretationCalm: StringResource
     val interpretationPanic: StringResource
     val interpretationAggression: StringResource
@@ -125,6 +133,14 @@ internal class AppStringsImpl : IAppStrings {
         override val voiceRibbon = Res.string.skin_voice_ribbon
         override val equalizer = Res.string.skin_equalizer
         override val rings = Res.string.skin_rings
+        override val statusWarmup = Res.string.status_warmup
+        override val statusClipping = Res.string.status_clipping
+        override val statusLowSnr = Res.string.status_low_snr
+        override val statusCalm = Res.string.status_calm
+        override val statusMildFluctuation = Res.string.status_mild_fluctuation
+        override val statusFearSingle = Res.string.status_fear_single
+        override val statusStressSingle = Res.string.status_stress_single
+        override val statusPressureSingle = Res.string.status_pressure_single
         override val interpretationCalm = Res.string.interpretation_calm
         override val interpretationPanic = Res.string.interpretation_panic
         override val interpretationAggression = Res.string.interpretation_aggression

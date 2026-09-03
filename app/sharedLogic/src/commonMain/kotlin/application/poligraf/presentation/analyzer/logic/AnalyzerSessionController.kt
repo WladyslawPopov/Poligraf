@@ -1,18 +1,15 @@
 package application.poligraf.presentation.analyzer.logic
 
-import application.poligraf.domain.model.AudioFrame
-import application.poligraf.domain.model.MarkerShape
-import application.poligraf.engine.config.AnalyzerThresholds
-import application.poligraf.engine.dsp.SignalLevel
+import application.poligraf.data.analyzer.dsp.AnalyzerProcessor
+import application.poligraf.domain.analyzer.model.AudioFrame
+import application.poligraf.domain.analyzer.types.MarkerShape
+import application.poligraf.domain.analyzer.types.SignalLevel
 import application.poligraf.engine.utils.nowAsEpochMilliseconds
-import application.poligraf.ui.foundation.models.AnalyzerMarker
+import application.poligraf.ui.features.analyzer.models.AnalyzerMarker
 import application.poligraf.ui.theme.tokens.StringToken
 
 /**
- * Pure, reusable holder for the analyzer "brain".
- *
- * Both [AnalyzerViewModel] (LIVE) and [HistoryDetailViewModel] (REVIEW) delegate the
- * exact same frame-history, marker and display-resolution logic here.
+ * Pure, reusable holder for the analyzer presentation display state.
  */
 class AnalyzerSessionController {
 
@@ -42,9 +39,6 @@ class AnalyzerSessionController {
         interpretationTimestamp = 0L
     }
 
-    /**
-     * Updates the shape used for future markers and applies it to existing ones.
-     */
     fun setMarkerShape(shape: MarkerShape): List<AnalyzerMarker> {
         markerShape = shape
         val updated = timelineMarkers.map { it.copy(shape = shape) }
@@ -53,9 +47,6 @@ class AnalyzerSessionController {
         return timelineMarkers.toList()
     }
 
-    /**
-     * Ingests one live frame, appending history and clustering anomaly markers.
-     */
     fun onLiveFrame(frame: AudioFrame) {
         val lastTimestamp = frameHistory.lastOrNull()?.timestamp ?: -1L
         if (frame.timestamp > lastTimestamp) {
@@ -64,9 +55,6 @@ class AnalyzerSessionController {
         appendMarkerIfNeeded(frame)
     }
 
-    /**
-     * Replaces history from persisted frames (resume draft or history review).
-     */
     fun loadFrames(frames: List<AudioFrame>) {
         frameHistory.clear()
         frameHistory.addAll(frames)
@@ -75,13 +63,15 @@ class AnalyzerSessionController {
     }
 
     private fun appendMarkerIfNeeded(frame: AudioFrame) {
+        // Do not place stress markers during the initial 5-second calibration profiling
+        if (frame.timestamp < 5000L) return
+
         val level = AnalyzerProcessor.resolveSignalLevel(frame)
-        // Set dominant metric for all visible levels (Glow and above) to have colored markers
         val dominant = if (level != SignalLevel.NONE) {
             AnalyzerProcessor.resolveDominantMetric(frame)
         } else null
         val lastMarkerTime = timelineMarkers.lastOrNull()?.timestampMillis ?: -10000L
-        AnalyzerProcessor.createAnomalyMarker(
+        AnalyzerUiMapper.createAnomalyMarker(
             frame = frame,
             shape = markerShape,
             lastMarkerTimestamp = lastMarkerTime,
@@ -90,15 +80,11 @@ class AnalyzerSessionController {
         )?.let { timelineMarkers.add(it) }
     }
 
-    /**
-     * Resolves the full display snapshot for the current seek/frame.
-     * Note: AudioFrames from the repository are already smoothed at 20Hz.
-     */
     fun resolveDisplay(
         seekPos: Long?,
         isPaused: Boolean,
         liveFrame: AudioFrame?,
-        smooth: Boolean = false, // Disabled by default as frames are pre-smoothed
+        smooth: Boolean = false,
     ): AnalyzerDisplaySnapshot {
         val activeFrame = if (isPaused && seekPos != null) {
             AnalyzerProcessor.findClosestFrame(frameHistory, seekPos)
@@ -131,12 +117,12 @@ class AnalyzerSessionController {
             AnalyzerProcessor.resolveDominantMetric(activeFrame)
         } else null
 
-        val currentInterpretation = AnalyzerProcessor.determineInterpretation(
+        val currentInterpretation = AnalyzerUiMapper.determineInterpretation(
             smoothedJitter, smoothedPitch, smoothedRms
         )
         val now = nowAsEpochMilliseconds()
 
-        val finalInterpretation = if (isPaused) {
+        val activeAnomalyInterpretation = if (isPaused) {
             currentInterpretation
         } else {
             when {
@@ -147,7 +133,7 @@ class AnalyzerSessionController {
                 }
 
                 lastInterpretation != null &&
-                        (now - interpretationTimestamp) < AnalyzerThresholds.INTERPRETATION_STICKY_MS -> lastInterpretation
+                        (now - interpretationTimestamp) < 2500L -> lastInterpretation
 
                 else -> {
                     lastInterpretation = null
@@ -156,6 +142,8 @@ class AnalyzerSessionController {
             }
         }
 
+        val continuousStatus = AnalyzerUiMapper.resolveContinuousStatus(activeFrame)
+        val finalInterpretation = activeAnomalyInterpretation ?: continuousStatus
 
         return AnalyzerDisplaySnapshot(
             displayFrame = activeFrame,

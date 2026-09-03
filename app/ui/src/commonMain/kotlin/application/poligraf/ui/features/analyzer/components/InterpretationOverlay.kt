@@ -1,29 +1,37 @@
 package application.poligraf.ui.features.analyzer.components
 
-import androidx.compose.animation.*
-import androidx.compose.animation.core.*
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import application.poligraf.ui.components.text.TypingText
 import application.poligraf.ui.theme.LocalDesignSystem
 import application.poligraf.ui.theme.tokens.ColorToken
 import application.poligraf.ui.theme.tokens.StringToken
 
+/**
+ * Unified continuous text headline widget for all analyzer states
+ * using the system [TypingText] component without quotes or slashes.
+ */
 @Composable
 fun InterpretationOverlay(
     interpretation: StringToken?,
-    isSynthesized: Boolean,
-    synthesisProgress: Float,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Box(
         modifier = modifier
@@ -31,92 +39,39 @@ fun InterpretationOverlay(
             .height(100.dp),
         contentAlignment = Alignment.Center
     ) {
-        val targetState = when {
-            !isSynthesized -> InterpretationState.SYNTHESIZING
-            interpretation != null -> InterpretationState.RESULT
-            else -> InterpretationState.IDLE
-        }
-
         AnimatedContent(
-            targetState = targetState,
+            targetState = interpretation ?: StringToken.STATUS_CALM,
             transitionSpec = {
-                (fadeIn(tween(350)) + slideInVertically(tween(350)) { it / 3 }) togetherWith 
-                (fadeOut(tween(400)) + slideOutVertically(tween(400)) { -it / 3 })
+                (fadeIn(tween(250)) + slideInVertically(tween(250)) { it / 4 }) togetherWith
+                        (fadeOut(tween(250)) + slideOutVertically(tween(250)) { -it / 4 })
             },
-            label = "interpretation_anim"
-        ) { state ->
-            when (state) {
-                InterpretationState.SYNTHESIZING -> {
-                    SynthesizingView(progress = synthesisProgress)
-                }
-                InterpretationState.RESULT -> {
-                    ResultView(interpretation = interpretation)
-                }
-                InterpretationState.IDLE -> {
-                    // Empty space maintained to prevent layout jumps
-                    Spacer(Modifier.height(100.dp))
-                }
+            label = "interpretation_text_anim"
+        ) { token ->
+            val designSystem = LocalDesignSystem.current
+            val rawText = designSystem.string(token)
+
+            val textColor = when (token) {
+                StringToken.STATUS_WARMUP -> designSystem.color(ColorToken.TEXT_SECONDARY)
+                    .copy(alpha = 0.7f)
+
+                StringToken.STATUS_CLIPPING -> designSystem.color(ColorToken.STATE_ERROR)
+                StringToken.STATUS_LOW_SNR -> designSystem.color(ColorToken.STATE_WARNING)
+                StringToken.STATUS_CALM -> designSystem.color(ColorToken.TEXT_SECONDARY)
+                StringToken.STATUS_MILD_FLUCTUATION -> designSystem.color(ColorToken.ACCENT_PRIMARY)
+                else -> designSystem.color(ColorToken.TEXT_PRIMARY)
             }
+
+            TypingText(
+                fullText = rawText,
+                color = textColor,
+                style = MaterialTheme.typography.headlineSmall.copy(
+                    fontWeight = FontWeight.Medium,
+                    lineHeight = 32.sp
+                ),
+                textAlign = TextAlign.Center,
+                typingDelay = 25L,
+                modifier = Modifier.padding(horizontal = 24.dp)
+            )
         }
     }
-}
-
-@Composable
-private fun SynthesizingView(progress: Float) {
-    val designSystem = LocalDesignSystem.current
-    
-    val infiniteTransition = rememberInfiniteTransition(label = "pulse")
-    val alpha by infiniteTransition.animateFloat(
-        initialValue = 0.4f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1200, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "text_pulse"
-    )
-
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text(
-            text = designSystem.string(StringToken.ANALYSIS_SYNTHESIZING).uppercase(),
-            color = designSystem.color(ColorToken.TEXT_SECONDARY).copy(alpha = alpha),
-            style = MaterialTheme.typography.labelMedium,
-            letterSpacing = 1.5.sp,
-            fontWeight = FontWeight.Light
-        )
-        Spacer(Modifier.height(12.dp))
-        LinearProgressIndicator(
-            progress = { progress },
-            modifier = Modifier.width(140.dp).height(2.dp),
-            color = designSystem.color(ColorToken.ACCENT_PRIMARY),
-            trackColor = designSystem.color(ColorToken.SURFACE_VARIANT).copy(alpha = 0.2f)
-        )
-    }
-}
-
-@Composable
-private fun ResultView(interpretation: StringToken?) {
-    val designSystem = LocalDesignSystem.current
-    val rawText = interpretation?.let { designSystem.string(it) } ?: ""
-    val format = designSystem.string(StringToken.INTERPRETATION_FORMAT)
-    val finalTitle = format.replace("%s", rawText)
-
-    Text(
-        text = finalTitle,
-        color = designSystem.color(ColorToken.TEXT_PRIMARY),
-        textAlign = TextAlign.Center,
-        style = MaterialTheme.typography.headlineSmall.copy(
-            fontWeight = FontWeight.ExtraLight,
-            fontStyle = FontStyle.Italic,
-            lineHeight = 32.sp
-        ),
-        modifier = Modifier.padding(horizontal = 32.dp)
-    )
-}
-
-private enum class InterpretationState {
-    IDLE, SYNTHESIZING, RESULT
 }

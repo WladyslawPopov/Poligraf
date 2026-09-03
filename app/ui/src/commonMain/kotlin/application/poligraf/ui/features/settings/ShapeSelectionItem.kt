@@ -2,7 +2,7 @@ package application.poligraf.ui.features.settings
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import application.poligraf.domain.model.MarkerShape
+import application.poligraf.domain.analyzer.types.MarkerShape
 import application.poligraf.ui.components.icons.AppIcon
 import application.poligraf.ui.components.items.SelectableItem
 import application.poligraf.ui.theme.LocalDesignSystem
@@ -14,7 +14,7 @@ fun ShapeSelectionItem(
     shape: MarkerShape,
     isSelected: Boolean,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val designSystem = LocalDesignSystem.current
     val icon = when (shape) {

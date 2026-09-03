@@ -2,7 +2,14 @@ package application.poligraf.ui.features.settings
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -12,7 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import application.poligraf.domain.model.AnalyzerSkin
+import application.poligraf.domain.analyzer.types.AnalyzerSkin
 import application.poligraf.ui.components.icons.AppIcon
 import application.poligraf.ui.components.items.SelectableItem
 import application.poligraf.ui.theme.LocalDesignSystem
@@ -73,7 +80,11 @@ fun SkinSelectionItem(
                             .offset(x = 4.dp, y = (-4).dp)
                             .size(16.dp)
                             .background(designSystem.color(ColorToken.ACCENT_PRIMARY), CircleShape)
-                            .border(2.dp, designSystem.color(ColorToken.SURFACE_PRIMARY), CircleShape),
+                            .border(
+                                2.dp,
+                                designSystem.color(ColorToken.SURFACE_PRIMARY),
+                                CircleShape
+                            ),
                         contentAlignment = Alignment.Center
                     ) {
                         AppIcon(

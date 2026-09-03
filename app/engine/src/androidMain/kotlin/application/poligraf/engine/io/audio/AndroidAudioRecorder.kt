@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.MediaRecorder
+import android.os.Build
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
@@ -29,14 +30,34 @@ internal class AndroidAudioRecorder(
     @SuppressLint("MissingPermission")
     override fun startCapture() {
         if (_isCapturing.value) return
-        
-        audioRecord = AudioRecord(
-            MediaRecorder.AudioSource.MIC,
-            sampleRate,
-            channelConfig,
-            audioFormat,
-            bufferSize
+
+        // Audio source priority: VOICE_RECOGNITION (bypasses AGC/compression) -> UNPROCESSED -> MIC
+        val sources = listOf(
+            MediaRecorder.AudioSource.VOICE_RECOGNITION,
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) MediaRecorder.AudioSource.UNPROCESSED else MediaRecorder.AudioSource.MIC,
+            MediaRecorder.AudioSource.MIC
         )
+
+        var record: AudioRecord? = null
+        for (source in sources) {
+            try {
+                val candidate = AudioRecord(
+                    source,
+                    sampleRate,
+                    channelConfig,
+                    audioFormat,
+                    bufferSize
+                )
+                if (candidate.state == AudioRecord.STATE_INITIALIZED) {
+                    record = candidate
+                    break
+                } else {
+                    candidate.release()
+                }
+            } catch (_: Exception) {}
+        }
+
+        audioRecord = record
 
         if (audioRecord?.state != AudioRecord.STATE_INITIALIZED) {
             Napier.e { "AudioRecord initialization failed. Check RECORD_AUDIO permission." }
@@ -54,7 +75,7 @@ internal class AndroidAudioRecorder(
             audioRecord = null
             return
         }
-        
+
         recordingJob = scope.launch(Dispatchers.IO) {
             val buffer = ShortArray(bufferSize / 2)
             try {

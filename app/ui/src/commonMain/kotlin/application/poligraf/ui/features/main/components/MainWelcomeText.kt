@@ -1,19 +1,21 @@
 package application.poligraf.ui.features.main.components
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
+import application.poligraf.ui.components.text.TypingText
+import application.poligraf.ui.features.main.models.MainWelcomeModel
 import application.poligraf.ui.theme.LocalDesignSystem
 import application.poligraf.ui.theme.tokens.DimenToken
-import application.poligraf.ui.foundation.models.MainWelcomeModel
-import application.poligraf.ui.components.text.TypingText
 
 @Composable
 fun MainWelcomeText(
-    model: MainWelcomeModel
+    model: MainWelcomeModel,
 ) {
     val designSystem = LocalDesignSystem.current
     val fullText = designSystem.string(model.textToken) + (model.emoji?.let { "\u00A0$it" } ?: "")

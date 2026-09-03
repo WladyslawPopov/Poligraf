@@ -1,0 +1,24 @@
+import kotlin.Boolean;
+
+-- Migration from version 2 to version 3: Clean up redundant columns from SessionFrame
+
+CREATE TABLE SessionFrame_new (
+    sessionId TEXT NOT NULL,
+    timestamp INTEGER NOT NULL,
+    stressScore REAL NOT NULL,
+    jitterScore REAL NOT NULL DEFAULT 0.0,
+    pitchScore REAL NOT NULL DEFAULT 0.0,
+    rmsScore REAL NOT NULL DEFAULT 0.0,
+    isAnomaly INTEGER AS Boolean NOT NULL,
+    FOREIGN KEY(sessionId) REFERENCES SessionEntity(id) ON DELETE CASCADE
+);
+
+INSERT INTO SessionFrame_new(sessionId, timestamp, stressScore, jitterScore, pitchScore, rmsScore, isAnomaly)
+SELECT sessionId, timestamp, stressScore, jitterScore, pitchScore, rmsScore, isAnomaly FROM SessionFrame;
+
+DROP TABLE SessionFrame;
+
+ALTER TABLE SessionFrame_new RENAME TO SessionFrame;
+
+CREATE INDEX IF NOT EXISTS idx_session_frame_session_time ON SessionFrame(sessionId, timestamp);
+CREATE INDEX IF NOT EXISTS idx_session_frame_anomaly ON SessionFrame(sessionId, isAnomaly);

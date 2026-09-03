@@ -22,7 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
-import application.poligraf.domain.model.AnalyzerMode
+import application.poligraf.domain.analyzer.types.AnalyzerMode
 import application.poligraf.presentation.analyzer.AnalyzerViewModel
 import application.poligraf.ui.features.analyzer.components.AmbientGlow
 import application.poligraf.ui.features.analyzer.parts.AnalyzerCoreView

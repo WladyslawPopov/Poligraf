@@ -1,21 +1,21 @@
 package application.poligraf.presentation.main
 
 import androidx.compose.runtime.Stable
-import application.poligraf.domain.model.AnalyzerSkin
-import application.poligraf.domain.model.MarkerShape
-import application.poligraf.domain.repository.AnalyzerRepository
-import application.poligraf.domain.repository.PreferencesRepository
+import application.poligraf.domain.analyzer.repository.AnalyzerRepository
+import application.poligraf.domain.analyzer.types.AnalyzerSkin
+import application.poligraf.domain.analyzer.types.MarkerShape
+import application.poligraf.domain.preferences.repository.PreferencesRepository
 import application.poligraf.engine.config.AppConfig
 import application.poligraf.engine.device.AppPermission
 import application.poligraf.engine.device.PermissionManager
 import application.poligraf.presentation.base.BaseViewModel
 import application.poligraf.presentation.main.data.MainState
-import application.poligraf.ui.foundation.actions.AnalyzingAction
-import application.poligraf.ui.foundation.actions.NavigationAction
+import application.poligraf.ui.features.analyzer.actions.AnalyzingAction
+import application.poligraf.ui.features.main.models.MainAnalyzeBtnModel
+import application.poligraf.ui.features.main.models.MainWelcomeModel
+import application.poligraf.ui.features.main.models.NavigationAction
 import application.poligraf.ui.foundation.models.AppBackground
 import application.poligraf.ui.foundation.models.AppToolbar
-import application.poligraf.ui.foundation.models.MainAnalyzeBtnModel
-import application.poligraf.ui.foundation.models.MainWelcomeModel
 import application.poligraf.ui.foundation.models.ToolbarAction
 import application.poligraf.ui.theme.tokens.ColorToken
 import application.poligraf.ui.theme.tokens.IconToken
@@ -38,10 +38,10 @@ class MainViewModel(
     private val navigateToAnalyzer: () -> Unit,
 ) : BaseViewModel() {
 
-    val defaultSkin = preferencesRepository.defaultSkin
-    val markerShape = preferencesRepository.markerShape
+    val defaultSkin = preferencesRepository.skinFlow
+    val markerShape = preferencesRepository.markerShapeFlow
 
-    fun onSkinSelected(skin: AnalyzerSkin) = preferencesRepository.setDefaultSkin(skin)
+    fun onSkinSelected(skin: AnalyzerSkin) = preferencesRepository.setSkin(skin)
     fun onMarkerShapeSelected(shape: MarkerShape) = preferencesRepository.setMarkerShape(shape)
 
     private val welcomeData = listOf(

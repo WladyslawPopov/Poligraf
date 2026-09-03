@@ -1,12 +1,25 @@
 package application.poligraf.ui.features.main.components
 
-import androidx.compose.animation.core.*
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
@@ -22,26 +35,30 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
+import application.poligraf.ui.features.main.models.MainAnalyzeBtnModel
 import application.poligraf.ui.theme.LocalDesignSystem
 import application.poligraf.ui.theme.tokens.ColorToken
 import application.poligraf.ui.theme.tokens.DimenToken
 import application.poligraf.ui.theme.tokens.IconToken
-import application.poligraf.ui.foundation.models.MainAnalyzeBtnModel
 
 @Composable
 fun MainAnalyzeBtn(
     model: MainAnalyzeBtnModel,
-    onClick: () -> Unit
-){
+    onClick: () -> Unit,
+) {
     val designSystem = LocalDesignSystem.current
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
 
     // Cache colors and dimensions
-    val accentPrimary = remember(designSystem.isDark) { designSystem.color(ColorToken.ACCENT_PRIMARY) }
-    val accentEnergy = remember(designSystem.isDark) { designSystem.color(ColorToken.ACCENT_ENERGY) }
-    val surfaceColor = remember(designSystem.isDark) { designSystem.color(ColorToken.SURFACE_PRIMARY) }
-    val bgColor = remember(designSystem.isDark) { designSystem.color(ColorToken.SURFACE_BACKGROUND) }
+    val accentPrimary =
+        remember(designSystem.isDark) { designSystem.color(ColorToken.ACCENT_PRIMARY) }
+    val accentEnergy =
+        remember(designSystem.isDark) { designSystem.color(ColorToken.ACCENT_ENERGY) }
+    val surfaceColor =
+        remember(designSystem.isDark) { designSystem.color(ColorToken.SURFACE_PRIMARY) }
+    val bgColor =
+        remember(designSystem.isDark) { designSystem.color(ColorToken.SURFACE_BACKGROUND) }
     val btnSize = designSystem.dimen(DimenToken.RECORDER_BTN_SIZE)
     val strokeWidthDp = designSystem.dimen(DimenToken.RECORDER_BTN_STROKE)
     val spacing = designSystem.dimen(DimenToken.SPACING_LARGE)

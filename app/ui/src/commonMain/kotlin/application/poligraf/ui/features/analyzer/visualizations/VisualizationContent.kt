@@ -1,7 +1,7 @@
 package application.poligraf.ui.features.analyzer.visualizations
 
 import androidx.compose.runtime.Composable
-import application.poligraf.domain.model.AnalyzerSkin
+import application.poligraf.domain.analyzer.types.AnalyzerSkin
 
 @Composable
 fun VisualizationContent(
@@ -9,7 +9,7 @@ fun VisualizationContent(
     jitter: Float,
     pitch: Float,
     rms: Float,
-    isPaused: Boolean
+    isPaused: Boolean,
 ) {
     when (skin) {
         AnalyzerSkin.STATE_MAP -> StateMapVisualization(
