@@ -4,6 +4,8 @@ import androidx.compose.runtime.Stable
 import application.poligraf.domain.analyzer.repository.AnalyzerRepository
 import application.poligraf.domain.analyzer.types.AnalyzerSkin
 import application.poligraf.domain.analyzer.types.MarkerShape
+import application.poligraf.domain.analyzer.types.QuantumWindowDuration
+import application.poligraf.domain.analyzer.types.SensitivityLevel
 import application.poligraf.domain.preferences.repository.PreferencesRepository
 import application.poligraf.engine.config.AppConfig
 import application.poligraf.engine.device.AppPermission
@@ -40,9 +42,13 @@ class MainViewModel(
 
     val defaultSkin = preferencesRepository.skinFlow
     val markerShape = preferencesRepository.markerShapeFlow
+    val sensitivity = preferencesRepository.sensitivityFlow
+    val quantumWindow = preferencesRepository.quantumWindowFlow
 
     fun onSkinSelected(skin: AnalyzerSkin) = preferencesRepository.setSkin(skin)
     fun onMarkerShapeSelected(shape: MarkerShape) = preferencesRepository.setMarkerShape(shape)
+    fun onSensitivitySelected(level: SensitivityLevel) = preferencesRepository.setSensitivity(level)
+    fun onQuantumWindowSelected(duration: QuantumWindowDuration) = preferencesRepository.setQuantumWindow(duration)
 
     private val welcomeData = listOf(
         StringToken.WELCOME_2 to "📊",

@@ -58,22 +58,11 @@ interface IRecorderStrings {
     val interpretationDisorganization: StringResource
     val interpretationAnalyzing: StringResource
     val interpretationFormat: StringResource
-    val labelStress: StringResource
-    val labelPressure: StringResource
-    val labelFear: StringResource
-    val labelZero: StringResource
     val labelSyncZone: StringResource
     val timelineTitle: StringResource
     val metricJitter: StringResource
     val metricPitch: StringResource
     val metricRms: StringResource
-}
-
-interface IDebugStrings {
-    val title: StringResource
-    val triggerLoading: StringResource
-    val triggerError: StringResource
-    val triggerSuccess: StringResource
 }
 
 interface IHistoryStrings {
@@ -100,35 +89,47 @@ interface ISettingsStrings {
     val preferencesTitle: StringResource
     val skinTitle: StringResource
     val markerTitle: StringResource
+    val quantumWindowTitle: StringResource
+    val sensitivityTitle: StringResource
+    val sensitivityLow: StringResource
+    val sensitivityMedium: StringResource
+    val sensitivityHigh: StringResource
 }
 
-internal class AppStringsImpl : IAppStrings {
+interface IDebugStrings {
+    val title: StringResource
+    val triggerLoading: StringResource
+    val triggerError: StringResource
+    val triggerSuccess: StringResource
+}
+
+class AppStringsImpl : IAppStrings {
     override val common = object : ICommonStrings {
         override val appName = Res.string.app_name
         override val welcome1 = Res.string.welcome_1
         override val welcome2 = Res.string.welcome_2
         override val welcome3 = Res.string.welcome_3
         override val welcome4 = Res.string.welcome_4
-        override val settings = Res.string.drawer_settings
-        override val close = Res.string.close
-        override val history = Res.string.recorder_history_title
-        override val darkMode = Res.string.drawer_dark_mode
+        override val settings = Res.string.title_settings
+        override val close = Res.string.action_close
+        override val history = Res.string.title_history
+        override val darkMode = Res.string.label_dark_mode
         override val footerTitle = Res.string.drawer_footer_title
         override val footerSubtitle = Res.string.drawer_footer_subtitle
         override val save = Res.string.action_save
         override val delete = Res.string.action_delete
     }
-    
+
     override val errors = object : IErrorStrings {
-        override val title = Res.string.error_unknown_title
-        override val message = Res.string.error_unknown_msg
-        override val retry = Res.string.error_retry
+        override val title = Res.string.error_title
+        override val message = Res.string.error_message
+        override val retry = Res.string.action_retry
     }
-    
+
     override val recorder = object : IRecorderStrings {
-        override val title = Res.string.analyzing_screen_title
-        override val activeSession = Res.string.active_analysis
-        override val synthesizing = Res.string.analyzing_synthesizing
+        override val title = Res.string.analyzer_title
+        override val activeSession = Res.string.active_session
+        override val synthesizing = Res.string.analysis_synthesizing
         override val stateMap = Res.string.skin_state_map
         override val voiceRibbon = Res.string.skin_voice_ribbon
         override val equalizer = Res.string.skin_equalizer
@@ -148,10 +149,6 @@ internal class AppStringsImpl : IAppStrings {
         override val interpretationDisorganization = Res.string.interpretation_disorganization
         override val interpretationAnalyzing = Res.string.interpretation_analyzing
         override val interpretationFormat = Res.string.interpretation_format
-        override val labelStress = Res.string.label_stress
-        override val labelPressure = Res.string.label_pressure
-        override val labelFear = Res.string.label_fear
-        override val labelZero = Res.string.label_zero
         override val labelSyncZone = Res.string.label_sync_zone
         override val timelineTitle = Res.string.timeline_title
         override val metricJitter = Res.string.metric_jitter
@@ -183,12 +180,17 @@ internal class AppStringsImpl : IAppStrings {
         override val preferencesTitle = Res.string.settings_preferences_title
         override val skinTitle = Res.string.settings_skin_title
         override val markerTitle = Res.string.settings_marker_title
+        override val quantumWindowTitle = Res.string.settings_quantum_window_title
+        override val sensitivityTitle = Res.string.settings_sensitivity_title
+        override val sensitivityLow = Res.string.sensitivity_low
+        override val sensitivityMedium = Res.string.sensitivity_medium
+        override val sensitivityHigh = Res.string.sensitivity_high
     }
-    
+
     override val debug = object : IDebugStrings {
         override val title = Res.string.debug_title
         override val triggerLoading = Res.string.debug_trigger_loading
-        override val triggerError = Res.string.debug_trigger_error_blocking
-        override val triggerSuccess = Res.string.debug_trigger_success_toast
+        override val triggerError = Res.string.debug_trigger_error
+        override val triggerSuccess = Res.string.debug_trigger_success
     }
 }

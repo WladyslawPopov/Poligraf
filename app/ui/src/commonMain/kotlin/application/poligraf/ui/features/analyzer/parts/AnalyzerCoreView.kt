@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
@@ -15,7 +14,6 @@ import application.poligraf.domain.analyzer.types.AnalyzerSkin
 import application.poligraf.ui.components.containers.AppCard
 import application.poligraf.ui.features.analyzer.components.AnomalyTimeline
 import application.poligraf.ui.features.analyzer.components.InterpretationOverlay
-import application.poligraf.ui.features.analyzer.components.MetricLegend
 import application.poligraf.ui.features.analyzer.components.MetricRow
 import application.poligraf.ui.features.analyzer.components.SkinSwitcher
 import application.poligraf.ui.features.analyzer.state.AnalyzerState
@@ -41,27 +39,15 @@ fun AnalyzerCoreView(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(designSystem.dimen(DimenToken.SPACING_MEDIUM))
     ) {
-        // 0. Consolidated Header (Synthesis Status + Skin Switcher)
+        // 0. Full 100% Width Headline Status Overlay
         if (showHeader) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                InterpretationOverlay(
-                    interpretation = state.activeInterpretation,
-                    modifier = Modifier.weight(1f)
-                )
-
-                SkinSwitcher(
-                    currentSkin = state.currentSkin,
-                    onSkinChange = onSkinChange,
-                    showLabel = true
-                )
-            }
+            InterpretationOverlay(
+                interpretation = state.activeInterpretation,
+                modifier = Modifier.fillMaxWidth()
+            )
         }
 
-        // 1. Main Visualization & Metrics Card
+        // 1. Main Visualization & Metrics Card with Skin Switcher
         AppCard(
             modifier = Modifier.fillMaxWidth(),
             contentPadding = PaddingValues(designSystem.dimen(DimenToken.SPACING_MEDIUM)),
@@ -70,10 +56,17 @@ fun AnalyzerCoreView(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(designSystem.dimen(DimenToken.SPACING_MEDIUM))
             ) {
+                SkinSwitcher(
+                    currentSkin = state.currentSkin,
+                    onSkinChange = onSkinChange,
+                    modifier = Modifier.align(Alignment.End),
+                    showLabel = true
+                )
+
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(260.dp),
+                        .height(240.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     VisualizationContent(
@@ -85,14 +78,11 @@ fun AnalyzerCoreView(
                     )
                 }
 
-                if (state.currentSkin != AnalyzerSkin.STATE_MAP) {
-                    MetricLegend()
-                }
-
                 MetricRow(
                     jitterLevel = state.jitterLevel,
                     pitchLevel = state.pitchLevel,
-                    rmsLevel = state.rmsLevel
+                    rmsLevel = state.rmsLevel,
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
         }

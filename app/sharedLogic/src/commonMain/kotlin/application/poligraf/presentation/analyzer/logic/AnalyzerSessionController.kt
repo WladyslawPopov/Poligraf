@@ -9,7 +9,8 @@ import application.poligraf.ui.features.analyzer.models.AnalyzerMarker
 import application.poligraf.ui.theme.tokens.StringToken
 
 /**
- * Pure, reusable holder for the analyzer presentation display state.
+ * Pure, reusable holder for the analyzer presentation display state
+ * featuring 2.5s conversational quantum windowing for rock-solid readable status text.
  */
 class AnalyzerSessionController {
 
@@ -63,7 +64,6 @@ class AnalyzerSessionController {
     }
 
     private fun appendMarkerIfNeeded(frame: AudioFrame) {
-        // Do not place stress markers during the initial 5-second calibration profiling
         if (frame.timestamp < 5000L) return
 
         val level = AnalyzerProcessor.resolveSignalLevel(frame)
@@ -117,33 +117,8 @@ class AnalyzerSessionController {
             AnalyzerProcessor.resolveDominantMetric(activeFrame)
         } else null
 
-        val currentInterpretation = AnalyzerUiMapper.determineInterpretation(
-            smoothedJitter, smoothedPitch, smoothedRms
-        )
-        val now = nowAsEpochMilliseconds()
-
-        val activeAnomalyInterpretation = if (isPaused) {
-            currentInterpretation
-        } else {
-            when {
-                currentInterpretation != null -> {
-                    lastInterpretation = currentInterpretation
-                    interpretationTimestamp = now
-                    currentInterpretation
-                }
-
-                lastInterpretation != null &&
-                        (now - interpretationTimestamp) < 2500L -> lastInterpretation
-
-                else -> {
-                    lastInterpretation = null
-                    null
-                }
-            }
-        }
-
-        val continuousStatus = AnalyzerUiMapper.resolveContinuousStatus(activeFrame)
-        val finalInterpretation = activeAnomalyInterpretation ?: continuousStatus
+        // Headline display status is taken directly from the quantum window aggregated status in activeFrame
+        val activeDisplayStatus = AnalyzerUiMapper.resolveContinuousStatus(activeFrame)
 
         return AnalyzerDisplaySnapshot(
             displayFrame = activeFrame,
@@ -152,7 +127,7 @@ class AnalyzerSessionController {
             rmsLevel = smoothedRms,
             signalLevel = level,
             dominantMetric = dominant,
-            activeInterpretation = finalInterpretation,
+            activeInterpretation = activeDisplayStatus,
         )
     }
 }

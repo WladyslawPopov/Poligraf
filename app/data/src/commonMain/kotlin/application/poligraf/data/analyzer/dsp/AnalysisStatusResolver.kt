@@ -1,10 +1,11 @@
 package application.poligraf.data.analyzer.dsp
 
 import application.poligraf.domain.analyzer.types.AnalysisStatus
+import application.poligraf.domain.analyzer.types.SensitivityLevel
 
 /**
- * Pure Data-layer resolver that evaluates raw DSP scores
- * to determine the continuous domain [AnalysisStatus] for an AudioFrame.
+ * Pure Data-layer resolver evaluating raw DSP scores and dynamic sensitivity thresholds
+ * to determine the continuous domain [AnalysisStatus].
  */
 internal object AnalysisStatusResolver {
 
@@ -14,7 +15,8 @@ internal object AnalysisStatusResolver {
         pitchScore: Float,
         rmsScore: Float,
         timestamp: Long,
-        confidence: Float = 1.0f
+        confidence: Float = 1.0f,
+        sensitivity: SensitivityLevel = SensitivityLevel.MEDIUM
     ): AnalysisStatus {
         if (timestamp < AnalyzerThresholds.WARMUP_DURATION_MS || confidence < 0.20f) {
             return AnalysisStatus.WARMUP
@@ -24,21 +26,40 @@ internal object AnalysisStatusResolver {
             return AnalysisStatus.CLIPPING
         }
 
-        val isJitter = jitterScore >= AnalyzerThresholds.JITTER_INTERPRET
-        val isPitch = pitchScore >= AnalyzerThresholds.PITCH_INTERPRET
-        val isRms = rmsScore >= AnalyzerThresholds.RMS_INTERPRET
+        val interpretThreshold = when (sensitivity) {
+            SensitivityLevel.LOW -> 0.40f
+            SensitivityLevel.MEDIUM -> 0.35f
+            SensitivityLevel.HIGH -> 0.30f
+        }
+
+        val glowThreshold = when (sensitivity) {
+            SensitivityLevel.LOW -> 0.26f
+            SensitivityLevel.MEDIUM -> 0.22f
+            SensitivityLevel.HIGH -> 0.18f
+        }
+
+        val isJitterHigh = jitterScore >= interpretThreshold
+        val isPitchHigh = pitchScore >= interpretThreshold
+        val isRmsHigh = rmsScore >= interpretThreshold
+
+        val isPitchLow = pitchScore < 0.03f && pitchScore > 0f
+        val isRmsLow = rmsScore < 0.03f && rmsScore > 0f
 
         return when {
-            isJitter && isPitch && isRms -> AnalysisStatus.DISORGANIZATION
-            isJitter && isPitch -> AnalysisStatus.PANIC
-            isJitter && isRms -> AnalysisStatus.AGGRESSION
-            isPitch && isRms -> AnalysisStatus.CONFRONTATION
-            isJitter -> AnalysisStatus.FEAR_SINGLE
-            isPitch -> AnalysisStatus.STRESS_SINGLE
-            isRms -> AnalysisStatus.PRESSURE_SINGLE
-            jitterScore >= AnalyzerThresholds.GLOW_SCORE ||
-                    pitchScore >= AnalyzerThresholds.GLOW_SCORE ||
-                    rmsScore >= AnalyzerThresholds.GLOW_SCORE -> AnalysisStatus.MILD_FLUCTUATION
+            isJitterHigh && isPitchHigh && isRmsHigh -> AnalysisStatus.DISORGANIZATION
+            isJitterHigh && isPitchHigh -> AnalysisStatus.PANIC
+            isJitterHigh && isRmsHigh -> AnalysisStatus.AGGRESSION
+            isPitchHigh && isRmsHigh -> AnalysisStatus.CONFRONTATION
+            isPitchLow && isRmsLow -> AnalysisStatus.SUBDUED_SPEECH
+            isRmsLow && isJitterHigh -> AnalysisStatus.SUBDUED_TREMOR
+            isJitterHigh -> AnalysisStatus.FEAR_SINGLE
+            isPitchHigh -> AnalysisStatus.STRESS_SINGLE
+            isRmsHigh -> AnalysisStatus.PRESSURE_SINGLE
+            isPitchLow -> AnalysisStatus.PITCH_DROP
+            isRmsLow -> AnalysisStatus.RMS_DROP
+            jitterScore >= glowThreshold ||
+                    pitchScore >= glowThreshold ||
+                    rmsScore >= glowThreshold -> AnalysisStatus.MILD_FLUCTUATION
 
             else -> AnalysisStatus.CALM
         }

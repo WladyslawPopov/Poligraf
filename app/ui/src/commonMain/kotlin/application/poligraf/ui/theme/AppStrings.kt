@@ -63,10 +63,6 @@ data class RecorderStrings(
     val interpretationDisorganization: String,
     val interpretationAnalyzing: String,
     val interpretationFormat: String,
-    val labelStress: String,
-    val labelPressure: String,
-    val labelFear: String,
-    val labelZero: String,
     val labelSyncZone: String,
     val timelineTitle: String,
     val metricJitter: String,
@@ -107,5 +103,10 @@ data class HistoryStrings(
 data class SettingsStrings(
     val preferencesTitle: String,
     val skinTitle: String,
-    val markerTitle: String
+    val markerTitle: String,
+    val quantumWindowTitle: String,
+    val sensitivityTitle: String,
+    val sensitivityLow: String,
+    val sensitivityMedium: String,
+    val sensitivityHigh: String
 )

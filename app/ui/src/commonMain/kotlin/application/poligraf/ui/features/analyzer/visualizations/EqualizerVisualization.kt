@@ -2,8 +2,6 @@ package application.poligraf.ui.features.analyzer.visualizations
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -15,7 +13,6 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.unit.dp
 import application.poligraf.ui.theme.LocalDesignSystem
 import application.poligraf.ui.theme.tokens.ColorToken
-import application.poligraf.ui.theme.tokens.StringToken
 
 @Composable
 fun EqualizerVisualization(
@@ -25,7 +22,7 @@ fun EqualizerVisualization(
     modifier: Modifier = Modifier
 ) {
     val designSystem = LocalDesignSystem.current
-    Box(modifier = modifier.fillMaxWidth().height(300.dp), contentAlignment = Alignment.Center) {
+    Box(modifier = modifier.fillMaxWidth().height(260.dp), contentAlignment = Alignment.Center) {
         Canvas(modifier = Modifier.fillMaxSize()) {
             val centerY = size.height / 2
             val barWidth = 44.dp.toPx()
@@ -55,7 +52,7 @@ fun EqualizerVisualization(
                     size = Size(barWidth * 2, size.height)
                 )
 
-                // Studio-style VU gradient (Calm center color, intense alarm color at edges)
+                // Studio-style VU gradient
                 drawRect(
                     brush = Brush.verticalGradient(
                         0.0f to colorPairs[index].second,
@@ -76,12 +73,5 @@ fun EqualizerVisualization(
                 cap = StrokeCap.Round
             )
         }
-        
-        Text(
-            text = designSystem.string(StringToken.LABEL_ZERO),
-            modifier = Modifier.align(Alignment.CenterEnd).padding(end = 40.dp),
-            color = designSystem.color(ColorToken.TEXT_SECONDARY).copy(alpha = 0.5f),
-            style = MaterialTheme.typography.labelSmall
-        )
     }
 }

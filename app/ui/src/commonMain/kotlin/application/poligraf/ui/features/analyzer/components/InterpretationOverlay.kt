@@ -25,8 +25,8 @@ import application.poligraf.ui.theme.tokens.ColorToken
 import application.poligraf.ui.theme.tokens.StringToken
 
 /**
- * Unified continuous text headline widget for all analyzer states
- * using the system [TypingText] component without quotes or slashes.
+ * Unified continuous text headline widget featuring an upward floating and dissolving
+ * shadow transition combined with character-by-character typing animation.
  */
 @Composable
 fun InterpretationOverlay(
@@ -42,8 +42,8 @@ fun InterpretationOverlay(
         AnimatedContent(
             targetState = interpretation ?: StringToken.STATUS_CALM,
             transitionSpec = {
-                (fadeIn(tween(250)) + slideInVertically(tween(250)) { it / 4 }) togetherWith
-                        (fadeOut(tween(250)) + slideOutVertically(tween(250)) { -it / 4 })
+                (fadeIn(tween(400)) + slideInVertically(tween(400)) { it / 2 }) togetherWith
+                        (fadeOut(tween(400)) + slideOutVertically(tween(400)) { -it / 2 })
             },
             label = "interpretation_text_anim"
         ) { token ->
@@ -56,8 +56,8 @@ fun InterpretationOverlay(
 
                 StringToken.STATUS_CLIPPING -> designSystem.color(ColorToken.STATE_ERROR)
                 StringToken.STATUS_LOW_SNR -> designSystem.color(ColorToken.STATE_WARNING)
-                StringToken.STATUS_CALM -> designSystem.color(ColorToken.TEXT_SECONDARY)
-                StringToken.STATUS_MILD_FLUCTUATION -> designSystem.color(ColorToken.ACCENT_PRIMARY)
+                StringToken.STATUS_CALM -> designSystem.color(ColorToken.TEXT_PRIMARY)
+                StringToken.STATUS_MILD_FLUCTUATION -> designSystem.color(ColorToken.TEXT_PRIMARY)
                 else -> designSystem.color(ColorToken.TEXT_PRIMARY)
             }
 

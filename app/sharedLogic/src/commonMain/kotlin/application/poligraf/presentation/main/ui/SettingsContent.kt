@@ -23,10 +23,14 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import application.poligraf.domain.analyzer.types.AnalyzerSkin
 import application.poligraf.domain.analyzer.types.MarkerShape
+import application.poligraf.domain.analyzer.types.QuantumWindowDuration
+import application.poligraf.domain.analyzer.types.SensitivityLevel
 import application.poligraf.domain.preferences.repository.PreferencesRepository
 import application.poligraf.ui.components.decorators.GlassDivider
 import application.poligraf.ui.components.items.DrawerItem
 import application.poligraf.ui.components.text.SectionHeader
+import application.poligraf.ui.features.settings.QuantumWindowSelectionItem
+import application.poligraf.ui.features.settings.SensitivitySelectionItem
 import application.poligraf.ui.features.settings.ShapeSelectionItem
 import application.poligraf.ui.features.settings.SkinSelectionItem
 import application.poligraf.ui.theme.DesignSystem
@@ -49,6 +53,8 @@ fun SettingsContent(
 ) {
     val currentDefaultSkin by defaultSkin.collectAsState(AnalyzerSkin.RINGS)
     val currentMarkerShape by markerShape.collectAsState(MarkerShape.CIRCLE)
+    val currentSensitivity by preferencesRepository.sensitivityFlow.collectAsState(SensitivityLevel.MEDIUM)
+    val currentQuantumWindow by preferencesRepository.quantumWindowFlow.collectAsState(QuantumWindowDuration.TWO_HALF_SEC)
     val isDarkMode by preferencesRepository.isDarkModeFlow.collectAsState(true)
 
     Column(
@@ -108,6 +114,46 @@ fun SettingsContent(
                     shape = shape,
                     isSelected = shape == currentMarkerShape,
                     onClick = { onMarkerShapeSelected(shape) }
+                )
+            }
+        }
+
+        Spacer(Modifier.height(8.dp))
+
+        SectionHeader(
+            titleToken = StringToken.SETTINGS_QUANTUM_WINDOW_TITLE
+        )
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            for (duration in QuantumWindowDuration.entries) {
+                QuantumWindowSelectionItem(
+                    duration = duration,
+                    isSelected = duration == currentQuantumWindow,
+                    onClick = { preferencesRepository.setQuantumWindow(duration) },
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+
+        Spacer(Modifier.height(8.dp))
+
+        SectionHeader(
+            titleToken = StringToken.SETTINGS_SENSITIVITY_TITLE
+        )
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            for (level in SensitivityLevel.entries) {
+                SensitivitySelectionItem(
+                    level = level,
+                    isSelected = level == currentSensitivity,
+                    onClick = { preferencesRepository.setSensitivity(level) },
+                    modifier = Modifier.weight(1f)
                 )
             }
         }

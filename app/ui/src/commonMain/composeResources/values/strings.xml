@@ -1,72 +1,65 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Poligraf</string>
-    <string name="welcome_1">Welcome to Poligraf&#160;👋</string>
-    <string name="welcome_2">Ready to Start a new analysis?</string>
-    <string name="welcome_3">Begin monitoring</string>
-    <string name="welcome_4">Ready for a new session?</string>
-    <string name="drawer_settings">Settings</string>
-    <string name="drawer_dark_mode">Dark Mode</string>
+    <string name="welcome_1">Voice activation measurement</string>
+    <string name="welcome_2">Acoustic voice analysis</string>
+    <string name="welcome_3">Dual adaptive baseline calibration</string>
+    <string name="welcome_4">Expert evaluation instrument</string>
+    <string name="title_settings">Settings</string>
+    <string name="action_close">Close</string>
+    <string name="title_history">History</string>
+    <string name="label_dark_mode">Dark Mode</string>
+    <string name="drawer_footer_title">Poligraf System</string>
+    <string name="drawer_footer_subtitle">Operational v</string>
 
-    <!-- Error States -->
-    <string name="error_unknown_title">Something Went Wrong</string>
-    <string name="error_unknown_msg">We encountered an unexpected error. Please try again shortly.</string>
-    <string name="error_retry">Try Again</string>
+    <!-- Errors -->
+    <string name="error_title">System Error</string>
+    <string name="error_message">Failed to load acoustic data</string>
+    <string name="action_retry">Retry</string>
 
-    <string name="close">Close</string>
-
-    <!-- Debug Dashboard -->
-    <string name="debug_title">Architecture Debug</string>
-    <string name="debug_trigger_loading">Show Loading</string>
-    <string name="debug_trigger_error_blocking">Blocking Error</string>
-    <string name="debug_trigger_success_toast">Test Success Notification</string>
-
-    <string name="analyzing_screen_placeholder">Make your first analysis</string>
-    <string name="analyzing_screen_title">Analyzing</string>
-    <string name="active_analysis">Analysis active</string>
-    <string name="analyzing_synthesizing">Synthesizing universe acoustics…</string>
+    <!-- Analyzer -->
+    <string name="analyzer_title">Voice Analyzer</string>
+    <string name="active_session">Active Session</string>
+    <string name="analysis_synthesizing">Calibrating profile...</string>
     <string name="skin_state_map">State Map</string>
     <string name="skin_voice_ribbon">Voice Ribbon</string>
     <string name="skin_equalizer">Equalizer</string>
     <string name="skin_rings">Three Rings</string>
 
-    <string name="drawer_footer_title">Poligraf System</string>
-    <string name="drawer_footer_subtitle">Operational v</string>
-
-    <string name="recorder_history_title">History</string>
     <string name="action_save">Save</string>
     <string name="action_delete">Delete</string>
 
     <!-- Continuous Statuses -->
-    <string name="status_warmup">Voice profiling in progress</string>
+    <string name="status_warmup">Calibrating to speaker\'s voice...</string>
     <string name="status_clipping">Microphone clipping</string>
     <string name="status_low_snr">Low signal level</string>
-    <string name="status_calm">Speech is steady</string>
-    <string name="status_mild_fluctuation">Subtle emotional fluctuation</string>
-    <string name="status_fear_single">Pronounced micro-tremor</string>
-    <string name="status_stress_single">Cognitive stress spike</string>
-    <string name="status_pressure_single">Acoustic pressure spike</string>
+    <string name="status_calm">Conversation is going calmly</string>
+    <string name="status_mild_fluctuation">Slight emotional inflections</string>
+    <string name="status_fear_single">Nervousness in tone</string>
+    <string name="status_stress_single">Increasing tension in dialogue</string>
+    <string name="status_pressure_single">Tone is louder with pressure</string>
 
     <!-- Interpretations -->
-    <string name="interpretation_calm">Speech is steady</string>
-    <string name="interpretation_panic">Hidden panic reaction</string>
-    <string name="interpretation_aggression">Aggressive speech tone</string>
-    <string name="interpretation_confrontation">Open vocal confrontation</string>
-    <string name="interpretation_disorganization">Disorganized pitch state</string>
-    <string name="interpretation_analyzing">Analyzing vocal state...</string>
+    <string name="interpretation_calm">Conversation is going calmly</string>
+    <string name="interpretation_panic">Strong internal tension</string>
+    <string name="interpretation_aggression">Tone is more irritated than usual</string>
+    <string name="interpretation_confrontation">Active argument &amp; sharp tone</string>
+    <string name="interpretation_disorganization">Tense &amp; volatile situation</string>
+    <string name="interpretation_analyzing">Evaluating conversation state...</string>
     <string name="interpretation_format">%s</string>
 
     <!-- Chart Labels -->
-    <string name="label_stress">Stress</string>
-    <string name="label_pressure">Pressure</string>
-    <string name="label_fear">Fear</string>
-    <string name="label_zero">0</string>
     <string name="label_sync_zone">Sync Zone</string>
     <string name="timeline_title">Event Timeline</string>
 
     <string name="metric_jitter">Jitter</string>
     <string name="metric_pitch">Pitch</string>
     <string name="metric_rms">RMS</string>
+
+    <!-- Debug -->
+    <string name="debug_title">Debug Menu</string>
+    <string name="debug_trigger_loading">Trigger Loading</string>
+    <string name="debug_trigger_error">Trigger Error</string>
+    <string name="debug_trigger_success">Trigger Success</string>
 
     <!-- History & Reports -->
     <string name="history_empty">No saved sessions yet</string>
@@ -78,15 +71,22 @@
     <string name="volatility_low">Low</string>
     <string name="volatility_medium">Medium</string>
     <string name="volatility_high">High</string>
-    <string name="conclusion_positive">Reliable</string>
-    <string name="conclusion_negative">Unreliable</string>
-    <string name="conclusion_neutral">Uncertain</string>
-    <string name="conclusion_unreliable">Unreliable (Insufficient Data)</string>
+    <string name="conclusion_positive">Stable</string>
+    <string name="conclusion_negative">High Stress</string>
+    <string name="conclusion_neutral">Moderate</string>
+    <string name="conclusion_unreliable">Low Quality</string>
     <string name="label_notes">Notes</string>
-    <string name="notes_hint">Add a note...</string>
-    <string name="history_detail_title">Session Report</string>
+    <string name="notes_hint">Add a note to current timestamp...</string>
+    <string name="history_detail_title">Session Details</string>
     <string name="session_index_format">Session #%d</string>
+
+    <!-- Settings -->
     <string name="settings_preferences_title">Preferences</string>
-    <string name="settings_skin_title">Indicator theme</string>
-    <string name="settings_marker_title">Marker set</string>
+    <string name="settings_skin_title">Analyzer Skin</string>
+    <string name="settings_marker_title">Marker Shape</string>
+    <string name="settings_quantum_window_title">Anomaly Window</string>
+    <string name="settings_sensitivity_title">Anomaly Sensitivity</string>
+    <string name="sensitivity_low">Low</string>
+    <string name="sensitivity_medium">Medium</string>
+    <string name="sensitivity_high">High</string>
 </resources>

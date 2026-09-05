@@ -12,11 +12,13 @@ import application.poligraf.ui.theme.tokens.StringToken
 
 /**
  * Maps domain analysis statuses and metrics to UI tokens and markers.
+ * Honest, deterministic physical status mapping.
  */
 object AnalyzerUiMapper {
 
     fun mapStatusToToken(status: AnalysisStatus): StringToken = when (status) {
         AnalysisStatus.WARMUP -> StringToken.STATUS_WARMUP
+        AnalysisStatus.WARMUP_ROOM -> StringToken.STATUS_WARMUP
         AnalysisStatus.CLIPPING -> StringToken.STATUS_CLIPPING
         AnalysisStatus.LOW_SNR -> StringToken.STATUS_LOW_SNR
         AnalysisStatus.CALM -> StringToken.STATUS_CALM
@@ -24,6 +26,10 @@ object AnalyzerUiMapper {
         AnalysisStatus.FEAR_SINGLE -> StringToken.STATUS_FEAR_SINGLE
         AnalysisStatus.STRESS_SINGLE -> StringToken.STATUS_STRESS_SINGLE
         AnalysisStatus.PRESSURE_SINGLE -> StringToken.STATUS_PRESSURE_SINGLE
+        AnalysisStatus.PITCH_DROP -> StringToken.STATUS_STRESS_SINGLE
+        AnalysisStatus.RMS_DROP -> StringToken.STATUS_PRESSURE_SINGLE
+        AnalysisStatus.SUBDUED_TREMOR -> StringToken.STATUS_FEAR_SINGLE
+        AnalysisStatus.SUBDUED_SPEECH -> StringToken.STATUS_MILD_FLUCTUATION
         AnalysisStatus.PANIC -> StringToken.INTERPRETATION_PANIC
         AnalysisStatus.AGGRESSION -> StringToken.INTERPRETATION_AGGRESSION
         AnalysisStatus.CONFRONTATION -> StringToken.INTERPRETATION_CONFRONTATION
@@ -40,10 +46,10 @@ object AnalyzerUiMapper {
         pitchScore: Float,
         rmsScore: Float,
     ): StringToken? {
-        val status = AnalyzerProcessor.determineInterpretationStatus(
+        val acuteStatus = AnalyzerProcessor.determineInterpretationStatus(
             jitterScore, pitchScore, rmsScore
         ) ?: return null
-        return mapStatusToToken(status)
+        return mapStatusToToken(acuteStatus)
     }
 
     fun determineVolatilityStatus(anomalyCount: Int, durationMillis: Long): StringToken {

@@ -32,10 +32,6 @@ internal object StringMapper {
             StringToken.SKIN_EQUALIZER -> strings.recorder.equalizer
             StringToken.SKIN_RINGS -> strings.recorder.rings
 
-            StringToken.LABEL_STRESS -> strings.recorder.labelStress
-            StringToken.LABEL_PRESSURE -> strings.recorder.labelPressure
-            StringToken.LABEL_FEAR -> strings.recorder.labelFear
-            StringToken.LABEL_ZERO -> strings.recorder.labelZero
             StringToken.LABEL_SYNC_ZONE -> strings.recorder.labelSyncZone
             StringToken.TIMELINE_TITLE -> strings.recorder.timelineTitle
             StringToken.INTERPRETATION_CALM -> strings.recorder.interpretationCalm
@@ -75,6 +71,11 @@ internal object StringMapper {
             StringToken.SETTINGS_PREFERENCES_TITLE -> strings.settings.preferencesTitle
             StringToken.SETTINGS_SKIN_TITLE -> strings.settings.skinTitle
             StringToken.SETTINGS_MARKER_TITLE -> strings.settings.markerTitle
+            StringToken.SETTINGS_QUANTUM_WINDOW_TITLE -> strings.settings.quantumWindowTitle
+            StringToken.SETTINGS_SENSITIVITY_TITLE -> strings.settings.sensitivityTitle
+            StringToken.SENSITIVITY_LOW -> strings.settings.sensitivityLow
+            StringToken.SENSITIVITY_MEDIUM -> strings.settings.sensitivityMedium
+            StringToken.SENSITIVITY_HIGH -> strings.settings.sensitivityHigh
             StringToken.STATUS_WARMUP -> strings.recorder.statusWarmup
             StringToken.STATUS_CLIPPING -> strings.recorder.statusClipping
             StringToken.STATUS_LOW_SNR -> strings.recorder.statusLowSnr

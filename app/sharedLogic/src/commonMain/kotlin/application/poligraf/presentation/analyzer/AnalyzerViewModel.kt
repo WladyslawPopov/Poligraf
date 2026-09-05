@@ -289,10 +289,15 @@ class AnalyzerViewModel(
             val seekPaused = _state.map { it.seekPositionMillis to it.isPaused }
                 .distinctUntilChanged()
 
-            combine(repository.currentFrame, seekPaused) { frame, (seek, paused) ->
-                Triple(frame, seek, paused)
-            }.collect { (frame, seek, paused) ->
-                val snapshot = controller.resolveDisplay(seek, paused, frame)
+            combine(
+                repository.currentFrame,
+                seekPaused
+            ) { frame, (seek, paused) ->
+                val snapshot = controller.resolveDisplay(
+                    seekPos = seek,
+                    isPaused = paused,
+                    liveFrame = frame
+                )
                 _state.update {
                     it.copy(
                         displayFrame = snapshot.displayFrame,
@@ -304,7 +309,7 @@ class AnalyzerViewModel(
                         activeInterpretation = snapshot.activeInterpretation,
                     )
                 }
-            }
+            }.collect()
         }
     }
 

@@ -3,12 +3,13 @@ package application.poligraf.data.analyzer.dsp
 import application.poligraf.data.analyzer.model.AcousticMetrics
 import application.poligraf.data.analyzer.model.GlobalProfile
 import application.poligraf.domain.analyzer.model.AudioFrame
+import application.poligraf.domain.analyzer.types.SensitivityLevel
 import application.poligraf.domain.analyzer.types.SignalLevel
 import kotlin.math.*
 
 /**
  * Science-based Audio Analyzer for Voice Stress Analysis (VSA).
- * Primary DSP analysis engine.
+ * Primary DSP analysis engine with zero-baseline metrics in calm/silence.
  */
 internal object AudioAnalyzer {
 
@@ -219,9 +220,10 @@ internal object AudioAnalyzer {
         baseline: MovingBaseline,
         globalProfile: GlobalProfile,
         futureAtoms: List<AcousticMetrics>,
+        sensitivity: SensitivityLevel = SensitivityLevel.MEDIUM
     ): AudioFrame {
         if (!baseline.isVoice(rms, pitch)) {
-            val status = AnalysisStatusResolver.resolve(rms, 0f, 0f, 0f, timestamp)
+            val status = AnalysisStatusResolver.resolve(rms, 0f, 0f, 0f, timestamp, sensitivity = sensitivity)
             return AudioFrame(
                 timestamp = timestamp,
                 stressScore = 0f,
@@ -281,9 +283,19 @@ internal object AudioAnalyzer {
 
         val totalZ = effectiveJitterZ * 0.35f + effectivePitchZ * 0.30f + effectiveRmsZ * 0.35f
 
+        val sigmaMultiplier = when (sensitivity) {
+            SensitivityLevel.LOW -> 1.30f
+            SensitivityLevel.MEDIUM -> 1.00f
+            SensitivityLevel.HIGH -> 0.80f
+            else -> 1.00f
+        }
+        val anomalySigma = AnalyzerThresholds.ANOMALY_SIGMA * sigmaMultiplier
+        val criticalSigma = AnalyzerThresholds.CRITICAL_SIGMA * sigmaMultiplier
+        val glowSigma = AnalyzerThresholds.GLOW_SIGMA * sigmaMultiplier
+
         val futureVoiceAtoms = futureAtoms.filter { it.pitch in 85f..450f && it.rms > 0.002f }
         val isTransient =
-            if (totalZ >= AnalyzerThresholds.ANOMALY_SIGMA && futureVoiceAtoms.isNotEmpty()) {
+            if (totalZ >= anomalySigma && futureVoiceAtoms.isNotEmpty()) {
                 var futureEnergySum = 0f
                 for (fAtom in futureVoiceAtoms) {
                     val fPitchSemitones = if (fAtom.pitch in 85f..450f && meanPitch in 85f..450f) {
@@ -308,12 +320,13 @@ internal object AudioAnalyzer {
         val finalizedZ = if (isTransient) totalZ else totalZ * 0.5f
 
         val level = when {
-            finalizedZ >= AnalyzerThresholds.CRITICAL_SIGMA -> SignalLevel.CRITICAL
-            finalizedZ >= AnalyzerThresholds.ANOMALY_SIGMA -> SignalLevel.ANOMALY
-            finalizedZ >= AnalyzerThresholds.GLOW_SIGMA -> SignalLevel.GLOW
+            finalizedZ >= criticalSigma -> SignalLevel.CRITICAL
+            finalizedZ >= anomalySigma -> SignalLevel.ANOMALY
+            finalizedZ >= glowSigma -> SignalLevel.GLOW
             else -> SignalLevel.NONE
         }
 
+        // Zero-Baseline Stress Scores: In calm speech or silence, Z-scores start at 0% and rise on tension
         val jScore = (effectiveJitterZ / AnalyzerThresholds.SCORE_SCALE).coerceIn(0f, 1f)
         val pScore = (effectivePitchZ / AnalyzerThresholds.SCORE_SCALE).coerceIn(0f, 1f)
         val rScore = (effectiveRmsZ / AnalyzerThresholds.SCORE_SCALE).coerceIn(0f, 1f)
@@ -323,7 +336,8 @@ internal object AudioAnalyzer {
             jitterScore = jScore,
             pitchScore = pScore,
             rmsScore = rScore,
-            timestamp = timestamp
+            timestamp = timestamp,
+            sensitivity = sensitivity
         )
 
         return AudioFrame(

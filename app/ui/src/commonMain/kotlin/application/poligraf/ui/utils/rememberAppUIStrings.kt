@@ -57,10 +57,6 @@ fun rememberAppUIStrings(provider: IAppStrings): AppStrings {
             interpretationDisorganization = stringResource(provider.recorder.interpretationDisorganization),
             interpretationAnalyzing = stringResource(provider.recorder.interpretationAnalyzing),
             interpretationFormat = stringResource(provider.recorder.interpretationFormat),
-            labelStress = stringResource(provider.recorder.labelStress),
-            labelPressure = stringResource(provider.recorder.labelPressure),
-            labelFear = stringResource(provider.recorder.labelFear),
-            labelZero = stringResource(provider.recorder.labelZero),
             labelSyncZone = stringResource(provider.recorder.labelSyncZone),
             timelineTitle = stringResource(provider.recorder.timelineTitle),
             metricJitter = stringResource(provider.recorder.metricJitter),
@@ -89,7 +85,12 @@ fun rememberAppUIStrings(provider: IAppStrings): AppStrings {
         settings = SettingsStrings(
             preferencesTitle = stringResource(provider.settings.preferencesTitle),
             skinTitle = stringResource(provider.settings.skinTitle),
-            markerTitle = stringResource(provider.settings.markerTitle)
+            markerTitle = stringResource(provider.settings.markerTitle),
+            quantumWindowTitle = stringResource(provider.settings.quantumWindowTitle),
+            sensitivityTitle = stringResource(provider.settings.sensitivityTitle),
+            sensitivityLow = stringResource(provider.settings.sensitivityLow),
+            sensitivityMedium = stringResource(provider.settings.sensitivityMedium),
+            sensitivityHigh = stringResource(provider.settings.sensitivityHigh)
         ),
         debug = DebugStrings(
             title = stringResource(provider.debug.title),

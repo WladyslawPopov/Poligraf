@@ -1,0 +1,92 @@
+<resources>
+    <string name="app_name">Poligraf</string>
+    <string name="welcome_1">Измерение активации речи</string>
+    <string name="welcome_2">Акустический анализ голоса</string>
+    <string name="welcome_3">Двойная адаптивная калибровка</string>
+    <string name="welcome_4">Инструмент экспертной оценки</string>
+    <string name="title_settings">Настройки</string>
+    <string name="action_close">Закрыть</string>
+    <string name="title_history">История</string>
+    <string name="label_dark_mode">Темная тема</string>
+    <string name="drawer_footer_title">Система Poligraf</string>
+    <string name="drawer_footer_subtitle">Версия в работе v</string>
+
+    <!-- Ошибки -->
+    <string name="error_title">Ошибка системы</string>
+    <string name="error_message">Не удалось загрузить акустические данные</string>
+    <string name="action_retry">Повторить</string>
+
+    <!-- Анализатор -->
+    <string name="analyzer_title">Анализатор речи</string>
+    <string name="active_session">Активная сессия</string>
+    <string name="analysis_synthesizing">Калибровка профиля...</string>
+    <string name="skin_state_map">Карта состояний</string>
+    <string name="skin_voice_ribbon">Голосовая лента</string>
+    <string name="skin_equalizer">Эквалайзер</string>
+    <string name="skin_rings">Три кольца</string>
+
+    <string name="action_save">Сохранить</string>
+    <string name="action_delete">Удалить</string>
+
+    <!-- Непрерывные статусы -->
+    <string name="status_warmup">Настройка под голос собеседника...</string>
+    <string name="status_clipping">Перегруз микрофона</string>
+    <string name="status_low_snr">Низкий уровень сигнала</string>
+    <string name="status_calm">Разговор идет спокойно</string>
+    <string name="status_mild_fluctuation">Легкие эмоциональные акценты</string>
+    <string name="status_fear_single">Волнение и дрожь в интонации</string>
+    <string name="status_stress_single">Повышение напряжения в беседе</string>
+    <string name="status_pressure_single">Тон стал громче и с нажимом</string>
+
+    <!-- Интерпретации -->
+    <string name="interpretation_calm">Разговор идет спокойно</string>
+    <string name="interpretation_panic">Сильное внутреннее напряжение</string>
+    <string name="interpretation_aggression">Тон более раздраженный, чем обычно</string>
+    <string name="interpretation_confrontation">Активный спор и жесткая интонация</string>
+    <string name="interpretation_disorganization">Напряженная и хаотичная ситуация</string>
+    <string name="interpretation_analyzing">Оценка параметров беседы...</string>
+    <string name="interpretation_format">%s</string>
+
+    <!-- Метки графиков -->
+    <string name="label_sync_zone">Зона синхронизации</string>
+    <string name="timeline_title">Таймлайн событий</string>
+
+    <string name="metric_jitter">Джиттер</string>
+    <string name="metric_pitch">Тон</string>
+    <string name="metric_rms">Громкость</string>
+
+    <!-- Отладка -->
+    <string name="debug_title">Отладочное меню</string>
+    <string name="debug_trigger_loading">Загрузка</string>
+    <string name="debug_trigger_error">Ошибка</string>
+    <string name="debug_trigger_success">Успех</string>
+
+    <!-- История и Отчеты -->
+    <string name="history_empty">Сохраненных сессий пока нет</string>
+    <string name="history_item_markers">%d маркеров</string>
+    <string name="history_item_notes">%d заметок</string>
+    <string name="history_summary_volatility">Волатильность речи</string>
+    <string name="history_summary_duration">Длительность</string>
+    <string name="history_summary_markers">Маркеры</string>
+    <string name="volatility_low">Низкая</string>
+    <string name="volatility_medium">Средняя</string>
+    <string name="volatility_high">Высокая</string>
+    <string name="conclusion_positive">Стабильная</string>
+    <string name="conclusion_negative">Высокий стресс</string>
+    <string name="conclusion_neutral">Умеренная</string>
+    <string name="conclusion_unreliable">Низкое качество</string>
+    <string name="label_notes">Заметки</string>
+    <string name="notes_hint">Добавьте заметку к текущему моменту...</string>
+    <string name="history_detail_title">Детали сессии</string>
+    <string name="session_index_format">Сессия #%d</string>
+
+    <!-- Настройки -->
+    <string name="settings_preferences_title">Настройки</string>
+    <string name="settings_skin_title">Скин анализатора</string>
+    <string name="settings_marker_title">Форма маркеров</string>
+    <string name="settings_quantum_window_title">Окно анализа аномалий</string>
+    <string name="settings_sensitivity_title">Чувствительность аномалий</string>
+    <string name="sensitivity_low">Низкая</string>
+    <string name="sensitivity_medium">Средняя</string>
+    <string name="sensitivity_high">Высокая</string>
+</resources>

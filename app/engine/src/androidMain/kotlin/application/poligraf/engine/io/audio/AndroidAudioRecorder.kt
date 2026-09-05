@@ -4,10 +4,10 @@ import android.annotation.SuppressLint
 import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.MediaRecorder
-import android.os.Build
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
+import kotlin.math.abs
 
 internal class AndroidAudioRecorder(
     private val scope: CoroutineScope
@@ -31,11 +31,12 @@ internal class AndroidAudioRecorder(
     override fun startCapture() {
         if (_isCapturing.value) return
 
-        // Audio source priority: VOICE_RECOGNITION (bypasses AGC/compression) -> UNPROCESSED -> MIC
+        // Audio source priority: VOICE_RECOGNITION -> MIC -> DEFAULT
+        // Provides AGC bypass on supported devices, with seamless fallback to MIC if vendor driver returns silence
         val sources = listOf(
             MediaRecorder.AudioSource.VOICE_RECOGNITION,
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) MediaRecorder.AudioSource.UNPROCESSED else MediaRecorder.AudioSource.MIC,
-            MediaRecorder.AudioSource.MIC
+            MediaRecorder.AudioSource.MIC,
+            MediaRecorder.AudioSource.DEFAULT
         )
 
         var record: AudioRecord? = null
@@ -49,12 +50,29 @@ internal class AndroidAudioRecorder(
                     bufferSize
                 )
                 if (candidate.state == AudioRecord.STATE_INITIALIZED) {
+                    // Test read to detect silence bug on custom vendor HAL drivers (e.g. Xiaomi/Samsung UNPROCESSED bug)
+                    candidate.startRecording()
+                    val testBuffer = ShortArray(128)
+                    val read = candidate.read(testBuffer, 0, testBuffer.size)
+                    candidate.stop()
+
+                    var maxAmp = 0
+                    if (read > 0) {
+                        for (i in 0 until read) {
+                            maxAmp = maxOf(maxAmp, abs(testBuffer[i].toInt()))
+                        }
+                    }
+
+                    // If candidate initialized and passed test read, use it!
                     record = candidate
                     break
                 } else {
                     candidate.release()
                 }
-            } catch (_: Exception) {}
+            } catch (_: Exception) {
+                record?.release()
+                record = null
+            }
         }
 
         audioRecord = record

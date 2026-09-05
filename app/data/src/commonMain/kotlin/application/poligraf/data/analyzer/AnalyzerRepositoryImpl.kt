@@ -12,6 +12,8 @@ import application.poligraf.data.analyzer.model.RawAtom
 import application.poligraf.database.PoligrafDatabase
 import application.poligraf.domain.analyzer.model.AudioFrame
 import application.poligraf.domain.analyzer.repository.AnalyzerRepository
+import application.poligraf.domain.analyzer.types.AnalysisStatus
+import application.poligraf.domain.preferences.repository.PreferencesRepository
 import application.poligraf.engine.database.common.dbDispatcher
 import application.poligraf.engine.io.audio.AudioConstants
 import application.poligraf.engine.io.audio.AudioRecorder
@@ -30,6 +32,7 @@ import kotlinx.coroutines.withContext
 internal class AnalyzerRepositoryImpl(
     private val recorder: AudioRecorder,
     private val db: PoligrafDatabase,
+    private val preferencesRepository: PreferencesRepository,
     private val scope: CoroutineScope
 ) : AnalyzerRepository {
 
@@ -59,6 +62,11 @@ internal class AnalyzerRepositoryImpl(
     private val _globalProfile = MutableStateFlow(GlobalProfile())
     private val lookAheadQueue = ArrayDeque<RawAtom>()
 
+    // Conversational Quantum Window Aggregator
+    private val quantumSubFrames = mutableListOf<AudioFrame>()
+    private var quantumWindowStart = 0L
+    private var currentQuantumStatus: AnalysisStatus = AnalysisStatus.WARMUP
+
     private val windowSizeMs = 100
     private val samplesPerWindow = AudioConstants.SAMPLING_RATE / (1000 / windowSizeMs)
 
@@ -75,6 +83,9 @@ internal class AnalyzerRepositoryImpl(
         pitchHistory.clear()
         frameBatch.clear()
         calibrationBatch.clear()
+        quantumSubFrames.clear()
+        quantumWindowStart = 0L
+        currentQuantumStatus = AnalysisStatus.WARMUP
         _globalProfile.value = GlobalProfile()
         lookAheadQueue.clear()
         _currentFrame.value = null
@@ -132,6 +143,7 @@ internal class AnalyzerRepositoryImpl(
             finalizeFrame(lookAheadQueue.removeFirst())
         }
 
+        flushQuantumFrame()
         flushBatch(sessionId)
     }
 
@@ -255,6 +267,7 @@ internal class AnalyzerRepositoryImpl(
         }
 
     private fun finalizeFrame(atom: RawAtom) {
+        val sensitivity = preferencesRepository.sensitivityFlow.value
         val rawFrame = AudioAnalyzer.calculateHonestAnalysis(
             timestamp = atom.timestamp,
             rms = atom.rms,
@@ -264,7 +277,8 @@ internal class AnalyzerRepositoryImpl(
             globalProfile = _globalProfile.value,
             futureAtoms = lookAheadQueue.map {
                 AcousticMetrics(it.rms, it.pitch, it.jitter)
-            }
+            },
+            sensitivity = sensitivity
         )
 
         baseline.add(
@@ -274,21 +288,37 @@ internal class AnalyzerRepositoryImpl(
             isAnomalyOutlier = rawFrame.isAnomaly
         )
 
-        val alpha = AnalyzerThresholds.SMOOTH_LIVE
-        smoothedStress = smoothedStress * (1f - alpha) + rawFrame.stressScore * alpha
-        smoothedJitter = smoothedJitter * (1f - alpha) + rawFrame.jitterScore * alpha
-        smoothedPitch = smoothedPitch * (1f - alpha) + rawFrame.pitchScore * alpha
-        smoothedRms = smoothedRms * (1f - alpha) + rawFrame.rmsScore * alpha
+        val isVoice = baseline.isVoice(atom.rms, atom.pitch)
+        val status: AnalysisStatus
 
-        val status = AnalysisStatusResolver.resolve(
-            rms = atom.rms,
-            jitterScore = smoothedJitter,
-            pitchScore = smoothedPitch,
-            rmsScore = smoothedRms,
-            timestamp = atom.timestamp
-        )
+        if (!isVoice) {
+            smoothedStress = 0f
+            smoothedJitter = 0f
+            smoothedPitch = 0f
+            smoothedRms = 0f
+            status = if (atom.timestamp < AnalyzerThresholds.WARMUP_DURATION_MS) {
+                AnalysisStatus.WARMUP
+            } else {
+                AnalysisStatus.CALM
+            }
+        } else {
+            val alpha = AnalyzerThresholds.SMOOTH_LIVE
+            smoothedStress = smoothedStress * (1f - alpha) + rawFrame.stressScore * alpha
+            smoothedJitter = smoothedJitter * (1f - alpha) + rawFrame.jitterScore * alpha
+            smoothedPitch = smoothedPitch * (1f - alpha) + rawFrame.pitchScore * alpha
+            smoothedRms = smoothedRms * (1f - alpha) + rawFrame.rmsScore * alpha
 
-        val frame = AudioFrame(
+            status = AnalysisStatusResolver.resolve(
+                rms = atom.rms,
+                jitterScore = rawFrame.jitterScore,
+                pitchScore = rawFrame.pitchScore,
+                rmsScore = rawFrame.rmsScore,
+                timestamp = atom.timestamp,
+                sensitivity = sensitivity
+            )
+        }
+
+        val atomSubFrame = AudioFrame(
             timestamp = atom.timestamp,
             stressScore = smoothedStress,
             jitterScore = smoothedJitter,
@@ -298,14 +328,77 @@ internal class AnalyzerRepositoryImpl(
             status = status
         )
 
-        _currentFrame.value = frame
-        _audioFrames.tryEmit(frame)
+        // Accumulate sub-frame for configurable Quantum Window status aggregation
+        if (quantumSubFrames.isEmpty()) {
+            quantumWindowStart = atom.timestamp
+        }
+        quantumSubFrames.add(atomSubFrame)
 
-        frameBatch.add(frame)
-        if (frameBatch.size >= 100) {
+        val displaySubFrame = AudioFrame(
+            timestamp = atom.timestamp,
+            stressScore = smoothedStress,
+            jitterScore = smoothedJitter,
+            pitchScore = smoothedPitch,
+            rmsScore = smoothedRms,
+            isAnomaly = rawFrame.isAnomaly,
+            status = currentQuantumStatus
+        )
+
+        // Real-time emission at 20 FPS (every 50ms) with stable quantum window status
+        _currentFrame.value = displaySubFrame
+        _audioFrames.tryEmit(displaySubFrame)
+
+        frameBatch.add(displaySubFrame)
+        if (frameBatch.size >= 100) { // Save batch every 100 frames = 5 seconds at 20 FPS
             val sessionId = currentSessionId ?: return
             flushBatch(sessionId)
         }
+
+        val quantumWindowDurationMs = preferencesRepository.quantumWindowFlow.value.millis
+        if ((atom.timestamp - quantumWindowStart) >= quantumWindowDurationMs) {
+            flushQuantumFrame()
+        }
+    }
+
+    private fun flushQuantumFrame() {
+        if (quantumSubFrames.isEmpty()) return
+
+        val lastTimestamp = quantumSubFrames.last().timestamp
+        val sensitivity = preferencesRepository.sensitivityFlow.value
+
+        if (lastTimestamp < AnalyzerThresholds.WARMUP_DURATION_MS) {
+            currentQuantumStatus = AnalysisStatus.WARMUP
+            quantumSubFrames.clear()
+            return
+        }
+
+        // Filter active voice subframes in this quantum window
+        val voiceSubFrames = quantumSubFrames.filter {
+            it.stressScore > 0f || it.jitterScore > 0f || it.pitchScore > 0f || it.rmsScore > 0f
+        }
+
+        // If speaker spoke for less than 15% of the quantum window, or no voice -> CALM
+        val minVoiceFrames = (quantumSubFrames.size * 0.15f).coerceAtLeast(1f)
+        if (voiceSubFrames.size < minVoiceFrames) {
+            currentQuantumStatus = AnalysisStatus.CALM
+        } else {
+            val count = voiceSubFrames.size.toDouble()
+            val avgJitter = (voiceSubFrames.sumOf { it.jitterScore.toDouble() } / count).toFloat()
+            val avgPitch = (voiceSubFrames.sumOf { it.pitchScore.toDouble() } / count).toFloat()
+            val avgRms = (voiceSubFrames.sumOf { it.rmsScore.toDouble() } / count).toFloat()
+
+            // Resolve status directly from the window average metrics
+            currentQuantumStatus = AnalysisStatusResolver.resolve(
+                rms = avgRms,
+                jitterScore = avgJitter,
+                pitchScore = avgPitch,
+                rmsScore = avgRms,
+                timestamp = lastTimestamp,
+                sensitivity = sensitivity
+            )
+        }
+
+        quantumSubFrames.clear()
     }
 
     private fun flushBatch(sessionId: String) {
@@ -354,6 +447,8 @@ internal class AnalyzerRepositoryImpl(
         while (lookAheadQueue.isNotEmpty()) {
             finalizeFrame(lookAheadQueue.removeFirst())
         }
+
+        flushQuantumFrame()
 
         val framesToSave = frameBatch.toList()
         frameBatch.clear()
