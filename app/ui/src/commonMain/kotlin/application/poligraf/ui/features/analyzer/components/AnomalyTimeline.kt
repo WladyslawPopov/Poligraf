@@ -118,13 +118,12 @@ fun AnomalyTimeline(
             val totalContentWidthPx = indicatorOffset + durationPx + indicatorOffset
             val totalContentWidthDp = with(density) { totalContentWidthPx.toDp() }
 
-            // 1. LIVE MODE: Follow the right edge with Throttling to prevent lags
+            // 1. LIVE MODE: Follow the right edge smoothly at 60 FPS
             LaunchedEffect(currentDurationMillis, isPaused) {
                 if (!isPaused) {
                     val targetScroll =
                         ((indicatorOffset + durationPx) - viewPortWidth).coerceAtLeast(0f).toInt()
-                    // More aggressive throttling: only scroll if move > 20px
-                    if (abs(scrollState.value - targetScroll) > 20) {
+                    if (scrollState.value != targetScroll) {
                         scrollState.scrollTo(targetScroll)
                     }
                 }
@@ -302,10 +301,9 @@ fun AnomalyTimeline(
                                 shapePainters[marker.shape]?.let { painter ->
                                     drawMarker(
                                         painter = painter,
-                                        color = designSystem.color(marker.colorToken),
+                                        color = designSystem.color(marker.colorToken).copy(alpha = marker.alpha),
                                         center = Offset(x, stripCenterY),
-                                        size = 14.dp.toPx(),
-                                        outlineColor = designSystem.color(ColorToken.SURFACE_BACKGROUND)
+                                        size = 14.dp.toPx()
                                     )
                                 }
                             }
@@ -319,8 +317,7 @@ fun AnomalyTimeline(
                                     painter = notePainter,
                                     color = designSystem.color(ColorToken.ACCENT_PRIMARY),
                                     center = Offset(x, stripCenterY),
-                                    size = 12.dp.toPx(),
-                                    outlineColor = designSystem.color(ColorToken.SURFACE_BACKGROUND)
+                                    size = 12.dp.toPx()
                                 )
                             }
                         }
@@ -331,7 +328,7 @@ fun AnomalyTimeline(
                 Canvas(modifier = Modifier.fillMaxSize()) {
                     val stripHeight = 36.dp.toPx()
 
-                    // In Live mode: pointer follows the analysis head on screen
+                    // In Live mode: pointer sits at the real-time capture head (durationPx)
                     // In Paused mode: pointer is centered and colored in accent
                     val pointerX = if (isPaused) {
                         indicatorOffset
@@ -368,19 +365,7 @@ fun DrawScope.drawMarker(
     color: Color,
     center: Offset,
     size: Float,
-    outlineColor: Color? = null,
 ) {
-    if (outlineColor != null) {
-        val outlineSize = size + 2.dp.toPx()
-        translate((center.x - outlineSize / 2), (center.y - outlineSize / 2)) {
-            with(painter) {
-                draw(
-                    size = Size(outlineSize, outlineSize),
-                    colorFilter = ColorFilter.tint(outlineColor),
-                )
-            }
-        }
-    }
     translate((center.x - size / 2), (center.y - size / 2)) {
         with(painter) {
             draw(

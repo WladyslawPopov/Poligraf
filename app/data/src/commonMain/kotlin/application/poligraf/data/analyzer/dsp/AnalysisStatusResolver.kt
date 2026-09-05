@@ -7,7 +7,7 @@ import application.poligraf.domain.analyzer.types.SensitivityLevel
  * Pure Data-layer resolver evaluating raw DSP scores and dynamic sensitivity thresholds
  * to determine the continuous domain [AnalysisStatus].
  */
-internal object AnalysisStatusResolver {
+object AnalysisStatusResolver {
 
     fun resolve(
         rms: Float,
@@ -40,6 +40,7 @@ internal object AnalysisStatusResolver {
 
         val isJitterHigh = jitterScore >= interpretThreshold
         val isPitchHigh = pitchScore >= interpretThreshold
+        val isPitchHighSignificant = pitchScore >= interpretThreshold && (jitterScore >= 0.15f || pitchScore >= interpretThreshold * 1.25f)
         val isRmsHigh = rmsScore >= interpretThreshold
 
         val isPitchLow = pitchScore < 0.03f && pitchScore > 0f
@@ -53,9 +54,9 @@ internal object AnalysisStatusResolver {
             isPitchLow && isRmsLow -> AnalysisStatus.SUBDUED_SPEECH
             isRmsLow && isJitterHigh -> AnalysisStatus.SUBDUED_TREMOR
             isJitterHigh -> AnalysisStatus.FEAR_SINGLE
-            isPitchHigh -> AnalysisStatus.STRESS_SINGLE
+            isPitchHighSignificant -> AnalysisStatus.STRESS_SINGLE
             isRmsHigh -> AnalysisStatus.PRESSURE_SINGLE
-            isPitchLow -> AnalysisStatus.PITCH_DROP
+            isPitchLow && (jitterScore >= 0.15f || pitchScore >= interpretThreshold * 1.25f) -> AnalysisStatus.PITCH_DROP
             isRmsLow -> AnalysisStatus.RMS_DROP
             jitterScore >= glowThreshold ||
                     pitchScore >= glowThreshold ||
@@ -63,5 +64,18 @@ internal object AnalysisStatusResolver {
 
             else -> AnalysisStatus.CALM
         }
+    }
+
+    fun isFullAnomaly(status: AnalysisStatus): Boolean = when (status) {
+        AnalysisStatus.DISORGANIZATION,
+        AnalysisStatus.PANIC,
+        AnalysisStatus.AGGRESSION,
+        AnalysisStatus.CONFRONTATION,
+        AnalysisStatus.FEAR_SINGLE,
+        AnalysisStatus.STRESS_SINGLE,
+        AnalysisStatus.PRESSURE_SINGLE,
+        AnalysisStatus.CLIPPING,
+        AnalysisStatus.LOW_SNR -> true
+        else -> false
     }
 }

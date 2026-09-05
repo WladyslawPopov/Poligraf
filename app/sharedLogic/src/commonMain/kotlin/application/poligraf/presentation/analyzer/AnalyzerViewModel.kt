@@ -175,23 +175,29 @@ class AnalyzerViewModel(
             }
         }
 
-        // Load frames for Review Mode (1:1 match with Live Mode, excluding initial warmup calibration)
+        // Load frames and markers for Review Mode (excluding initial warmup calibration)
         scope.launch(Dispatchers.Default) {
             try {
                 val allFrames = repository.getFramesForSession(sessionId)
                 val reviewFrames = allFrames.filter { it.timestamp >= 5000L }
                 controller.loadFrames(reviewFrames)
 
-                val markers = controller.timelineMarkers
-                val anomalyCount = markers.size
+                val domainMarkers = repository.getMarkersForSession(sessionId)
+                val uiMarkers = controller.setDomainMarkers(domainMarkers)
+
+                val fullCount = uiMarkers.count { it.isAnomaly }
+                val halftoneCount = uiMarkers.count { !it.isAnomaly }
+                val weightedScore = fullCount * 1.0f + halftoneCount * 0.35f
+
+                val anomalyCount = uiMarkers.size
                 val avgConfidence = 1.0f
                 val lastTimestamp = reviewFrames.lastOrNull()?.timestamp ?: 0L
 
                 val volatilityStatus =
-                    AnalyzerUiMapper.determineVolatilityStatus(anomalyCount, lastTimestamp)
+                    AnalyzerUiMapper.determineVolatilityStatus(weightedScore, lastTimestamp)
                 val volatilityColor = AnalyzerUiMapper.determineVolatilityColor(volatilityStatus)
                 val conclusionText = AnalyzerUiMapper.determineConclusionText(
-                    anomalyCount,
+                    weightedScore,
                     lastTimestamp,
                     avgConfidence
                 )
@@ -199,10 +205,12 @@ class AnalyzerViewModel(
 
                 _state.update { s ->
                     s.copy(
-                        timelineMarkers = markers,
+                        timelineMarkers = uiMarkers,
                         currentDurationMillis = lastTimestamp,
                         durationText = AnalyzerProcessor.formatDuration(lastTimestamp),
                         anomalyCount = anomalyCount,
+                        fullAnomalyCount = fullCount,
+                        halftoneAnomalyCount = halftoneCount,
                         averageConfidence = avgConfidence,
                         volatilityStatus = volatilityStatus,
                         volatilityColor = volatilityColor,
@@ -218,7 +226,7 @@ class AnalyzerViewModel(
             }
         }
 
-        // Seek observer for review mode
+        // Seek & settings observer for review mode (seeking updates active frame display ONLY)
         scope.launch {
             _state.map { it.seekPositionMillis }
                 .distinctUntilChanged()
@@ -230,11 +238,16 @@ class AnalyzerViewModel(
 
     private fun updateReviewDisplayState() {
         val seekPos = _state.value.seekPositionMillis ?: 0L
+        val quantumWindow = preferencesRepository.quantumWindowFlow.value
+        val sensitivity = preferencesRepository.sensitivityFlow.value
+
         val snapshot = controller.resolveDisplay(
             seekPos = seekPos,
             isPaused = true,
             liveFrame = null,
-            smooth = false
+            smooth = false,
+            quantumWindowMs = quantumWindow.millis,
+            sensitivity = sensitivity
         )
 
         _state.update {
@@ -246,17 +259,27 @@ class AnalyzerViewModel(
                 signalLevel = snapshot.signalLevel,
                 dominantMetric = snapshot.dominantMetric,
                 activeInterpretation = snapshot.activeInterpretation,
+                primaryAlpha = snapshot.primaryAlpha,
+                secondaryInterpretations = snapshot.secondaryInterpretations,
+                secondaryInterpretationsWithAlpha = snapshot.secondaryInterpretationsWithAlpha,
             )
         }
     }
 
 
     private fun initLiveMode() {
-        // Continuous history recording from SharedFlow (no conflation)
+        // Continuous history frame recording from SharedFlow
         scope.launch {
             repository.audioFrames.collect { frame ->
                 controller.onLiveFrame(frame)
-                _state.update { it.copy(timelineMarkers = controller.timelineMarkers) }
+            }
+        }
+
+        // Observe immutable session markers emitted by Engine on Quantum Window completion
+        scope.launch {
+            repository.sessionMarkers.collect { domainMarkers ->
+                val uiMarkers = controller.setDomainMarkers(domainMarkers)
+                _state.update { it.copy(timelineMarkers = uiMarkers) }
             }
         }
 
@@ -278,36 +301,78 @@ class AnalyzerViewModel(
                         currentDurationMillis = duration,
                         isAnalyzing = analyzing,
                         isPaused = paused,
-                        timelineMarkers = controller.timelineMarkers
                     )
                 }
             }.collect()
         }
 
-        // Display resolution reacts to the latest frame + seek/pause state.
+        // Observe Engine's currentQuantumAnalysis emitted ONCE per $T$-second quantum flush
+        scope.launch {
+            repository.currentQuantumAnalysis.collect { quantumAnalysis ->
+                if (!_state.value.isPaused) {
+                    val activeDisplayStatus = AnalyzerUiMapper.mapStatusToToken(quantumAnalysis.primaryStatus)
+                    val primaryAlpha = quantumAnalysis.primaryAlpha
+
+                    val secondaryInterpretationsWithAlpha = AnalyzerUiMapper.mapStatusesToTokensWithAlpha(
+                        quantumAnalysis.secondaryStatusesWithScores
+                    ).filter { it.first != activeDisplayStatus }
+
+                    val secondaryInterpretations = secondaryInterpretationsWithAlpha.map { it.first }
+
+                    _state.update {
+                        it.copy(
+                            activeInterpretation = activeDisplayStatus,
+                            primaryAlpha = primaryAlpha,
+                            secondaryInterpretations = secondaryInterpretations,
+                            secondaryInterpretationsWithAlpha = secondaryInterpretationsWithAlpha
+                        )
+                    }
+                }
+            }
+        }
+
+        // Display resolution reacts to the latest frame + seek/pause state + settings.
         scope.launch {
             val seekPaused = _state.map { it.seekPositionMillis to it.isPaused }
                 .distinctUntilChanged()
 
             combine(
                 repository.currentFrame,
-                seekPaused
-            ) { frame, (seek, paused) ->
+                seekPaused,
+                preferencesRepository.quantumWindowFlow,
+                preferencesRepository.sensitivityFlow
+            ) { frame, (seek, paused), quantumWindow, sensitivity ->
                 val snapshot = controller.resolveDisplay(
                     seekPos = seek,
                     isPaused = paused,
-                    liveFrame = frame
+                    liveFrame = frame,
+                    quantumWindowMs = quantumWindow.millis,
+                    sensitivity = sensitivity
                 )
                 _state.update {
-                    it.copy(
-                        displayFrame = snapshot.displayFrame,
-                        jitterLevel = snapshot.jitterLevel,
-                        pitchLevel = snapshot.pitchLevel,
-                        rmsLevel = snapshot.rmsLevel,
-                        signalLevel = snapshot.signalLevel,
-                        dominantMetric = snapshot.dominantMetric,
-                        activeInterpretation = snapshot.activeInterpretation,
-                    )
+                    if (paused || seek != null) {
+                        it.copy(
+                            displayFrame = snapshot.displayFrame,
+                            jitterLevel = snapshot.jitterLevel,
+                            pitchLevel = snapshot.pitchLevel,
+                            rmsLevel = snapshot.rmsLevel,
+                            signalLevel = snapshot.signalLevel,
+                            dominantMetric = snapshot.dominantMetric,
+                            activeInterpretation = snapshot.activeInterpretation,
+                            primaryAlpha = snapshot.primaryAlpha,
+                            secondaryInterpretations = snapshot.secondaryInterpretations,
+                            secondaryInterpretationsWithAlpha = snapshot.secondaryInterpretationsWithAlpha,
+                        )
+                    } else {
+                        it.copy(
+                            displayFrame = snapshot.displayFrame,
+                            jitterLevel = snapshot.jitterLevel,
+                            pitchLevel = snapshot.pitchLevel,
+                            rmsLevel = snapshot.rmsLevel,
+                            signalLevel = snapshot.signalLevel,
+                            dominantMetric = snapshot.dominantMetric,
+                        )
+                    }
                 }
             }.collect()
         }

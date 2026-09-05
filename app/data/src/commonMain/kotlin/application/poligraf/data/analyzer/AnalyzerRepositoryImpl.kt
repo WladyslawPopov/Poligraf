@@ -6,13 +6,17 @@ import application.poligraf.data.analyzer.dsp.AnalysisStatusResolver
 import application.poligraf.data.analyzer.dsp.AnalyzerThresholds
 import application.poligraf.data.analyzer.dsp.AudioAnalyzer
 import application.poligraf.data.analyzer.dsp.MovingBaseline
+import application.poligraf.data.analyzer.dsp.QuantumWindowAggregator
 import application.poligraf.data.analyzer.model.AcousticMetrics
 import application.poligraf.data.analyzer.model.GlobalProfile
 import application.poligraf.data.analyzer.model.RawAtom
 import application.poligraf.database.PoligrafDatabase
+import application.poligraf.domain.analyzer.model.AnomalyMarker
 import application.poligraf.domain.analyzer.model.AudioFrame
+import application.poligraf.domain.analyzer.model.QuantumAnalysis
 import application.poligraf.domain.analyzer.repository.AnalyzerRepository
 import application.poligraf.domain.analyzer.types.AnalysisStatus
+import application.poligraf.domain.analyzer.types.DominantMetric
 import application.poligraf.domain.preferences.repository.PreferencesRepository
 import application.poligraf.engine.database.common.dbDispatcher
 import application.poligraf.engine.io.audio.AudioConstants
@@ -42,6 +46,12 @@ internal class AnalyzerRepositoryImpl(
     private val _currentFrame = MutableStateFlow<AudioFrame?>(null)
     override val currentFrame = _currentFrame.asStateFlow()
 
+    private val _currentQuantumAnalysis = MutableStateFlow(QuantumAnalysis())
+    override val currentQuantumAnalysis = _currentQuantumAnalysis.asStateFlow()
+
+    private val _sessionMarkers = MutableStateFlow<List<AnomalyMarker>>(emptyList())
+    override val sessionMarkers = _sessionMarkers.asStateFlow()
+
     private val _audioFrames = MutableSharedFlow<AudioFrame>(extraBufferCapacity = 128)
     override val audioFrames = _audioFrames.asSharedFlow()
 
@@ -66,6 +76,9 @@ internal class AnalyzerRepositoryImpl(
     private val quantumSubFrames = mutableListOf<AudioFrame>()
     private var quantumWindowStart = 0L
     private var currentQuantumStatus: AnalysisStatus = AnalysisStatus.WARMUP
+    private var currentPrimaryAlpha: Float = 1.0f
+    private var currentSecondaryStatuses: List<AnalysisStatus> = emptyList()
+    private var currentSecondaryStatusesWithScores: List<Pair<AnalysisStatus, Float>> = emptyList()
 
     private val windowSizeMs = 100
     private val samplesPerWindow = AudioConstants.SAMPLING_RATE / (1000 / windowSizeMs)
@@ -86,9 +99,14 @@ internal class AnalyzerRepositoryImpl(
         quantumSubFrames.clear()
         quantumWindowStart = 0L
         currentQuantumStatus = AnalysisStatus.WARMUP
+        currentPrimaryAlpha = 1.0f
+        currentSecondaryStatuses = emptyList()
+        currentSecondaryStatusesWithScores = emptyList()
         _globalProfile.value = GlobalProfile()
         lookAheadQueue.clear()
         _currentFrame.value = null
+        _currentQuantumAnalysis.value = QuantumAnalysis()
+        _sessionMarkers.value = emptyList()
         _durationMillis.value = 0L
         timeBeforePause = 0L
         atomsProcessedInStretch = 0L
@@ -341,7 +359,10 @@ internal class AnalyzerRepositoryImpl(
             pitchScore = smoothedPitch,
             rmsScore = smoothedRms,
             isAnomaly = rawFrame.isAnomaly,
-            status = currentQuantumStatus
+            status = currentQuantumStatus,
+            primaryAlpha = currentPrimaryAlpha,
+            secondaryStatuses = currentSecondaryStatuses,
+            secondaryStatusesWithScores = currentSecondaryStatusesWithScores
         )
 
         // Real-time emission at 20 FPS (every 50ms) with stable quantum window status
@@ -363,43 +384,66 @@ internal class AnalyzerRepositoryImpl(
     private fun flushQuantumFrame() {
         if (quantumSubFrames.isEmpty()) return
 
-        val lastTimestamp = quantumSubFrames.last().timestamp
         val sensitivity = preferencesRepository.sensitivityFlow.value
+        val quantumWindowMs = preferencesRepository.quantumWindowFlow.value.millis
+        val quantumAnalysis = QuantumWindowAggregator.aggregateWindow(quantumSubFrames, sensitivity)
 
-        if (lastTimestamp < AnalyzerThresholds.WARMUP_DURATION_MS) {
-            currentQuantumStatus = AnalysisStatus.WARMUP
-            quantumSubFrames.clear()
-            return
-        }
+        currentQuantumStatus = quantumAnalysis.primaryStatus
+        currentPrimaryAlpha = quantumAnalysis.primaryAlpha
+        currentSecondaryStatuses = quantumAnalysis.secondaryStatuses
+        currentSecondaryStatusesWithScores = quantumAnalysis.secondaryStatusesWithScores
+        _currentQuantumAnalysis.value = quantumAnalysis
 
-        // Filter active voice subframes in this quantum window
-        val voiceSubFrames = quantumSubFrames.filter {
-            it.stressScore > 0f || it.jitterScore > 0f || it.pitchScore > 0f || it.rmsScore > 0f
-        }
+        val newWindowMarkers = QuantumWindowAggregator.extractWindowMarkers(
+            quantumSubFrames,
+            quantumWindowMs,
+            sensitivity
+        )
 
-        // If speaker spoke for less than 15% of the quantum window, or no voice -> CALM
-        val minVoiceFrames = (quantumSubFrames.size * 0.15f).coerceAtLeast(1f)
-        if (voiceSubFrames.size < minVoiceFrames) {
-            currentQuantumStatus = AnalysisStatus.CALM
-        } else {
-            val count = voiceSubFrames.size.toDouble()
-            val avgJitter = (voiceSubFrames.sumOf { it.jitterScore.toDouble() } / count).toFloat()
-            val avgPitch = (voiceSubFrames.sumOf { it.pitchScore.toDouble() } / count).toFloat()
-            val avgRms = (voiceSubFrames.sumOf { it.rmsScore.toDouble() } / count).toFloat()
-
-            // Resolve status directly from the window average metrics
-            currentQuantumStatus = AnalysisStatusResolver.resolve(
-                rms = avgRms,
-                jitterScore = avgJitter,
-                pitchScore = avgPitch,
-                rmsScore = avgRms,
-                timestamp = lastTimestamp,
-                sensitivity = sensitivity
-            )
+        if (newWindowMarkers.isNotEmpty()) {
+            val currentMarkers = _sessionMarkers.value.toMutableList()
+            var addedAny = false
+            for (marker in newWindowMarkers) {
+                val index = currentMarkers.indexOfFirst { it.id == marker.id }
+                if (index >= 0) {
+                    currentMarkers[index] = marker
+                    addedAny = true
+                } else {
+                    currentMarkers.add(marker)
+                    addedAny = true
+                }
+            }
+            if (addedAny) {
+                _sessionMarkers.value = currentMarkers.toList()
+                val sessionId = currentSessionId
+                if (sessionId != null) {
+                    val toPersist = newWindowMarkers.toList()
+                    scope.launch(dbDispatcher) {
+                        persistMarkers(sessionId, toPersist)
+                    }
+                }
+            }
         }
 
         quantumSubFrames.clear()
     }
+
+    private suspend fun persistMarkers(sessionId: String, markers: List<AnomalyMarker>) =
+        withContext(dbDispatcher) {
+            db.transaction {
+                markers.forEach { marker ->
+                    db.appDatabaseQueries.insertMarker(
+                        id = marker.id,
+                        sessionId = sessionId,
+                        timestamp = marker.timestampMillis,
+                        status = marker.status.name,
+                        dominantMetric = marker.dominantMetric.name,
+                        isFullAnomaly = marker.isFullAnomaly,
+                        alpha = marker.alpha.toDouble()
+                    )
+                }
+            }
+        }
 
     private fun flushBatch(sessionId: String) {
         val framesToSave = frameBatch.toList()
@@ -499,23 +543,60 @@ internal class AnalyzerRepositoryImpl(
 
     override suspend fun getFramesForSession(sessionId: String): List<AudioFrame> =
         withContext(dbDispatcher) {
+            val sensitivity = preferencesRepository.sensitivityFlow.value
             db.appDatabaseQueries.getFramesBySessionId(sessionId).executeAsList().map { entity ->
+                val rmsScore = entity.rmsScore.toFloat()
+                val jitterScore = entity.jitterScore.toFloat()
+                val pitchScore = entity.pitchScore.toFloat()
+                val stressScore = entity.stressScore.toFloat()
+
                 val status = AnalysisStatusResolver.resolve(
-                    rms = 0.05f,
-                    jitterScore = entity.jitterScore.toFloat(),
-                    pitchScore = entity.pitchScore.toFloat(),
-                    rmsScore = entity.rmsScore.toFloat(),
-                    timestamp = entity.timestamp
+                    rms = rmsScore,
+                    jitterScore = jitterScore,
+                    pitchScore = pitchScore,
+                    rmsScore = rmsScore,
+                    timestamp = entity.timestamp,
+                    sensitivity = sensitivity
                 )
                 AudioFrame(
                     timestamp = entity.timestamp,
-                    stressScore = entity.stressScore.toFloat(),
-                    jitterScore = entity.jitterScore.toFloat(),
-                    pitchScore = entity.pitchScore.toFloat(),
-                    rmsScore = entity.rmsScore.toFloat(),
+                    stressScore = stressScore,
+                    jitterScore = jitterScore,
+                    pitchScore = pitchScore,
+                    rmsScore = rmsScore,
                     isAnomaly = entity.isAnomaly,
                     status = status
                 )
+            }
+        }
+
+    override suspend fun getMarkersForSession(sessionId: String): List<AnomalyMarker> =
+        withContext(dbDispatcher) {
+            val dbMarkers = db.appDatabaseQueries.getMarkersBySessionId(sessionId).executeAsList()
+            if (dbMarkers.isNotEmpty()) {
+                dbMarkers.mapNotNull { entity ->
+                    try {
+                        AnomalyMarker(
+                            id = entity.id,
+                            timestampMillis = entity.timestamp,
+                            status = AnalysisStatus.valueOf(entity.status),
+                            dominantMetric = DominantMetric.valueOf(entity.dominantMetric),
+                            isFullAnomaly = entity.isFullAnomaly,
+                            alpha = entity.alpha.toFloat()
+                        )
+                    } catch (_: Exception) {
+                        null
+                    }
+                }
+            } else {
+                val frames = getFramesForSession(sessionId)
+                val sensitivity = preferencesRepository.sensitivityFlow.value
+                val quantumWindowMs = preferencesRepository.quantumWindowFlow.value.millis
+                val extracted = QuantumWindowAggregator.extractWindowMarkers(frames, quantumWindowMs, sensitivity)
+                if (extracted.isNotEmpty()) {
+                    persistMarkers(sessionId, extracted)
+                }
+                extracted
             }
         }
 }

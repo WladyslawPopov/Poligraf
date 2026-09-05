@@ -8,7 +8,10 @@ data class SessionUiModel(
     val title: String,
     val dateText: String,
     val durationMillis: Long,
-    val markerCount: Int,
+    val fullAnomalyCount: Int,
+    val halftoneAnomalyCount: Int,
     val noteCount: Int,
     val timestamp: Long,
-)
+) {
+    val markerCount: Int get() = fullAnomalyCount + halftoneAnomalyCount
+}

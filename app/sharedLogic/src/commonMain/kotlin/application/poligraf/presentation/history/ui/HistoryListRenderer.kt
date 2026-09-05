@@ -101,7 +101,8 @@ private fun HistoryListItemWrapper(
         HistoryItem(
             title = session.title,
             dateText = session.dateText,
-            markerCount = session.markerCount,
+            fullAnomalyCount = session.fullAnomalyCount,
+            halftoneAnomalyCount = session.halftoneAnomalyCount,
             noteCount = session.noteCount
         )
     }

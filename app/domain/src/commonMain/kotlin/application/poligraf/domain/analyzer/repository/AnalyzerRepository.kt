@@ -1,6 +1,8 @@
 package application.poligraf.domain.analyzer.repository
 
+import application.poligraf.domain.analyzer.model.AnomalyMarker
 import application.poligraf.domain.analyzer.model.AudioFrame
+import application.poligraf.domain.analyzer.model.QuantumAnalysis
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -9,6 +11,8 @@ import kotlinx.coroutines.flow.StateFlow
  */
 interface AnalyzerRepository {
     val currentFrame: StateFlow<AudioFrame?>
+    val currentQuantumAnalysis: StateFlow<QuantumAnalysis>
+    val sessionMarkers: StateFlow<List<AnomalyMarker>>
     val audioFrames: SharedFlow<AudioFrame>
     val isAnalyzing: StateFlow<Boolean>
     val isPaused: StateFlow<Boolean>
@@ -22,4 +26,5 @@ interface AnalyzerRepository {
     suspend fun getActiveDraft(): Pair<String, Long>?
     fun cleanUpDrafts()
     suspend fun getFramesForSession(sessionId: String): List<AudioFrame>
+    suspend fun getMarkersForSession(sessionId: String): List<AnomalyMarker>
 }

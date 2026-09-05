@@ -3,6 +3,7 @@ package application.poligraf.data.analyzer.dsp
 import application.poligraf.data.analyzer.model.AcousticMetrics
 import application.poligraf.data.analyzer.model.GlobalProfile
 import application.poligraf.domain.analyzer.model.AudioFrame
+import application.poligraf.domain.analyzer.types.DominantMetric
 import application.poligraf.domain.analyzer.types.SensitivityLevel
 import application.poligraf.domain.analyzer.types.SignalLevel
 import kotlin.math.*
@@ -257,7 +258,14 @@ internal object AudioAnalyzer {
         val instabilityScale = (recentPitchVar / stdPitch).coerceIn(1.0f, 2.0f)
         val pitchJitterDamper = aggressionScale * instabilityScale
 
-        val effectiveStdPitch = stdPitch * pitchJitterDamper
+        // Universal voice register adaptation (Deep male < 145Hz, High female/soprano > 240Hz)
+        val registerDamper = when {
+            meanPitch in 85f..145f -> 1.30f
+            meanPitch > 240f && meanPitch <= 450f -> 1.25f
+            else -> 1.00f
+        }
+
+        val effectiveStdPitch = stdPitch * pitchJitterDamper * registerDamper
         val pitchSemitones = if (pitch in 85f..450f && meanPitch in 85f..450f) {
             (12.0 * log2((pitch / meanPitch).toDouble())).toFloat()
         } else 0f
@@ -340,6 +348,13 @@ internal object AudioAnalyzer {
             sensitivity = sensitivity
         )
 
+        val dominant = when {
+            effectiveJitterZ >= effectivePitchZ && effectiveJitterZ >= effectiveRmsZ && effectiveJitterZ > 0.5f -> DominantMetric.JITTER
+            effectivePitchZ >= effectiveJitterZ && effectivePitchZ >= effectiveRmsZ && effectivePitchZ > 0.5f -> DominantMetric.PITCH
+            effectiveRmsZ > 0.5f -> DominantMetric.RMS
+            else -> null
+        }
+
         return AudioFrame(
             timestamp = timestamp,
             stressScore = (finalizedZ / AnalyzerThresholds.SCORE_SCALE).coerceIn(0f, 1f),
@@ -347,7 +362,8 @@ internal object AudioAnalyzer {
             pitchScore = pScore,
             rmsScore = rScore,
             isAnomaly = level == SignalLevel.ANOMALY || level == SignalLevel.CRITICAL,
-            status = status
+            status = status,
+            dominantMetric = dominant
         )
     }
 

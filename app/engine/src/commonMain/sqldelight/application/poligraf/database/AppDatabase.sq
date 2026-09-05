@@ -47,6 +47,20 @@ CREATE TABLE SessionNote (
     FOREIGN KEY(sessionId) REFERENCES SessionEntity(id) ON DELETE CASCADE
 );
 
+-- Ready-to-display quantum anomaly markers persisted during analysis
+CREATE TABLE SessionMarker (
+    id TEXT NOT NULL PRIMARY KEY,
+    sessionId TEXT NOT NULL,
+    timestamp INTEGER NOT NULL,
+    status TEXT NOT NULL,
+    dominantMetric TEXT NOT NULL,
+    isFullAnomaly INTEGER AS Boolean NOT NULL DEFAULT 0,
+    alpha REAL NOT NULL DEFAULT 1.0,
+    FOREIGN KEY(sessionId) REFERENCES SessionEntity(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_session_marker_session_time ON SessionMarker(sessionId, timestamp);
+
 -- Session Queries
 insertSession:
 INSERT OR REPLACE INTO SessionEntity(id, timestamp, title, notes, duration, isCompleted, anomalyCount)
@@ -60,6 +74,8 @@ SELECT s.id,
        s.duration,
        s.isCompleted,
        s.anomalyCount AS anomalyCount,
+       (SELECT COUNT(*) FROM SessionMarker m WHERE m.sessionId = s.id AND m.isFullAnomaly = 1) AS fullAnomalyCount,
+       (SELECT COUNT(*) FROM SessionMarker m WHERE m.sessionId = s.id AND m.isFullAnomaly = 0) AS halftoneAnomalyCount,
        (SELECT COUNT(*) FROM SessionNote n WHERE n.sessionId = s.id) AS noteCount
 FROM SessionEntity s
 WHERE s.isCompleted = 1
@@ -126,3 +142,14 @@ SELECT * FROM SessionNote WHERE sessionId = ? ORDER BY timestamp ASC;
 
 deleteNoteById:
 DELETE FROM SessionNote WHERE id = ?;
+
+-- Marker Queries
+insertMarker:
+INSERT OR REPLACE INTO SessionMarker(id, sessionId, timestamp, status, dominantMetric, isFullAnomaly, alpha)
+VALUES (?, ?, ?, ?, ?, ?, ?);
+
+getMarkersBySessionId:
+SELECT * FROM SessionMarker WHERE sessionId = ? ORDER BY timestamp ASC;
+
+deleteMarkersBySessionId:
+DELETE FROM SessionMarker WHERE sessionId = ?;

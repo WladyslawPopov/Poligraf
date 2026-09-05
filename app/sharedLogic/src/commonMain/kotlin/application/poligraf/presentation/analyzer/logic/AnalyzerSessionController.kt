@@ -1,16 +1,18 @@
 package application.poligraf.presentation.analyzer.logic
 
 import application.poligraf.data.analyzer.dsp.AnalyzerProcessor
+import application.poligraf.data.analyzer.dsp.QuantumWindowAggregator
+import application.poligraf.domain.analyzer.model.AnomalyMarker
 import application.poligraf.domain.analyzer.model.AudioFrame
 import application.poligraf.domain.analyzer.types.MarkerShape
+import application.poligraf.domain.analyzer.types.SensitivityLevel
 import application.poligraf.domain.analyzer.types.SignalLevel
-import application.poligraf.engine.utils.nowAsEpochMilliseconds
 import application.poligraf.ui.features.analyzer.models.AnalyzerMarker
-import application.poligraf.ui.theme.tokens.StringToken
 
 /**
- * Pure, reusable holder for the analyzer presentation display state
- * featuring 2.5s conversational quantum windowing for rock-solid readable status text.
+ * Pure, lightweight UI holder for the analyzer presentation display state.
+ * Holds active frame history, smoothed meter levels for live visualizations,
+ * and immutable markers emitted by the Engine.
  */
 class AnalyzerSessionController {
 
@@ -20,9 +22,6 @@ class AnalyzerSessionController {
     private var smoothedPitch = 0f
     private var smoothedRms = 0f
     private var smoothedStress = 0f
-
-    private var lastInterpretation: StringToken? = null
-    private var interpretationTimestamp = 0L
 
     val frameHistory: List<AudioFrame>
         field = mutableListOf<AudioFrame>()
@@ -36,8 +35,6 @@ class AnalyzerSessionController {
         smoothedPitch = 0f
         smoothedRms = 0f
         smoothedStress = 0f
-        lastInterpretation = null
-        interpretationTimestamp = 0L
     }
 
     fun setMarkerShape(shape: MarkerShape): List<AnalyzerMarker> {
@@ -48,36 +45,37 @@ class AnalyzerSessionController {
         return timelineMarkers.toList()
     }
 
+    fun setDomainMarkers(domainMarkers: List<AnomalyMarker>): List<AnalyzerMarker> {
+        val existingMap = timelineMarkers.associateBy { it.id }
+        val updated = domainMarkers.map { domain ->
+            val existing = existingMap[domain.id]
+            if (existing != null) {
+                if (existing.shape == markerShape && existing.alpha == domain.alpha) {
+                    existing
+                } else {
+                    existing.copy(shape = markerShape, alpha = domain.alpha)
+                }
+            } else {
+                AnalyzerUiMapper.mapDomainMarkerToUi(domain, markerShape)
+            }
+        }
+        if (timelineMarkers != updated) {
+            timelineMarkers.clear()
+            timelineMarkers.addAll(updated)
+        }
+        return timelineMarkers.toList()
+    }
+
     fun onLiveFrame(frame: AudioFrame) {
         val lastTimestamp = frameHistory.lastOrNull()?.timestamp ?: -1L
         if (frame.timestamp > lastTimestamp) {
             frameHistory.add(frame)
         }
-        appendMarkerIfNeeded(frame)
     }
 
     fun loadFrames(frames: List<AudioFrame>) {
         frameHistory.clear()
         frameHistory.addAll(frames)
-        timelineMarkers.clear()
-        frames.forEach { appendMarkerIfNeeded(it) }
-    }
-
-    private fun appendMarkerIfNeeded(frame: AudioFrame) {
-        if (frame.timestamp < 5000L) return
-
-        val level = AnalyzerProcessor.resolveSignalLevel(frame)
-        val dominant = if (level != SignalLevel.NONE) {
-            AnalyzerProcessor.resolveDominantMetric(frame)
-        } else null
-        val lastMarkerTime = timelineMarkers.lastOrNull()?.timestampMillis ?: -10000L
-        AnalyzerUiMapper.createAnomalyMarker(
-            frame = frame,
-            shape = markerShape,
-            lastMarkerTimestamp = lastMarkerTime,
-            signalLevel = level,
-            dominantMetric = dominant
-        )?.let { timelineMarkers.add(it) }
     }
 
     fun resolveDisplay(
@@ -85,6 +83,8 @@ class AnalyzerSessionController {
         isPaused: Boolean,
         liveFrame: AudioFrame?,
         smooth: Boolean = false,
+        quantumWindowMs: Long = 2500L,
+        sensitivity: SensitivityLevel = SensitivityLevel.MEDIUM,
     ): AnalyzerDisplaySnapshot {
         val activeFrame = if (isPaused && seekPos != null) {
             AnalyzerProcessor.findClosestFrame(frameHistory, seekPos)
@@ -113,12 +113,33 @@ class AnalyzerSessionController {
         }
 
         val level = AnalyzerProcessor.resolveSignalLevel(activeFrame)
-        val dominant = if (level >= SignalLevel.GLOW) {
+        val dominant = activeFrame?.dominantMetric ?: if (level >= SignalLevel.GLOW) {
             AnalyzerProcessor.resolveDominantMetric(activeFrame)
         } else null
 
-        // Headline display status is taken directly from the quantum window aggregated status in activeFrame
-        val activeDisplayStatus = AnalyzerUiMapper.resolveContinuousStatus(activeFrame)
+        // Calculate Quantum Window aggregated status for the discrete bucket corresponding to active timestamp
+        val activeTimestamp = activeFrame?.timestamp ?: 0L
+        val qWindowMs = quantumWindowMs.coerceAtLeast(1000L)
+        val bucketIndex = activeTimestamp / qWindowMs
+        val windowStart = bucketIndex * qWindowMs
+        val windowEnd = windowStart + qWindowMs
+
+        val windowFrames = if (frameHistory.isNotEmpty()) {
+            frameHistory.filter { it.timestamp in windowStart until windowEnd }
+        } else {
+            listOfNotNull(activeFrame)
+        }
+
+        val quantumAnalysis = QuantumWindowAggregator.aggregateWindow(windowFrames, sensitivity)
+
+        val activeDisplayStatus = AnalyzerUiMapper.mapStatusToToken(quantumAnalysis.primaryStatus)
+        val primaryAlpha = quantumAnalysis.primaryAlpha
+
+        val secondaryInterpretationsWithAlpha = AnalyzerUiMapper.mapStatusesToTokensWithAlpha(
+            quantumAnalysis.secondaryStatusesWithScores
+        ).filter { it.first != activeDisplayStatus }
+
+        val secondaryInterpretations = secondaryInterpretationsWithAlpha.map { it.first }
 
         return AnalyzerDisplaySnapshot(
             displayFrame = activeFrame,
@@ -128,6 +149,9 @@ class AnalyzerSessionController {
             signalLevel = level,
             dominantMetric = dominant,
             activeInterpretation = activeDisplayStatus,
+            primaryAlpha = primaryAlpha,
+            secondaryInterpretations = secondaryInterpretations,
+            secondaryInterpretationsWithAlpha = secondaryInterpretationsWithAlpha,
         )
     }
 }

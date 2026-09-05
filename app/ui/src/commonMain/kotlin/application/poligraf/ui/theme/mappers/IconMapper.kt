@@ -4,6 +4,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.*
 import androidx.compose.material.icons.filled.*
 import androidx.compose.ui.graphics.vector.ImageVector
+import application.poligraf.ui.theme.AppIcons
 import application.poligraf.ui.theme.tokens.IconToken
 
 internal object IconMapper {
@@ -31,7 +32,7 @@ internal object IconMapper {
             IconToken.SKIP_FORWARD_15 -> Icons.Default.Forward10
             IconToken.SHAPE_CIRCLE -> Icons.Default.Circle
             IconToken.SHAPE_STAR -> Icons.Default.Star
-            IconToken.SHAPE_DIAMOND -> Icons.Default.Diamond
+            IconToken.SHAPE_DIAMOND -> AppIcons.GeometricDiamond
             IconToken.SHAPE_HEART -> Icons.Default.Favorite
             IconToken.SKIN_TRIANGLE -> Icons.Default.ChangeHistory
             IconToken.SKIN_WAVE -> Icons.Default.Waves

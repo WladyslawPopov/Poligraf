@@ -40,10 +40,15 @@ data class AnalyzerState(
     val currentDurationMillis: Long = 0,
     val seekPositionMillis: Long? = null,
     val activeInterpretation: StringToken? = null,
+    val primaryAlpha: Float = 1.0f,
+    val secondaryInterpretations: List<StringToken> = emptyList(),
+    val secondaryInterpretationsWithAlpha: List<Pair<StringToken, Float>> = emptyList(),
 
     // Review / History details (when mode == AnalyzerMode.REVIEW)
     val session: Session? = null,
     val anomalyCount: Int = 0,
+    val fullAnomalyCount: Int = 0,
+    val halftoneAnomalyCount: Int = 0,
     val averageConfidence: Float = 1.0f,
     val volatilityStatus: StringToken = StringToken.VOLATILITY_LOW,
     val volatilityColor: ColorToken = ColorToken.STATE_SUCCESS,

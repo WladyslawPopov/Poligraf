@@ -17,4 +17,7 @@ data class AnalyzerDisplaySnapshot(
     val signalLevel: SignalLevel,
     val dominantMetric: DominantMetric?,
     val activeInterpretation: StringToken?,
+    val primaryAlpha: Float = 1.0f,
+    val secondaryInterpretations: List<StringToken> = emptyList(),
+    val secondaryInterpretationsWithAlpha: List<Pair<StringToken, Float>> = emptyList(),
 )

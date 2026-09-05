@@ -1,8 +1,10 @@
 package application.poligraf.data.analyzer.dsp
 
 import application.poligraf.domain.analyzer.model.AudioFrame
+import application.poligraf.domain.analyzer.model.QuantumAnalysis
 import application.poligraf.domain.analyzer.types.AnalysisStatus
 import application.poligraf.domain.analyzer.types.DominantMetric
+import application.poligraf.domain.analyzer.types.SensitivityLevel
 import application.poligraf.domain.analyzer.types.SignalLevel
 import kotlin.math.pow
 
@@ -81,15 +83,7 @@ object AnalyzerProcessor {
     }
 
     fun resolveDominantMetric(frame: AudioFrame?): DominantMetric {
-        if (frame == null) return DominantMetric.JITTER
-        val jitter = safe(frame.jitterScore)
-        val pitch = safe(frame.pitchScore)
-        val rms = safe(frame.rmsScore)
-        return when {
-            ((jitter >= pitch) && (jitter >= rms)) -> DominantMetric.JITTER
-            (pitch >= rms) -> DominantMetric.PITCH
-            else -> DominantMetric.RMS
-        }
+        return frame?.dominantMetric ?: DominantMetric.RMS
     }
 
     fun determineInterpretationStatus(
@@ -112,6 +106,11 @@ object AnalyzerProcessor {
             else -> null
         }
     }
+
+    fun aggregateQuantumWindow(
+        frames: List<AudioFrame>,
+        sensitivity: SensitivityLevel = SensitivityLevel.MEDIUM
+    ): QuantumAnalysis = QuantumWindowAggregator.aggregateWindow(frames, sensitivity)
 
     private fun safe(value: Float): Float =
         if (value.isNaN() || value.isInfinite()) 0f else value

@@ -1,6 +1,7 @@
 package application.poligraf.presentation.analyzer.logic
 
 import application.poligraf.data.analyzer.dsp.AnalyzerProcessor
+import application.poligraf.domain.analyzer.model.AnomalyMarker
 import application.poligraf.domain.analyzer.model.AudioFrame
 import application.poligraf.domain.analyzer.types.AnalysisStatus
 import application.poligraf.domain.analyzer.types.DominantMetric
@@ -41,6 +42,18 @@ object AnalyzerUiMapper {
         return mapStatusToToken(frame.status)
     }
 
+    fun mapStatusesToTokens(statuses: List<AnalysisStatus>): List<StringToken> {
+        return statuses.map { mapStatusToToken(it) }.distinct()
+    }
+
+    fun mapStatusesToTokensWithAlpha(
+        statusPairs: List<Pair<AnalysisStatus, Float>>,
+    ): List<Pair<StringToken, Float>> {
+        return statusPairs.map { (status, score) ->
+            mapStatusToToken(status) to score.coerceIn(0.15f, 1.0f)
+        }.distinctBy { it.first }
+    }
+
     fun determineInterpretation(
         jitterScore: Float,
         pitchScore: Float,
@@ -52,30 +65,30 @@ object AnalyzerUiMapper {
         return mapStatusToToken(acuteStatus)
     }
 
-    fun determineVolatilityStatus(anomalyCount: Int, durationMillis: Long): StringToken {
-        val durationMinutes = (durationMillis / 60000.0).coerceAtLeast(0.15)
-        val anomaliesPerMinute = anomalyCount / durationMinutes
+    fun determineVolatilityStatus(weightedAnomalyScore: Float, durationMillis: Long): StringToken {
+        val totalWindows = (durationMillis / 1000L).coerceAtLeast(1L).toFloat()
+        val stressPercent = (weightedAnomalyScore / totalWindows) * 100f
 
         return when {
-            anomaliesPerMinute <= 1.2 -> StringToken.VOLATILITY_LOW
-            anomaliesPerMinute <= 3.2 -> StringToken.VOLATILITY_MEDIUM
+            stressPercent <= 12f -> StringToken.VOLATILITY_LOW
+            stressPercent <= 28f -> StringToken.VOLATILITY_MEDIUM
             else -> StringToken.VOLATILITY_HIGH
         }
     }
 
     fun determineConclusionText(
-        anomalyCount: Int,
+        weightedAnomalyScore: Float,
         durationMillis: Long,
         confidence: Float,
     ): StringToken {
         if (confidence < 0.55f) return StringToken.CONCLUSION_UNRELIABLE
 
-        val durationMinutes = (durationMillis / 60000.0).coerceAtLeast(0.15)
-        val anomaliesPerMinute = anomalyCount / durationMinutes
+        val totalWindows = (durationMillis / 1000L).coerceAtLeast(1L).toFloat()
+        val stressPercent = (weightedAnomalyScore / totalWindows) * 100f
 
         return when {
-            anomaliesPerMinute <= 1.5 -> StringToken.CONCLUSION_POSITIVE
-            anomaliesPerMinute <= 3.5 -> StringToken.CONCLUSION_NEUTRAL
+            stressPercent <= 12f -> StringToken.CONCLUSION_POSITIVE
+            stressPercent <= 28f -> StringToken.CONCLUSION_NEUTRAL
             else -> StringToken.CONCLUSION_NEGATIVE
         }
     }
@@ -100,6 +113,18 @@ object AnalyzerUiMapper {
         DominantMetric.RMS -> ColorToken.CHART_RMS
     }
 
+    fun mapDomainMarkerToUi(marker: AnomalyMarker, shape: MarkerShape): AnalyzerMarker {
+        return AnalyzerMarker(
+            id = marker.id,
+            timestampMillis = marker.timestampMillis,
+            timestampText = AnalyzerProcessor.formatDuration(marker.timestampMillis),
+            colorToken = colorForDominant(marker.dominantMetric),
+            isAnomaly = marker.isFullAnomaly,
+            shape = shape,
+            alpha = marker.alpha
+        )
+    }
+
     fun createAnomalyMarker(
         frame: AudioFrame,
         shape: MarkerShape,
@@ -107,20 +132,55 @@ object AnalyzerUiMapper {
         signalLevel: SignalLevel,
         dominantMetric: DominantMetric?,
     ): AnalyzerMarker? {
-        if (signalLevel == SignalLevel.NONE) return null
+        val hasAnomalyStatus =
+            frame.status != AnalysisStatus.CALM && frame.status != AnalysisStatus.WARMUP
+        val maxScore = maxOf(frame.stressScore, frame.jitterScore, frame.pitchScore, frame.rmsScore)
 
-        val clusterWindow =
-            if (signalLevel == SignalLevel.GLOW) 1000L else 600L
+        if (!hasAnomalyStatus && !frame.isAnomaly && maxScore < 0.18f) return null
 
+        val clusterWindow = 500L
         if ((frame.timestamp - lastMarkerTimestamp) < clusterWindow) return null
+
+        val statusDominant = when (frame.status) {
+            AnalysisStatus.STRESS_SINGLE,
+            AnalysisStatus.PITCH_DROP,
+            AnalysisStatus.PANIC,
+            AnalysisStatus.CONFRONTATION,
+                -> DominantMetric.PITCH
+
+            AnalysisStatus.PRESSURE_SINGLE,
+            AnalysisStatus.RMS_DROP,
+            AnalysisStatus.AGGRESSION,
+                -> DominantMetric.RMS
+
+            AnalysisStatus.FEAR_SINGLE,
+            AnalysisStatus.SUBDUED_TREMOR,
+            AnalysisStatus.DISORGANIZATION,
+                -> DominantMetric.JITTER
+
+            else -> null
+        }
+
+        val effectiveDominant = statusDominant
+            ?: dominantMetric
+            ?: frame.dominantMetric
+            ?: when {
+                frame.jitterScore >= frame.pitchScore && frame.jitterScore >= frame.rmsScore * 0.75f && frame.jitterScore > 0f -> DominantMetric.JITTER
+                frame.pitchScore >= frame.jitterScore && frame.pitchScore >= frame.rmsScore * 0.75f && frame.pitchScore > 0f -> DominantMetric.PITCH
+                frame.rmsScore > 0f -> DominantMetric.RMS
+                else -> DominantMetric.RMS
+            }
+
+        val markerAlpha = (maxScore * 0.55f + 0.45f).coerceIn(0.45f, 1.0f)
 
         return AnalyzerMarker(
             id = "m_${frame.timestamp}",
             timestampMillis = frame.timestamp,
             timestampText = AnalyzerProcessor.formatDuration(frame.timestamp),
-            colorToken = dominantMetric?.let { colorForDominant(it) } ?: ColorToken.CHART_JITTER,
-            isAnomaly = signalLevel != SignalLevel.GLOW,
+            colorToken = colorForDominant(effectiveDominant),
+            isAnomaly = frame.isAnomaly || hasAnomalyStatus,
             shape = shape,
+            alpha = markerAlpha
         )
     }
 }

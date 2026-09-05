@@ -43,6 +43,9 @@ fun AnalyzerCoreView(
         if (showHeader) {
             InterpretationOverlay(
                 interpretation = state.activeInterpretation,
+                primaryAlpha = state.primaryAlpha,
+                secondaryInterpretations = state.secondaryInterpretations,
+                secondaryInterpretationsWithAlpha = state.secondaryInterpretationsWithAlpha,
                 modifier = Modifier.fillMaxWidth()
             )
         }

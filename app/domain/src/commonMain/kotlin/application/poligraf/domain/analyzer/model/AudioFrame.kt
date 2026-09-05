@@ -1,6 +1,7 @@
 package application.poligraf.domain.analyzer.model
 
 import application.poligraf.domain.analyzer.types.AnalysisStatus
+import application.poligraf.domain.analyzer.types.DominantMetric
 import kotlinx.serialization.Serializable
 
 /**
@@ -16,4 +17,8 @@ data class AudioFrame(
     val rmsScore: Float = 0f,
     val isAnomaly: Boolean = false,
     val status: AnalysisStatus = AnalysisStatus.CALM,
+    val primaryAlpha: Float = 1.0f,
+    val dominantMetric: DominantMetric? = null,
+    val secondaryStatuses: List<AnalysisStatus> = emptyList(),
+    val secondaryStatusesWithScores: List<Pair<AnalysisStatus, Float>> = emptyList(),
 )

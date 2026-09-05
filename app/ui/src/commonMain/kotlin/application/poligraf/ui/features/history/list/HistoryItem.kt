@@ -18,7 +18,8 @@ import application.poligraf.ui.theme.tokens.StringToken
 fun HistoryItem(
     title: String,
     dateText: String,
-    markerCount: Int,
+    fullAnomalyCount: Int,
+    halftoneAnomalyCount: Int,
     noteCount: Int,
     modifier: Modifier = Modifier
 ) {
@@ -41,17 +42,30 @@ fun HistoryItem(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = designSystem.stringArgs(StringToken.HISTORY_ITEM_MARKERS, markerCount),
-                    color = designSystem.color(ColorToken.STATE_SUCCESS),
-                    style = MaterialTheme.typography.bodySmall
-                )
+                if (fullAnomalyCount > 0) {
+                    Text(
+                        text = "🔴 $fullAnomalyCount",
+                        color = designSystem.color(ColorToken.STATE_ERROR),
+                        style = MaterialTheme.typography.bodySmall,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+
+                if (halftoneAnomalyCount > 0) {
+                    Text(
+                        text = "🟡 $halftoneAnomalyCount",
+                        color = designSystem.color(ColorToken.STATE_WARNING),
+                        style = MaterialTheme.typography.bodySmall,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
 
                 if (noteCount > 0) {
                     Text(
-                        text = designSystem.stringArgs(StringToken.HISTORY_ITEM_NOTES, noteCount),
+                        text = "📝 $noteCount",
                         color = designSystem.color(ColorToken.ACCENT_PRIMARY),
-                        style = MaterialTheme.typography.bodySmall
+                        style = MaterialTheme.typography.bodySmall,
+                        fontWeight = FontWeight.SemiBold
                     )
                 }
             }

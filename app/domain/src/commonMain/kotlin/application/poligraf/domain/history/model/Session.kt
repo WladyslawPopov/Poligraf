@@ -11,5 +11,7 @@ data class Session(
     val duration: Long,
     val isCompleted: Boolean,
     val anomalyCount: Int = 0,
+    val fullAnomalyCount: Int = 0,
+    val halftoneAnomalyCount: Int = 0,
     val noteCount: Int = 0
 )

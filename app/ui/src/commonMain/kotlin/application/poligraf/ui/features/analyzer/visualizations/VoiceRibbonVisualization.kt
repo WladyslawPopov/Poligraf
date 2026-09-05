@@ -47,6 +47,8 @@ fun VoiceRibbonVisualization(
     
     val designSystem = LocalDesignSystem.current
 
+    val wavePaths = remember { List(3) { Path() } }
+
     Box(
         modifier = modifier.fillMaxWidth().height(220.dp),
         contentAlignment = Alignment.Center
@@ -88,17 +90,27 @@ fun VoiceRibbonVisualization(
             )
 
             // 3. The Waves
+            val stepPx = 12.dp.toPx().toInt().coerceAtLeast(8)
             factors.forEachIndexed { index, factor ->
-                val path = Path()
-                // Smooth sine waves - Playful amplitude for subtle indicators
+                val path = wavePaths[index]
+                path.reset()
+                
                 val amplitude = (height / 2.2f) * factor.coerceIn(0.02f, 1f)
                 val freq = 6f
                 
-                for (x in 0..width.toInt() step 4) {
+                var x = 0
+                val widthInt = width.toInt()
+                while (x <= widthInt) {
                     val xRatio = x / width
                     val wave = sin((xRatio * freq) + time + (index * 2.1f)) * amplitude
                     if (x == 0) path.moveTo(x.toFloat(), centerY + wave)
                     else path.lineTo(x.toFloat(), centerY + wave)
+                    x += stepPx
+                }
+                if (x - stepPx < widthInt) {
+                    val xRatio = 1f
+                    val wave = sin((xRatio * freq) + time + (index * 2.1f)) * amplitude
+                    path.lineTo(width, centerY + wave)
                 }
                 
                 drawPath(

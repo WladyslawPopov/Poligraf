@@ -38,7 +38,7 @@ internal object AnalyzerThresholds {
     const val SPEECH_RMS_ALPHA = 0.02f        // Stable tracking of speech volume
     const val PITCH_BASELINE_ALPHA = 0.02f    // Stable tracking of pitch
     const val JITTER_BASELINE_ALPHA = 0.02f   // Stable tracking of jitter
-    const val OUTLIER_LEAK_WEIGHT = 0.05f     // Very soft learning for anomalies
+    const val OUTLIER_LEAK_WEIGHT = 0.40f     // Smooth habituation & learning for speaker norm
 
     // --- Calibration Phase ---
     const val CALIBRATION_FAST_ALPHA = 0.25f

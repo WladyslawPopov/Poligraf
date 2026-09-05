@@ -12,4 +12,5 @@ data class AnalyzerMarker(
     val colorToken: ColorToken,
     val isAnomaly: Boolean = false,
     val shape: MarkerShape = MarkerShape.CIRCLE,
+    val alpha: Float = 1.0f,
 )

@@ -50,7 +50,8 @@ class HistoryViewModel(
                         title = session.title.ifEmpty { "New Session" },
                         dateText = (session.timestamp / 1000).convertDateWithMinutes(),
                         durationMillis = session.duration,
-                        markerCount = session.anomalyCount,
+                        fullAnomalyCount = session.fullAnomalyCount,
+                        halftoneAnomalyCount = session.halftoneAnomalyCount,
                         noteCount = session.noteCount,
                         timestamp = session.timestamp
                     )

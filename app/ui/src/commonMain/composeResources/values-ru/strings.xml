@@ -36,7 +36,7 @@
     <string name="status_mild_fluctuation">Легкие эмоциональные акценты</string>
     <string name="status_fear_single">Волнение и дрожь в интонации</string>
     <string name="status_stress_single">Повышение напряжения в беседе</string>
-    <string name="status_pressure_single">Тон стал громче и с нажимом</string>
+    <string name="status_pressure_single">Голос стал громче и с нажимом</string>
 
     <!-- Интерпретации -->
     <string name="interpretation_calm">Разговор идет спокойно</string>

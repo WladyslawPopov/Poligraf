@@ -1,6 +1,6 @@
 # Specification: Scientific Voice Stress Analysis Engine (Poligraf) 🎙️
 
-> **Document Version:** 1.1.0  
+> **Document Version:** 1.2.0  
 > **Date:** September 2026  
 > **Target Audience:** Core Developers, DSP Engineers, System Architects  
 > **Status:** Production Specification  
@@ -151,57 +151,72 @@ The continuous headline text overlay displays statuses evaluated in strict prior
 
 ---
 
-## 7. Data Flow & Dual-Stream Quantum Window Architecture
+## 7. Decoupled Dual-Stream & Quantum Window Architecture
 
-### 7.1 Live Recording Lifecycle
-1.  **Audio Capture:** `AndroidAudioRecorder` emits 16-bit PCM short arrays to `rawAudioFlow`.
+### 7.1 Stream 1: Live 20 FPS Visual Metrics Stream
+1.  **Hardware Capture:** `AndroidAudioRecorder` emits 16-bit PCM short arrays at 44.1 kHz.
 2.  **Atomization:** Audio is split into 100ms windows with 50ms overlap (20 FPS).
-3.  **Real-time Processing:** `AudioAnalyzer.calculateHonestAnalysis` calculates Z-scores with dynamic sensitivity scaling and returns clean 7-field `AudioFrame`.
-4.  **Live 20 FPS Metrics Streaming:** Every 50ms atom streams live `jitterScore`, `pitchScore`, and `rmsScore` to `_currentFrame` and `_audioFrames` for smooth chart and gauge updates.
-5.  **Quantum Window Status Aggregation ($T \in [1.0s, 3.0s]$):** `flushQuantumFrame()` averages active voice metrics over the user's selected Quantum Window duration $T$ and updates `currentQuantumStatus`.
-6.  **Persistence:** Every 5 seconds (100 frames), `persistFrames` asynchronously writes `AudioFrame` batch to SQLite DB (`SessionFrame` table).
-7.  **UI Rendering:** `AnalyzerSessionController` updates live gauges at 20 FPS, appends 600ms clustered timeline markers, and renders the stable headline status.
+3.  **Acoustic Processing:** `AudioAnalyzer.calculateHonestAnalysis` computes Z-scores and returns clean `AudioFrame`.
+4.  **20 FPS Emission:** Emits live metrics (`jitterScore`, `pitchScore`, `rmsScore`) to `_currentFrame` and `_audioFrames` for analog-like visualization rendering on `Voice Ribbon`, `Equalizer`, `State Map`, and `Rings`.
 
-### 7.2 Save Session Lifecycle
-1.  `stopAnalysis(save = true, anomalyCount)` is called.
-2.  `deleteCalibrationData(sessionId)` deletes temporary `CalibrationFrame` DB rows.
-3.  `SessionEntity` is updated with `duration`, `isCompleted = 1`, and `anomalyCount` ($O(1)$ instant save in $0.002\text{s}$).
+### 7.2 Stream 2: Quantum Window Anomaly & Status Recognition Pipeline
+1.  **Quantum Accumulation:** Subframes are accumulated into `quantumSubFrames`.
+2.  **Quantum Flush ($T \in [1.0s \dots 3.0s]$):** Every $T$ seconds (configured Quantum Window duration), `QuantumWindowAggregator.aggregateWindow` evaluates the discrete window bucket $W_i = [i \cdot T \dots (i+1) \cdot T]$.
+3.  **3-Tier Status Overlay:** Resolves `primaryStatus`, `primaryAlpha`, and `secondaryStatusesWithScores`. Updates `_currentQuantumAnalysis` ONCE per completed window $T$.
+4.  **Deterministic Marker Indexing (`m_window_$i`):** `extractWindowMarkers` generates markers with deterministic IDs `m_window_${windowIndex}_${status.name}`.
+5.  **In-Place Marker Persistence:** Markers are appended to `_sessionMarkers` and persisted to SQLite DB table `SessionMarker` using `INSERT OR REPLACE INTO SessionMarker`.
 
-### 7.3 Review Mode Lifecycle
-1.  `repository.getFramesForSession(sessionId)` loads stored clean `AudioFrame`s from SQLite DB.
-2.  Filters out initial 5s warmup phase (`timestamp >= 5000ms`).
-3.  Loads frames directly into `AnalyzerSessionController`.
-4.  **1:1 Fidelity:** Renders the exact same charts, gauges, and markers as Live Mode without any secondary re-analysis.
+### 7.3 Database Schema & Migration (`4.sqm`)
+*   **`SessionMarker` Schema:**
+    ```sql
+    CREATE TABLE SessionMarker (
+        id TEXT NOT NULL PRIMARY KEY,
+        sessionId TEXT NOT NULL,
+        timestamp INTEGER NOT NULL,
+        status TEXT NOT NULL,
+        dominantMetric TEXT NOT NULL,
+        isFullAnomaly INTEGER AS Boolean NOT NULL DEFAULT 0,
+        alpha REAL NOT NULL DEFAULT 1.0,
+        FOREIGN KEY(sessionId) REFERENCES SessionEntity(id) ON DELETE CASCADE
+    );
+    ```
 
 ---
 
-## 8. Clean `AudioFrame` Domain Model
+## 8. History & Review Mode Scenario Scoring
 
-```kotlin
-@Serializable
-data class AudioFrame(
-    val timestamp: Long,                              // Time in ms from session start
-    val stressScore: Float,                            // Overall stress score (0..1)
-    val jitterScore: Float = 0f,                       // Jitter biomarker score (0..1)
-    val pitchScore: Float = 0f,                        // Pitch biomarker score (0..1)
-    val rmsScore: Float = 0f,                          // RMS volume biomarker score (0..1)
-    val isAnomaly: Boolean = false,                    // True if a timeline marker should appear
-    val status: AnalysisStatus = AnalysisStatus.CALM   // Ready-to-display live status
-)
-```
+### 8.1 3-Parameter Session History Breakdown
+In the history list (`HistoryItem.kt`) and session detail view (`SessionSummaryCard.kt`), sessions are summarized by 3 distinct parameters:
+1.  🔴 **Full Anomalies Count (`fullAnomalyCount`):** Count of threshold-breaking full anomaly markers (`isFullAnomaly = 1`).
+2.  🟡 **Half-Tone Fluctuations Count (`halftoneAnomalyCount`):** Count of sub-threshold half-tone markers (`isFullAnomaly = 0`).
+3.  📝 **Notes Count (`noteCount`):** Count of user notes recorded during the session.
+
+### 8.2 Weighted Review Mode Scenario Score ($N_{\text{weighted}}$)
+When evaluating session volatility and conclusion verdicts in Review Mode, a weighted score is computed:
+
+$$N_{\text{weighted}} = (\text{fullAnomalyCount}) \times 1.0 + (\text{halftoneAnomalyCount}) \times 0.5$$
+
+$$\text{AnomaliesPerMinute} = \frac{N_{\text{weighted}}}{\text{DurationMinutes}}$$
+
+#### Verdict Thresholds:
+*   **$\text{AnomaliesPerMinute} \le 1.2$:** `VOLATILITY_LOW` / `CONCLUSION_POSITIVE` (🟢 Green)
+*   **$1.2 < \text{AnomaliesPerMinute} \le 3.2$:** `VOLATILITY_MEDIUM` / `CONCLUSION_NEUTRAL` (🟡 Yellow)
+*   **$\text{AnomaliesPerMinute} > 3.2$:** `VOLATILITY_HIGH` / `CONCLUSION_NEGATIVE` (🔴 Red)
 
 ---
 
 ## 9. UI & Rendering Engine
 
-*   **Typewriter UI Engine:** Integrated `TypingText` composable types status phrases character-by-character (25ms char delay) without quotes or slashes, utilizing a ghost space-reservation layer (`Text(color = Transparent)`) to eliminate layout shifts.
-*   **KeepScreenOn Multiplatform Lock:** `KeepScreenOn(keepOn = isAnalyzing && !isPaused)` prevents screen dimming/sleep during active recording via `LocalView.current.keepScreenOn` (Android) and `idleTimerDisabled` (iOS).
-*   **Non-linear Intensity Curve ($x^{0.60}$):** `mapToUiIntensity` amplifies small physiological changes in the $0.05 \dots 0.30$ range for expressive visual feedback.
+*   **3-Tier Status Overlay (`InterpretationOverlay`):** Renders primary headline text (85–100% opacity) + top and bottom secondary half-tone texts (100% solid `ColorToken.TEXT_SECONDARY`, `titleMedium` typography, 12dp padding). Uses 700ms `AnimatedContent` cross-fade dissolve transitions (`LinearOutSlowInEasing`) for smooth status shifts.
+*   **Pixel-Perfect Vector Marker Rendering (`AnomalyTimeline`):** Outline background is drawn natively (`drawCircle`), followed by a single `VectorPainter.draw` pass to eliminate mid-frame `colorFilter` mutation flashes.
+*   **Pure Geometric Rhombus Vector (`AppIcons.GeometricDiamond`):** Custom `ImageVector` path (`M12,2 L22,12 L12,22 L2,12 Z`) for clean, symmetrical rhombus markers.
+*   **60 FPS Live Timeline Scrubber Tracking:** Smooth scroll tracking follows real-time capture head (`durationPx`) without step-jumping.
+*   **Voice Ribbon Optimization:** Reuses `Path` instances and steps sample calculations at 12dp, reducing GPU/CPU path overhead by 75%.
 
 ---
 
 ## 10. Technological Boundary & Physical Limits
 
-This on-device Kotlin Multiplatform DSP engine represents the **absolute mathematical, physical, and signal-processing maximum** that can be extracted directly from physical sound wave acoustics on a mobile instrument. 
+This on-device Kotlin Multiplatform DSP engine represents the **absolute mathematical, physical, and signal-processing maximum** that can be extracted directly from physical sound wave acoustics on a mobile instrument.
 
 Anything beyond this deterministic acoustic core — such as attempting cloud machine learning, server-side neural network emotion guessing, or artificial "truth/lie" probability scores — strays into non-scientific, non-deterministic toy slop that compromises the mathematical integrity of a professional physical instrument.

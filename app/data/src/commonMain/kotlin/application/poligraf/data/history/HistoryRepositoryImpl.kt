@@ -31,7 +31,9 @@ internal class HistoryRepositoryImpl(
                         notes = item.notes ?: "",
                         duration = item.duration,
                         isCompleted = item.isCompleted,
-                        anomalyCount = item.anomalyCount.toInt(),
+                        anomalyCount = (item.fullAnomalyCount + item.halftoneAnomalyCount).toInt(),
+                        fullAnomalyCount = item.fullAnomalyCount.toInt(),
+                        halftoneAnomalyCount = item.halftoneAnomalyCount.toInt(),
                         noteCount = item.noteCount.toInt()
                     )
                 }

@@ -8,8 +8,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import application.poligraf.ui.components.containers.AppCard
-import application.poligraf.ui.components.data.DataLabel
 import application.poligraf.ui.theme.LocalDesignSystem
 import application.poligraf.ui.theme.tokens.ColorToken
 import application.poligraf.ui.theme.tokens.DimenToken
@@ -19,13 +19,23 @@ import application.poligraf.ui.theme.tokens.StringToken
 fun SessionSummaryCard(
     volatilityStatus: StringToken,
     volatilityColor: ColorToken,
-    anomalyCount: Int,
+    fullAnomalyCount: Int = 0,
+    halftoneAnomalyCount: Int = 0,
+    noteCount: Int = 0,
     durationText: String,
+    durationMillis: Long = 0L,
     conclusionText: StringToken,
     conclusionColor: ColorToken,
     modifier: Modifier = Modifier
 ) {
     val designSystem = LocalDesignSystem.current
+
+    val totalWindows = (durationMillis / 1000L).coerceAtLeast(1L).toFloat()
+    val fullPercent = ((fullAnomalyCount / totalWindows) * 100f).let { if (it > 0f && it < 1f) "0.5" else it.toInt().toString() }
+    val halftonePercent = ((halftoneAnomalyCount / totalWindows) * 100f).let { if (it > 0f && it < 1f) "0.5" else it.toInt().toString() }
+
+    val fullText = if (fullAnomalyCount > 0) "$fullAnomalyCount ($fullPercent%)" else "0"
+    val halftoneText = if (halftoneAnomalyCount > 0) "$halftoneAnomalyCount ($halftonePercent%)" else "0"
 
     AppCard(
         modifier = modifier.fillMaxWidth(),
@@ -46,15 +56,77 @@ fun SessionSummaryCard(
 
             Spacer(Modifier.height(designSystem.dimen(DimenToken.SPACING_MEDIUM)))
 
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                DataLabel(
-                    label = designSystem.string(StringToken.HISTORY_SUMMARY_MARKERS),
-                    value = anomalyCount.toString()
-                )
-                DataLabel(
-                    label = designSystem.string(StringToken.HISTORY_SUMMARY_DURATION),
-                    value = durationText
-                )
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = "🔴 Явные аномалии",
+                        color = designSystem.color(ColorToken.TEXT_SECONDARY),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Text(
+                        text = fullText,
+                        color = designSystem.color(ColorToken.TEXT_PRIMARY),
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = "🟡 Полутоновые акценты",
+                        color = designSystem.color(ColorToken.TEXT_SECONDARY),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Text(
+                        text = halftoneText,
+                        color = designSystem.color(ColorToken.TEXT_PRIMARY),
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = "📝 Заметки",
+                        color = designSystem.color(ColorToken.TEXT_SECONDARY),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Text(
+                        text = noteCount.toString(),
+                        color = designSystem.color(ColorToken.TEXT_PRIMARY),
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = designSystem.string(StringToken.HISTORY_SUMMARY_DURATION),
+                        color = designSystem.color(ColorToken.TEXT_SECONDARY),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Text(
+                        text = durationText,
+                        color = designSystem.color(ColorToken.TEXT_PRIMARY),
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
             }
 
             HorizontalDivider(

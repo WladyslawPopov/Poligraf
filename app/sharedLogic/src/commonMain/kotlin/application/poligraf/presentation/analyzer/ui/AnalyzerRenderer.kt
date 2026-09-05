@@ -104,8 +104,11 @@ fun AnalyzerRenderer(
                     SessionSummaryCard(
                         volatilityStatus = state.volatilityStatus,
                         volatilityColor = state.volatilityColor,
-                        anomalyCount = state.anomalyCount,
+                        fullAnomalyCount = state.fullAnomalyCount,
+                        halftoneAnomalyCount = state.halftoneAnomalyCount,
+                        noteCount = state.notes.size,
                         durationText = state.durationText,
+                        durationMillis = state.currentDurationMillis,
                         conclusionText = state.conclusionText,
                         conclusionColor = state.conclusionColor
                     )

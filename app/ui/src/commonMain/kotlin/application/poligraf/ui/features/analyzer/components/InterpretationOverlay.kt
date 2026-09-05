@@ -1,17 +1,21 @@
 package application.poligraf.ui.features.analyzer.components
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,20 +29,58 @@ import application.poligraf.ui.theme.tokens.ColorToken
 import application.poligraf.ui.theme.tokens.StringToken
 
 /**
- * Unified continuous text headline widget featuring an upward floating and dissolving
- * shadow transition combined with character-by-character typing animation.
+ * Multi-tier status cascade widget with normalized eye-legible opacities.
+ * Primary center headline text maintains 85%-100% opacity for crisp readability,
+ * while secondary floating texts maintain 45%-75% opacity for clear background context.
  */
 @Composable
 fun InterpretationOverlay(
     interpretation: StringToken?,
     modifier: Modifier = Modifier,
+    primaryAlpha: Float = 1.0f,
+    secondaryInterpretations: List<StringToken> = emptyList(),
+    secondaryInterpretationsWithAlpha: List<Pair<StringToken, Float>> = emptyList(),
 ) {
-    Box(
+    val designSystem = LocalDesignSystem.current
+    val topSecondaryPair = secondaryInterpretationsWithAlpha.getOrNull(0)
+    val bottomSecondaryPair = secondaryInterpretationsWithAlpha.getOrNull(1)
+
+    val topSecondaryToken = topSecondaryPair?.first ?: secondaryInterpretations.getOrNull(0)
+    val bottomSecondaryToken = bottomSecondaryPair?.first ?: secondaryInterpretations.getOrNull(1)
+
+    val effectivePrimaryAlpha = (primaryAlpha * 0.25f + 0.75f).coerceIn(0.85f, 1.0f)
+
+    Column(
         modifier = modifier
             .fillMaxWidth()
-            .height(100.dp),
-        contentAlignment = Alignment.Center
+            .height(150.dp)
+            .padding(horizontal = 20.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
+        AnimatedContent(
+            targetState = topSecondaryToken,
+            transitionSpec = {
+                fadeIn(tween(700, easing = LinearOutSlowInEasing)) togetherWith
+                        fadeOut(tween(700, easing = FastOutLinearInEasing))
+            },
+            label = "top_secondary_anim"
+        ) { token ->
+            if (token != null) {
+                Text(
+                    text = designSystem.string(token),
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.Normal,
+                        lineHeight = 22.sp
+                    ),
+                    color = designSystem.color(ColorToken.TEXT_SECONDARY),
+                    textAlign = TextAlign.Center,
+                    maxLines = 1,
+                    modifier = Modifier.padding(bottom = 12.dp)
+                )
+            }
+        }
+
         AnimatedContent(
             targetState = interpretation ?: StringToken.STATUS_CALM,
             transitionSpec = {
@@ -47,10 +89,9 @@ fun InterpretationOverlay(
             },
             label = "interpretation_text_anim"
         ) { token ->
-            val designSystem = LocalDesignSystem.current
             val rawText = designSystem.string(token)
 
-            val textColor = when (token) {
+            val baseColor = when (token) {
                 StringToken.STATUS_WARMUP -> designSystem.color(ColorToken.TEXT_SECONDARY)
                     .copy(alpha = 0.7f)
 
@@ -61,17 +102,41 @@ fun InterpretationOverlay(
                 else -> designSystem.color(ColorToken.TEXT_PRIMARY)
             }
 
+            val textColor = baseColor.copy(alpha = effectivePrimaryAlpha)
+
             TypingText(
                 fullText = rawText,
                 color = textColor,
                 style = MaterialTheme.typography.headlineSmall.copy(
                     fontWeight = FontWeight.Medium,
-                    lineHeight = 32.sp
+                    lineHeight = 30.sp
                 ),
                 textAlign = TextAlign.Center,
-                typingDelay = 25L,
-                modifier = Modifier.padding(horizontal = 24.dp)
+                typingDelay = 25L
             )
+        }
+
+        AnimatedContent(
+            targetState = bottomSecondaryToken,
+            transitionSpec = {
+                fadeIn(tween(700, easing = LinearOutSlowInEasing)) togetherWith
+                        fadeOut(tween(700, easing = FastOutLinearInEasing))
+            },
+            label = "bottom_secondary_anim"
+        ) { token ->
+            if (token != null) {
+                Text(
+                    text = designSystem.string(token),
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.Normal,
+                        lineHeight = 22.sp
+                    ),
+                    color = designSystem.color(ColorToken.TEXT_SECONDARY),
+                    textAlign = TextAlign.Center,
+                    maxLines = 1,
+                    modifier = Modifier.padding(top = 12.dp)
+                )
+            }
         }
     }
 }
